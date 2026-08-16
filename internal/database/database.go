@@ -197,6 +197,7 @@ func Migrate(ctx context.Context) error {
 		(*PentestRoleRun)(nil),
 		(*PentestPlanEvent)(nil),
 		(*PentestMemory)(nil),
+		(*PentestMemoryEmbedding)(nil),
 		(*Org)(nil),
 	}
 
@@ -454,6 +455,7 @@ func createPentestOrchestrationIndexes(ctx context.Context) error {
 		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_memory_session ON agent_pentest_memory(session_uuid, created_at)",
 		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_memory_task ON agent_pentest_memory(task_uuid, created_at)",
 		"CREATE UNIQUE INDEX IF NOT EXISTS idx_agent_pentest_memory_dedup ON agent_pentest_memory(session_uuid, task_uuid, kind, source_role, content_hash)",
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_memory_embeddings_model ON agent_pentest_memory_embeddings(model, updated_at)",
 	}
 	for _, idx := range indexes {
 		if _, err := db.ExecContext(ctx, idx); err != nil {

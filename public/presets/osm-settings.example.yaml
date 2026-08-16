@@ -161,6 +161,15 @@ agent_harness:
   # Connection/compatibility probe timeout.
   request_timeout_seconds: 5
 
+  # Optional local hybrid RAG for Pentest Memory. Keyword retrieval remains
+  # available when disabled or when the embedding service is unavailable.
+  rag_enabled: false
+  rag_embedding_url: http://127.0.0.1:11434/v1/embeddings
+  rag_embedding_model: qwen3-embedding:4b
+  rag_embedding_auth_token: ""
+  rag_timeout_seconds: 30
+  rag_candidate_limit: 200
+
 # =============================================================================
 # Scan Tactic Configuration
 # =============================================================================

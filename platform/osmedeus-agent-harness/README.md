@@ -97,8 +97,11 @@ actions. Primary is the only persistent task coordinator.
 Memory search defaults to the current Pentest Session, so a later task can
 recall facts selected by an earlier task. `task`, `workspace`, and `org` scopes
 are also available explicitly. Exact writes are content-hash deduplicated and
-legacy auto-indexed role summaries are excluded by default. Retrieval is
-currently deterministic keyword matching, not embedding/vector RAG.
+legacy auto-indexed role summaries are excluded by default. When
+`agent_harness.rag_enabled` is set, Osmedeus fuses deterministic keyword matches
+with local embedding similarity and reports the retrieval mode and per-hit
+scores. If the embedding service is unavailable it degrades to keyword search
+without blocking the agent.
 
 No API credential or target-controlled path is sent to browser plugin code.
 The frozen asset snapshot is not submitted as an automatic model prompt, so

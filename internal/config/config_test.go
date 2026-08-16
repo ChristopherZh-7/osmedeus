@@ -13,6 +13,10 @@ func TestAgentHarnessConfigDefaults(t *testing.T) {
 	assert.Equal(t, "http://127.0.0.1:3080", cfg.GetBaseURL())
 	assert.Equal(t, "http://127.0.0.1:3080", cfg.GetPublicURL())
 	assert.Equal(t, 5*time.Second, cfg.GetRequestTimeout())
+	assert.Equal(t, "http://127.0.0.1:11434/v1/embeddings", cfg.GetRAGEmbeddingURL())
+	assert.Equal(t, "qwen3-embedding:4b", cfg.GetRAGEmbeddingModel())
+	assert.Equal(t, 30*time.Second, cfg.GetRAGTimeout())
+	assert.Equal(t, 200, cfg.GetRAGCandidateLimit())
 }
 
 func TestAgentHarnessConfigNormalizesValues(t *testing.T) {
@@ -20,11 +24,19 @@ func TestAgentHarnessConfigNormalizesValues(t *testing.T) {
 		BaseURL:               "  http://agent-harness:3080/  ",
 		PublicURL:             "  http://127.0.0.1:3080/  ",
 		RequestTimeoutSeconds: 9,
+		RAGEmbeddingURL:       "  http://ollama:11434/v1/embeddings/  ",
+		RAGEmbeddingModel:     "  custom-embedding  ",
+		RAGTimeoutSeconds:     17,
+		RAGCandidateLimit:     999,
 	}
 
 	assert.Equal(t, "http://agent-harness:3080", cfg.GetBaseURL())
 	assert.Equal(t, "http://127.0.0.1:3080", cfg.GetPublicURL())
 	assert.Equal(t, 9*time.Second, cfg.GetRequestTimeout())
+	assert.Equal(t, "http://ollama:11434/v1/embeddings", cfg.GetRAGEmbeddingURL())
+	assert.Equal(t, "custom-embedding", cfg.GetRAGEmbeddingModel())
+	assert.Equal(t, 17*time.Second, cfg.GetRAGTimeout())
+	assert.Equal(t, 500, cfg.GetRAGCandidateLimit())
 }
 
 func TestServerConfig_GetServerURL(t *testing.T) {

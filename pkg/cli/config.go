@@ -847,6 +847,30 @@ func setAgentHarnessValue(cfg *config.Config, parts []string, value string) erro
 			return fmt.Errorf("agent_harness.request_timeout_seconds must be a positive number")
 		}
 		cfg.AgentHarness.RequestTimeoutSeconds = seconds
+	case "rag_enabled":
+		enabled, err := strconv.ParseBool(value)
+		if err != nil {
+			return fmt.Errorf("agent_harness.rag_enabled must be true or false")
+		}
+		cfg.AgentHarness.RAGEnabled = enabled
+	case "rag_embedding_url":
+		cfg.AgentHarness.RAGEmbeddingURL = value
+	case "rag_embedding_model":
+		cfg.AgentHarness.RAGEmbeddingModel = value
+	case "rag_embedding_auth_token":
+		cfg.AgentHarness.RAGEmbeddingAuthToken = value
+	case "rag_timeout_seconds":
+		seconds, err := strconv.Atoi(value)
+		if err != nil || seconds <= 0 {
+			return fmt.Errorf("agent_harness.rag_timeout_seconds must be a positive number")
+		}
+		cfg.AgentHarness.RAGTimeoutSeconds = seconds
+	case "rag_candidate_limit":
+		limit, err := strconv.Atoi(value)
+		if err != nil || limit <= 0 || limit > 500 {
+			return fmt.Errorf("agent_harness.rag_candidate_limit must be between 1 and 500")
+		}
+		cfg.AgentHarness.RAGCandidateLimit = limit
 	default:
 		return fmt.Errorf("unknown agent_harness field: %s", parts[0])
 	}

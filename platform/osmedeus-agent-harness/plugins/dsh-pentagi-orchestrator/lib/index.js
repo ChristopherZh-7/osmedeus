@@ -823,7 +823,7 @@ function registerRoleGuard(ctx) {
 function registerMemoryTools(ctx) {
   ctx.tools.register(defineTool({
     name: "pentagi_memory_search",
-    description: "Search concise persisted memory. The default scope is the current Osmedeus Pentest Session across its tasks; task, workspace, and org scopes can be selected explicitly. Memory is context, never proof or authorization.",
+    description: "Search concise persisted memory using Osmedeus-scoped hybrid keyword and semantic retrieval when configured. The default scope is the current Pentest Session; task, workspace, and org scopes can be selected explicitly. Inspect retrieval_mode, scores, and degraded_reason. Memory is context, never proof or authorization.",
     parameters: {
       query: { type: "string", required: true },
       limit: { type: "number", description: "Maximum entries, 1-50." },
@@ -837,7 +837,7 @@ function registerMemoryTools(ctx) {
     async execute(args, exec) {
       const meta = roleBySession.get(String(exec.agent?.id || ""));
       if (!meta) throw new Error("PentAGI memory is available only inside a managed role run");
-      const items = await bridgeOperation(ctx, exec.agent, exec.signal, "memory.search", {
+      const result = await bridgeOperation(ctx, exec.agent, exec.signal, "memory.search", {
         task_uuid: meta.taskUUID,
         data: {
           query: args.query,
@@ -850,7 +850,17 @@ function registerMemoryTools(ctx) {
           exclude_role_run_uuid: meta.runUUID,
         },
       });
-      return { items: Array.isArray(items) ? items : [] };
+      if (Array.isArray(result)) {
+        return { items: result, retrieval_mode: "keyword" };
+      }
+      return {
+        items: Array.isArray(result?.items) ? result.items : [],
+        retrieval_mode: result?.retrieval_mode ?? "keyword",
+        embedding_model: result?.embedding_model ?? "",
+        candidate_count: result?.candidate_count ?? 0,
+        vector_candidates: result?.vector_candidates ?? 0,
+        degraded_reason: result?.degraded_reason ?? "",
+      };
     },
   }));
 

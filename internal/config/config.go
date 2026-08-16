@@ -172,6 +172,15 @@ agent_harness:
   # Connection/compatibility probe timeout.
   request_timeout_seconds: 5
 
+  # Optional hybrid RAG for scoped Pentest Memory. Keep embeddings local by
+  # pointing this at an OpenAI-compatible Ollama endpoint.
+  rag_enabled: false
+  rag_embedding_url: http://127.0.0.1:11434/v1/embeddings
+  rag_embedding_model: qwen3-embedding:4b
+  rag_embedding_auth_token: ""
+  rag_timeout_seconds: 30
+  rag_candidate_limit: 200
+
 # =============================================================================
 # Scan Tactic Configuration
 # =============================================================================
@@ -510,6 +519,12 @@ type AgentHarnessConfig struct {
 	PublicURL             string `yaml:"public_url"`
 	WorkspaceMountPath    string `yaml:"workspace_mount_path"`
 	RequestTimeoutSeconds int    `yaml:"request_timeout_seconds"`
+	RAGEnabled            bool   `yaml:"rag_enabled"`
+	RAGEmbeddingURL       string `yaml:"rag_embedding_url"`
+	RAGEmbeddingModel     string `yaml:"rag_embedding_model"`
+	RAGEmbeddingAuthToken string `yaml:"rag_embedding_auth_token"`
+	RAGTimeoutSeconds     int    `yaml:"rag_timeout_seconds"`
+	RAGCandidateLimit     int    `yaml:"rag_candidate_limit"`
 }
 
 // GetBaseURL returns the normalized Harness service URL.
@@ -539,6 +554,44 @@ func (c *AgentHarnessConfig) GetRequestTimeout() time.Duration {
 		seconds = 5
 	}
 	return time.Duration(seconds) * time.Second
+}
+
+// GetRAGEmbeddingURL returns the OpenAI-compatible endpoint used only for
+// local Pentest memory retrieval. It is intentionally separate from the chat
+// provider because chat-only APIs such as DeepSeek do not expose embeddings.
+func (c *AgentHarnessConfig) GetRAGEmbeddingURL() string {
+	endpoint := strings.TrimSpace(c.RAGEmbeddingURL)
+	if endpoint == "" {
+		endpoint = "http://127.0.0.1:11434/v1/embeddings"
+	}
+	return strings.TrimRight(endpoint, "/")
+}
+
+func (c *AgentHarnessConfig) GetRAGEmbeddingModel() string {
+	model := strings.TrimSpace(c.RAGEmbeddingModel)
+	if model == "" {
+		model = "qwen3-embedding:4b"
+	}
+	return model
+}
+
+func (c *AgentHarnessConfig) GetRAGTimeout() time.Duration {
+	seconds := c.RAGTimeoutSeconds
+	if seconds <= 0 {
+		seconds = 30
+	}
+	return time.Duration(seconds) * time.Second
+}
+
+func (c *AgentHarnessConfig) GetRAGCandidateLimit() int {
+	limit := c.RAGCandidateLimit
+	if limit <= 0 {
+		limit = 200
+	}
+	if limit > 500 {
+		limit = 500
+	}
+	return limit
 }
 
 // IsMetricsEnabled returns true if the metrics endpoint should be enabled.
@@ -1252,6 +1305,11 @@ func DefaultConfig() *Config {
 			BaseURL:               "http://127.0.0.1:3080",
 			PublicURL:             "http://127.0.0.1:3080",
 			RequestTimeoutSeconds: 5,
+			RAGEnabled:            false,
+			RAGEmbeddingURL:       "http://127.0.0.1:11434/v1/embeddings",
+			RAGEmbeddingModel:     "qwen3-embedding:4b",
+			RAGTimeoutSeconds:     30,
+			RAGCandidateLimit:     200,
 		},
 		ScanTactic: ScanTacticConfig{
 			Aggressive: 40,
