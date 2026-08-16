@@ -163,6 +163,12 @@ agent_harness:
   # Docker deployments should use http://agent-harness:3080.
   base_url: http://127.0.0.1:3080
 
+  # Browser-facing URL for the embedded Harness UI.
+  public_url: http://127.0.0.1:3080
+
+  # Optional read-only artifact mount inside the Harness runtime.
+  workspace_mount_path: ""
+
   # Connection/compatibility probe timeout.
   request_timeout_seconds: 5
 
@@ -502,6 +508,7 @@ type AgentHarnessConfig struct {
 	Provider              string `yaml:"provider"`
 	BaseURL               string `yaml:"base_url"`
 	PublicURL             string `yaml:"public_url"`
+	WorkspaceMountPath    string `yaml:"workspace_mount_path"`
 	RequestTimeoutSeconds int    `yaml:"request_timeout_seconds"`
 }
 

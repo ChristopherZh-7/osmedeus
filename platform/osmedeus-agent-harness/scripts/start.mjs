@@ -1,4 +1,4 @@
-import { cpSync, mkdirSync, rmSync } from "node:fs";
+import { cpSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute, join, resolve } from "node:path";
 import { spawn, spawnSync } from "node:child_process";
@@ -21,7 +21,7 @@ mkdirSync(workspace, { recursive: true });
 const runtimeEnv = {
   ...process.env,
   DSH_HOME: dshHome,
-  DSH_PERMISSION_MODE: process.env.DSH_PERMISSION_MODE || "read-only",
+  DSH_PERMISSION_MODE: process.env.DSH_PERMISSION_MODE || "workspace-write",
   DSH_TELEMETRY_MODE: process.env.DSH_TELEMETRY_MODE || "DISABLED",
 };
 
@@ -50,6 +50,20 @@ const pluginTarget = join(
 mkdirSync(join(pluginTarget, ".."), { recursive: true });
 rmSync(pluginTarget, { recursive: true, force: true });
 cpSync(pluginSource, pluginTarget, { recursive: true });
+
+// Install Osmedeus-owned Skills into DSH's official user root. Only names
+// shipped by this sidecar are replaced, preserving any operator-authored
+// bundles already present in $DSH_HOME/skills.
+const skillsSource = resolve("skills");
+const skillsTarget = join(dshHome, "skills");
+mkdirSync(skillsTarget, { recursive: true });
+for (const entry of readdirSync(skillsSource, { withFileTypes: true })) {
+  if (!entry.isDirectory()) continue;
+  const source = join(skillsSource, entry.name);
+  const target = join(skillsTarget, entry.name);
+  rmSync(target, { recursive: true, force: true });
+  cpSync(source, target, { recursive: true });
+}
 
 const args = ["--patch", resolve("scripts/osmedeus.patch.yml")];
 if (process.env.OSM_DSH_PATCH) {

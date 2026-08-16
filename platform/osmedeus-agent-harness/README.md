@@ -13,10 +13,12 @@ source code.
 - The Harness process starts in a dedicated runtime workspace, never in the
   Osmedeus source tree or a target-controlled repository.
 - `plugins/dsh-osmedeus-plugin` is the upgrade-safe DSH profile boundary. It
-  deep-links Osmedeus records to native DSH Sessions; later DSH-facing Skills,
-  scoped tools, and finding submission capabilities belong here.
-- Telemetry is disabled and the filesystem permission mode is `read-only` by
-  default. The future pentest plugin will expose explicitly scoped tools.
+  deep-links native Sessions and materializes the matching reconnaissance
+  envelope below `DSH_HOME`.
+- `skills/` is copied into DSH's official `$DSH_HOME/skills` discovery root;
+  no Harness package is patched.
+- Telemetry is disabled. The default `workspace-write` permission mode keeps
+  DSH approval prompts while allowing evidence to be saved in its workspace.
 - The Web host listens on `127.0.0.1:3080` by default.
 
 ## Local development
@@ -45,7 +47,7 @@ Useful environment variables:
 | `OSM_DSH_URL` | derived from host and port | URL used by health checks |
 | `OSM_DSH_WORKSPACE` | `$DSH_HOME/runtime-workspace` | Safe process working directory |
 | `OSM_DSH_PATCH` | empty | Optional future Osmedeus profile overlay |
-| `DSH_PERMISSION_MODE` | `read-only` | Harness filesystem permission preset |
+| `DSH_PERMISSION_MODE` | `workspace-write` | Harness filesystem permission preset |
 
 ## Osmedeus Workspace adapter seam
 
@@ -64,11 +66,14 @@ The server-side adapter then:
    bidirectional IDs in Osmedeus.
 5. Lets the browser plugin open that exact native Session through the
    `osmSession` deep link, so the original DSH Chat/Trajectory surface is used.
+6. Publishes a bounded, session-specific reconnaissance document to
+   `$DSH_HOME/osmedeus/scopes/$DSH_SESSION_ID/context.json` through the plugin.
 
 No API credential or target-controlled path is sent to browser plugin code.
-The frozen asset snapshot is not submitted as an automatic model prompt;
-future scoped MCP/tools read it through the Osmedeus session mapping, avoiding
-an unapproved model run at session creation time.
+The frozen asset snapshot is not submitted as an automatic model prompt, so
+session creation never triggers an unapproved model run. The
+`osmedeus-pentest` Skill loads the correct context using Harness-provided
+`DSH_SESSION_ID` when the operator starts the conversation.
 
 ## Upgrade policy
 

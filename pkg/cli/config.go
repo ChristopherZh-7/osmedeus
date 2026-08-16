@@ -839,6 +839,8 @@ func setAgentHarnessValue(cfg *config.Config, parts []string, value string) erro
 		cfg.AgentHarness.BaseURL = value
 	case "public_url":
 		cfg.AgentHarness.PublicURL = value
+	case "workspace_mount_path":
+		cfg.AgentHarness.WorkspaceMountPath = value
 	case "request_timeout_seconds":
 		seconds, err := strconv.Atoi(value)
 		if err != nil || seconds <= 0 {

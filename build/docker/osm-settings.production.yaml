@@ -92,6 +92,8 @@ agent_harness:
   base_url: http://agent-harness:3080
   # Published loopback port opened by the operator's browser.
   public_url: http://127.0.0.1:3080
+  # Read-only mount of the Osmedeus workspace volume inside the DSH container.
+  workspace_mount_path: /osmedeus/workspaces
   request_timeout_seconds: 5
 
 # =============================================================================

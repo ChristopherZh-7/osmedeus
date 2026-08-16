@@ -14,11 +14,13 @@ func TestSetAgentHarnessConfigValues(t *testing.T) {
 	require.NoError(t, setConfigValue(cfg, "agent_harness.enabled", "true"))
 	require.NoError(t, setConfigValue(cfg, "agent_harness.provider", "deepseek-harness"))
 	require.NoError(t, setConfigValue(cfg, "agent_harness.base_url", "http://agent-harness:3080"))
+	require.NoError(t, setConfigValue(cfg, "agent_harness.workspace_mount_path", "/osmedeus/workspaces"))
 	require.NoError(t, setConfigValue(cfg, "agent_harness.request_timeout_seconds", "7"))
 
 	assert.True(t, cfg.AgentHarness.Enabled)
 	assert.Equal(t, "deepseek-harness", cfg.AgentHarness.Provider)
 	assert.Equal(t, "http://agent-harness:3080", cfg.AgentHarness.BaseURL)
+	assert.Equal(t, "/osmedeus/workspaces", cfg.AgentHarness.WorkspaceMountPath)
 	assert.Equal(t, 7, cfg.AgentHarness.RequestTimeoutSeconds)
 }
 

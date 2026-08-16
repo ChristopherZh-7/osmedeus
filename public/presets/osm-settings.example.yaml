@@ -154,6 +154,10 @@ agent_harness:
   # different from base_url when the server reaches Harness over Docker DNS.
   public_url: http://127.0.0.1:3080
 
+  # Optional path where Harness can read Osmedeus workspace artifacts.
+  # Docker deployments mount the workspaces volume at /osmedeus/workspaces.
+  workspace_mount_path: ""
+
   # Connection/compatibility probe timeout.
   request_timeout_seconds: 5
 

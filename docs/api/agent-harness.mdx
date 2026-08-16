@@ -47,6 +47,9 @@ agent_harness:
   provider: deepseek-harness
   base_url: http://127.0.0.1:3080
   public_url: http://127.0.0.1:3080
+  # Optional path where the DSH sidecar sees Osmedeus Workspace files.
+  # The production compose profile mounts them read-only at this path.
+  workspace_mount_path: /osmedeus/workspaces
   request_timeout_seconds: 5
 ```
 
@@ -81,3 +84,34 @@ Fetch one mapping by its Osmedeus UUID:
 ```http
 GET /osm/api/agent-pentest/sessions/{uuid}
 ```
+
+## Reconnaissance context bridge
+
+When a native DSH session is created, Osmedeus builds a frozen authorization
+scope from the selected assets and publishes a versioned context document to
+the Osmedeus DSH plugin. The document contains the selected Workspace and
+assets, related vulnerability leads, recent runs, and artifact metadata. It
+does not expand authorization beyond the selected assets.
+
+Read the exact context attached to a session:
+
+```http
+GET /osm/api/agent-pentest/sessions/{uuid}/context
+```
+
+Rebuild and republish it after new reconnaissance data is imported:
+
+```http
+POST /osm/api/agent-pentest/sessions/{uuid}/context/refresh
+```
+
+The plugin atomically stores `context.json` and a human-readable `CONTEXT.md`
+under `$DSH_HOME/osmedeus/scopes/$DSH_SESSION_ID/`. DSH Skills can locate the
+session-specific file through the official `DSH_HOME` and `DSH_SESSION_ID`
+environment variables.
+
+The sidecar installs its shipped bundles into DSH's official
+`$DSH_HOME/skills` directory at startup. Agents should invoke
+`osmedeus-pentest` first: it loads the context, enforces the immutable scope,
+and treats scanner findings as hypotheses requiring evidence. Specialized
+`cyberstrike-*` Skills may then be loaded when relevant.

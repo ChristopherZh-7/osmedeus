@@ -390,6 +390,8 @@ func (s *Server) setupRoutes() {
 	api.Get("/agent-pentest/sessions", handlers.ListPentestSessions(s.config))
 	api.Post("/agent-pentest/sessions", handlers.CreatePentestSession(s.config))
 	api.Get("/agent-pentest/sessions/:uuid", handlers.GetPentestSession(s.config))
+	api.Get("/agent-pentest/sessions/:uuid/context", handlers.GetPentestContext(s.config))
+	api.Post("/agent-pentest/sessions/:uuid/context/refresh", handlers.RefreshPentestContext(s.config))
 
 	// Distributed endpoints (only available when running in master mode)
 	if s.options.Master != nil {
