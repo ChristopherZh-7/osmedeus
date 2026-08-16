@@ -64,9 +64,11 @@ The server-side adapter then:
 3. Reuses or creates a native DSH Workspace with the Osmedeus display name.
 4. Creates one native DSH Session per Agent Pentest session and stores the
    bidirectional IDs in Osmedeus.
-5. Lets the browser plugin open that exact native Session through the
-   `osmSession` deep link, so the original DSH Chat/Trajectory surface is used.
-6. Publishes a bounded, session-specific reconnaissance document to
+5. Proxies the exact Session's Chat, Trajectory, and Subagent domains through
+   authenticated Osmedeus endpoints so the dashboard can render a native UI.
+6. Resolves every child-agent operation from the authorized root Session; the
+   browser never supplies a trusted DSH parent identity.
+7. Publishes a bounded, session-specific reconnaissance document to
    `$DSH_HOME/osmedeus/scopes/$DSH_SESSION_ID/context.json` through the plugin.
 
 No API credential or target-controlled path is sent to browser plugin code.

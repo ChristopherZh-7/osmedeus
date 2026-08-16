@@ -89,7 +89,7 @@ GET /osm/api/agent-pentest/sessions/{uuid}
 
 The dashboard does not embed the DSH web application. It renders Chat,
 Trajectory, tool calls, and the composer with Osmedeus components while DSH
-runs headlessly behind three authenticated proxy endpoints:
+runs headlessly behind authenticated proxy endpoints:
 
 ```http
 GET  /osm/api/agent-pentest/sessions/{uuid}/harness/history
@@ -112,6 +112,29 @@ and DSH projections; token chunks and injected plugin or Skill context are
 filtered out. The browser supplies only the Osmedeus session UUID. Osmedeus
 resolves the mapped DSH session ID after applying org authorization, preventing
 a client from addressing arbitrary Harness sessions.
+
+## Native Subagents
+
+The native Agent Pentest page can enumerate the complete bounded descendant
+tree, open each child transcript, continue a resumable child, and interrupt its
+current turn:
+
+```http
+GET  /osm/api/agent-pentest/sessions/{uuid}/harness/subagents
+GET  /osm/api/agent-pentest/sessions/{uuid}/harness/subagents/{child_id}/history
+POST /osm/api/agent-pentest/sessions/{uuid}/harness/subagents/{child_id}/messages
+POST /osm/api/agent-pentest/sessions/{uuid}/harness/subagents/{child_id}/interrupt
+```
+
+The list is flattened in pre-order with `parent_session_id` and `depth` fields
+for native tree rendering. One-shot children are read-only. Continuable
+children accept follow-up messages while idle or running; interrupt stops only
+the current turn and preserves the conversation.
+
+Osmedeus never trusts a DSH parent session identifier from the browser. Before
+every history or control operation it walks the catalog from the authorized
+Pentest Session root and resolves the child's immediate parent and mode from
+DSH itself. Traversal is bounded to six levels and 200 entries.
 
 ## Reconnaissance context bridge
 

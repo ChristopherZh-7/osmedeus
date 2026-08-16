@@ -395,6 +395,10 @@ func (s *Server) setupRoutes() {
 	api.Get("/agent-pentest/sessions/:uuid/harness/history", handlers.GetPentestHarnessHistory(s.config))
 	api.Post("/agent-pentest/sessions/:uuid/harness/messages", handlers.PromptPentestHarness(s.config))
 	api.Post("/agent-pentest/sessions/:uuid/harness/cancel", handlers.CancelPentestHarness(s.config))
+	api.Get("/agent-pentest/sessions/:uuid/harness/subagents", handlers.ListPentestHarnessSubagents(s.config))
+	api.Get("/agent-pentest/sessions/:uuid/harness/subagents/:child_id/history", handlers.GetPentestHarnessSubagentHistory(s.config))
+	api.Post("/agent-pentest/sessions/:uuid/harness/subagents/:child_id/messages", handlers.PromptPentestHarnessSubagent(s.config))
+	api.Post("/agent-pentest/sessions/:uuid/harness/subagents/:child_id/interrupt", handlers.InterruptPentestHarnessSubagent(s.config))
 
 	// Distributed endpoints (only available when running in master mode)
 	if s.options.Master != nil {
