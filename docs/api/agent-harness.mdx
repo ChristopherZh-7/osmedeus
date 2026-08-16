@@ -85,6 +85,34 @@ Fetch one mapping by its Osmedeus UUID:
 GET /osm/api/agent-pentest/sessions/{uuid}
 ```
 
+## Native Chat and Trajectory
+
+The dashboard does not embed the DSH web application. It renders Chat,
+Trajectory, tool calls, and the composer with Osmedeus components while DSH
+runs headlessly behind three authenticated proxy endpoints:
+
+```http
+GET  /osm/api/agent-pentest/sessions/{uuid}/harness/history
+POST /osm/api/agent-pentest/sessions/{uuid}/harness/messages
+POST /osm/api/agent-pentest/sessions/{uuid}/harness/cancel
+```
+
+Send a message with:
+
+```json
+{
+  "message": "Summarize the authorized attack surface first.",
+  "mode": "queue",
+  "client_time_zone": "Asia/Shanghai"
+}
+```
+
+`mode` may be `queue` or `steer`. History responses contain durable UI events
+and DSH projections; token chunks and injected plugin or Skill context are
+filtered out. The browser supplies only the Osmedeus session UUID. Osmedeus
+resolves the mapped DSH session ID after applying org authorization, preventing
+a client from addressing arbitrary Harness sessions.
+
 ## Reconnaissance context bridge
 
 When a native DSH session is created, Osmedeus builds a frozen authorization
