@@ -65,4 +65,16 @@ for (const [roleID, definition] of Object.entries(ROLE_REGISTRY)) {
   }
 }
 
+for (const roleID of ["generator", "refiner"]) {
+  const definition = ROLE_REGISTRY[roleID];
+  const sideEffectTools = new Set([
+    "pentagi_delegate", "pentagi_memory_write", "osmedeus_record_test",
+    "osmedeus_submit_finding", "bash", "write", "edit",
+  ]);
+  const leaked = definition.tools.filter((tool) => sideEffectTools.has(tool));
+  if (leaked.length || definition.delegates.length) {
+    throw new Error(`roles.${roleID} must remain a side-effect-free planner`);
+  }
+}
+
 console.log(`DeepSeek Harness ${installedVersion} is installed and version-locked.`);

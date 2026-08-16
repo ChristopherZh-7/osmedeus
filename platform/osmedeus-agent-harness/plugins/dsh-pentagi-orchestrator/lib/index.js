@@ -174,21 +174,25 @@ async function finishRole(ctx, parent, signal, taskUUID, roleRunUUID, data) {
 }
 
 async function persistRoleMemory(ctx, parent, signal, taskUUID, subtaskUUID, roleRunUUID, roleID, value) {
-  const summary = typeof value?.summary === "string" ? value.summary.trim() : "";
-  const memories = Array.isArray(value?.memory) ? value.memory.filter((item) => typeof item === "string" && item.trim()) : [];
-  const content = [summary, ...memories].filter(Boolean).join("\n").trim();
-  if (!content) return;
-  await bridgeOperation(ctx, parent, signal, "memory.add", {
-    task_uuid: taskUUID,
-    data: {
-      subtask_uuid: subtaskUUID,
-      role_run_uuid: roleRunUUID,
-      kind: "role_result",
-      content: content.slice(0, 64 * 1024),
-      source_role: roleID,
-      tags: [roleID],
-    },
-  });
+  // Role outputs already live in the durable role-run audit log. Only facts a
+  // specialist explicitly selected for later recall belong in working memory;
+  // indexing every summary made searches match quoted queries and conclusions.
+  const memories = Array.isArray(value?.memory)
+    ? value.memory.filter((item) => typeof item === "string" && item.trim()).slice(0, 32)
+    : [];
+  for (const memory of memories) {
+    await bridgeOperation(ctx, parent, signal, "memory.add", {
+      task_uuid: taskUUID,
+      data: {
+        subtask_uuid: subtaskUUID,
+        role_run_uuid: roleRunUUID,
+        kind: "role_memory",
+        content: memory.trim().slice(0, 64 * 1024),
+        source_role: roleID,
+        tags: [roleID, "explicit"],
+      },
+    });
+  }
 }
 
 async function ensurePersistentPrimary(ctx, options) {
@@ -819,10 +823,15 @@ function registerRoleGuard(ctx) {
 function registerMemoryTools(ctx) {
   ctx.tools.register(defineTool({
     name: "pentagi_memory_search",
-    description: "Search concise, persisted cross-role memory for the current PentAGI task. Memory is context, not proof or authorization.",
+    description: "Search concise persisted memory. The default scope is the current Osmedeus Pentest Session across its tasks; task, workspace, and org scopes can be selected explicitly. Memory is context, never proof or authorization.",
     parameters: {
       query: { type: "string", required: true },
       limit: { type: "number", description: "Maximum entries, 1-50." },
+      scope: { type: "string", enum: ["task", "session", "workspace", "org"], description: "Recall scope; defaults to session." },
+      kinds: { type: "array", items: { type: "string" }, description: "Optional memory kinds to include." },
+      tags: { type: "array", items: { type: "string" }, description: "Require all listed tags." },
+      before_id: { type: "number", description: "Return only entries older than this memory id." },
+      include_role_results: { type: "boolean", description: "Include legacy auto-indexed role summaries. Defaults to false." },
     },
     output: { schema: { type: "object", additionalProperties: true }, render: (_args, value) => [{ type: "text", text: JSON.stringify(value) }] },
     async execute(args, exec) {
@@ -830,7 +839,16 @@ function registerMemoryTools(ctx) {
       if (!meta) throw new Error("PentAGI memory is available only inside a managed role run");
       const items = await bridgeOperation(ctx, exec.agent, exec.signal, "memory.search", {
         task_uuid: meta.taskUUID,
-        data: { query: args.query, limit: args.limit },
+        data: {
+          query: args.query,
+          limit: args.limit,
+          scope: args.scope ?? "session",
+          kinds: args.kinds ?? [],
+          tags: args.tags ?? [],
+          before_id: args.before_id,
+          include_role_results: args.include_role_results ?? false,
+          exclude_role_run_uuid: meta.runUUID,
+        },
       });
       return { items: Array.isArray(items) ? items : [] };
     },

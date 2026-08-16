@@ -285,6 +285,12 @@ func Migrate(ctx context.Context) error {
 	if err := addPentestSessionBridgeTokenColumn(ctx); err != nil {
 		return err
 	}
+	if err := addPentestMemoryContentHashColumn(ctx); err != nil {
+		return err
+	}
+	if err := backfillPentestMemoryContentHashes(ctx); err != nil {
+		return err
+	}
 
 	// Add org_uuid to the org-scoped tables if it doesn't exist (for existing databases)
 	if err := addOrgUUIDColumns(ctx); err != nil {
@@ -447,6 +453,7 @@ func createPentestOrchestrationIndexes(ctx context.Context) error {
 		"CREATE UNIQUE INDEX IF NOT EXISTS idx_agent_pentest_plan_events_revision ON agent_pentest_plan_events(task_uuid, revision)",
 		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_memory_session ON agent_pentest_memory(session_uuid, created_at)",
 		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_memory_task ON agent_pentest_memory(task_uuid, created_at)",
+		"CREATE UNIQUE INDEX IF NOT EXISTS idx_agent_pentest_memory_dedup ON agent_pentest_memory(session_uuid, task_uuid, kind, source_role, content_hash)",
 	}
 	for _, idx := range indexes {
 		if _, err := db.ExecContext(ctx, idx); err != nil {
@@ -796,6 +803,54 @@ func addPentestSessionBridgeTokenColumn(ctx context.Context) error {
 	return addColumnsIfMissing(ctx, "agent_pentest_sessions", "pentest bridge token", []string{
 		"bridge_token_hash TEXT DEFAULT ''",
 	})
+}
+
+func addPentestMemoryContentHashColumn(ctx context.Context) error {
+	return addColumnsIfMissing(ctx, "agent_pentest_memory", "pentest memory content hash", []string{
+		"content_hash TEXT NOT NULL DEFAULT ''",
+	})
+}
+
+// backfillPentestMemoryContentHashes prepares existing installations for the
+// exact-memory uniqueness index. Only byte-identical normalized memories in the
+// same session/task/kind/source bucket are collapsed, keeping the oldest audit
+// record and leaving distinct observations untouched.
+func backfillPentestMemoryContentHashes(ctx context.Context) error {
+	if _, err := db.ExecContext(ctx, `
+		UPDATE agent_pentest_memory
+		SET task_uuid = COALESCE(task_uuid, ''),
+		    source_role = COALESCE(source_role, '')
+	`); err != nil {
+		return fmt.Errorf("failed to normalize pentest memory identity: %w", err)
+	}
+	var memories []PentestMemory
+	if err := db.NewSelect().Model(&memories).
+		Column("id", "content").
+		Where("content_hash = '' OR content_hash IS NULL").
+		Scan(ctx); err != nil {
+		return fmt.Errorf("failed to load pentest memory hashes: %w", err)
+	}
+	for i := range memories {
+		if _, err := db.NewUpdate().Model((*PentestMemory)(nil)).
+			Set("content_hash = ?", pentestMemoryContentHash(memories[i].Content)).
+			Where("id = ?", memories[i].ID).
+			Exec(ctx); err != nil {
+			return fmt.Errorf("failed to backfill pentest memory hash: %w", err)
+		}
+	}
+	if _, err := db.ExecContext(ctx, `
+		DELETE FROM agent_pentest_memory
+		WHERE content_hash <> ''
+		  AND id NOT IN (
+			SELECT MIN(id)
+			FROM agent_pentest_memory
+			WHERE content_hash <> ''
+			GROUP BY session_uuid, task_uuid, kind, source_role, content_hash
+		  )
+	`); err != nil {
+		return fmt.Errorf("failed to deduplicate pentest memory: %w", err)
+	}
+	return nil
 }
 
 // createAssetIndexes creates indexes for the assets table

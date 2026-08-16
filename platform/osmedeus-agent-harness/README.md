@@ -90,6 +90,15 @@ The orchestrator exposes four root tools:
 
 Inside a managed role, `pentagi_delegate`, `pentagi_memory_search`, and
 `pentagi_memory_write` implement specialist delegation and cross-role memory.
+Generator and Refiner are deliberately read-only planners: they can inspect the
+Skill, canonical context, and memory, but cannot delegate or perform target-side
+actions. Primary is the only persistent task coordinator.
+
+Memory search defaults to the current Pentest Session, so a later task can
+recall facts selected by an earlier task. `task`, `workspace`, and `org` scopes
+are also available explicitly. Exact writes are content-hash deduplicated and
+legacy auto-indexed role summaries are excluded by default. Retrieval is
+currently deterministic keyword matching, not embedding/vector RAG.
 
 No API credential or target-controlled path is sent to browser plugin code.
 The frozen asset snapshot is not submitted as an automatic model prompt, so
