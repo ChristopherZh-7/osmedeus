@@ -7,7 +7,8 @@ description: "View and manage vulnerability records"
 
 ## List Vulnerabilities
 
-Get a paginated list of vulnerabilities with optional filtering by workspace, severity, confidence, or asset value.
+Get a paginated list of vulnerabilities with optional filtering by workspace,
+severity, confidence, review state, source, Pentest Session, or asset value.
 
 **List all vulnerabilities:**
 ```bash
@@ -58,6 +59,9 @@ curl "http://localhost:8002/osm/api/vulnerabilities?workspace=example.com&severi
 | `workspace` | string | - | Filter by workspace name |
 | `severity` | string | - | Filter by severity (critical, high, medium, low, info) |
 | `confidence` | string | - | Filter by confidence (Certain, Firm, Tentative, Manual Review Required) |
+| `review_status` | string | - | Filter by review state (`pending`, `confirmed`, `rejected`, `duplicate`) |
+| `finding_source` | string | - | Filter by source (`scanner`, `manual`, `agent-pentest`) |
+| `pentest_session_uuid` | string | - | Filter findings submitted by one Agent Pentest Session |
 | `asset_value` | string | - | Filter by asset value (partial match) |
 | `offset` | int | 0 | Number of records to skip |
 | `limit` | int | 20 | Maximum records to return (max 10000) |
@@ -110,6 +114,38 @@ curl "http://localhost:8002/osm/api/vulnerabilities?workspace=example.com&severi
   }
 }
 ```
+
+---
+
+Comma-separated values are accepted for `severity`, `confidence`,
+`review_status`, and `finding_source`.
+
+## Review an Agent Pentest finding
+
+Agent-submitted candidates remain in the Vulnerabilities inventory while an
+operator confirms, rejects, or marks them duplicate:
+
+```bash
+curl -X POST http://localhost:8002/osm/api/vulnerabilities/42/review \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"status":"confirmed","note":"Reproduced from saved evidence"}'
+```
+
+For duplicates, pass the ID of an existing vulnerability in the same
+Workspace:
+
+```json
+{
+  "status": "duplicate",
+  "duplicate_of_id": 12,
+  "note": "Same root cause and endpoint"
+}
+```
+
+This endpoint accepts only records whose `finding_source` is `agent-pentest`.
+Confirming a `Manual Review Required` candidate raises its confidence to
+`firm`; no record or evidence is deleted by a review decision.
 
 ---
 

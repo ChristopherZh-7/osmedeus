@@ -4,6 +4,8 @@ import type { PaginatedResponse } from "@/lib/types/api";
 import type {
   Vulnerability,
   VulnerabilityConfidence,
+  VulnerabilityFindingSource,
+  VulnerabilityReviewStatus,
   VulnerabilitySummary,
 } from "@/lib/types/vulnerability";
 
@@ -57,6 +59,39 @@ export interface VulnerabilityFilters {
   severity?: string | string[];
   confidence?: string | string[];
   assetValue?: string;
+  reviewStatus?: VulnerabilityReviewStatus | VulnerabilityReviewStatus[];
+  findingSource?: VulnerabilityFindingSource | VulnerabilityFindingSource[];
+  pentestSessionUuid?: string;
+}
+
+function mapVulnerability(v: any): Vulnerability {
+  return {
+    id: String(v.id),
+    workspace: v.workspace ?? "",
+    vulnInfo: v.vuln_info ?? "",
+    vulnTitle: v.vuln_title ?? "",
+    vulnDesc: v.vuln_desc ?? "",
+    vulnPoc: v.vuln_poc ?? "",
+    severity: v.severity ?? "info",
+    confidence: toConfidence(v.confidence),
+    assetType: v.asset_type ?? "",
+    assetValue: v.asset_value ?? "",
+    tags: v.tags ?? [],
+    detailHttpRequest: v.detail_http_request,
+    detailHttpResponse: v.detail_http_response,
+    rawVulnJson: v.raw_vuln_json,
+    reviewStatus: v.review_status ?? "confirmed",
+    findingSource: v.finding_source ?? "scanner",
+    pentestSessionUuid: v.pentest_session_uuid || undefined,
+    assetId: Number(v.asset_id) || undefined,
+    skillName: v.skill_name || undefined,
+    evidencePaths: Array.isArray(v.evidence_paths) ? v.evidence_paths : [],
+    reviewNote: v.review_note || undefined,
+    duplicateOfId: Number(v.duplicate_of_id) || undefined,
+    reviewedAt: v.reviewed_at ? new Date(v.reviewed_at) : undefined,
+    createdAt: v.created_at ? new Date(v.created_at) : new Date(),
+    updatedAt: v.updated_at ? new Date(v.updated_at) : new Date(),
+  };
 }
 
 export async function fetchVulnerabilities(params: {
@@ -93,28 +128,20 @@ export async function fetchVulnerabilities(params: {
     if (confidences.length) query.confidence = confidences.join(",");
   }
   if (filters.assetValue) query.asset_value = filters.assetValue;
+  {
+    const statuses = normalizeToArray(filters.reviewStatus);
+    if (statuses.length) query.review_status = statuses.join(",");
+  }
+  {
+    const sources = normalizeToArray(filters.findingSource);
+    if (sources.length) query.finding_source = sources.join(",");
+  }
+  if (filters.pentestSessionUuid) query.pentest_session_uuid = filters.pentestSessionUuid;
 
   const res = await http.get(`${API_PREFIX}/vulnerabilities`, { params: query });
   const list = (res.data?.data || []) as Array<any>;
 
-  const mapped: Vulnerability[] = list.map((v) => ({
-    id: String(v.id),
-    workspace: v.workspace ?? "",
-    vulnInfo: v.vuln_info ?? "",
-    vulnTitle: v.vuln_title ?? "",
-    vulnDesc: v.vuln_desc ?? "",
-    vulnPoc: v.vuln_poc ?? "",
-    severity: v.severity ?? "info",
-    confidence: toConfidence(v.confidence),
-    assetType: v.asset_type ?? "",
-    assetValue: v.asset_value ?? "",
-    tags: v.tags ?? [],
-    detailHttpRequest: v.detail_http_request,
-    detailHttpResponse: v.detail_http_response,
-    rawVulnJson: v.raw_vuln_json,
-    createdAt: v.created_at ? new Date(v.created_at) : new Date(),
-    updatedAt: v.updated_at ? new Date(v.updated_at) : new Date(),
-  }));
+  const mapped: Vulnerability[] = list.map(mapVulnerability);
 
   const total = res.data?.pagination?.total ?? mapped.length;
   const respLimit = res.data?.pagination?.limit ?? pageSize;
@@ -160,27 +187,22 @@ export async function fetchVulnerabilityById(id: string): Promise<Vulnerability 
     const v = res.data?.data;
     if (!v) return null;
 
-    return {
-      id: String(v.id),
-      workspace: v.workspace ?? "",
-      vulnInfo: v.vuln_info ?? "",
-      vulnTitle: v.vuln_title ?? "",
-      vulnDesc: v.vuln_desc ?? "",
-      vulnPoc: v.vuln_poc ?? "",
-      severity: v.severity ?? "info",
-      confidence: toConfidence(v.confidence),
-      assetType: v.asset_type ?? "",
-      assetValue: v.asset_value ?? "",
-      tags: v.tags ?? [],
-      detailHttpRequest: v.detail_http_request,
-      detailHttpResponse: v.detail_http_response,
-      rawVulnJson: v.raw_vuln_json,
-      createdAt: v.created_at ? new Date(v.created_at) : new Date(),
-      updatedAt: v.updated_at ? new Date(v.updated_at) : new Date(),
-    };
+    return mapVulnerability(v);
   } catch {
     return null;
   }
+}
+
+export async function reviewVulnerability(
+  id: string,
+  input: { status: Exclude<VulnerabilityReviewStatus, "pending">; note?: string; duplicateOfId?: number }
+): Promise<Vulnerability> {
+  const response = await http.post(`${API_PREFIX}/vulnerabilities/${encodeURIComponent(id)}/review`, {
+    status: input.status,
+    note: input.note ?? "",
+    duplicate_of_id: input.duplicateOfId ?? 0,
+  });
+  return mapVulnerability(response.data.data);
 }
 
 export async function deleteVulnerability(id: string): Promise<boolean> {

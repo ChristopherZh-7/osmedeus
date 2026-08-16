@@ -28,6 +28,7 @@ var _ bun.BeforeAppendModelHook = (*Vulnerability)(nil)
 var _ bun.BeforeAppendModelHook = (*Run)(nil)
 var _ bun.BeforeAppendModelHook = (*Workspace)(nil)
 var _ bun.BeforeAppendModelHook = (*PentestSession)(nil)
+var _ bun.BeforeAppendModelHook = (*PentestCoverage)(nil)
 
 // orgForWrite returns the org a model should be persisted under: the one it
 // already names, or the org of the workspace it belongs to.
@@ -52,6 +53,12 @@ func (a *Asset) BeforeAppendModel(ctx context.Context, query bun.Query) error {
 
 func (v *Vulnerability) BeforeAppendModel(ctx context.Context, query bun.Query) error {
 	v.OrgUUID = orgForWrite(ctx, query, v.OrgUUID, v.Workspace)
+	if v.ReviewStatus == "" {
+		v.ReviewStatus = VulnerabilityReviewConfirmed
+	}
+	if v.FindingSource == "" {
+		v.FindingSource = VulnerabilitySourceScanner
+	}
 	return nil
 }
 
@@ -62,6 +69,11 @@ func (r *Run) BeforeAppendModel(ctx context.Context, query bun.Query) error {
 
 func (w *Workspace) BeforeAppendModel(ctx context.Context, query bun.Query) error {
 	w.OrgUUID = orgForWrite(ctx, query, w.OrgUUID, "")
+	return nil
+}
+
+func (c *PentestCoverage) BeforeAppendModel(ctx context.Context, query bun.Query) error {
+	c.OrgUUID = orgForWrite(ctx, query, c.OrgUUID, c.Workspace)
 	return nil
 }
 

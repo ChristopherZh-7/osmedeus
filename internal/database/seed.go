@@ -2891,7 +2891,7 @@ var tableSearchColumns = map[string][]string{
 	"event_logs":      {"event_id", "topic", "name", "source", "workspace", "run_id", "workflow_name", "data"},
 	"schedules":       {"id", "name", "workflow_name", "workflow_kind", "target", "trigger_name", "schedule"},
 	"workspaces":      {"name", "local_path", "data_source", "run_workflow"},
-	"vulnerabilities": {"workspace", "vuln_title", "vuln_info", "severity", "confidence", "asset_value", "asset_type"},
+	"vulnerabilities": {"workspace", "vuln_title", "vuln_info", "severity", "confidence", "review_status", "finding_source", "asset_value", "asset_type"},
 	"asset_diffs":     {"workspace_name", "diff_data"},
 	"vuln_diffs":      {"workspace_name", "diff_data"},
 }
@@ -2905,7 +2905,7 @@ var tableDisplayColumns = map[string][]string{
 	"event_logs":      {"topic", "name", "source", "workspace", "created_at"},
 	"schedules":       {"name", "workflow_name", "workflow_kind", "target", "trigger_type", "schedule", "is_enabled"},
 	"workspaces":      {"name", "data_source", "total_assets", "total_ips", "total_vulns", "risk_score", "last_run"},
-	"vulnerabilities": {"vuln_title", "severity", "confidence", "asset_value", "last_seen_at", "workspace"},
+	"vulnerabilities": {"vuln_title", "severity", "confidence", "review_status", "finding_source", "asset_value", "last_seen_at", "workspace"},
 	"asset_diffs":     {"workspace_name", "from_time", "to_time", "total_added", "total_removed", "total_changed", "created_at"},
 	"vuln_diffs":      {"workspace_name", "from_time", "to_time", "total_added", "total_removed", "total_changed", "created_at"},
 }
@@ -2939,8 +2939,10 @@ var tableAllColumns = map[string][]string{
 		"state_execution_log", "state_completed_file", "state_workflow_file",
 		"state_workflow_folder", "created_at", "updated_at"},
 	"vulnerabilities": {"id", "workspace", "org_uuid", "vuln_info", "vuln_title", "vuln_desc",
-		"vuln_poc", "severity", "confidence", "asset_type", "asset_value", "tags",
+		"vuln_poc", "severity", "confidence", "finding_hash", "asset_type", "asset_value", "tags",
 		"detail_http_request", "detail_http_response", "raw_vuln_json",
+		"review_status", "finding_source", "pentest_session_uuid", "asset_id", "skill_name",
+		"evidence_paths", "review_note", "duplicate_of_id", "reviewed_at",
 		"last_seen_at", "created_at", "updated_at"},
 	"asset_diffs": {"id", "workspace_name", "from_time", "to_time", "total_added",
 		"total_removed", "total_changed", "diff_data", "created_at"},
@@ -3822,12 +3824,15 @@ func ListEventLogs(ctx context.Context, query EventLogQuery) (*EventLogResult, e
 type VulnerabilityQuery struct {
 	Workspace string
 	// OrgUUID scopes the query to one org. Empty means no org filter.
-	OrgUUID    string
-	Severity   string
-	Confidence string
-	AssetValue string
-	Offset     int
-	Limit      int
+	OrgUUID            string
+	Severity           string
+	Confidence         string
+	ReviewStatus       string
+	FindingSource      string
+	PentestSessionUUID string
+	AssetValue         string
+	Offset             int
+	Limit              int
 }
 
 // VulnerabilityResult holds paginated vulnerability results
@@ -3849,28 +3854,36 @@ func ListVulnerabilities(ctx context.Context, query VulnerabilityQuery) (*Vulner
 		Limit:  query.Limit,
 	}
 
-	// Build base query
-	baseQuery := db.NewSelect().Model((*Vulnerability)(nil))
-
-	// Apply filters
-	if query.Workspace != "" {
-		baseQuery = baseQuery.Where("workspace = ?", query.Workspace)
-	}
-	if query.OrgUUID != "" {
-		baseQuery = baseQuery.Where("org_uuid = ?", query.OrgUUID)
-	}
-	if query.Severity != "" {
-		baseQuery = baseQuery.Where("severity = ?", query.Severity)
-	}
-	if query.Confidence != "" {
-		baseQuery = baseQuery.Where("confidence = ?", query.Confidence)
-	}
-	if query.AssetValue != "" {
-		baseQuery = baseQuery.Where("asset_value LIKE ?", "%"+query.AssetValue+"%")
+	applyFilters := func(q *bun.SelectQuery) *bun.SelectQuery {
+		if query.Workspace != "" {
+			q = q.Where("workspace = ?", query.Workspace)
+		}
+		if query.OrgUUID != "" {
+			q = q.Where("org_uuid = ?", query.OrgUUID)
+		}
+		if values := splitCSVFilter(query.Severity); len(values) > 0 {
+			q = q.Where("severity IN (?)", bun.In(values))
+		}
+		if values := splitCSVFilter(query.Confidence); len(values) > 0 {
+			q = q.Where("confidence IN (?)", bun.In(values))
+		}
+		if values := splitCSVFilter(query.ReviewStatus); len(values) > 0 {
+			q = q.Where("review_status IN (?)", bun.In(values))
+		}
+		if values := splitCSVFilter(query.FindingSource); len(values) > 0 {
+			q = q.Where("finding_source IN (?)", bun.In(values))
+		}
+		if query.PentestSessionUUID != "" {
+			q = q.Where("pentest_session_uuid = ?", query.PentestSessionUUID)
+		}
+		if query.AssetValue != "" {
+			q = q.Where("asset_value LIKE ?", "%"+query.AssetValue+"%")
+		}
+		return q
 	}
 
 	// Get total count with filters
-	totalCount, err := baseQuery.Count(ctx)
+	totalCount, err := applyFilters(db.NewSelect().Model((*Vulnerability)(nil))).Count(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to count vulnerabilities: %w", err)
 	}
@@ -3878,23 +3891,7 @@ func ListVulnerabilities(ctx context.Context, query VulnerabilityQuery) (*Vulner
 
 	// Get paginated vulnerabilities
 	var vulnerabilities []Vulnerability
-	err = db.NewSelect().
-		Model(&vulnerabilities).
-		Apply(func(q *bun.SelectQuery) *bun.SelectQuery {
-			if query.Workspace != "" {
-				q = q.Where("workspace = ?", query.Workspace)
-			}
-			if query.OrgUUID != "" {
-				q = q.Where("org_uuid = ?", query.OrgUUID)
-			}
-			if query.Severity != "" {
-				q = q.Where("severity = ?", query.Severity)
-			}
-			if query.AssetValue != "" {
-				q = q.Where("asset_value LIKE ?", "%"+query.AssetValue+"%")
-			}
-			return q
-		}).
+	err = applyFilters(db.NewSelect().Model(&vulnerabilities)).
 		Order("created_at DESC").
 		Offset(query.Offset).
 		Limit(query.Limit).
@@ -3905,6 +3902,17 @@ func ListVulnerabilities(ctx context.Context, query VulnerabilityQuery) (*Vulner
 	result.Data = vulnerabilities
 
 	return result, nil
+}
+
+func splitCSVFilter(value string) []string {
+	parts := strings.Split(value, ",")
+	values := make([]string, 0, len(parts))
+	for _, part := range parts {
+		if trimmed := strings.TrimSpace(part); trimmed != "" {
+			values = append(values, trimmed)
+		}
+	}
+	return values
 }
 
 // GetVulnerabilityByID returns a vulnerability by ID
@@ -3922,6 +3930,23 @@ func GetVulnerabilityByID(ctx context.Context, id int64) (*Vulnerability, error)
 		return nil, fmt.Errorf("vulnerability not found: %w", err)
 	}
 
+	return &vuln, nil
+}
+
+func GetVulnerabilityByFindingHash(ctx context.Context, workspace, orgUUID, findingHash string) (*Vulnerability, error) {
+	if db == nil {
+		return nil, fmt.Errorf("database not connected")
+	}
+	var vuln Vulnerability
+	q := db.NewSelect().Model(&vuln).
+		Where("workspace = ?", workspace).
+		Where("finding_hash = ?", findingHash)
+	if orgUUID != "" {
+		q = q.Where("org_uuid = ?", orgUUID)
+	}
+	if err := q.Order("created_at DESC").Limit(1).Scan(ctx); err != nil {
+		return nil, err
+	}
 	return &vuln, nil
 }
 

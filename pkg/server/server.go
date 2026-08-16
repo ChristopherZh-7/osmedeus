@@ -265,6 +265,12 @@ func (s *Server) setupRoutes() {
 		api.Post("/webhook-runs/:uuid/trigger", handlers.TriggerWebhookRun(s.config))
 	}
 
+	// DSH result writeback uses a rotating per-session capability and validates
+	// every asset against the frozen scope. It must remain independent of the
+	// browser/API login secret, which is never exposed to the harness process.
+	api.Post("/agent-pentest/bridge/coverage", handlers.RecordPentestCoverageBridge(s.config))
+	api.Post("/agent-pentest/bridge/findings", handlers.SubmitPentestFindingBridge(s.config))
+
 	// Apply auth middleware conditionally
 	if !s.options.NoAuth {
 		if s.config.Server.EnabledAuthAPI {
@@ -341,6 +347,7 @@ func (s *Server) setupRoutes() {
 	api.Get("/vulnerabilities/summary", handlers.GetVulnerabilitySummary(s.config))
 	api.Get("/vulnerabilities/:id", handlers.GetVulnerability(s.config))
 	api.Post("/vulnerabilities", handlers.CreateVulnerability(s.config))
+	api.Post("/vulnerabilities/:id/review", handlers.ReviewPentestFinding(s.config))
 	api.Delete("/vulnerabilities/:id", handlers.DeleteVulnerability(s.config))
 
 	// Stats
@@ -391,6 +398,7 @@ func (s *Server) setupRoutes() {
 	api.Post("/agent-pentest/sessions", handlers.CreatePentestSession(s.config))
 	api.Get("/agent-pentest/sessions/:uuid", handlers.GetPentestSession(s.config))
 	api.Get("/agent-pentest/sessions/:uuid/context", handlers.GetPentestContext(s.config))
+	api.Get("/agent-pentest/sessions/:uuid/coverage", handlers.ListPentestCoverage(s.config))
 	api.Post("/agent-pentest/sessions/:uuid/context/refresh", handlers.RefreshPentestContext(s.config))
 	api.Get("/agent-pentest/sessions/:uuid/harness/history", handlers.GetPentestHarnessHistory(s.config))
 	api.Post("/agent-pentest/sessions/:uuid/harness/messages", handlers.PromptPentestHarness(s.config))

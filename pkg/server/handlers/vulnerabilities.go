@@ -33,6 +33,9 @@ func ListVulnerabilities(cfg *config.Config) fiber.Handler {
 		workspace := c.Query("workspace")
 		severity := c.Query("severity")
 		confidence := c.Query("confidence")
+		reviewStatus := c.Query("review_status")
+		findingSource := c.Query("finding_source")
+		pentestSessionUUID := c.Query("pentest_session_uuid")
 		assetValue := c.Query("asset_value")
 		offset, _ := strconv.Atoi(c.Query("offset", "0"))
 		limit, _ := strconv.Atoi(c.Query("limit", "20"))
@@ -57,13 +60,16 @@ func ListVulnerabilities(cfg *config.Config) fiber.Handler {
 
 		// Get vulnerabilities from database
 		result, err := database.ListVulnerabilities(ctx, database.VulnerabilityQuery{
-			Workspace:  workspace,
-			OrgUUID:    orgUUID,
-			Severity:   severity,
-			Confidence: confidence,
-			AssetValue: assetValue,
-			Offset:     offset,
-			Limit:      limit,
+			Workspace:          workspace,
+			OrgUUID:            orgUUID,
+			Severity:           severity,
+			Confidence:         confidence,
+			ReviewStatus:       reviewStatus,
+			FindingSource:      findingSource,
+			PentestSessionUUID: pentestSessionUUID,
+			AssetValue:         assetValue,
+			Offset:             offset,
+			Limit:              limit,
 		})
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

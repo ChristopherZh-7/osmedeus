@@ -77,6 +77,7 @@ services:
       - OSM_DSH_HOST=0.0.0.0
       - OSM_DSH_PORT=3080
       - OSM_DSH_TRUSTED_HOST=agent-harness:3080
+      - OSM_API_URL=http://server:8002
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
     volumes:
       - agent-harness-data:/home/node/.dsh

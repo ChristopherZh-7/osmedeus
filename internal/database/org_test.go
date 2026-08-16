@@ -40,7 +40,7 @@ func setupOrgTestDB(t *testing.T) func() {
 // without updating the tags, fresh databases would use a different default than
 // migrated ones.
 func TestDefaultOrgUUIDMatchesStructTags(t *testing.T) {
-	models := []interface{}{Run{}, Asset{}, Workspace{}, Vulnerability{}, PentestSession{}}
+	models := []interface{}{Run{}, Asset{}, Workspace{}, Vulnerability{}, PentestSession{}, PentestCoverage{}}
 
 	for _, model := range models {
 		typ := reflect.TypeOf(model)
@@ -309,6 +309,7 @@ func TestExistingRowsLandInDefaultOrg(t *testing.T) {
 		"idx_workspaces_org_uuid", "idx_assets_org_uuid",
 		"idx_vulnerabilities_org_uuid", "idx_runs_org_uuid", "idx_assets_org_workspace",
 		"idx_agent_pentest_sessions_org_uuid", "idx_agent_pentest_sessions_workspace",
+		"idx_agent_pentest_coverage_org_uuid",
 	} {
 		_, err := db.ExecContext(ctx, "DROP INDEX IF EXISTS "+idx)
 		require.NoError(t, err, "drop index %s", idx)
@@ -493,6 +494,6 @@ func TestOrgScopedTablesAllHaveColumn(t *testing.T) {
 			Scan(ctx, &n)
 		require.NoErrorf(t, err, "table %s is missing org_uuid", table)
 	}
-	assert.Equal(t, []string{"workspaces", "assets", "vulnerabilities", "runs", "agent_pentest_sessions"}, orgScopedTables)
+	assert.Equal(t, []string{"workspaces", "assets", "vulnerabilities", "runs", "agent_pentest_sessions", "agent_pentest_coverage"}, orgScopedTables)
 	assert.True(t, strings.HasPrefix(DefaultOrgUUID, "00000000-"))
 }

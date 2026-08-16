@@ -45,6 +45,7 @@ Useful environment variables:
 | `OSM_DSH_PORT` | `3080` | Web port |
 | `OSM_DSH_TRUSTED_HOST` | empty | Comma-separated extra API authorities (for example `agent-harness:3080`) |
 | `OSM_DSH_URL` | derived from host and port | URL used by health checks |
+| `OSM_API_URL` | `http://127.0.0.1:8002` | Fixed Osmedeus API origin used by the server-side result bridge |
 | `OSM_DSH_WORKSPACE` | `$DSH_HOME/runtime-workspace` | Safe process working directory |
 | `OSM_DSH_PATCH` | empty | Optional future Osmedeus profile overlay |
 | `DSH_PERMISSION_MODE` | `workspace-write` | Harness filesystem permission preset |
@@ -70,6 +71,9 @@ The server-side adapter then:
    browser never supplies a trusted DSH parent identity.
 7. Publishes a bounded, session-specific reconnaissance document to
    `$DSH_HOME/osmedeus/scopes/$DSH_SESSION_ID/context.json` through the plugin.
+8. Gives the plugin a rotating per-session capability held only in memory. The
+   native `osmedeus_record_test` and `osmedeus_submit_finding` tools use it to
+   write coverage and pending findings back to assets in the frozen scope.
 
 No API credential or target-controlled path is sent to browser plugin code.
 The frozen asset snapshot is not submitted as an automatic model prompt, so

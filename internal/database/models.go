@@ -405,6 +405,18 @@ type Vulnerability struct {
 	DetailHTTPResponse string   `bun:"detail_http_response" json:"detail_http_response"`
 	RawVulnJSON        string   `bun:"raw_vuln_json" json:"raw_vuln_json"`
 
+	// Review metadata keeps AI-submitted candidates in the existing
+	// Vulnerabilities inventory without treating them as confirmed findings.
+	ReviewStatus       string     `bun:"review_status,notnull,default:'confirmed'" json:"review_status"`
+	FindingSource      string     `bun:"finding_source,notnull,default:'scanner'" json:"finding_source"`
+	PentestSessionUUID string     `bun:"pentest_session_uuid" json:"pentest_session_uuid,omitempty"`
+	AssetID            int64      `bun:"asset_id" json:"asset_id,omitempty"`
+	SkillName          string     `bun:"skill_name" json:"skill_name,omitempty"`
+	EvidencePaths      []string   `bun:"evidence_paths,type:json" json:"evidence_paths,omitempty"`
+	ReviewNote         string     `bun:"review_note" json:"review_note,omitempty"`
+	DuplicateOfID      int64      `bun:"duplicate_of_id" json:"duplicate_of_id,omitempty"`
+	ReviewedAt         *time.Time `bun:"reviewed_at" json:"reviewed_at,omitempty"`
+
 	// Timestamps
 	CreatedAt  time.Time `bun:"created_at,notnull,default:current_timestamp" json:"created_at"`
 	UpdatedAt  time.Time `bun:"updated_at,notnull,default:current_timestamp" json:"updated_at"`

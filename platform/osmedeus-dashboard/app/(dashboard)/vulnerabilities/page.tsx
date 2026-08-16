@@ -5,7 +5,7 @@ import {
   fetchVulnerabilities,
   fetchVulnerabilitySummary,
 } from "@/lib/api/vulnerabilities";
-import type { Vulnerability, VulnerabilitySummary, VulnerabilitySeverity } from "@/lib/types/vulnerability";
+import type { Vulnerability, VulnerabilityReviewStatus, VulnerabilitySummary, VulnerabilitySeverity } from "@/lib/types/vulnerability";
 import { Card, CardContent } from "@/components/ui/card";
 import { SectionCardHeader } from "@/components/shared/section-card-header";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ import {
   getTagColor,
   SeverityBadge,
   ConfidenceBadge,
+  ReviewStatusBadge,
 } from "@/components/vulnerabilities/vulnerability-display";
 import { cn } from "@/lib/utils";
 import {
@@ -111,12 +112,14 @@ export default function VulnerabilitiesPage() {
     workspace?: string;
     severity?: VulnerabilitySeverity[];
     confidence?: VulnerabilityConfidence[];
+    reviewStatus?: VulnerabilityReviewStatus[];
   }>({});
   const [searchValue, setSearchValue] = React.useState("");
 
   const [visibleColumns, setVisibleColumns] = React.useState<Record<string, boolean>>({
     severity: true,
     confidence: true,
+    reviewStatus: true,
     title: true,
     asset: true,
     tags: true,
@@ -126,6 +129,7 @@ export default function VulnerabilitiesPage() {
     () => [
       { key: "severity", label: "Severity" },
       { key: "confidence", label: "Confidence" },
+      { key: "reviewStatus", label: "Review" },
       { key: "title", label: "Title" },
       { key: "asset", label: "Asset" },
       { key: "tags", label: "Tags" },
@@ -155,6 +159,7 @@ export default function VulnerabilitiesPage() {
       if (filters.confidence?.length) {
         if (!v.confidence || !filters.confidence.includes(v.confidence)) return false;
       }
+      if (filters.reviewStatus?.length && !filters.reviewStatus.includes(v.reviewStatus)) return false;
       if (!q) return true;
 
       const haystack = [
@@ -165,6 +170,8 @@ export default function VulnerabilitiesPage() {
         v.vulnPoc,
         v.severity,
         v.confidence,
+        v.reviewStatus,
+        v.findingSource,
         v.assetType,
         v.assetValue,
         ...(v.tags ?? []),
@@ -175,7 +182,7 @@ export default function VulnerabilitiesPage() {
 
       return haystack.includes(q);
     });
-  }, [filters.confidence, filters.severity, vulnerabilities, searchValue]);
+  }, [filters.confidence, filters.reviewStatus, filters.severity, vulnerabilities, searchValue]);
 
 
   const loadSummary = React.useCallback(async () => {
@@ -223,6 +230,7 @@ export default function VulnerabilitiesPage() {
           workspace: filters.workspace?.trim() || undefined,
           severity: filters.severity?.length ? filters.severity : undefined,
           confidence: filters.confidence?.length ? filters.confidence : undefined,
+          reviewStatus: filters.reviewStatus?.length ? filters.reviewStatus : undefined,
         },
       });
       setVulnerabilities(res.data);
@@ -302,6 +310,17 @@ export default function VulnerabilitiesPage() {
         width: 128,
         cellRenderer: (p: { value?: VulnerabilityConfidence }) => (
           <ConfidenceBadge confidence={p.value} />
+        ),
+      },
+      {
+        key: "reviewStatus",
+        field: "reviewStatus",
+        headerName: "Review",
+        minWidth: 112,
+        flex: 0,
+        width: 112,
+        cellRenderer: (p: { value: VulnerabilityReviewStatus }) => (
+          <ReviewStatusBadge status={p.value} />
         ),
       },
       {
@@ -535,6 +554,27 @@ export default function VulnerabilitiesPage() {
                 )}
               </PopoverContent>
             </Popover>
+            <Select
+              value={filters.reviewStatus?.[0] ?? "all"}
+              onValueChange={(value) => {
+                setFilters((current) => ({
+                  ...current,
+                  reviewStatus: value === "all" ? undefined : [value as VulnerabilityReviewStatus],
+                }));
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="max-w-[170px]">
+                <SelectValue placeholder="Review" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All review states</SelectItem>
+                <SelectItem value="pending">Pending review</SelectItem>
+                <SelectItem value="confirmed">Confirmed</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="duplicate">Duplicate</SelectItem>
+              </SelectContent>
+            </Select>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -680,6 +720,11 @@ export default function VulnerabilitiesPage() {
         vulnerability={selected}
         open={open}
         onOpenChange={setOpen}
+        onReviewed={(updated) => {
+          setSelected(updated);
+          setVulnerabilities((items) => items.map((item) => item.id === updated.id ? updated : item));
+          void loadSummary();
+        }}
       />
     </div>
   );

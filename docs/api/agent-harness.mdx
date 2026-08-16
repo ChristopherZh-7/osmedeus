@@ -166,3 +166,28 @@ The sidecar installs its shipped bundles into DSH's official
 `osmedeus-pentest` first: it loads the context, enforces the immutable scope,
 and treats scanner findings as hypotheses requiring evidence. Specialized
 `cyberstrike-*` Skills may then be loaded when relevant.
+
+## Coverage and result writeback
+
+DSH registers two native plugin tools for root agents and Subagents:
+
+- `osmedeus_record_test` records the latest result for one authorized asset,
+  attack surface, and test category.
+- `osmedeus_submit_finding` creates an `agent-pentest` vulnerability candidate
+  with `review_status=pending`.
+
+The plugin identifies the actual calling Session and walks its DSH parent
+lineage to the Osmedeus root Session. A rotating per-session capability is held
+only in plugin memory; the global API key is never sent to Harness, the model,
+or the browser. Osmedeus rejects asset IDs outside the immutable session
+snapshot.
+
+Authenticated dashboard clients can read the durable coverage ledger with:
+
+```http
+GET /osm/api/agent-pentest/sessions/{uuid}/coverage
+```
+
+The complete action history remains in Trajectory. Coverage is the latest
+product-level outcome (`testing`, `passed`, `candidate`, `blocked`, or
+`skipped`) for each asset/surface/category tuple.

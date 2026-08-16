@@ -191,6 +191,7 @@ func Migrate(ctx context.Context) error {
 		(*VulnDiffSnapshot)(nil),
 		(*AgentSession)(nil),
 		(*PentestSession)(nil),
+		(*PentestCoverage)(nil),
 		(*Org)(nil),
 	}
 
@@ -273,6 +274,12 @@ func Migrate(ctx context.Context) error {
 	if err := addVulnFindingHashColumn(ctx); err != nil {
 		return err
 	}
+	if err := addVulnerabilityReviewColumns(ctx); err != nil {
+		return err
+	}
+	if err := addPentestSessionBridgeTokenColumn(ctx); err != nil {
+		return err
+	}
 
 	// Add org_uuid to the org-scoped tables if it doesn't exist (for existing databases)
 	if err := addOrgUUIDColumns(ctx); err != nil {
@@ -328,6 +335,9 @@ func Migrate(ctx context.Context) error {
 	if err := createPentestSessionIndexes(ctx); err != nil {
 		return err
 	}
+	if err := createPentestCoverageIndexes(ctx); err != nil {
+		return err
+	}
 
 	// Insert the default org row before backfilling, so no row ever points at a
 	// non-existent org.
@@ -344,7 +354,7 @@ func Migrate(ctx context.Context) error {
 }
 
 // orgScopedTables are the tables carrying an org_uuid column.
-var orgScopedTables = []string{"workspaces", "assets", "vulnerabilities", "runs", "agent_pentest_sessions"}
+var orgScopedTables = []string{"workspaces", "assets", "vulnerabilities", "runs", "agent_pentest_sessions", "agent_pentest_coverage"}
 
 // addOrgUUIDColumns adds org_uuid to every org-scoped table for existing databases.
 // The NOT NULL DEFAULT means rows that predate the org layer are attributed to the
@@ -377,6 +387,7 @@ func createOrgIndexes(ctx context.Context) error {
 		"CREATE INDEX IF NOT EXISTS idx_runs_org_uuid ON runs(org_uuid)",
 		"CREATE INDEX IF NOT EXISTS idx_assets_org_workspace ON assets(org_uuid, workspace)",
 		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_sessions_org_uuid ON agent_pentest_sessions(org_uuid)",
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_coverage_org_uuid ON agent_pentest_coverage(org_uuid)",
 	}
 
 	for _, idx := range indexes {
@@ -397,6 +408,20 @@ func createPentestSessionIndexes(ctx context.Context) error {
 	for _, idx := range indexes {
 		if _, err := db.ExecContext(ctx, idx); err != nil {
 			return fmt.Errorf("failed to create pentest session index: %w", err)
+		}
+	}
+	return nil
+}
+
+func createPentestCoverageIndexes(ctx context.Context) error {
+	indexes := []string{
+		"CREATE UNIQUE INDEX IF NOT EXISTS idx_agent_pentest_coverage_scope ON agent_pentest_coverage(session_uuid, asset_id, surface, category)",
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_coverage_session ON agent_pentest_coverage(session_uuid, updated_at)",
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_coverage_status ON agent_pentest_coverage(status)",
+	}
+	for _, idx := range indexes {
+		if _, err := db.ExecContext(ctx, idx); err != nil {
+			return fmt.Errorf("failed to create pentest coverage index: %w", err)
 		}
 	}
 	return nil
@@ -709,6 +734,41 @@ func addVulnFindingHashColumn(ctx context.Context) error {
 	return nil
 }
 
+func addColumnsIfMissing(ctx context.Context, table, label string, columns []string) error {
+	for _, column := range columns {
+		if _, err := db.ExecContext(ctx, fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s", table, column)); err != nil {
+			errStr := strings.ToLower(err.Error())
+			if strings.Contains(errStr, "duplicate column") ||
+				strings.Contains(errStr, "already exists") ||
+				strings.Contains(errStr, "sqlstate 42701") {
+				continue
+			}
+			return fmt.Errorf("failed to add %s column: %w", label, err)
+		}
+	}
+	return nil
+}
+
+func addVulnerabilityReviewColumns(ctx context.Context) error {
+	return addColumnsIfMissing(ctx, "vulnerabilities", "vulnerability review", []string{
+		"review_status TEXT NOT NULL DEFAULT 'confirmed'",
+		"finding_source TEXT NOT NULL DEFAULT 'scanner'",
+		"pentest_session_uuid TEXT DEFAULT ''",
+		"asset_id INTEGER DEFAULT 0",
+		"skill_name TEXT DEFAULT ''",
+		"evidence_paths TEXT DEFAULT '[]'",
+		"review_note TEXT DEFAULT ''",
+		"duplicate_of_id INTEGER DEFAULT 0",
+		"reviewed_at TIMESTAMP NULL",
+	})
+}
+
+func addPentestSessionBridgeTokenColumn(ctx context.Context) error {
+	return addColumnsIfMissing(ctx, "agent_pentest_sessions", "pentest bridge token", []string{
+		"bridge_token_hash TEXT DEFAULT ''",
+	})
+}
+
 // createAssetIndexes creates indexes for the assets table
 func createAssetIndexes(ctx context.Context) error {
 	indexes := []string{
@@ -772,6 +832,9 @@ func createVulnerabilityIndexes(ctx context.Context) error {
 		"CREATE INDEX IF NOT EXISTS idx_vulnerabilities_confidence ON vulnerabilities(confidence)",
 		"CREATE INDEX IF NOT EXISTS idx_vulnerabilities_asset_value ON vulnerabilities(asset_value)",
 		"CREATE INDEX IF NOT EXISTS idx_vulnerabilities_finding_hash ON vulnerabilities(finding_hash)",
+		"CREATE INDEX IF NOT EXISTS idx_vulnerabilities_review_status ON vulnerabilities(review_status)",
+		"CREATE INDEX IF NOT EXISTS idx_vulnerabilities_finding_source ON vulnerabilities(finding_source)",
+		"CREATE INDEX IF NOT EXISTS idx_vulnerabilities_pentest_session ON vulnerabilities(pentest_session_uuid)",
 	}
 
 	for _, idx := range indexes {
