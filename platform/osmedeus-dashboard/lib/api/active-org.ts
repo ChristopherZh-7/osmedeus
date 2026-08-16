@@ -56,7 +56,13 @@ export function setActiveOrg(org: ActiveOrg | null): void {
  * ignored by the API, but keeping the list exact means a stray param never shows
  * up in a request that has nothing to do with orgs.
  */
-const ORG_SCOPED_PATHS = new Set(["/assets", "/vulnerabilities", "/runs", "/workspaces"]);
+const ORG_SCOPED_PATHS = new Set([
+  "/agent-pentest/sessions",
+  "/assets",
+  "/vulnerabilities",
+  "/runs",
+  "/workspaces",
+]);
 
 /** Whether a request path (relative to the API prefix) should carry `?org=`. */
 export function isOrgScopedPath(pathAfterPrefix: string): boolean {

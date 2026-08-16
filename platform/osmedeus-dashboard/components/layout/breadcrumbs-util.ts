@@ -11,6 +11,7 @@ import {
   Package as PackageIcon,
   ShieldAlertIcon,
   BrainIcon,
+  ShieldCheckIcon,
 } from "lucide-react";
 import type { ComponentType } from "react";
 
@@ -43,6 +44,7 @@ function segmentIcon(segment: string): ComponentType<{ className?: string }> | u
   if (segment === "utilities") return SquareFunctionIcon;
   if (segment === "registry") return PackageIcon;
   if (segment === "llm") return BrainIcon;
+  if (segment === "agent-pentest") return ShieldCheckIcon;
   return undefined;
 }
 

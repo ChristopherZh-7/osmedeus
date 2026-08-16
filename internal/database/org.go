@@ -227,8 +227,8 @@ func DeleteOrg(ctx context.Context, orgUUID string, purge bool) error {
 }
 
 // AssignWorkspacesToOrg moves whole workspaces into an org, cascading the stamp to
-// every asset, vulnerability and run belonging to those workspaces. This is how
-// pre-existing data gets grouped without re-scanning.
+// every asset, vulnerability, run and Agent Pentest session belonging to those
+// workspaces. This is how pre-existing data gets grouped without re-scanning.
 //
 // Returns the number of rows updated per table, keyed by table name.
 func AssignWorkspacesToOrg(ctx context.Context, orgUUID string, workspaces []string) (map[string]int64, error) {

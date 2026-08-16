@@ -2,9 +2,30 @@ package config
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestAgentHarnessConfigDefaults(t *testing.T) {
+	cfg := AgentHarnessConfig{}
+
+	assert.Equal(t, "http://127.0.0.1:3080", cfg.GetBaseURL())
+	assert.Equal(t, "http://127.0.0.1:3080", cfg.GetPublicURL())
+	assert.Equal(t, 5*time.Second, cfg.GetRequestTimeout())
+}
+
+func TestAgentHarnessConfigNormalizesValues(t *testing.T) {
+	cfg := AgentHarnessConfig{
+		BaseURL:               "  http://agent-harness:3080/  ",
+		PublicURL:             "  http://127.0.0.1:3080/  ",
+		RequestTimeoutSeconds: 9,
+	}
+
+	assert.Equal(t, "http://agent-harness:3080", cfg.GetBaseURL())
+	assert.Equal(t, "http://127.0.0.1:3080", cfg.GetPublicURL())
+	assert.Equal(t, 9*time.Second, cfg.GetRequestTimeout())
+}
 
 func TestServerConfig_GetServerURL(t *testing.T) {
 	tests := []struct {

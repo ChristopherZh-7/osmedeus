@@ -1,4 +1,4 @@
-.PHONY: build run test test-unit test-integration test-workflow-integration test-e2e test-e2e-verbose test-e2e-ssh test-e2e-api test-e2e-nix test-e2e-install test-e2e-cloud test-sudo test-cloud test-docker test-ssh test-distributed distributed-e2e-up distributed-e2e-run distributed-e2e-down test-canary-all test-canary-repo test-canary-domain test-canary-ip test-canary-general canary-up canary-down test-all test-summary test-ci clean install install-gotestsum lint fmt db-seed db-clean db-migrate run-server-debug swagger update-ui sync-skills sync-platform snapshot-release github-release bump-version npm-binaries npm-build npm-pack npm-publish run-github-action docker-toolbox docker-toolbox-run docker-toolbox-shell docker-publish docker-buildx-setup
+.PHONY: build run test test-unit test-integration test-workflow-integration test-e2e test-e2e-verbose test-e2e-ssh test-e2e-api test-e2e-nix test-e2e-install test-e2e-cloud test-sudo test-cloud test-docker test-ssh test-distributed distributed-e2e-up distributed-e2e-run distributed-e2e-down test-canary-all test-canary-repo test-canary-domain test-canary-ip test-canary-general canary-up canary-down test-all test-summary test-ci clean install install-gotestsum lint fmt db-seed db-clean db-migrate run-server-debug swagger update-ui sync-skills sync-platform snapshot-release github-release bump-version npm-binaries npm-build npm-pack npm-publish run-github-action docker-toolbox docker-toolbox-run docker-toolbox-shell docker-publish docker-buildx-setup dsh-install dsh-start dsh-check dsh-version dsh-upgrade
 
 # Go parameters
 GOCMD=go
@@ -361,6 +361,38 @@ update-ui:
 	rm -rf public/ui/*
 	cp -R $(DASHBOARD_DIR)/build/* public/ui/
 	@echo "$(PREFIX) UI updated successfully!"
+
+# DeepSeek Harness runs as a separately versioned sidecar. Its exact tested
+# version and lockfile live in platform/osmedeus-agent-harness so regular starts
+# never float to a newer developer-preview release.
+DSH_DIR=platform/osmedeus-agent-harness
+DSH_PROXY ?=
+DSH_NPM_ENV=$(if $(strip $(DSH_PROXY)),HTTP_PROXY=$(DSH_PROXY) HTTPS_PROXY=$(DSH_PROXY),)
+
+dsh-install:
+	@echo "$(PREFIX) Installing version-locked DeepSeek Harness sidecar..."
+	cd $(DSH_DIR) && $(DSH_NPM_ENV) npm ci
+	cd $(DSH_DIR) && npm run verify:install
+
+dsh-start:
+	@if [ ! -x "$(DSH_DIR)/node_modules/.bin/dsh" ]; then \
+		echo "$(PREFIX) Harness is not installed; run make dsh-install first"; exit 1; \
+	fi
+	@echo "$(PREFIX) Starting DeepSeek Harness sidecar..."
+	cd $(DSH_DIR) && npm run start
+
+dsh-check:
+	@cd $(DSH_DIR) && npm run check
+
+dsh-version:
+	@cd $(DSH_DIR) && npm run verify:install
+
+dsh-upgrade:
+	@if [ -z "$(DSH_VERSION)" ]; then \
+		echo "Usage: make dsh-upgrade DSH_VERSION=<exact-version>"; exit 2; \
+	fi
+	@echo "$(PREFIX) Upgrading DeepSeek Harness to $(DSH_VERSION)..."
+	cd $(DSH_DIR) && $(DSH_NPM_ENV) npm run upgrade:dsh -- $(DSH_VERSION)
 
 # Publish the vendored platform/ sub-projects OUT to their standalone repos.
 #

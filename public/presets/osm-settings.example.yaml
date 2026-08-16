@@ -135,6 +135,29 @@ server:
   enable_trigger_via_webhook: false
 
 # =============================================================================
+# Agent Harness Configuration
+# =============================================================================
+# DeepSeek Harness runs as a separate, version-locked sidecar. Osmedeus owns
+# target scope and durable findings; the Harness owns interactive agent sessions.
+agent_harness:
+  # Enable the integration status API and future Agent Pentest UI.
+  enabled: true
+
+  # Harness implementation identifier.
+  provider: deepseek-harness
+
+  # Internal URL reachable by the Osmedeus server.
+  # Docker deployments should use http://agent-harness:3080.
+  base_url: http://127.0.0.1:3080
+
+  # Browser-facing URL used by the embedded Chat / Trajectory UI. This may be
+  # different from base_url when the server reaches Harness over Docker DNS.
+  public_url: http://127.0.0.1:3080
+
+  # Connection/compatibility probe timeout.
+  request_timeout_seconds: 5
+
+# =============================================================================
 # Scan Tactic Configuration
 # =============================================================================
 # Thread counts for different scan intensity levels

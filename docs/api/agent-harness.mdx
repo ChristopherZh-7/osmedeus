@@ -1,0 +1,83 @@
+---
+title: "Agent Harness API"
+description: "DeepSeek Harness sidecar connection and compatibility status"
+---
+
+# Agent Harness API
+
+Osmedeus connects to DeepSeek Harness as an independently versioned sidecar.
+The sidecar is optional at process startup; its connection state is exposed to
+authenticated dashboard clients through the status endpoint.
+
+## Get connection status
+
+```http
+GET /osm/api/agent-harness/status
+```
+
+Example response when ready:
+
+```json
+{
+  "enabled": true,
+  "status": "ready",
+  "provider": "deepseek-harness",
+  "base_url": "http://127.0.0.1:3080",
+  "web_url": "http://127.0.0.1:3080",
+  "connected": true,
+  "compatible": true,
+  "latency_ms": 7
+}
+```
+
+Possible status values:
+
+| Status | Meaning |
+| --- | --- |
+| `disabled` | Integration is disabled in `osm-settings.yaml` |
+| `ready` | The service is reachable and exposes the expected DSH Web boot contract |
+| `incompatible` | A service responded, but it is not a compatible DSH Web host |
+| `unavailable` | The URL is invalid, timed out, or returned an error response |
+
+Configure the connection with:
+
+```yaml
+agent_harness:
+  enabled: true
+  provider: deepseek-harness
+  base_url: http://127.0.0.1:3080
+  public_url: http://127.0.0.1:3080
+  request_timeout_seconds: 5
+```
+
+## Agent Pentest sessions
+
+List the Osmedeus-to-DSH mappings. `org`, `workspace_id`, `offset`, and `limit`
+are optional filters.
+
+```http
+GET /osm/api/agent-pentest/sessions?org=acme&workspace_id=42
+```
+
+Create a native DSH session from an authorized Osmedeus scope:
+
+```http
+POST /osm/api/agent-pentest/sessions
+Content-Type: application/json
+
+{
+  "workspace_id": 42,
+  "asset_ids": [101, 102],
+  "title": "Acme web pentest"
+}
+```
+
+The selected assets must belong to the Workspace. An empty `asset_ids` array
+creates a Workspace-only scope. The response includes the frozen asset
+snapshot, native `dsh_workspace_id`, `dsh_session_id`, and `harness_web_url`.
+
+Fetch one mapping by its Osmedeus UUID:
+
+```http
+GET /osm/api/agent-pentest/sessions/{uuid}
+```

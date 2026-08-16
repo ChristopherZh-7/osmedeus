@@ -385,6 +385,12 @@ func (s *Server) setupRoutes() {
 	// Agent ACP endpoints (OpenAI-compatible)
 	api.Post("/agent/chat/completions", handlers.AgentChat(s.config))
 
+	// External interactive agent runtime
+	api.Get("/agent-harness/status", handlers.AgentHarnessStatus(s.config))
+	api.Get("/agent-pentest/sessions", handlers.ListPentestSessions(s.config))
+	api.Post("/agent-pentest/sessions", handlers.CreatePentestSession(s.config))
+	api.Get("/agent-pentest/sessions/:uuid", handlers.GetPentestSession(s.config))
+
 	// Distributed endpoints (only available when running in master mode)
 	if s.options.Master != nil {
 		api.Get("/workers", handlers.ListWorkers(s.options.Master))
@@ -548,7 +554,8 @@ func errorHandler(c *fiber.Ctx, err error) error {
 	if code == fiber.StatusForbidden {
 		path := c.Path()
 		// Redirect to root for UI routes that return 403
-		if path == "/login" ||
+		if strings.HasPrefix(path, "/agent-pentest") ||
+			path == "/login" ||
 			strings.HasPrefix(path, "/events") ||
 			strings.HasPrefix(path, "/inventory") ||
 			strings.HasPrefix(path, "/llm") ||

@@ -1,0 +1,20 @@
+{
+  "name": "@osmedeus/agent-harness-sidecar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Versioned DeepSeek Harness sidecar for the Osmedeus pentest platform",
+  "type": "module",
+  "scripts": {
+    "start": "node ./scripts/start.mjs",
+    "check": "node ./scripts/check.mjs",
+    "verify:install": "node ./scripts/verify-install.mjs",
+    "upgrade:dsh": "node ./scripts/upgrade.mjs"
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh": "0.1.0-rc.6",
+    "@osmedeus/dsh-plugin": "file:plugins/dsh-osmedeus-plugin"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  }
+}

@@ -190,6 +190,7 @@ func Migrate(ctx context.Context) error {
 		(*AssetDiffSnapshot)(nil),
 		(*VulnDiffSnapshot)(nil),
 		(*AgentSession)(nil),
+		(*PentestSession)(nil),
 		(*Org)(nil),
 	}
 
@@ -324,6 +325,9 @@ func Migrate(ctx context.Context) error {
 	if err := createOrgIndexes(ctx); err != nil {
 		return err
 	}
+	if err := createPentestSessionIndexes(ctx); err != nil {
+		return err
+	}
 
 	// Insert the default org row before backfilling, so no row ever points at a
 	// non-existent org.
@@ -340,7 +344,7 @@ func Migrate(ctx context.Context) error {
 }
 
 // orgScopedTables are the tables carrying an org_uuid column.
-var orgScopedTables = []string{"workspaces", "assets", "vulnerabilities", "runs"}
+var orgScopedTables = []string{"workspaces", "assets", "vulnerabilities", "runs", "agent_pentest_sessions"}
 
 // addOrgUUIDColumns adds org_uuid to every org-scoped table for existing databases.
 // The NOT NULL DEFAULT means rows that predate the org layer are attributed to the
@@ -372,6 +376,7 @@ func createOrgIndexes(ctx context.Context) error {
 		"CREATE INDEX IF NOT EXISTS idx_vulnerabilities_org_uuid ON vulnerabilities(org_uuid)",
 		"CREATE INDEX IF NOT EXISTS idx_runs_org_uuid ON runs(org_uuid)",
 		"CREATE INDEX IF NOT EXISTS idx_assets_org_workspace ON assets(org_uuid, workspace)",
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_sessions_org_uuid ON agent_pentest_sessions(org_uuid)",
 	}
 
 	for _, idx := range indexes {
@@ -380,6 +385,20 @@ func createOrgIndexes(ctx context.Context) error {
 		}
 	}
 
+	return nil
+}
+
+func createPentestSessionIndexes(ctx context.Context) error {
+	indexes := []string{
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_sessions_workspace ON agent_pentest_sessions(workspace_id, created_at)",
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_sessions_status ON agent_pentest_sessions(status)",
+		"CREATE UNIQUE INDEX IF NOT EXISTS idx_agent_pentest_sessions_dsh_session_id ON agent_pentest_sessions(dsh_session_id) WHERE dsh_session_id <> ''",
+	}
+	for _, idx := range indexes {
+		if _, err := db.ExecContext(ctx, idx); err != nil {
+			return fmt.Errorf("failed to create pentest session index: %w", err)
+		}
+	}
 	return nil
 }
 

@@ -16,6 +16,7 @@ import {
   SquareFunction as SquareFunctionIcon,
   ArchiveIcon,
   BrainIcon,
+  ShieldCheckIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -74,6 +75,11 @@ const navigation = [
     name: "LLM Playground",
     href: "/llm",
     icon: BrainIcon,
+  },
+  {
+    name: "Agent Pentest",
+    href: "/agent-pentest",
+    icon: ShieldCheckIcon,
   },
   {
     name: "Settings",

@@ -83,6 +83,18 @@ server:
     expiration_minutes: 1440
 
 # =============================================================================
+# Agent Harness Configuration
+# =============================================================================
+agent_harness:
+  enabled: true
+  provider: deepseek-harness
+  # Docker service name on the private osmedeus-network.
+  base_url: http://agent-harness:3080
+  # Published loopback port opened by the operator's browser.
+  public_url: http://127.0.0.1:3080
+  request_timeout_seconds: 5
+
+# =============================================================================
 # Scan Tactic Configuration
 # =============================================================================
 scan_tactic:

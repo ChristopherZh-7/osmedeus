@@ -63,6 +63,16 @@ func (c *Config) Validate() error {
 		c.Server.JWT.ExpirationMinutes = 1440
 	}
 
+	if c.AgentHarness.Provider == "" {
+		c.AgentHarness.Provider = "deepseek-harness"
+	}
+	if c.AgentHarness.BaseURL == "" {
+		c.AgentHarness.BaseURL = "http://127.0.0.1:3080"
+	}
+	if c.AgentHarness.RequestTimeoutSeconds <= 0 {
+		c.AgentHarness.RequestTimeoutSeconds = 5
+	}
+
 	// Set default for snapshot path
 	if c.Environments.Snapshot == "" {
 		c.Environments.Snapshot = "{{base_folder}}/snapshot"

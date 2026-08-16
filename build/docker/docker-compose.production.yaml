@@ -62,6 +62,40 @@ services:
     # ports:
     #   - "6379:6379"
 
+  # DeepSeek Harness - interactive pentest agent runtime
+  agent-harness:
+    build:
+      context: ../../platform/osmedeus-agent-harness
+      dockerfile: Dockerfile
+    image: osmedeus-agent-harness:latest
+    container_name: osmedeus-agent-harness
+    restart: unless-stopped
+    environment:
+      - DSH_HOME=/home/node/.dsh
+      - DSH_TELEMETRY_MODE=DISABLED
+      - DSH_PERMISSION_MODE=${DSH_PERMISSION_MODE:-read-only}
+      - OSM_DSH_HOST=0.0.0.0
+      - OSM_DSH_PORT=3080
+      - OSM_DSH_TRUSTED_HOST=agent-harness:3080
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+    volumes:
+      - agent-harness-data:/home/node/.dsh
+    ports:
+      - "127.0.0.1:${OSM_DSH_PORT:-3080}:3080"
+    healthcheck:
+      test: ["CMD", "node", "./scripts/check.mjs"]
+      interval: 15s
+      timeout: 6s
+      start_period: 20s
+      retries: 5
+    networks:
+      - osmedeus-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
   # Master Node - API server and task coordinator
   server:
     build:
@@ -83,6 +117,8 @@ services:
       postgres:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      agent-harness:
         condition: service_healthy
     command: ["serve", "--master"]
     healthcheck:
@@ -148,6 +184,9 @@ volumes:
   workspaces:
     driver: local
     name: osmedeus-workspaces
+  agent-harness-data:
+    driver: local
+    name: osmedeus-agent-harness-data
 
 networks:
   osmedeus-network:

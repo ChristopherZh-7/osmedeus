@@ -22,6 +22,7 @@ import {
   DatabaseIcon,
   BrainIcon,
   Building as BuildingIcon,
+  ShieldCheck as ShieldCheckIcon,
 } from "lucide-react";
 import { isDemoMode } from "@/lib/api/demo-mode";
 import { Badge } from "@/components/ui/badge";
@@ -111,6 +112,16 @@ const navigationGroups = [
         name: "Vulnerabilities",
         href: "/vulnerabilities",
         icon: ShieldAlertIcon,
+      },
+    ],
+  },
+  {
+    label: "AI Pentest",
+    items: [
+      {
+        name: "Agent Pentest",
+        href: "/agent-pentest",
+        icon: ShieldCheckIcon,
       },
     ],
   },

@@ -148,6 +148,25 @@ server:
   enable_trigger_via_webhook: false
 
 # =============================================================================
+# Agent Harness Configuration
+# =============================================================================
+# DeepSeek Harness runs as a separate, version-locked sidecar. Osmedeus owns
+# target scope and durable findings; the Harness owns interactive agent sessions.
+agent_harness:
+  # Enable the integration status API and future Agent Pentest UI.
+  enabled: true
+
+  # Harness implementation identifier.
+  provider: deepseek-harness
+
+  # Internal URL reachable by the Osmedeus server.
+  # Docker deployments should use http://agent-harness:3080.
+  base_url: http://127.0.0.1:3080
+
+  # Connection/compatibility probe timeout.
+  request_timeout_seconds: 5
+
+# =============================================================================
 # Scan Tactic Configuration
 # =============================================================================
 # Thread counts for different scan intensity levels
@@ -417,6 +436,7 @@ type Config struct {
 	Storage      StorageConfig      `yaml:"storage"`
 	LLM          LLMConfig          `yaml:"llm_config"`
 	Cloud        CloudConfig        `yaml:"cloud"`
+	AgentHarness AgentHarnessConfig `yaml:"agent_harness"`
 
 	// Runtime paths (resolved from templates)
 	BinariesPath                string `yaml:"-"`
@@ -472,6 +492,46 @@ type ServerConfig struct {
 	CORSAllowedOrigins      string            `yaml:"cors_allowed_origins,omitempty"` // CORS allowed origins (default: "*")
 	EventReceiverURL        string            `yaml:"event_receiver_url,omitempty"`   // URL for event receiver (auto-resolved from host:port if empty)
 	EnableTriggerViaWebhook bool              `yaml:"enable_trigger_via_webhook"`     // Enable webhook trigger endpoints (default: false)
+}
+
+// AgentHarnessConfig configures the external interactive agent runtime.
+// The Harness remains a separate process so it can be upgraded independently
+// from the Osmedeus workflow engine.
+type AgentHarnessConfig struct {
+	Enabled               bool   `yaml:"enabled"`
+	Provider              string `yaml:"provider"`
+	BaseURL               string `yaml:"base_url"`
+	PublicURL             string `yaml:"public_url"`
+	RequestTimeoutSeconds int    `yaml:"request_timeout_seconds"`
+}
+
+// GetBaseURL returns the normalized Harness service URL.
+func (c *AgentHarnessConfig) GetBaseURL() string {
+	baseURL := strings.TrimSpace(c.BaseURL)
+	if baseURL == "" {
+		baseURL = "http://127.0.0.1:3080"
+	}
+	return strings.TrimRight(baseURL, "/")
+}
+
+// GetPublicURL returns the browser-facing Harness URL. BaseURL is the
+// server-to-server address (and may be a Docker service name), while PublicURL
+// must be reachable from the operator's browser for the embedded Web UI.
+func (c *AgentHarnessConfig) GetPublicURL() string {
+	publicURL := strings.TrimSpace(c.PublicURL)
+	if publicURL == "" {
+		publicURL = c.GetBaseURL()
+	}
+	return strings.TrimRight(publicURL, "/")
+}
+
+// GetRequestTimeout returns the configured probe timeout with a safe default.
+func (c *AgentHarnessConfig) GetRequestTimeout() time.Duration {
+	seconds := c.RequestTimeoutSeconds
+	if seconds <= 0 {
+		seconds = 5
+	}
+	return time.Duration(seconds) * time.Second
 }
 
 // IsMetricsEnabled returns true if the metrics endpoint should be enabled.
@@ -1178,6 +1238,13 @@ func DefaultConfig() *Config {
 			License:        "open-source",
 			EnabledAuthAPI: true,
 			AuthAPIKey:     generateRandomString(32),
+		},
+		AgentHarness: AgentHarnessConfig{
+			Enabled:               true,
+			Provider:              "deepseek-harness",
+			BaseURL:               "http://127.0.0.1:3080",
+			PublicURL:             "http://127.0.0.1:3080",
+			RequestTimeoutSeconds: 5,
 		},
 		ScanTactic: ScanTacticConfig{
 			Aggressive: 40,

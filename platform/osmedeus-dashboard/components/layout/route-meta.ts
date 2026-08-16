@@ -68,6 +68,10 @@ export function getRouteMeta(pathname: string): RouteMeta {
       title: "LLM Playground",
       description: "LLM chat completions, embeddings, and tool calling",
     },
+    "/agent-pentest": {
+      title: "Agent Pentest",
+      description: "DeepSeek Harness sessions scoped by Osmedeus workspaces and assets",
+    },
     "/workflows": {
       title: "Workflows",
       description: "Browse and edit your workflows",

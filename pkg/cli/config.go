@@ -813,9 +813,42 @@ func setConfigValue(cfg *config.Config, key, value string) error {
 		return setLLMValue(cfg, parts[1:], value)
 	case "cloud":
 		return setCloudMainValue(cfg, parts[1:], value)
+	case "agent_harness":
+		return setAgentHarnessValue(cfg, parts[1:], value)
 	default:
 		return fmt.Errorf("unknown config section: %s", parts[0])
 	}
+	return nil
+}
+
+func setAgentHarnessValue(cfg *config.Config, parts []string, value string) error {
+	if len(parts) == 0 {
+		return fmt.Errorf("missing agent_harness field")
+	}
+
+	switch parts[0] {
+	case "enabled":
+		enabled, err := strconv.ParseBool(value)
+		if err != nil {
+			return fmt.Errorf("agent_harness.enabled must be true or false")
+		}
+		cfg.AgentHarness.Enabled = enabled
+	case "provider":
+		cfg.AgentHarness.Provider = value
+	case "base_url":
+		cfg.AgentHarness.BaseURL = value
+	case "public_url":
+		cfg.AgentHarness.PublicURL = value
+	case "request_timeout_seconds":
+		seconds, err := strconv.Atoi(value)
+		if err != nil || seconds <= 0 {
+			return fmt.Errorf("agent_harness.request_timeout_seconds must be a positive number")
+		}
+		cfg.AgentHarness.RequestTimeoutSeconds = seconds
+	default:
+		return fmt.Errorf("unknown agent_harness field: %s", parts[0])
+	}
+
 	return nil
 }
 
@@ -1016,6 +1049,8 @@ func getCategoryColor(key string) func(string) string {
 		return terminal.HiBlue
 	case strings.HasPrefix(key, "cloud."):
 		return terminal.HiCyan
+	case strings.HasPrefix(key, "agent_harness."):
+		return terminal.HiBlue
 	case strings.HasPrefix(key, "providers.aws."):
 		return terminal.Green
 	case strings.HasPrefix(key, "providers.azure."):

@@ -40,7 +40,7 @@ func setupOrgTestDB(t *testing.T) func() {
 // without updating the tags, fresh databases would use a different default than
 // migrated ones.
 func TestDefaultOrgUUIDMatchesStructTags(t *testing.T) {
-	models := []interface{}{Run{}, Asset{}, Workspace{}, Vulnerability{}}
+	models := []interface{}{Run{}, Asset{}, Workspace{}, Vulnerability{}, PentestSession{}}
 
 	for _, model := range models {
 		typ := reflect.TypeOf(model)
@@ -150,6 +150,12 @@ func seedOrgFixtures(t *testing.T, ctx context.Context, workspace string) {
 		Target: workspace, Status: "done", Workspace: workspace, OrgUUID: DefaultOrgUUID,
 	}).Exec(ctx)
 	require.NoError(t, err)
+
+	_, err = db.NewInsert().Model(&PentestSession{
+		UUID: workspace + "-pentest", WorkspaceID: 1, Workspace: workspace,
+		Title: "pentest", Status: "ready", OrgUUID: DefaultOrgUUID,
+	}).Exec(ctx)
+	require.NoError(t, err)
 }
 
 func TestAssignWorkspacesToOrgCascades(t *testing.T) {
@@ -170,6 +176,7 @@ func TestAssignWorkspacesToOrgCascades(t *testing.T) {
 	assert.Equal(t, int64(2), counts["assets"])
 	assert.Equal(t, int64(2), counts["vulnerabilities"])
 	assert.Equal(t, int64(2), counts["runs"])
+	assert.Equal(t, int64(2), counts["agent_pentest_sessions"])
 
 	stats, err := GetOrgStats(ctx, org.UUID)
 	require.NoError(t, err)
@@ -301,6 +308,7 @@ func TestExistingRowsLandInDefaultOrg(t *testing.T) {
 	for _, idx := range []string{
 		"idx_workspaces_org_uuid", "idx_assets_org_uuid",
 		"idx_vulnerabilities_org_uuid", "idx_runs_org_uuid", "idx_assets_org_workspace",
+		"idx_agent_pentest_sessions_org_uuid", "idx_agent_pentest_sessions_workspace",
 	} {
 		_, err := db.ExecContext(ctx, "DROP INDEX IF EXISTS "+idx)
 		require.NoError(t, err, "drop index %s", idx)
@@ -485,6 +493,6 @@ func TestOrgScopedTablesAllHaveColumn(t *testing.T) {
 			Scan(ctx, &n)
 		require.NoErrorf(t, err, "table %s is missing org_uuid", table)
 	}
-	assert.Equal(t, []string{"workspaces", "assets", "vulnerabilities", "runs"}, orgScopedTables)
+	assert.Equal(t, []string{"workspaces", "assets", "vulnerabilities", "runs", "agent_pentest_sessions"}, orgScopedTables)
 	assert.True(t, strings.HasPrefix(DefaultOrgUUID, "00000000-"))
 }

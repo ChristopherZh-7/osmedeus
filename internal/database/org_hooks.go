@@ -27,6 +27,7 @@ var _ bun.BeforeAppendModelHook = (*Asset)(nil)
 var _ bun.BeforeAppendModelHook = (*Vulnerability)(nil)
 var _ bun.BeforeAppendModelHook = (*Run)(nil)
 var _ bun.BeforeAppendModelHook = (*Workspace)(nil)
+var _ bun.BeforeAppendModelHook = (*PentestSession)(nil)
 
 // orgForWrite returns the org a model should be persisted under: the one it
 // already names, or the org of the workspace it belongs to.
