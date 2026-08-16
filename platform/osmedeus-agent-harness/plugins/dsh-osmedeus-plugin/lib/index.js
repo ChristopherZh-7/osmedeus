@@ -5,6 +5,7 @@ import { join, resolve } from "node:path";
 import { defineTool } from "@deepseek-ai/dsh-tools";
 
 const CONTEXT_ROUTE = "/osmedeus/context";
+const CONTEXT_STATUS_ROUTE = "/osmedeus/context/status";
 const MAX_CONTEXT_BYTES = 16 * 1024 * 1024;
 const SESSION_ID_PATTERN = /^session-osm-[a-f0-9]{32}$/;
 const bridgeByRootSession = new Map();
@@ -48,14 +49,14 @@ async function readJSONBody(req) {
   }
 }
 
-function findBridgeForAgent(ctx, exec) {
-  let session = exec.agent?.session;
-  for (let depth = 0; session && depth < 16; depth += 1) {
-    const sessionId = String(session.id);
-    const bridge = bridgeByRootSession.get(sessionId);
-    if (bridge && SESSION_ID_PATTERN.test(sessionId)) {
-      return { rootSessionId: sessionId, callerSessionId: String(exec.agent.id), bridge };
-    }
+export function findBridgeForAgent(ctx, agent) {
+	let session = agent?.session;
+	for (let depth = 0; session && depth < 16; depth += 1) {
+		const sessionId = String(session.id);
+		const bridge = bridgeByRootSession.get(sessionId);
+		if (bridge && SESSION_ID_PATTERN.test(sessionId)) {
+			return { rootSessionId: sessionId, callerSessionId: String(agent.id), bridge };
+		}
     const parent = session.header?.parentSession;
     session = parent ? ctx.sessions.get(parent) : undefined;
   }
@@ -64,9 +65,9 @@ function findBridgeForAgent(ctx, exec) {
   );
 }
 
-async function postBridge(ctx, exec, route, payload) {
-  const { rootSessionId, callerSessionId, bridge } = findBridgeForAgent(ctx, exec);
-  const endpoint = new URL(route, osmedeusAPI);
+export async function postPentestBridge(ctx, agent, signal, route, payload) {
+	const { rootSessionId, callerSessionId, bridge } = findBridgeForAgent(ctx, agent);
+	const endpoint = new URL(route, osmedeusAPI);
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
@@ -79,13 +80,28 @@ async function postBridge(ctx, exec, route, payload) {
       root_session_id: rootSessionId,
       caller_session_id: callerSessionId,
     }),
-    signal: exec.signal,
+		signal,
   });
   const value = await response.json().catch(() => ({ message: `HTTP ${response.status}` }));
   if (!response.ok) {
     throw new Error(value?.message || `Osmedeus result bridge returned HTTP ${response.status}`);
   }
-  return value;
+	return value;
+}
+
+async function postBridge(ctx, exec, route, payload) {
+	return postPentestBridge(ctx, exec.agent, exec.signal, route, payload);
+}
+
+export function pentestBridgeContext(ctx, agent) {
+	const resolved = findBridgeForAgent(ctx, agent);
+	return {
+		rootSessionId: resolved.rootSessionId,
+		callerSessionId: resolved.callerSessionId,
+		contextPath: resolved.bridge.contextPath,
+		contextSha256: resolved.bridge.sha256,
+		context: resolved.bridge.context,
+	};
 }
 
 function registerResultTools(ctx) {
@@ -208,7 +224,7 @@ function registerResultTools(ctx) {
   );
 }
 
-function contextSummary(context, contextPath) {
+function contextSummary(context, contextPath, rootSessionId = context?.session?.dsh_session_id) {
   const scope = context?.scope ?? {};
   const recon = context?.recon ?? {};
   return [
@@ -222,12 +238,52 @@ function contextSummary(context, contextPath) {
     `Artifacts: ${recon.artifacts_total ?? 0}`,
     `Recent runs: ${recon.runs_total ?? 0}`,
     "",
-    `Canonical context: ${contextPath}`,
+		`Canonical context: ${contextPath}`,
+		`Authorization root session: ${rootSessionId ?? "unknown"}`,
     "",
     "Load the `osmedeus-pentest` Skill before acting on this context.",
     "Only `scope.authorized_assets` defines executable target scope.",
     "",
   ].join("\n");
+}
+
+async function writeAgentContext(scopesRoot, sessionId, bridge) {
+	const sessionRoot = join(scopesRoot, sessionId);
+	const contextPath = join(sessionRoot, "context.json");
+	const summaryPath = join(sessionRoot, "CONTEXT.md");
+	const metadataPath = join(sessionRoot, "scope.json");
+	const temporary = join(sessionRoot, `.context-${randomUUID()}.tmp`);
+
+	await mkdir(sessionRoot, { recursive: true, mode: 0o700 });
+	await writeFile(temporary, bridge.encoded, { encoding: "utf8", mode: 0o600 });
+	await rename(temporary, contextPath);
+	await writeFile(summaryPath, contextSummary(bridge.context, contextPath, bridge.rootSessionId), {
+		encoding: "utf8",
+		mode: 0o600,
+	});
+	await writeFile(
+		metadataPath,
+		`${JSON.stringify({
+			schema_version: "osmedeus.pentest-scope/v1",
+			session_id: sessionId,
+			root_session_id: bridge.rootSessionId,
+			context_path: contextPath,
+			sha256: bridge.sha256,
+		}, null, 2)}\n`,
+		{ encoding: "utf8", mode: 0o600 },
+	);
+	return { contextPath, summaryPath };
+}
+
+async function materializeInheritedContext(ctx, scopesRoot, agent) {
+	let resolved;
+	try {
+		resolved = findBridgeForAgent(ctx, agent);
+	} catch {
+		return;
+	}
+	if (resolved.callerSessionId === resolved.rootSessionId) return;
+	await writeAgentContext(scopesRoot, resolved.callerSessionId, resolved.bridge);
 }
 
 /**
@@ -239,7 +295,15 @@ export function apply(ctx) {
   const dshHome = resolve(process.env.DSH_HOME || join(homedir(), ".dsh"));
   const scopesRoot = join(dshHome, "osmedeus", "scopes");
 
-  registerResultTools(ctx);
+	registerResultTools(ctx);
+
+	// Materialize the root authorization context under every descendant's own
+	// DSH_SESSION_ID before its next model step. Skills can therefore use the
+	// same deterministic path in root, one-shot, and continuable sessions.
+	ctx.on("agent/pre-step", async ({ agent }, next) => {
+		await materializeInheritedContext(ctx, scopesRoot, agent);
+		return next();
+	});
 
   ctx.effect(
     () =>
@@ -272,29 +336,26 @@ export function apply(ctx) {
               return;
             }
 
-            const sessionRoot = join(scopesRoot, sessionId);
-            const contextPath = join(sessionRoot, "context.json");
-            const summaryPath = join(sessionRoot, "CONTEXT.md");
-            const encoded = `${JSON.stringify(payload.context, null, 2)}\n`;
-            const digest = createHash("sha256").update(encoded).digest("hex");
-            const temporary = join(sessionRoot, `.context-${randomUUID()}.tmp`);
+			const encoded = `${JSON.stringify(payload.context, null, 2)}\n`;
+			const digest = createHash("sha256").update(encoded).digest("hex");
 
-            await mkdir(sessionRoot, { recursive: true, mode: 0o700 });
-            await writeFile(temporary, encoded, { encoding: "utf8", mode: 0o600 });
-            await rename(temporary, contextPath);
-            await writeFile(summaryPath, contextSummary(payload.context, contextPath), {
-              encoding: "utf8",
-              mode: 0o600,
-            });
+			// Capability stays in plugin memory. It is never written beside the
+			// model-readable context and is replaced on every Sync Recon.
+			const bridge = {
+				token: bridgeToken,
+				context: payload.context,
+				encoded,
+				sha256: digest,
+				rootSessionId: sessionId,
+			};
+			const written = await writeAgentContext(scopesRoot, sessionId, bridge);
+			bridge.contextPath = written.contextPath;
+			bridgeByRootSession.set(sessionId, bridge);
 
-            // Capability stays in plugin memory. It is never written beside the
-            // model-readable context and is replaced on every Sync Recon.
-            bridgeByRootSession.set(sessionId, { token: bridgeToken });
-
-            sendJSON(res, 201, {
-              ok: true,
-              session_id: sessionId,
-              context_path: contextPath,
+			sendJSON(res, 201, {
+				ok: true,
+				session_id: sessionId,
+				context_path: written.contextPath,
               schema_version: payload.context.schema_version,
               sha256: digest,
             });
@@ -305,7 +366,37 @@ export function apply(ctx) {
             });
           }
         },
-      }),
-    "osmedeus: pentest context bridge",
-  );
+		}),
+		"osmedeus: pentest context bridge",
+	);
+
+	ctx.effect(
+		() =>
+			ctx.webServer.register({
+				kind: "exact",
+				path: CONTEXT_STATUS_ROUTE,
+				handler(req, res) {
+					if (req.method !== "GET") {
+						res.setHeader("Allow", "GET");
+						sendJSON(res, 405, { ok: false, error: "method not allowed" });
+						return;
+					}
+					const requestURL = new URL(req.url || CONTEXT_STATUS_ROUTE, "http://127.0.0.1");
+					const sessionId = String(requestURL.searchParams.get("session_id") ?? "").trim();
+					if (!SESSION_ID_PATTERN.test(sessionId)) {
+						sendJSON(res, 400, { ok: false, error: "invalid Osmedeus DSH session id" });
+						return;
+					}
+					const bridge = bridgeByRootSession.get(sessionId);
+					sendJSON(res, 200, {
+						ok: true,
+						active: bridge !== undefined,
+						session_id: sessionId,
+						context_path: bridge?.contextPath,
+						sha256: bridge?.sha256,
+					});
+				},
+			}),
+		"osmedeus: pentest context status",
+	);
 }

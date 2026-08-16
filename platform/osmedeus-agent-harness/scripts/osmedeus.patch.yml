@@ -7,3 +7,6 @@
 
     - id: osmedeus-plugin
       name: '@osmedeus/dsh-plugin'
+
+    - id: osmedeus-pentagi-orchestrator
+      name: '@osmedeus/dsh-pentagi-orchestrator'

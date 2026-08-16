@@ -15,6 +15,8 @@ source code.
 - `plugins/dsh-osmedeus-plugin` is the upgrade-safe DSH profile boundary. It
   deep-links native Sessions and materializes the matching reconnaissance
   envelope below `DSH_HOME`.
+- `plugins/dsh-pentagi-orchestrator` adds the 15-role PentAGI-style task state
+  machine through public DSH plugin seams. It does not patch Harness packages.
 - `skills/` is copied into DSH's official `$DSH_HOME/skills` discovery root;
   no Harness package is patched.
 - Telemetry is disabled. The default `workspace-write` permission mode keeps
@@ -74,6 +76,20 @@ The server-side adapter then:
 8. Gives the plugin a rotating per-session capability held only in memory. The
    native `osmedeus_record_test` and `osmedeus_submit_finding` tools use it to
    write coverage and pending findings back to assets in the frozen scope.
+9. Materializes the immutable root context under each child Session ID before
+   its model step, so every specialist Skill resolves the same authorization.
+10. Persists generated tasks, revised subtasks, role runs, selected memory, and
+    final reports in Osmedeus while DSH keeps the full per-role transcript.
+
+The orchestrator exposes four root tools:
+
+- `osmedeus_start_pentest_task`
+- `osmedeus_get_pentest_task`
+- `osmedeus_resume_pentest_task`
+- `osmedeus_cancel_pentest_task`
+
+Inside a managed role, `pentagi_delegate`, `pentagi_memory_search`, and
+`pentagi_memory_write` implement specialist delegation and cross-role memory.
 
 No API credential or target-controlled path is sent to browser plugin code.
 The frozen asset snapshot is not submitted as an automatic model prompt, so

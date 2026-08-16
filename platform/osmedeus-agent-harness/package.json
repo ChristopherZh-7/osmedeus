@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@deepseek-ai/dsh": "0.1.0-rc.6",
-    "@osmedeus/dsh-plugin": "file:plugins/dsh-osmedeus-plugin"
+    "@osmedeus/dsh-plugin": "file:plugins/dsh-osmedeus-plugin",
+    "@osmedeus/dsh-pentagi-orchestrator": "file:plugins/dsh-pentagi-orchestrator"
   },
   "engines": {
     "node": ">=22.19.0"

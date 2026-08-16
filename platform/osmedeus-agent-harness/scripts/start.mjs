@@ -51,6 +51,17 @@ mkdirSync(join(pluginTarget, ".."), { recursive: true });
 rmSync(pluginTarget, { recursive: true, force: true });
 cpSync(pluginSource, pluginTarget, { recursive: true });
 
+const orchestratorSource = resolve("plugins/dsh-pentagi-orchestrator");
+const orchestratorTarget = join(
+  dshHome,
+  "profiles",
+  "node_modules",
+  "@osmedeus",
+  "dsh-pentagi-orchestrator"
+);
+rmSync(orchestratorTarget, { recursive: true, force: true });
+cpSync(orchestratorSource, orchestratorTarget, { recursive: true });
+
 // Install Osmedeus-owned Skills into DSH's official user root. Only names
 // shipped by this sidecar are replaced, preserving any operator-authored
 // bundles already present in $DSH_HOME/skills.

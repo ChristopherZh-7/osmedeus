@@ -270,6 +270,7 @@ func (s *Server) setupRoutes() {
 	// browser/API login secret, which is never exposed to the harness process.
 	api.Post("/agent-pentest/bridge/coverage", handlers.RecordPentestCoverageBridge(s.config))
 	api.Post("/agent-pentest/bridge/findings", handlers.SubmitPentestFindingBridge(s.config))
+	api.Post("/agent-pentest/bridge/orchestration", handlers.PentestOrchestrationBridge(s.config))
 
 	// Apply auth middleware conditionally
 	if !s.options.NoAuth {
@@ -399,6 +400,8 @@ func (s *Server) setupRoutes() {
 	api.Get("/agent-pentest/sessions/:uuid", handlers.GetPentestSession(s.config))
 	api.Get("/agent-pentest/sessions/:uuid/context", handlers.GetPentestContext(s.config))
 	api.Get("/agent-pentest/sessions/:uuid/coverage", handlers.ListPentestCoverage(s.config))
+	api.Get("/agent-pentest/sessions/:uuid/tasks", handlers.ListPentestTasks(s.config))
+	api.Get("/agent-pentest/sessions/:uuid/tasks/:task_uuid", handlers.GetPentestTask(s.config))
 	api.Post("/agent-pentest/sessions/:uuid/context/refresh", handlers.RefreshPentestContext(s.config))
 	api.Get("/agent-pentest/sessions/:uuid/harness/history", handlers.GetPentestHarnessHistory(s.config))
 	api.Post("/agent-pentest/sessions/:uuid/harness/messages", handlers.PromptPentestHarness(s.config))

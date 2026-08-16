@@ -192,6 +192,11 @@ func Migrate(ctx context.Context) error {
 		(*AgentSession)(nil),
 		(*PentestSession)(nil),
 		(*PentestCoverage)(nil),
+		(*PentestTask)(nil),
+		(*PentestSubtask)(nil),
+		(*PentestRoleRun)(nil),
+		(*PentestPlanEvent)(nil),
+		(*PentestMemory)(nil),
 		(*Org)(nil),
 	}
 
@@ -338,6 +343,9 @@ func Migrate(ctx context.Context) error {
 	if err := createPentestCoverageIndexes(ctx); err != nil {
 		return err
 	}
+	if err := createPentestOrchestrationIndexes(ctx); err != nil {
+		return err
+	}
 
 	// Insert the default org row before backfilling, so no row ever points at a
 	// non-existent org.
@@ -422,6 +430,27 @@ func createPentestCoverageIndexes(ctx context.Context) error {
 	for _, idx := range indexes {
 		if _, err := db.ExecContext(ctx, idx); err != nil {
 			return fmt.Errorf("failed to create pentest coverage index: %w", err)
+		}
+	}
+	return nil
+}
+
+func createPentestOrchestrationIndexes(ctx context.Context) error {
+	indexes := []string{
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_tasks_session ON agent_pentest_tasks(session_uuid, created_at)",
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_tasks_status ON agent_pentest_tasks(status, updated_at)",
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_subtasks_task ON agent_pentest_subtasks(task_uuid, position)",
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_subtasks_status ON agent_pentest_subtasks(task_uuid, status)",
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_role_runs_task ON agent_pentest_role_runs(task_uuid, started_at)",
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_role_runs_subtask ON agent_pentest_role_runs(subtask_uuid, started_at)",
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_role_runs_dsh_session ON agent_pentest_role_runs(dsh_session_id)",
+		"CREATE UNIQUE INDEX IF NOT EXISTS idx_agent_pentest_plan_events_revision ON agent_pentest_plan_events(task_uuid, revision)",
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_memory_session ON agent_pentest_memory(session_uuid, created_at)",
+		"CREATE INDEX IF NOT EXISTS idx_agent_pentest_memory_task ON agent_pentest_memory(task_uuid, created_at)",
+	}
+	for _, idx := range indexes {
+		if _, err := db.ExecContext(ctx, idx); err != nil {
+			return fmt.Errorf("failed to create pentest orchestration index: %w", err)
 		}
 	}
 	return nil
