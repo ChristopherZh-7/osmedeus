@@ -5,9 +5,11 @@ import { resolve } from "node:path";
 import {
   dshBinary,
   installedDSHManifest,
+  readJSON,
   sidecarManifest,
 } from "./runtime.mjs";
 import { ROLE_REGISTRY } from "../plugins/dsh-pentagi-orchestrator/lib/roles.js";
+import { buildCyberStrikeSkillIndex } from "../plugins/dsh-pentagi-orchestrator/lib/cyberstrike-skill-library.js";
 
 const supportedSchemaKeywords = new Set([
   "type", "oneOf", "properties", "required", "additionalProperties", "items",
@@ -59,6 +61,24 @@ if (!existsSync(resolve("scripts", "link-cyberstrike-skills.mjs"))) {
   throw new Error("Osmedeus CyberStrike Skill link helper is missing");
 }
 
+const cyberStrikeSource = readJSON(resolve("vendor", "cyberstrike-source.json"));
+const cyberStrikeIndex = await buildCyberStrikeSkillIndex(
+  resolve("vendor", "cyberstrike-skills"),
+);
+if (!cyberStrikeIndex.available) {
+  throw new Error("Bundled CyberStrike Skill corpus is missing");
+}
+if (cyberStrikeIndex.entries.length !== cyberStrikeSource.indexed_skills) {
+  throw new Error(
+    `Bundled CyberStrike index mismatch: expected=${cyberStrikeSource.indexed_skills}, actual=${cyberStrikeIndex.entries.length}`,
+  );
+}
+if (cyberStrikeIndex.skipped !== cyberStrikeSource.skipped_files) {
+  throw new Error(
+    `Bundled CyberStrike skipped-file mismatch: expected=${cyberStrikeSource.skipped_files}, actual=${cyberStrikeIndex.skipped}`,
+  );
+}
+
 for (const [roleID, definition] of Object.entries(ROLE_REGISTRY)) {
   verifyHarnessSchema(definition.schema, `roles.${roleID}.schema`);
   if (definition.tools.includes("skill")) {
@@ -86,3 +106,4 @@ for (const roleID of ["generator", "refiner"]) {
 }
 
 console.log(`DeepSeek Harness ${installedVersion} is installed and version-locked.`);
+console.log(`CyberStrike ${cyberStrikeSource.ref} is bundled with ${cyberStrikeIndex.entries.length} indexed Skills.`);

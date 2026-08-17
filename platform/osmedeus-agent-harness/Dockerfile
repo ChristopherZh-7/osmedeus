@@ -17,6 +17,9 @@ RUN npm ci --omit=dev --ignore-scripts
 
 COPY scripts ./scripts
 COPY skills ./skills
+COPY vendor ./vendor
+
+RUN npm run verify:install
 
 RUN mkdir -p /home/node/.dsh/runtime-workspace && \
     chown -R node:node /home/node/.dsh /app

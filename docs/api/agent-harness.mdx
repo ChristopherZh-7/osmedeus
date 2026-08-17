@@ -230,15 +230,17 @@ The sidecar installs its shipped bundles into DSH's official
 and treats scanner findings as hypotheses requiring evidence. Specialized
 `cyberstrike-*` Skills may then be loaded when relevant.
 
-The optional full CyberStrike corpus is managed separately from DSH's active
-Skill catalog. `plugins/dsh-pentagi-orchestrator` recursively indexes
-`$OSM_CYBERSTRIKE_SKILLS_DIR` (default
-`$DSH_HOME/osmedeus/cyberstrike-skills`) and exposes bounded search, category,
-CWE, tag, technology, attack-chain, and exact lazy-load operations through
-`pentagi_skill`. This keeps thousands of names and descriptions out of every
-model request while still making the complete local corpus available to the
-root Primary and managed specialists. Loaded CyberStrike instructions receive
-the Osmedeus scope and high-impact-action notice before entering context.
+The complete pinned CyberStrike corpus is bundled with the Harness sidecar,
+outside DSH's active Skill catalog. `plugins/dsh-pentagi-orchestrator`
+recursively indexes `$OSM_CYBERSTRIKE_SKILLS_DIR` (automatically set to the
+bundled `vendor/cyberstrike-skills` directory) and exposes bounded search,
+category, CWE, tag, technology, attack-chain, and exact lazy-load operations
+through `pentagi_skill`. This keeps thousands of names and descriptions out of
+every model request while making the complete corpus available immediately to
+the root Primary and managed specialists. Loaded CyberStrike instructions
+receive the Osmedeus scope and high-impact-action notice before entering
+context. Setting `OSM_CYBERSTRIKE_SKILLS_DIR` explicitly overrides the bundled
+source.
 
 ## Coverage and result writeback
 

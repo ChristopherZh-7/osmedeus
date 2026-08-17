@@ -6,6 +6,16 @@ const scriptsDir = dirname(fileURLToPath(import.meta.url));
 
 export const sidecarRoot = resolve(scriptsDir, "..");
 
+export function bundledCyberStrikeSkillRoot() {
+  return join(sidecarRoot, "vendor", "cyberstrike-skills");
+}
+
+export function resolvedCyberStrikeSkillRoot(env = process.env) {
+  return resolve(
+    String(env.OSM_CYBERSTRIKE_SKILLS_DIR || bundledCyberStrikeSkillRoot()),
+  );
+}
+
 export const dshBinary = join(
   sidecarRoot,
   "node_modules",

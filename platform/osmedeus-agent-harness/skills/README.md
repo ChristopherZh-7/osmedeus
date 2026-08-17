@@ -9,8 +9,8 @@ are not modified.
   `CyberStrike-main/.cyberstrike/skill`.
 - Deeply nested CIS, NIST, MITRE, and OWASP atomic libraries are intentionally
   not copied into the active catalog. DSH discovers one level and a 7,000+
-  entry catalog would add substantial prompt noise. The separate CyberStrike
-  library under `$DSH_HOME/osmedeus/cyberstrike-skills` is indexed recursively
+  entry catalog would add substantial prompt noise. The complete bundled
+  CyberStrike library under `vendor/cyberstrike-skills` is indexed recursively
   by the Osmedeus orchestrator and queried lazily through `pentagi_skill`.
 - CyberStrike's `bun-file-io` bundle is excluded because it documents
   CyberStrike repository development rather than penetration testing.

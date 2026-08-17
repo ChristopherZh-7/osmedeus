@@ -39,6 +39,21 @@ See [Documentation Page](https://docs.osmedeus.org/) for more details.
 curl -sSL http://www.osmedeus.org/install.sh | bash
 ```
 
+### Full source deployment
+
+From a source checkout, one command installs the Osmedeus binary together
+with the version-locked DeepSeek Harness, Osmedeus Harness plugins, 31 active
+DSH Skills, and the bundled 7,600+ CyberStrike Skill corpus:
+
+```bash
+make install
+make dsh-start
+```
+
+Use `make install-core` when only the Go binary is required. The production
+Docker Compose stack also builds and starts the complete Harness integration
+without a separate Skill download or link step.
+
 ### [npm](https://www.npmjs.com/package/@j3ssie/osmedeus)
 
 ```bash

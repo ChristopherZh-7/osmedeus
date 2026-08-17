@@ -21,9 +21,9 @@ source code.
   lazy loader through `pentagi_skill`. It does not patch Harness packages.
 - `skills/` is copied into DSH's official `$DSH_HOME/skills` discovery root;
   no Harness package is patched.
-- The optional full CyberStrike corpus stays outside that active catalog at
-  `$DSH_HOME/osmedeus/cyberstrike-skills`; the orchestrator indexes it
-  recursively and loads only a selected body.
+- The complete pinned CyberStrike corpus is bundled under
+  `vendor/cyberstrike-skills`; the orchestrator indexes it recursively and
+  loads only a selected body.
 - Telemetry is disabled. The default `workspace-write` permission mode keeps
   DSH approval prompts while allowing evidence to be saved in its workspace.
 - The Web host listens on `127.0.0.1:3080` by default.
@@ -31,8 +31,7 @@ source code.
 ## Local development
 
 ```bash
-make dsh-install
-make dsh-link-cyberstrike CYBERSTRIKE_SKILLS_DIR=/path/to/CyberStrike-main
+make install
 make dsh-start
 make dsh-check
 ```
@@ -57,7 +56,7 @@ Useful environment variables:
 | `OSM_DSH_WORKSPACE` | `$DSH_HOME/runtime-workspace` | Safe process working directory |
 | `OSM_DSH_PATCH` | empty | Optional future Osmedeus profile overlay |
 | `DSH_PERMISSION_MODE` | `workspace-write` | Harness filesystem permission preset |
-| `OSM_CYBERSTRIKE_SKILLS_DIR` | `$DSH_HOME/osmedeus/cyberstrike-skills` | Optional external CyberStrike `.cyberstrike/skill` corpus indexed by `pentagi_skill` |
+| `OSM_CYBERSTRIKE_SKILLS_DIR` | bundled `vendor/cyberstrike-skills` | Optional override for the CyberStrike `.cyberstrike/skill` corpus indexed by `pentagi_skill` |
 
 ## CyberStrike indexed Skill library
 
@@ -75,14 +74,19 @@ corpus on first use and exposes bounded operations through `pentagi_skill`:
 - `status` reports index availability and counts; `refresh` rebuilds it after
   the corpus changes.
 
-The link target is user state rather than vendored repository content. This
-keeps CyberStrike's AGPL-licensed corpus separate from the MIT-licensed
-Osmedeus source while making the locally installed library available to both
-the root Primary and managed specialists. A direct directory can be used
-instead of a link:
+The pinned corpus ships with the sidecar and is available to both the root
+Primary and managed specialists immediately after installation. Its upstream
+repository, ref, commit, counts, and license are recorded under `vendor/`.
+An operator can still override the bundled source with a direct directory:
 
 ```bash
 OSM_CYBERSTRIKE_SKILLS_DIR=/path/to/CyberStrike-main/.cyberstrike/skill make dsh-start
+```
+
+The legacy link helper remains available for development overrides:
+
+```bash
+make dsh-link-cyberstrike CYBERSTRIKE_SKILLS_DIR=/path/to/CyberStrike-main
 ```
 
 ## Osmedeus Workspace adapter seam

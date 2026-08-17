@@ -3,7 +3,11 @@ import { homedir } from "node:os";
 import { isAbsolute, join, resolve } from "node:path";
 import { spawn, spawnSync } from "node:child_process";
 
-import { dshBinary, parsePort } from "./runtime.mjs";
+import {
+  dshBinary,
+  parsePort,
+  resolvedCyberStrikeSkillRoot,
+} from "./runtime.mjs";
 
 const host = process.env.OSM_DSH_HOST || "127.0.0.1";
 const port = parsePort(process.env.OSM_DSH_PORT || "3080");
@@ -23,6 +27,7 @@ const runtimeEnv = {
   DSH_HOME: dshHome,
   DSH_PERMISSION_MODE: process.env.DSH_PERMISSION_MODE || "workspace-write",
   DSH_TELEMETRY_MODE: process.env.DSH_TELEMETRY_MODE || "DISABLED",
+  OSM_CYBERSTRIKE_SKILLS_DIR: resolvedCyberStrikeSkillRoot(),
 };
 
 // DSH profiles are independent package roots below $DSH_HOME. Initialize the

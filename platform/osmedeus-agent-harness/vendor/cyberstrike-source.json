@@ -1,0 +1,10 @@
+{
+  "repository": "https://github.com/CyberStrikeus/CyberStrike.git",
+  "ref": "v1.1.14",
+  "commit": "60fd0c43110d5b86ef56cfa7317faf80c6264ce8",
+  "source_path": ".cyberstrike/skill",
+  "license": "AGPL-3.0-only",
+  "skill_files": 7649,
+  "indexed_skills": 7623,
+  "skipped_files": 26
+}
