@@ -3,9 +3,12 @@
 import * as React from "react";
 import { useOrg } from "@/providers/org-provider";
 import { createOrg, deleteOrg, updateOrg } from "@/lib/api/orgs";
+import { fetchCompanies } from "@/lib/api/companies";
 import { fetchWorkspacesList } from "@/lib/api/assets";
 import type { Org } from "@/lib/types/org";
+import type { CompanyBundle } from "@/lib/types/company";
 import { AssignWorkspacesDialog } from "@/components/orgs/assign-workspaces-dialog";
+import { CompanyIntakeDialog } from "@/components/orgs/company-intake-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,7 +61,10 @@ export default function OrgsPage() {
   const { orgs, activeOrg, isLoading, error, selectOrg, refresh } = useOrg();
 
   const [workspaceNames, setWorkspaceNames] = React.useState<string[]>([]);
+  const [companies, setCompanies] = React.useState<CompanyBundle[]>([]);
   const [createOpen, setCreateOpen] = React.useState(false);
+  const [companyOpen, setCompanyOpen] = React.useState(false);
+  const [companyTarget, setCompanyTarget] = React.useState<CompanyBundle | null>(null);
   const [renameTarget, setRenameTarget] = React.useState<Org | null>(null);
   const [deleteTarget, setDeleteTarget] = React.useState<Org | null>(null);
   const [assignTarget, setAssignTarget] = React.useState<Org | null>(null);
@@ -80,9 +86,18 @@ export default function OrgsPage() {
     }
   }, []);
 
+  const loadCompanies = React.useCallback(async () => {
+    try {
+      setCompanies(await fetchCompanies());
+    } catch {
+      setCompanies([]);
+    }
+  }, []);
+
   React.useEffect(() => {
     void loadWorkspaces();
-  }, [loadWorkspaces]);
+    void loadCompanies();
+  }, [loadCompanies, loadWorkspaces]);
 
   const handleCreate = async () => {
     const name = newName.trim();
@@ -174,6 +189,10 @@ export default function OrgsPage() {
             <Button size="sm" onClick={() => setCreateOpen(true)}>
               <PlusIcon className="size-4" />
               新建组织
+            </Button>
+            <Button size="sm" onClick={() => { setCompanyTarget(null); setCompanyOpen(true); }}>
+              <BuildingIcon className="size-4" />
+              按公司录入
             </Button>
           </div>
         </CardHeader>
@@ -304,6 +323,28 @@ export default function OrgsPage() {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">公司档案</CardTitle>
+          <CardDescription>公司是法律主体，确认后关联组织；只有已授权根域名会成为工作区。</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {companies.length === 0 ? <p className="py-5 text-center text-sm text-muted-foreground">尚未录入公司档案。</p> : (
+            <Table>
+              <TableHeader><TableRow><TableHead>公司名称</TableHead><TableHead>状态</TableHead><TableHead>根域名</TableHead><TableHead className="w-24" /></TableRow></TableHeader>
+              <TableBody>{companies.map((company) => (
+                <TableRow key={company.profile.uuid}>
+                  <TableCell><div className="font-medium">{company.profile.canonical_name}</div><div className="text-xs text-muted-foreground">录入名：{company.profile.input_name}</div></TableCell>
+                  <TableCell><Badge variant={company.profile.verification_status === "confirmed" ? "success" : "warning"}>{company.profile.verification_status === "confirmed" ? "已确认" : "待确认"}</Badge></TableCell>
+                  <TableCell className="font-mono text-xs">{company.domains.map((domain) => domain.domain).join(", ") || "-"}</TableCell>
+                  <TableCell><Button variant="outline" size="sm" onClick={() => { setCompanyTarget(company); setCompanyOpen(true); }}>{company.profile.verification_status === "confirmed" ? "查看" : "继续"}</Button></TableCell>
+                </TableRow>
+              ))}</TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Create */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
@@ -428,6 +469,16 @@ export default function OrgsPage() {
           onAssigned={() => void handleAssigned()}
         />
       )}
+      <CompanyIntakeDialog
+        open={companyOpen}
+        onOpenChange={(next) => { setCompanyOpen(next); if (!next) setCompanyTarget(null); }}
+        initialBundle={companyTarget}
+        onCompleted={async () => {
+          await refresh();
+          await loadWorkspaces();
+          await loadCompanies();
+        }}
+      />
     </div>
   );
 }

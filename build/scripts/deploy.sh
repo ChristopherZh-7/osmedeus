@@ -8,7 +8,9 @@ compose_file="${repo_dir}/build/docker/docker-compose.production.yaml"
 settings_template="${repo_dir}/build/docker/osm-settings.production.yaml"
 state_dir="${OSM_DEPLOY_STATE_DIR:-${repo_dir}/.osmedeus-deploy}"
 env_file="${state_dir}/.env"
-settings_file="${state_dir}/osm-settings.yaml"
+config_dir="${state_dir}/config"
+settings_file="${config_dir}/osm-settings.yaml"
+legacy_settings_file="${state_dir}/osm-settings.yaml"
 action="${1:-up}"
 
 die() {
@@ -73,6 +75,15 @@ initialize_state() {
   mkdir -p "${state_dir}"
   chmod 700 "${state_dir}"
 
+  mkdir -p "${config_dir}"
+  chmod 700 "${config_dir}"
+
+  # Preserve settings created by deployments before the writable-directory
+  # mount was introduced.
+  if [[ ! -f "${settings_file}" && -f "${legacy_settings_file}" ]]; then
+    mv "${legacy_settings_file}" "${settings_file}"
+  fi
+
   if [[ ! -f "${env_file}" ]]; then
     local postgres_password admin_password jwt_secret api_key workspace_prefix
     postgres_password="$(random_hex 24)"
@@ -99,21 +110,23 @@ initialize_state() {
 
   load_state_values
 
-  local tmp_settings
-  tmp_settings="$(mktemp "${state_dir}/osm-settings.XXXXXX")"
-  sed \
-    -e "s|__POSTGRES_PASSWORD__|${POSTGRES_PASSWORD}|g" \
-    -e "s|__OSM_ADMIN_PASSWORD__|${OSM_ADMIN_PASSWORD}|g" \
-    -e "s|__OSM_JWT_SECRET__|${OSM_JWT_SECRET}|g" \
-    -e "s|__OSM_API_KEY__|${OSM_API_KEY}|g" \
-    -e "s|__WORKSPACE_PREFIX_KEY__|${WORKSPACE_PREFIX_KEY}|g" \
-    "${settings_template}" >"${tmp_settings}"
-  mv "${tmp_settings}" "${settings_file}"
-  chmod 600 "${settings_file}"
+  if [[ ! -f "${settings_file}" ]]; then
+    local tmp_settings
+    tmp_settings="$(mktemp "${state_dir}/osm-settings.XXXXXX")"
+    sed \
+      -e "s|__POSTGRES_PASSWORD__|${POSTGRES_PASSWORD}|g" \
+      -e "s|__OSM_ADMIN_PASSWORD__|${OSM_ADMIN_PASSWORD}|g" \
+      -e "s|__OSM_JWT_SECRET__|${OSM_JWT_SECRET}|g" \
+      -e "s|__OSM_API_KEY__|${OSM_API_KEY}|g" \
+      -e "s|__WORKSPACE_PREFIX_KEY__|${WORKSPACE_PREFIX_KEY}|g" \
+      "${settings_template}" >"${tmp_settings}"
+    mv "${tmp_settings}" "${settings_file}"
+    chmod 600 "${settings_file}"
+  fi
 }
 
 compose() {
-  OSM_SETTINGS_FILE="${settings_file}" docker compose \
+  OSM_SETTINGS_DIR="${config_dir}" docker compose \
     --env-file "${env_file}" \
     -f "${compose_file}" \
     "$@"

@@ -303,8 +303,9 @@ into this repo so they version together with the code they talk to.
 - **No nested `.git`.** The sub-projects are plain directories here; their
   history lives in the standalone repos.
 - **Build outputs are gitignored** (`node_modules/`, `.next/`, `build/`, `out/`).
-  `.dockerignore` excludes `platform/` wholesale so an installed `node_modules`
-  never enters the Docker build context.
+  `.dockerignore` excludes `platform/*` except `platform/osmedeus-workflow/` so
+  installed frontend `node_modules` never enters the Docker build context while
+  production gets the version-matched workflow collection.
 - `.agents/` is un-ignored under `platform/` (`!platform/*/.agents/`) because the
   dashboard tracks its agent skills upstream — ignoring them here would make
   `sync-platform --delete` wipe them.
@@ -318,6 +319,7 @@ Targets that consume `platform/` rather than a sibling checkout:
 | `make update-ui` | `platform/osmedeus-dashboard` (builds, then copies to `public/ui/`) |
 | `make snapshot-release` | `$(REGISTRY_DIR)` = `platform/osmedeus-registry` for `registry-metadata-direct-fetch.json` and `install.sh` |
 | `build/docker/docker-compose.canary.yaml` | `platform/osmedeus-workflow` mounted as the canary's workflows |
+| `build/docker/Dockerfile` | `platform/osmedeus-workflow` copied over the remote preset for version-locked production workflows |
 
 Adding a new consumer? Point it at `platform/<name>/`, never `../<name>/` — the
 sibling checkout may not exist on a fresh clone.

@@ -1341,6 +1341,15 @@ func DefaultConfig() *Config {
 			"SHODAN_API_KEY":       {Value: ""},
 			"CENSYS_API_KEY":       {Value: ""},
 			"PASSIVETOTAL_API_KEY": {Value: ""},
+			"FOFA_EMAIL":            {Value: ""},
+			"FOFA_API_KEY":          {Value: ""},
+			"FOFA_BASE_URL":         {Value: "https://fofa.info/api/v1/search/all"},
+			"QUAKE_API_KEY":         {Value: ""},
+			"QUAKE_BASE_URL":        {Value: "https://quake.360.net/api/v3/search/quake_service"},
+			"HUNTER_API_KEY":        {Value: ""},
+			"HUNTER_BASE_URL":       {Value: "https://hunter.qianxin.com/openApi/search"},
+			"ZEROZONE_API_KEY":      {Value: ""},
+			"ZEROZONE_BASE_URL":     {Value: "https://0.zone/api/data/"},
 			// Add more default placeholders as needed
 		},
 		Notification: NotificationConfig{

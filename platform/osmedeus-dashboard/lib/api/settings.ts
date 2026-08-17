@@ -45,6 +45,8 @@ export interface ProductSettings {
     id: string;
     label: string;
     configured: boolean;
+    kind: "general" | "company_intel" | string;
+    requires_email?: boolean;
   }>;
   system: {
     base_folder: string;
@@ -97,6 +99,16 @@ export interface UpdateAISettingsInput {
   structured_json_format: boolean;
 }
 
+export interface UpdateIntegrationSettingsInput {
+  providers: Array<{
+    id: string;
+    api_key: string;
+    email: string;
+    keep_api_key: boolean;
+    keep_email: boolean;
+  }>;
+}
+
 export async function getProductSettings(): Promise<ProductSettings> {
   const response = await http.get(`${API_PREFIX}/settings/product`, liveSettingsRequest);
   return response.data as ProductSettings;
@@ -128,6 +140,10 @@ export async function deleteSettingsSkill(slug: string): Promise<void> {
 
 export async function updateAISettings(input: UpdateAISettingsInput): Promise<void> {
   await http.put(`${API_PREFIX}/settings/ai`, input, liveSettingsRequest);
+}
+
+export async function updateIntegrationSettings(input: UpdateIntegrationSettingsInput): Promise<void> {
+  await http.put(`${API_PREFIX}/settings/integrations`, input, liveSettingsRequest);
 }
 
 export async function getSettingsYaml(): Promise<string> {

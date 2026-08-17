@@ -344,6 +344,15 @@ func (s *Server) setupRoutes() {
 	api.Put("/orgs/:uuid", handlers.UpdateOrg(s.config))
 	api.Delete("/orgs/:uuid", handlers.DeleteOrg(s.config))
 
+	// Companies - evidence-first intake that creates org/workspaces only after
+	// the operator confirms legal identity and authorized root domains.
+	api.Get("/companies", handlers.ListCompanies(s.config))
+	api.Post("/companies/intake", handlers.IntakeCompany(s.config))
+	api.Get("/companies/:uuid", handlers.GetCompany(s.config))
+	api.Post("/companies/:uuid/discover", handlers.DiscoverCompany(s.config))
+	api.Post("/companies/:uuid/confirm", handlers.ConfirmCompany(s.config))
+	api.Post("/companies/:uuid/candidates/authorize", handlers.AuthorizeCompanyCandidates(s.config))
+
 	// Vulnerabilities
 	api.Get("/vulnerabilities", handlers.ListVulnerabilities(s.config))
 	api.Get("/vulnerabilities/diff", handlers.GetVulnerabilityDiff(s.config))
@@ -386,6 +395,7 @@ func (s *Server) setupRoutes() {
 	// Settings API
 	api.Get("/settings/product", handlers.GetProductSettings(s.config, s.hotConfig))
 	api.Put("/settings/ai", handlers.UpdateAISettings(s.config, s.hotConfig))
+	api.Put("/settings/integrations", handlers.UpdateIntegrationSettings(s.config, s.hotConfig))
 	api.Get("/settings/skills", handlers.ListSettingsSkills(s.config))
 	api.Get("/settings/skills/:slug", handlers.GetSettingsSkill(s.config))
 	api.Post("/settings/skills", handlers.CreateSettingsSkill(s.config))

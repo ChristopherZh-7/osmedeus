@@ -204,6 +204,24 @@ func DeleteOrg(ctx context.Context, orgUUID string, purge bool) error {
 	}
 
 	return Transaction(ctx, func(ctx context.Context, tx bun.Tx) error {
+		if purge {
+			if _, err := tx.NewDelete().Table("company_asset_candidates").Where("company_uuid IN (SELECT uuid FROM company_profiles WHERE org_uuid = ?)", orgUUID).Exec(ctx); err != nil {
+				return fmt.Errorf("failed to delete company candidates: %w", err)
+			}
+			if _, err := tx.NewDelete().Table("company_domains").Where("company_uuid IN (SELECT uuid FROM company_profiles WHERE org_uuid = ?)", orgUUID).Exec(ctx); err != nil {
+				return fmt.Errorf("failed to delete company domains: %w", err)
+			}
+			if _, err := tx.NewDelete().Table("company_profiles").Where("org_uuid = ?", orgUUID).Exec(ctx); err != nil {
+				return fmt.Errorf("failed to delete company profiles: %w", err)
+			}
+		} else if _, err := tx.NewUpdate().Table("company_profiles").
+			Set("org_uuid = ''").
+			Set("verification_status = ?", CompanyVerificationDraft).
+			Set("confirmed_at = NULL").
+			Set("updated_at = ?", time.Now()).
+			Where("org_uuid = ?", orgUUID).Exec(ctx); err != nil {
+			return fmt.Errorf("failed to reopen company profiles after org deletion: %w", err)
+		}
 		for _, table := range orgScopedTables {
 			var err error
 			if purge {

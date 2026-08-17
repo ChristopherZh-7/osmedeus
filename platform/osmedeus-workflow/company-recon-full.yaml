@@ -1,0 +1,21 @@
+# Company intake and legal-name resolution live in the Companies API/UI because
+# they create database records and require human confirmation. This flow starts
+# only after a root domain has been authorized and a workspace has been created.
+kind: flow
+name: company-recon-full
+description: Full reconnaissance for one operator-authorized company root domain
+tags: recon, company, authorized, full
+extends: domain-standard
+help:
+  example_targets: ['authorized-example.com']
+  usage: osmedeus run -f company-recon-full -t authorized-example.com --org confirmed-company
+
+dependencies:
+  variables:
+    - name: Target
+      type: domain
+      required: true
+
+# Keep the operational scan identical to domain-standard. Company identity,
+# passive-provider queries, ownership evidence, and authorization remain outside
+# workflow YAML so API keys and unapproved candidates can never leak into a run.

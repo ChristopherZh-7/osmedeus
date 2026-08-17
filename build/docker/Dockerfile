@@ -53,6 +53,19 @@ COPY --from=builder /osmedeus /usr/local/bin/osmedeus
 # Initialize osmedeus base folder with preset workflows
 RUN osmedeus install base --preset
 
+# Overlay the version-controlled workflow collection from this repository. The
+# remote preset supplies the rest of the base layout, while this guarantees that
+# a checkout's code, API and workflows are deployed as one tested version.
+COPY platform/osmedeus-workflow /opt/osmedeus-workflow
+RUN cp -R /opt/osmedeus-workflow/. /root/osmedeus-base/workflows/ && \
+    rm -rf /opt/osmedeus-workflow
+
+# Production mounts settings as a directory so atomic temp-file+rename updates
+# work. The entrypoint refreshes the symlink even when an older named volume
+# already contains a regular osm-settings.yaml.
+COPY build/docker/entrypoint.sh /usr/local/bin/osmedeus-entrypoint
+RUN chmod 0755 /usr/local/bin/osmedeus-entrypoint
+
 # Install SAST tools (used for testing). Retry on transient download/hash
 # failures — large wheel/binary downloads are prone to truncation when this
 # stage runs under QEMU emulation during multi-arch builds (a corrupted wheel
@@ -72,7 +85,7 @@ ENV PATH="/root/osmedeus-base/external-binaries:${PATH}"
 EXPOSE 8002
 
 # Default entrypoint - exposes osmedeus CLI only
-ENTRYPOINT ["osmedeus"]
+ENTRYPOINT ["osmedeus-entrypoint"]
 
 # Default command shows help (user can override with run/server/etc.)
 CMD ["--help"]

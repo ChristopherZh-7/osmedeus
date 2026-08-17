@@ -86,6 +86,7 @@ The workflow follows a phased approach to reconnaissance:
 | `general.yaml` | Full reconnaissance pipeline with all phases |
 | `domain-lite.yaml` | Lightweight domain reconnaissance |
 | `domain-standard.yaml` | Standard domain reconnaissance |
+| `company-recon-full.yaml` | Full recon for one company root domain after operator authorization |
 | `domain-extensive.yaml` | Extended domain reconnaissance |
 | `cidr.yaml` | CIDR/IP range reconnaissance |
 | `cidr-extensive.yaml` | Extended CIDR reconnaissance with additional phases |

@@ -1,9 +1,13 @@
 # The Dockerfile does `COPY . .`, so everything here is build context. The Go
 # build needs no JS tooling, and platform/ can hold a ~600MB node_modules tree
-# once anyone runs `bun install` — keep it out of the context entirely.
+# once anyone runs `bun install`. Keep sub-projects out except the small workflow
+# collection, which the production image copies after preset installation so a
+# source checkout and its one-command deployment always use the same workflows.
 #
 # public/ui/ is the *built* dashboard and IS needed: it is go:embed'd.
-platform/
+platform/*
+!platform/osmedeus-workflow/
+!platform/osmedeus-workflow/**
 
 .git/
 .github/

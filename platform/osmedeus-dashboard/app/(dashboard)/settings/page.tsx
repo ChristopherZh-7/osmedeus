@@ -62,6 +62,7 @@ import {
   reloadSettings,
   updateSettingsSkill,
   updateAISettings,
+  updateIntegrationSettings,
   type ProductSettings,
   type SettingsSkill,
   type SettingsSkills,
@@ -79,6 +80,15 @@ type AIProviderDraft = {
 };
 
 type AIParams = Omit<ProductSettings["llm"], "configured" | "providers">;
+
+type IntegrationDraft = {
+  id: string;
+  label: string;
+  configured: boolean;
+  requires_email: boolean;
+  api_key: string;
+  email: string;
+};
 
 type SkillEditorState = {
   mode: "create" | "edit";
@@ -227,10 +237,12 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = React.useState("overview");
   const [loading, setLoading] = React.useState(true);
   const [savingAI, setSavingAI] = React.useState(false);
+  const [savingIntegrations, setSavingIntegrations] = React.useState(false);
   const [product, setProduct] = React.useState<ProductSettings | null>(null);
   const [skills, setSkills] = React.useState<SettingsSkills>(emptySkills);
   const [harness, setHarness] = React.useState<AgentHarnessStatus | null>(null);
   const [providers, setProviders] = React.useState<AIProviderDraft[]>([]);
+  const [integrationDrafts, setIntegrationDrafts] = React.useState<IntegrationDraft[]>([]);
   const [aiParams, setAIParams] = React.useState<AIParams | null>(null);
   const [skillSearch, setSkillSearch] = React.useState("");
   const [skillEditor, setSkillEditor] = React.useState<SkillEditorState | null>(null);
@@ -261,6 +273,18 @@ export default function SettingsPage() {
     void _configured;
     void _providers;
     setAIParams(params);
+    setIntegrationDrafts(
+      next.integrations
+        .filter((integration) => integration.kind === "company_intel")
+        .map((integration) => ({
+          id: integration.id,
+          label: integration.label,
+          configured: integration.configured,
+          requires_email: integration.requires_email === true,
+          api_key: "",
+          email: "",
+        }))
+    );
   }, []);
 
   const loadPageData = React.useCallback(async () => {
@@ -340,6 +364,31 @@ export default function SettingsPage() {
     } finally {
       setSavingAI(false);
     }
+  };
+
+  const saveIntegrations = async () => {
+    setSavingIntegrations(true);
+    try {
+      await updateIntegrationSettings({
+        providers: integrationDrafts.map((provider) => ({
+          id: provider.id,
+          api_key: provider.api_key,
+          email: provider.email,
+          keep_api_key: provider.configured && !provider.api_key.trim(),
+          keep_email: provider.configured && provider.requires_email && !provider.email.trim(),
+        })),
+      });
+      applyProduct(await getProductSettings());
+      toast.success("外部情报源配置已保存");
+    } catch {
+      toast.error("保存失败，请检查密钥和 FOFA 邮箱");
+    } finally {
+      setSavingIntegrations(false);
+    }
+  };
+
+  const setIntegrationField = (id: string, field: "api_key" | "email", value: string) => {
+    setIntegrationDrafts((current) => current.map((provider) => provider.id === id ? { ...provider, [field]: value } : provider));
   };
 
   const saveApiConfig = () => {
@@ -488,6 +537,7 @@ export default function SettingsPage() {
         <TabsList className="h-auto min-w-max justify-start">
           <TabsTrigger value="overview">概览</TabsTrigger>
           <TabsTrigger value="ai">AI 与模型</TabsTrigger>
+          <TabsTrigger value="intelligence">外部情报源</TabsTrigger>
           <TabsTrigger value="skills">Skills</TabsTrigger>
           <TabsTrigger value="system">系统与连接</TabsTrigger>
           <TabsTrigger value="appearance">外观</TabsTrigger>
@@ -625,6 +675,30 @@ export default function SettingsPage() {
             <div className="rounded-control border p-3"><div className="text-xs text-muted-foreground">提供方</div><div className="mt-1 font-medium">{harness?.provider || product?.agent_harness.provider || "-"}</div></div>
             <div className="rounded-control border p-3 md:col-span-2"><div className="text-xs text-muted-foreground">运行时地址</div><div className="mt-1 truncate font-mono text-sm">{harness?.base_url || product?.agent_harness.base_url || "-"}</div></div>
             <p className="text-sm text-muted-foreground md:col-span-3">这里先明确展示运行状态与边界；DSH 自身的模型凭据仍由隔离运行时管理，避免把两套 AI 配置混在一起。</p>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="intelligence" className="space-y-4">
+        <Card className="overflow-hidden">
+          <SectionCardHeader
+            icon={KeyRoundIcon}
+            title="公司资产情报源"
+            description="供公司录入向导做被动查询；密钥只写保存，不会返回浏览器或写进工作流 YAML"
+            actions={<Button onClick={saveIntegrations} disabled={savingIntegrations || integrationDrafts.length === 0}>{savingIntegrations ? <LoaderIcon className="size-4 animate-spin" /> : <SaveIcon className="size-4" />}保存情报源</Button>}
+          />
+          <CardContent className="space-y-4">
+            <div className="rounded-control border border-info/25 bg-info-soft p-3 text-sm text-info">输入新值才会替换现有凭据；显示“已配置”时留空保存会保留原值。清空某个已配置密钥请先输入替代值，避免误操作让流程失效。</div>
+            <div className="grid gap-4 lg:grid-cols-2">
+              {integrationDrafts.map((provider) => (
+                <div key={provider.id} className="space-y-4 rounded-control border bg-muted/20 p-4">
+                  <div className="flex items-center justify-between"><div className="font-medium">{provider.label}</div><ConfigState configured={provider.configured} /></div>
+                  {provider.requires_email ? <div className="space-y-2"><label className="text-sm font-medium">账号邮箱</label><Input value={provider.email} onChange={(event) => setIntegrationField(provider.id, "email", event.target.value)} placeholder={provider.configured ? "已配置，留空保留" : "FOFA 登录邮箱"} /></div> : null}
+                  <div className="space-y-2"><label className="text-sm font-medium">API Key</label><Input type="password" value={provider.api_key} onChange={(event) => setIntegrationField(provider.id, "api_key", event.target.value)} placeholder={provider.configured ? "已配置，留空保留" : `输入 ${provider.label} API Key`} /></div>
+                </div>
+              ))}
+            </div>
+            <div className="rounded-control border border-warning/25 bg-warning-soft p-3 text-sm text-warning">这些平台只负责发现候选资产。候选必须回到公司向导中再次授权，才会进入资产库；系统不会因为配置了 Key 就自动扫描。</div>
           </CardContent>
         </Card>
       </TabsContent>

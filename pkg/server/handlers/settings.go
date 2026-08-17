@@ -58,6 +58,33 @@ type settingsAIUpdateRequest struct {
 	StructuredJSONFormat bool                       `json:"structured_json_format"`
 }
 
+type settingsIntegrationInput struct {
+	ID         string `json:"id"`
+	APIKey     string `json:"api_key"`
+	Email      string `json:"email"`
+	KeepAPIKey bool   `json:"keep_api_key"`
+	KeepEmail  bool   `json:"keep_email"`
+}
+
+type settingsIntegrationsUpdateRequest struct {
+	Providers []settingsIntegrationInput `json:"providers"`
+}
+
+type companyIntegrationSpec struct {
+	ID            string
+	Label         string
+	APIKeyVar     string
+	EmailVar      string
+	RequiresEmail bool
+}
+
+var companyIntegrationSpecs = []companyIntegrationSpec{
+	{ID: "fofa", Label: "FOFA", APIKeyVar: "FOFA_API_KEY", EmailVar: "FOFA_EMAIL", RequiresEmail: true},
+	{ID: "quake", Label: "Quake", APIKeyVar: "QUAKE_API_KEY"},
+	{ID: "hunter", Label: "Hunter", APIKeyVar: "HUNTER_API_KEY"},
+	{ID: "zerozone", Label: "0.zone", APIKeyVar: "ZEROZONE_API_KEY"},
+}
+
 type settingsSkillView struct {
 	Slug        string `json:"slug"`
 	Name        string `json:"name"`
@@ -74,6 +101,9 @@ func loadSettingsConfig(cfg *config.Config) (*config.Config, string, error) {
 		return nil, "", fmt.Errorf("configuration is unavailable")
 	}
 	settingsPath := filepath.Join(cfg.BaseFolder, "osm-settings.yaml")
+	if resolved, err := filepath.EvalSymlinks(settingsPath); err == nil {
+		settingsPath = resolved
+	}
 	fresh, err := config.LoadFromFile(settingsPath)
 	if err != nil {
 		return nil, settingsPath, err
@@ -94,6 +124,23 @@ func llmProviderViews(cfg *config.Config) []settingsLLMProviderView {
 	return providers
 }
 
+func settingsIntegrationViews(cfg *config.Config) []fiber.Map {
+	result := []fiber.Map{
+		{"id": "github", "label": "GitHub", "configured": strings.TrimSpace(cfg.GlobalVars["GITHUB_API_KEY"].Value) != "", "kind": "general"},
+		{"id": "shodan", "label": "Shodan", "configured": strings.TrimSpace(cfg.GlobalVars["SHODAN_API_KEY"].Value) != "", "kind": "general"},
+		{"id": "censys", "label": "Censys", "configured": strings.TrimSpace(cfg.GlobalVars["CENSYS_API_KEY"].Value) != "", "kind": "general"},
+		{"id": "passivetotal", "label": "PassiveTotal", "configured": strings.TrimSpace(cfg.GlobalVars["PASSIVETOTAL_API_KEY"].Value) != "", "kind": "general"},
+	}
+	for _, spec := range companyIntegrationSpecs {
+		configured := strings.TrimSpace(cfg.GlobalVars[spec.APIKeyVar].Value) != ""
+		if spec.RequiresEmail {
+			configured = configured && strings.TrimSpace(cfg.GlobalVars[spec.EmailVar].Value) != ""
+		}
+		result = append(result, fiber.Map{"id": spec.ID, "label": spec.Label, "configured": configured, "kind": "company_intel", "requires_email": spec.RequiresEmail})
+	}
+	return result
+}
+
 // GetProductSettings returns a product-oriented settings projection. Secrets
 // are represented only as configured/not-configured booleans.
 func GetProductSettings(cfg *config.Config, hotConfig *config.HotReloadableConfig) fiber.Handler {
@@ -102,12 +149,7 @@ func GetProductSettings(cfg *config.Config, hotConfig *config.HotReloadableConfi
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": true, "message": err.Error()})
 		}
-		integrations := []fiber.Map{
-			{"id": "github", "label": "GitHub", "configured": strings.TrimSpace(fresh.GlobalVars["GITHUB_API_KEY"].Value) != ""},
-			{"id": "shodan", "label": "Shodan", "configured": strings.TrimSpace(fresh.GlobalVars["SHODAN_API_KEY"].Value) != ""},
-			{"id": "censys", "label": "Censys", "configured": strings.TrimSpace(fresh.GlobalVars["CENSYS_API_KEY"].Value) != ""},
-			{"id": "passivetotal", "label": "PassiveTotal", "configured": strings.TrimSpace(fresh.GlobalVars["PASSIVETOTAL_API_KEY"].Value) != ""},
-		}
+		integrations := settingsIntegrationViews(fresh)
 		return c.JSON(fiber.Map{
 			"version": core.VERSION,
 			"llm": fiber.Map{
@@ -144,6 +186,73 @@ func GetProductSettings(cfg *config.Config, hotConfig *config.HotReloadableConfi
 		})
 	}
 }
+
+// UpdateIntegrationSettings stores passive-intelligence credentials as
+// write-only global vars. Blank values preserve existing credentials only when
+// the caller explicitly asks to keep them.
+func UpdateIntegrationSettings(cfg *config.Config, hotConfig *config.HotReloadableConfig) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		var req settingsIntegrationsUpdateRequest
+		if err := c.BodyParser(&req); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": true, "message": "请求格式无效"})
+		}
+		if len(req.Providers) == 0 || len(req.Providers) > len(companyIntegrationSpecs) {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": true, "message": "情报源列表无效"})
+		}
+		fresh, settingsPath, err := loadSettingsConfig(cfg)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": true, "message": err.Error()})
+		}
+		if fresh.GlobalVars == nil {
+			fresh.GlobalVars = config.GlobalVarsConfig{}
+		}
+		specByID := make(map[string]companyIntegrationSpec, len(companyIntegrationSpecs))
+		for _, spec := range companyIntegrationSpecs {
+			specByID[spec.ID] = spec
+		}
+		seen := map[string]bool{}
+		for _, input := range req.Providers {
+			id := strings.ToLower(strings.TrimSpace(input.ID))
+			spec, ok := specByID[id]
+			if !ok || seen[id] {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": true, "message": "未知或重复的情报源：" + id})
+			}
+			seen[id] = true
+			apiKey := strings.TrimSpace(input.APIKey)
+			if input.KeepAPIKey && apiKey == "" {
+				apiKey = fresh.GlobalVars[spec.APIKeyVar].Value
+			}
+			fresh.GlobalVars[spec.APIKeyVar] = config.GlobalVar{Value: apiKey, AsEnv: boolPointer(false)}
+			if spec.RequiresEmail {
+				email := strings.TrimSpace(input.Email)
+				if input.KeepEmail && email == "" {
+					email = fresh.GlobalVars[spec.EmailVar].Value
+				}
+				fresh.GlobalVars[spec.EmailVar] = config.GlobalVar{Value: email, AsEnv: boolPointer(false)}
+			}
+		}
+		backupPath, err := writeConfigAtomically(settingsPath, fresh)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": true, "message": err.Error()})
+		}
+		active := fresh
+		if hotConfig != nil {
+			if err := hotConfig.Reload(); err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": true, "message": "配置已写入但重新加载失败：" + err.Error()})
+			}
+			active = hotConfig.Get()
+		} else {
+			active.ResolvePaths()
+		}
+		if cfg != nil && active != cfg {
+			*cfg = *active
+		}
+		config.Set(active)
+		return c.JSON(fiber.Map{"message": "外部情报源配置已保存", "backup": backupPath, "integrations": settingsIntegrationViews(active)})
+	}
+}
+
+func boolPointer(value bool) *bool { return &value }
 
 func writeConfigAtomically(settingsPath string, cfg *config.Config) (string, error) {
 	data, err := cfg.ToYAML()

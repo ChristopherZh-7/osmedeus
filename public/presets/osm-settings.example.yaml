@@ -250,6 +250,36 @@ global_vars:
     value: ""
     as_env: true  # Exports as PASSIVETOTAL_API_KEY
 
+  # Company-intelligence providers. These credentials are managed as
+  # write-only values from Settings > External intelligence.
+  FOFA_EMAIL:
+    value: ""
+    as_env: false
+  FOFA_API_KEY:
+    value: ""
+    as_env: false
+  FOFA_BASE_URL:
+    value: "https://fofa.info/api/v1/search/all"
+    as_env: false
+  QUAKE_API_KEY:
+    value: ""
+    as_env: false
+  QUAKE_BASE_URL:
+    value: "https://quake.360.net/api/v3/search/quake_service"
+    as_env: false
+  HUNTER_API_KEY:
+    value: ""
+    as_env: false
+  HUNTER_BASE_URL:
+    value: "https://hunter.qianxin.com/openApi/search"
+    as_env: false
+  ZEROZONE_API_KEY:
+    value: ""
+    as_env: false
+  ZEROZONE_BASE_URL:
+    value: "https://0.zone/api/data/"
+    as_env: false
+
   # Add more API keys as needed (use _API_KEY suffix for secrets)
 
 # =============================================================================

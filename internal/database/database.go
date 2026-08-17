@@ -199,6 +199,9 @@ func Migrate(ctx context.Context) error {
 		(*PentestMemory)(nil),
 		(*PentestMemoryEmbedding)(nil),
 		(*Org)(nil),
+		(*CompanyProfile)(nil),
+		(*CompanyDomain)(nil),
+		(*CompanyAssetCandidate)(nil),
 	}
 
 	for _, model := range models {
@@ -347,6 +350,9 @@ func Migrate(ctx context.Context) error {
 	if err := createOrgIndexes(ctx); err != nil {
 		return err
 	}
+	if err := createCompanyIndexes(ctx); err != nil {
+		return err
+	}
 	if err := createPentestSessionIndexes(ctx); err != nil {
 		return err
 	}
@@ -414,6 +420,23 @@ func createOrgIndexes(ctx context.Context) error {
 		}
 	}
 
+	return nil
+}
+
+func createCompanyIndexes(ctx context.Context) error {
+	indexes := []string{
+		"CREATE INDEX IF NOT EXISTS idx_company_profiles_org_uuid ON company_profiles(org_uuid)",
+		"CREATE INDEX IF NOT EXISTS idx_company_profiles_status ON company_profiles(verification_status, updated_at)",
+		"CREATE UNIQUE INDEX IF NOT EXISTS idx_company_domains_unique ON company_domains(company_uuid, domain)",
+		"CREATE INDEX IF NOT EXISTS idx_company_domains_authorization ON company_domains(company_uuid, authorization_status)",
+		"CREATE UNIQUE INDEX IF NOT EXISTS idx_company_candidates_unique ON company_asset_candidates(company_uuid, provider, asset_value)",
+		"CREATE INDEX IF NOT EXISTS idx_company_candidates_authorization ON company_asset_candidates(company_uuid, authorization_status)",
+	}
+	for _, idx := range indexes {
+		if _, err := db.ExecContext(ctx, idx); err != nil {
+			return fmt.Errorf("failed to create company index: %w", err)
+		}
+	}
 	return nil
 }
 

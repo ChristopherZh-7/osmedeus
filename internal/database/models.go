@@ -296,6 +296,77 @@ type Org struct {
 	UpdatedAt time.Time `bun:"updated_at,notnull,default:current_timestamp" json:"updated_at"`
 }
 
+// CompanyProfile stores the verified legal identity behind an org. A profile
+// starts as a draft without OrgUUID; confirming it creates (or reuses) an org.
+// Keeping this separate from Org lets operators resolve ambiguous company names
+// before any scan scope is created.
+type CompanyProfile struct {
+	bun.BaseModel `bun:"table:company_profiles,alias:cp"`
+
+	UUID               string                 `bun:"uuid,pk,notnull" json:"uuid"`
+	OrgUUID            string                 `bun:"org_uuid" json:"org_uuid,omitempty"`
+	InputName          string                 `bun:"input_name,notnull" json:"input_name"`
+	CanonicalName      string                 `bun:"canonical_name,notnull" json:"canonical_name"`
+	ShortName          string                 `bun:"short_name" json:"short_name,omitempty"`
+	Aliases            []string               `bun:"aliases,type:json" json:"aliases,omitempty"`
+	Country            string                 `bun:"country" json:"country,omitempty"`
+	Region             string                 `bun:"region" json:"region,omitempty"`
+	RegistrationNumber string                 `bun:"registration_number" json:"registration_number,omitempty"`
+	UnifiedCreditCode  string                 `bun:"unified_credit_code" json:"unified_credit_code,omitempty"`
+	OfficialWebsite    string                 `bun:"official_website" json:"official_website,omitempty"`
+	Confidence         int                    `bun:"confidence,notnull,default:0" json:"confidence"`
+	VerificationStatus string                 `bun:"verification_status,notnull,default:'draft'" json:"verification_status"`
+	Sources            []string               `bun:"sources,type:json" json:"sources,omitempty"`
+	RawEvidence        map[string]interface{} `bun:"raw_evidence,type:json" json:"raw_evidence,omitempty"`
+	ConfirmedAt        *time.Time             `bun:"confirmed_at" json:"confirmed_at,omitempty"`
+	CreatedAt          time.Time              `bun:"created_at,notnull,default:current_timestamp" json:"created_at"`
+	UpdatedAt          time.Time              `bun:"updated_at,notnull,default:current_timestamp" json:"updated_at"`
+}
+
+// CompanyDomain is an operator-reviewed relationship between a company and a
+// root domain. Ownership and scan authorization are deliberately independent:
+// a plausible domain is not automatically an authorized target.
+type CompanyDomain struct {
+	bun.BaseModel `bun:"table:company_domains,alias:cd"`
+
+	ID                  int64     `bun:"id,pk,autoincrement" json:"id"`
+	CompanyUUID         string    `bun:"company_uuid,notnull" json:"company_uuid"`
+	Domain              string    `bun:"domain,notnull" json:"domain"`
+	Relation            string    `bun:"relation,notnull,default:'candidate'" json:"relation"`
+	OwnershipStatus     string    `bun:"ownership_status,notnull,default:'candidate'" json:"ownership_status"`
+	AuthorizationStatus string    `bun:"authorization_status,notnull,default:'pending'" json:"authorization_status"`
+	Confidence          int       `bun:"confidence,notnull,default:0" json:"confidence"`
+	Sources             []string  `bun:"sources,type:json" json:"sources,omitempty"`
+	Evidence            string    `bun:"evidence" json:"evidence,omitempty"`
+	WorkspaceName       string    `bun:"workspace_name" json:"workspace_name,omitempty"`
+	CreatedAt           time.Time `bun:"created_at,notnull,default:current_timestamp" json:"created_at"`
+	UpdatedAt           time.Time `bun:"updated_at,notnull,default:current_timestamp" json:"updated_at"`
+}
+
+// CompanyAssetCandidate contains passive-intelligence results. Candidates are
+// imported into the normal assets table only after explicit authorization.
+type CompanyAssetCandidate struct {
+	bun.BaseModel `bun:"table:company_asset_candidates,alias:cac"`
+
+	ID                  int64                  `bun:"id,pk,autoincrement" json:"id"`
+	CompanyUUID         string                 `bun:"company_uuid,notnull" json:"company_uuid"`
+	Domain              string                 `bun:"domain" json:"domain,omitempty"`
+	Provider            string                 `bun:"provider,notnull" json:"provider"`
+	AssetValue          string                 `bun:"asset_value,notnull" json:"asset_value"`
+	URL                 string                 `bun:"url" json:"url,omitempty"`
+	IP                  string                 `bun:"ip" json:"ip,omitempty"`
+	Port                int                    `bun:"port" json:"port,omitempty"`
+	Protocol            string                 `bun:"protocol" json:"protocol,omitempty"`
+	Title               string                 `bun:"title" json:"title,omitempty"`
+	AssetType           string                 `bun:"asset_type" json:"asset_type,omitempty"`
+	Confidence          int                    `bun:"confidence,notnull,default:0" json:"confidence"`
+	OwnershipStatus     string                 `bun:"ownership_status,notnull,default:'candidate'" json:"ownership_status"`
+	AuthorizationStatus string                 `bun:"authorization_status,notnull,default:'pending'" json:"authorization_status"`
+	RawData             map[string]interface{} `bun:"raw_data,type:json" json:"raw_data,omitempty"`
+	CreatedAt           time.Time              `bun:"created_at,notnull,default:current_timestamp" json:"created_at"`
+	UpdatedAt           time.Time              `bun:"updated_at,notnull,default:current_timestamp" json:"updated_at"`
+}
+
 // IsDefault reports whether this is the built-in default org, which cannot be
 // deleted or renamed.
 func (o *Org) IsDefault() bool {
