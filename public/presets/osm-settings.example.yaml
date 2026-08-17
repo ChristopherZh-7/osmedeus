@@ -152,6 +152,8 @@ agent_harness:
 
   # Browser-facing URL used by the embedded Chat / Trajectory UI. This may be
   # different from base_url when the server reaches Harness over Docker DNS.
+  # Set false when operators use only Osmedeus' native Agent Pentest UI.
+  web_ui_enabled: true
   public_url: http://127.0.0.1:3080
 
   # Optional path where Harness can read Osmedeus workspace artifacts.

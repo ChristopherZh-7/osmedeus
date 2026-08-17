@@ -33,6 +33,7 @@ export interface ProductSettings {
     enabled: boolean;
     provider: string;
     base_url: string;
+    web_ui_enabled: boolean;
     public_url: string;
   };
   scan_tactic: {

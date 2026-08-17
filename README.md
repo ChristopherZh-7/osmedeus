@@ -39,20 +39,38 @@ See [Documentation Page](https://docs.osmedeus.org/) for more details.
 curl -sSL http://www.osmedeus.org/install.sh | bash
 ```
 
-### Full source deployment
+### One-command deployment
 
-From a source checkout, one command installs the Osmedeus binary together
-with the version-locked DeepSeek Harness, Osmedeus Harness plugins, 31 active
-DSH Skills, and the bundled 7,600+ CyberStrike Skill corpus:
+From a source checkout, Docker Compose can build, initialize, and start the
+complete platform with generated credentials. Docker Compose is the only
+required runtime; on macOS, an installed Colima is started automatically when
+needed:
 
 ```bash
-make install
-make dsh-start
+make deploy
 ```
 
-Use `make install-core` when only the Go binary is required. The production
-Docker Compose stack also builds and starts the complete Harness integration
-without a separate Skill download or link step.
+This starts PostgreSQL, Redis, the Osmedeus server and workers, and the
+version-locked DeepSeek Harness with its plugins, bundled Skills, and 7,600+
+CyberStrike corpus. Only the Osmedeus server port (`8002` by default) is
+published. DSH remains on the private Docker network and is used through the
+native Agent Pentest UI; its separate web port is not exposed.
+
+```bash
+make deploy-status       # service status
+make deploy-credentials  # show the generated admin login
+make deploy-logs         # follow logs
+make deploy-down         # stop while retaining data
+```
+
+Generated secrets and runtime settings live in the gitignored
+`.osmedeus-deploy/` directory. Set the DeepSeek key there after the first run,
+then rerun `make deploy`. If image downloads need the local proxy, use
+`make deploy DSH_PROXY=http://127.0.0.1:6152`.
+
+For non-container development, `make install` still installs the Go binary,
+DSH, plugins, and bundled Skills locally; `make dsh-start` starts its loopback
+development service. Use `make install-core` when only the Go binary is needed.
 
 ### [npm](https://www.npmjs.com/package/@j3ssie/osmedeus)
 

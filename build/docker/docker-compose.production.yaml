@@ -1,17 +1,10 @@
-version: '3.8'
-
 # Osmedeus Production Stack with PostgreSQL
 # ==========================================
 # Usage:
-#   1. Copy .env.example to .env and configure secrets
-#   2. Copy osm-settings.production.yaml to osm-settings.yaml and adjust if needed
-#   3. Start: docker-compose -f build/docker/docker-compose.production.yaml up -d
-#   4. Scale workers: docker-compose -f build/docker/docker-compose.production.yaml up -d --scale worker=5
+#   make deploy
 #
-# First-time setup:
-#   docker-compose -f build/docker/docker-compose.production.yaml up -d postgres redis
-#   # Wait for healthy status, then start the app:
-#   docker-compose -f build/docker/docker-compose.production.yaml up -d
+# The deploy helper generates credentials/config, builds every image, waits for
+# health checks, and leaves only the Osmedeus server port published.
 
 services:
   # PostgreSQL - Primary database for persistent storage
@@ -67,6 +60,10 @@ services:
     build:
       context: ../../platform/osmedeus-agent-harness
       dockerfile: Dockerfile
+      args:
+        HTTP_PROXY: ${HTTP_PROXY:-}
+        HTTPS_PROXY: ${HTTPS_PROXY:-}
+        NO_PROXY: ${NO_PROXY:-}
     image: osmedeus-agent-harness:latest
     container_name: osmedeus-agent-harness
     restart: unless-stopped
@@ -83,8 +80,8 @@ services:
     volumes:
       - agent-harness-data:/home/node/.dsh
       - workspaces:/osmedeus/workspaces:ro
-    ports:
-      - "127.0.0.1:${OSM_DSH_PORT:-3080}:3080"
+    expose:
+      - "3080"
     healthcheck:
       test: ["CMD", "node", "./scripts/check.mjs"]
       interval: 15s
@@ -104,6 +101,10 @@ services:
     build:
       context: ../..
       dockerfile: build/docker/Dockerfile
+      args:
+        HTTP_PROXY: ${HTTP_PROXY:-}
+        HTTPS_PROXY: ${HTTPS_PROXY:-}
+        NO_PROXY: ${NO_PROXY:-}
     image: osmedeus:latest
     container_name: osmedeus-server
     restart: unless-stopped
@@ -115,7 +116,7 @@ services:
     volumes:
       - osmedeus-data:/root/osmedeus-base
       - workspaces:/root/workspaces-osmedeus
-      - ./osm-settings.production.yaml:/root/osmedeus-base/osm-settings.yaml:ro
+      - "${OSM_SETTINGS_FILE:-./osm-settings.production.yaml}:/root/osmedeus-base/osm-settings.yaml:ro"
     depends_on:
       postgres:
         condition: service_healthy
@@ -143,6 +144,10 @@ services:
     build:
       context: ../..
       dockerfile: build/docker/Dockerfile
+      args:
+        HTTP_PROXY: ${HTTP_PROXY:-}
+        HTTPS_PROXY: ${HTTPS_PROXY:-}
+        NO_PROXY: ${NO_PROXY:-}
     image: osmedeus:latest
     restart: unless-stopped
     environment:
@@ -150,7 +155,7 @@ services:
     volumes:
       - osmedeus-data:/root/osmedeus-base
       - workspaces:/root/workspaces-osmedeus
-      - ./osm-settings.production.yaml:/root/osmedeus-base/osm-settings.yaml:ro
+      - "${OSM_SETTINGS_FILE:-./osm-settings.production.yaml}:/root/osmedeus-base/osm-settings.yaml:ro"
     depends_on:
       redis:
         condition: service_healthy

@@ -164,6 +164,8 @@ agent_harness:
   base_url: http://127.0.0.1:3080
 
   # Browser-facing URL for the embedded Harness UI.
+  # Set false when operators use only Osmedeus' native Agent Pentest UI.
+  web_ui_enabled: true
   public_url: http://127.0.0.1:3080
 
   # Optional read-only artifact mount inside the Harness runtime.
@@ -516,6 +518,7 @@ type AgentHarnessConfig struct {
 	Enabled               bool   `yaml:"enabled"`
 	Provider              string `yaml:"provider"`
 	BaseURL               string `yaml:"base_url"`
+	WebUIEnabled          *bool  `yaml:"web_ui_enabled,omitempty"`
 	PublicURL             string `yaml:"public_url"`
 	WorkspaceMountPath    string `yaml:"workspace_mount_path"`
 	RequestTimeoutSeconds int    `yaml:"request_timeout_seconds"`
@@ -540,11 +543,20 @@ func (c *AgentHarnessConfig) GetBaseURL() string {
 // server-to-server address (and may be a Docker service name), while PublicURL
 // must be reachable from the operator's browser for the embedded Web UI.
 func (c *AgentHarnessConfig) GetPublicURL() string {
+	if !c.IsWebUIEnabled() {
+		return ""
+	}
 	publicURL := strings.TrimSpace(c.PublicURL)
 	if publicURL == "" {
 		publicURL = c.GetBaseURL()
 	}
 	return strings.TrimRight(publicURL, "/")
+}
+
+// IsWebUIEnabled keeps the historical browser-facing behavior unless a
+// deployment explicitly disables the separate Harness UI.
+func (c *AgentHarnessConfig) IsWebUIEnabled() bool {
+	return c.WebUIEnabled == nil || *c.WebUIEnabled
 }
 
 // GetRequestTimeout returns the configured probe timeout with a safe default.

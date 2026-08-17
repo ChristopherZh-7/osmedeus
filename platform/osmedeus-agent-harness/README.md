@@ -26,7 +26,9 @@ source code.
   loads only a selected body.
 - Telemetry is disabled. The default `workspace-write` permission mode keeps
   DSH approval prompts while allowing evidence to be saved in its workspace.
-- The Web host listens on `127.0.0.1:3080` by default.
+- Local development listens on `127.0.0.1:3080` by default. Production keeps
+  port `3080` exclusively on Docker's private network; only Osmedeus' native
+  Agent Pentest UI is exposed to the operator.
 
 ## Local development
 
@@ -35,6 +37,11 @@ make install
 make dsh-start
 make dsh-check
 ```
+
+The official `headless` DSH profile runs one task and exits. Osmedeus needs a
+persistent runtime for sessions, history, steering, cancellation, and child
+agents, so production runs the persistent profile internally without
+publishing its frontend port. Use `make deploy` for that private deployment.
 
 If registry access is slow, apply a proxy only to that command (without
 changing global npm settings):

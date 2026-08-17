@@ -46,12 +46,20 @@ agent_harness:
   enabled: true
   provider: deepseek-harness
   base_url: http://127.0.0.1:3080
+  web_ui_enabled: true
   public_url: http://127.0.0.1:3080
   # Optional path where the DSH sidecar sees Osmedeus Workspace files.
   # The production compose profile mounts them read-only at this path.
   workspace_mount_path: /osmedeus/workspaces
   request_timeout_seconds: 5
 ```
+
+The one-command production deployment sets `web_ui_enabled: false` and does
+not publish DSH's port to the host. Osmedeus still reaches the persistent DSH
+RPC runtime over the private Compose network, while the browser uses only the
+native Agent Pentest UI and authenticated Osmedeus endpoints. DSH's official
+`headless` profile is intentionally not used here because it handles one task
+and exits instead of preserving interactive sessions.
 
 ## Agent Pentest sessions
 

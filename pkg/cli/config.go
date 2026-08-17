@@ -837,6 +837,12 @@ func setAgentHarnessValue(cfg *config.Config, parts []string, value string) erro
 		cfg.AgentHarness.Provider = value
 	case "base_url":
 		cfg.AgentHarness.BaseURL = value
+	case "web_ui_enabled":
+		enabled, err := strconv.ParseBool(value)
+		if err != nil {
+			return fmt.Errorf("agent_harness.web_ui_enabled must be true or false")
+		}
+		cfg.AgentHarness.WebUIEnabled = &enabled
 	case "public_url":
 		cfg.AgentHarness.PublicURL = value
 	case "workspace_mount_path":

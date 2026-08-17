@@ -70,6 +70,9 @@ platform/*/.env*
 platform/**/*.tsbuildinfo
 platform/osmedeus-dashboard/next-env.d.ts
 
+# Local one-command deployment state (generated credentials and config)
+/.osmedeus-deploy/
+
 # The repo-wide .agents rule is for this repo's own agent config; the vendored
 # sub-projects track theirs upstream, so a sync-out must not delete them.
 !platform/*/.agents/

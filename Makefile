@@ -1,4 +1,4 @@
-.PHONY: build run test test-unit test-integration test-workflow-integration test-e2e test-e2e-verbose test-e2e-ssh test-e2e-api test-e2e-nix test-e2e-install test-e2e-cloud test-sudo test-cloud test-docker test-ssh test-distributed distributed-e2e-up distributed-e2e-run distributed-e2e-down test-canary-all test-canary-repo test-canary-domain test-canary-ip test-canary-general canary-up canary-down test-all test-summary test-ci clean install install-core install-gotestsum lint fmt db-seed db-clean db-migrate run-server-debug swagger update-ui sync-skills sync-platform snapshot-release github-release bump-version npm-binaries npm-build npm-pack npm-publish run-github-action docker-toolbox docker-toolbox-run docker-toolbox-shell docker-publish docker-buildx-setup dsh-install dsh-start dsh-check dsh-version dsh-upgrade dsh-link-cyberstrike
+.PHONY: build run test test-unit test-integration test-workflow-integration test-e2e test-e2e-verbose test-e2e-ssh test-e2e-api test-e2e-nix test-e2e-install test-e2e-cloud test-sudo test-cloud test-docker test-ssh test-distributed distributed-e2e-up distributed-e2e-run distributed-e2e-down test-canary-all test-canary-repo test-canary-domain test-canary-ip test-canary-general canary-up canary-down test-all test-summary test-ci clean install install-core install-gotestsum lint fmt db-seed db-clean db-migrate run-server-debug swagger update-ui sync-skills sync-platform snapshot-release github-release bump-version npm-binaries npm-build npm-pack npm-publish run-github-action docker-toolbox docker-toolbox-run docker-toolbox-shell docker-publish docker-buildx-setup deploy deploy-check deploy-status deploy-logs deploy-down deploy-credentials dsh-install dsh-start dsh-check dsh-version dsh-upgrade dsh-link-cyberstrike
 
 # Go parameters
 GOCMD=go
@@ -69,6 +69,29 @@ install-core:
 	else \
 		mkdir -p $(GOBIN_PATH) && rm -f $(GOBIN_PATH)/$(BINARY_NAME) && cp $(BINARY_DIR)/$(BINARY_NAME) $(GOBIN_PATH)/$(BINARY_NAME); \
 	fi
+
+# Build, initialize, and start the complete containerized platform. Only the
+# Osmedeus server port is published; DeepSeek Harness stays on Docker's private
+# network and is consumed through the integrated Agent Pentest API/UI.
+DEPLOY_SCRIPT=build/scripts/deploy.sh
+
+deploy:
+	@$(DEPLOY_SCRIPT) up
+
+deploy-check:
+	@$(DEPLOY_SCRIPT) check
+
+deploy-status:
+	@$(DEPLOY_SCRIPT) status
+
+deploy-logs:
+	@$(DEPLOY_SCRIPT) logs
+
+deploy-down:
+	@$(DEPLOY_SCRIPT) down
+
+deploy-credentials:
+	@$(DEPLOY_SCRIPT) credentials
 
 # Build for multiple platforms
 build-all: build-linux build-darwin build-windows

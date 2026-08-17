@@ -39,6 +39,18 @@ func TestAgentHarnessConfigNormalizesValues(t *testing.T) {
 	assert.Equal(t, 500, cfg.GetRAGCandidateLimit())
 }
 
+func TestAgentHarnessConfigCanHideWebUI(t *testing.T) {
+	disabled := false
+	cfg := AgentHarnessConfig{
+		BaseURL:      "http://agent-harness:3080",
+		PublicURL:    "http://127.0.0.1:3080",
+		WebUIEnabled: &disabled,
+	}
+
+	assert.Equal(t, "http://agent-harness:3080", cfg.GetBaseURL())
+	assert.Empty(t, cfg.GetPublicURL())
+}
+
 func TestServerConfig_GetServerURL(t *testing.T) {
 	tests := []struct {
 		name   string
