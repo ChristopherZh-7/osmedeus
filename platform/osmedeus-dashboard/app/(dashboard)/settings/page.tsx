@@ -13,12 +13,15 @@ import {
   ChevronDownIcon,
   ClipboardIcon,
   DatabaseIcon,
+  Globe2Icon,
   KeyRoundIcon,
   LoaderIcon,
+  MailIcon,
   PaletteIcon,
   PencilIcon,
   PlugIcon,
   PlusIcon,
+  RadarIcon,
   RefreshCwIcon,
   SaveIcon,
   SearchIcon,
@@ -97,6 +100,32 @@ type SkillEditorState = {
 };
 
 const emptySkills: SettingsSkills = { coding: [], pentest: [], total: 0 };
+const companyIntegrationMeta: Record<string, { description: string; category: string; icon: React.ElementType; accent: string }> = {
+  fofa: {
+    description: "检索域名、IP、端口与服务指纹，适合补充公网暴露面。",
+    category: "网络空间测绘",
+    icon: DatabaseIcon,
+    accent: "border-sky-500/20 bg-sky-500/10 text-sky-500",
+  },
+  quake: {
+    description: "补充主机与网络服务测绘结果，用于交叉验证候选资产。",
+    category: "网络空间测绘",
+    icon: RadarIcon,
+    accent: "border-violet-500/20 bg-violet-500/10 text-violet-500",
+  },
+  hunter: {
+    description: "查询互联网资产与服务特征，为已知根域发现更多入口。",
+    category: "资产搜索",
+    icon: SearchIcon,
+    accent: "border-amber-500/20 bg-amber-500/10 text-amber-500",
+  },
+  zerozone: {
+    description: "按公司名称或授权域名查找疑似站点，辅助确认资产归属。",
+    category: "企业资产情报",
+    icon: Globe2Icon,
+    accent: "border-emerald-500/20 bg-emerald-500/10 text-emerald-500",
+  },
+};
 const newSkillTemplate = `---
 name: custom-skill
 description: 说明这个 Skill 的用途和适用场景
@@ -688,18 +717,47 @@ export default function SettingsPage() {
             description="供公司录入向导做被动查询；密钥只写保存，不会返回浏览器或写进工作流 YAML"
             actions={<Button onClick={saveIntegrations} disabled={savingIntegrations || integrationDrafts.length === 0}>{savingIntegrations ? <LoaderIcon className="size-4 animate-spin" /> : <SaveIcon className="size-4" />}保存情报源</Button>}
           />
-          <CardContent className="space-y-4">
-            <div className="rounded-control border border-info/25 bg-info-soft p-3 text-sm text-info">输入新值才会替换现有凭据；显示“已配置”时留空保存会保留原值。清空某个已配置密钥请先输入替代值，避免误操作让流程失效。</div>
-            <div className="grid gap-4 lg:grid-cols-2">
-              {integrationDrafts.map((provider) => (
-                <div key={provider.id} className="space-y-4 rounded-control border bg-muted/20 p-4">
-                  <div className="flex items-center justify-between"><div className="font-medium">{provider.label}</div><ConfigState configured={provider.configured} /></div>
-                  {provider.requires_email ? <div className="space-y-2"><label className="text-sm font-medium">账号邮箱</label><Input value={provider.email} onChange={(event) => setIntegrationField(provider.id, "email", event.target.value)} placeholder={provider.configured ? "已配置，留空保留" : "FOFA 登录邮箱"} /></div> : null}
-                  <div className="space-y-2"><label className="text-sm font-medium">API Key</label><Input type="password" value={provider.api_key} onChange={(event) => setIntegrationField(provider.id, "api_key", event.target.value)} placeholder={provider.configured ? "已配置，留空保留" : `输入 ${provider.label} API Key`} /></div>
-                </div>
-              ))}
+          <CardContent className="space-y-5">
+            <div className="flex flex-col gap-3 rounded-control border bg-muted/20 p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary"><ShieldCheckIcon className="size-4" /></div>
+                <div><div className="text-sm font-medium">凭据由服务器保管</div><p className="text-xs text-muted-foreground">只写不回显，留空会保留已有值</p></div>
+              </div>
+              <Badge variant="secondary">已配置 {integrationDrafts.filter((provider) => provider.configured).length} / {integrationDrafts.length}</Badge>
             </div>
-            <div className="rounded-control border border-warning/25 bg-warning-soft p-3 text-sm text-warning">这些平台只负责发现候选资产。候选必须回到公司向导中再次授权，才会进入资产库；系统不会因为配置了 Key 就自动扫描。</div>
+
+            <div className="grid auto-rows-fr gap-3 md:grid-cols-2">
+              {integrationDrafts.map((provider) => {
+                const meta = companyIntegrationMeta[provider.id] ?? companyIntegrationMeta.fofa;
+                const ProviderIcon = meta.icon;
+                return (
+                  <div key={provider.id} className="flex h-full flex-col rounded-card border bg-card p-4 shadow-sm transition-colors hover:border-primary/25">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className={`flex size-10 shrink-0 items-center justify-center rounded-xl border ${meta.accent}`}><ProviderIcon className="size-5" /></div>
+                        <div className="min-w-0"><div className="font-semibold">{provider.label}</div><div className="mt-0.5 text-xs text-muted-foreground">{meta.category}</div></div>
+                      </div>
+                      <ConfigState configured={provider.configured} />
+                    </div>
+                    <p className="mt-3 min-h-10 text-xs leading-5 text-muted-foreground">{meta.description}</p>
+                    <div className={`mt-4 grid gap-3 ${provider.requires_email ? "sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2" : ""}`}>
+                      {provider.requires_email ? (
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-muted-foreground">账号邮箱</label>
+                          <div className="relative"><MailIcon className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" /><Input className="h-9 pl-9" value={provider.email} onChange={(event) => setIntegrationField(provider.id, "email", event.target.value)} placeholder={provider.configured ? "留空保留" : "FOFA 登录邮箱"} /></div>
+                        </div>
+                      ) : null}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-muted-foreground">API Key</label>
+                        <div className="relative"><KeyRoundIcon className="absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" /><Input className="h-9 pl-9" type="password" value={provider.api_key} onChange={(event) => setIntegrationField(provider.id, "api_key", event.target.value)} placeholder={provider.configured ? "已配置，留空保留" : `输入 ${provider.label} Key`} /></div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex items-start gap-2 border-t pt-4 text-xs leading-5 text-muted-foreground"><ShieldCheckIcon className="mt-0.5 size-4 shrink-0 text-warning" /><span>情报源只负责被动发现候选资产；候选仍需在公司录入向导中人工授权，系统不会因为配置了 Key 就自动扫描。</span></div>
           </CardContent>
         </Card>
       </TabsContent>
