@@ -264,9 +264,10 @@ export default function SettingsPage() {
 
   const applyProduct = React.useCallback((next: ProductSettings) => {
     setProduct(next);
+    const llmProviders = next.llm.providers ?? [];
     setProviders(
-      next.llm.providers.length
-        ? next.llm.providers.map((provider) => ({ ...provider, auth_token: "" }))
+      llmProviders.length
+        ? llmProviders.map((provider) => ({ ...provider, auth_token: "" }))
         : [{ provider: "openai", base_url: "https://api.openai.com/v1", model: "", auth_token: "", auth_configured: false }]
     );
     const { configured: _configured, providers: _providers, ...params } = next.llm;
@@ -274,7 +275,7 @@ export default function SettingsPage() {
     void _providers;
     setAIParams(params);
     setIntegrationDrafts(
-      next.integrations
+      (next.integrations ?? [])
         .filter((integration) => integration.kind === "company_intel")
         .map((integration) => ({
           id: integration.id,

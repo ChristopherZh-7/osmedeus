@@ -116,7 +116,10 @@ export async function getProductSettings(): Promise<ProductSettings> {
 
 export async function getSettingsSkills(): Promise<SettingsSkills> {
   const response = await http.get(`${API_PREFIX}/settings/skills`, liveSettingsRequest);
-  return response.data as SettingsSkills;
+  const payload = response.data as Partial<SettingsSkills>;
+  const coding = Array.isArray(payload.coding) ? payload.coding : [];
+  const pentest = Array.isArray(payload.pentest) ? payload.pentest : [];
+  return { coding, pentest, total: typeof payload.total === "number" ? payload.total : coding.length + pentest.length };
 }
 
 export async function getSettingsSkill(slug: string): Promise<SettingsSkillDetail> {

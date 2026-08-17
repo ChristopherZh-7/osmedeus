@@ -100,7 +100,7 @@ func loadSettingsConfig(cfg *config.Config) (*config.Config, string, error) {
 	if cfg == nil || strings.TrimSpace(cfg.BaseFolder) == "" {
 		return nil, "", fmt.Errorf("configuration is unavailable")
 	}
-	settingsPath := filepath.Join(cfg.BaseFolder, "osm-settings.yaml")
+	settingsPath := filepath.Join(os.ExpandEnv(cfg.BaseFolder), "osm-settings.yaml")
 	if resolved, err := filepath.EvalSymlinks(settingsPath); err == nil {
 		settingsPath = resolved
 	}
@@ -418,12 +418,12 @@ func loadEmbeddedSettingsSkills() []settingsSkillView {
 
 func loadRuntimeSettingsSkills(cfg *config.Config) []settingsSkillView {
 	if cfg == nil || strings.TrimSpace(cfg.BaseFolder) == "" {
-		return nil
+		return []settingsSkillView{}
 	}
-	root := filepath.Join(cfg.BaseFolder, "agent-harness", "dsh-home", "skills")
+	root := filepath.Join(os.ExpandEnv(cfg.BaseFolder), "agent-harness", "dsh-home", "skills")
 	entries, err := os.ReadDir(root)
 	if err != nil {
-		return nil
+		return []settingsSkillView{}
 	}
 	result := make([]settingsSkillView, 0, len(entries))
 	for _, entry := range entries {

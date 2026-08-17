@@ -105,6 +105,41 @@ func TestUpdateIntegrationSettingsFollowsDeploymentSymlink(t *testing.T) {
 	assert.Equal(t, "symlink-secret", stored.GlobalVars["FOFA_API_KEY"].Value)
 }
 
+func TestProductSettingsExpandsEnvironmentBaseFolder(t *testing.T) {
+	tmp := t.TempDir()
+	t.Setenv("OSMEDEUS_SETTINGS_TEST_BASE", tmp)
+	cfg := config.DefaultConfig()
+	cfg.BaseFolder = "$OSMEDEUS_SETTINGS_TEST_BASE"
+	raw, err := cfg.ToYAML()
+	require.NoError(t, err)
+	require.NoError(t, os.WriteFile(filepath.Join(tmp, "osm-settings.yaml"), raw, 0600))
+
+	app := fiber.New()
+	app.Get("/settings/product", GetProductSettings(cfg, nil))
+	req := httptest.NewRequest("GET", "/settings/product", nil)
+	resp, err := app.Test(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	assert.Equal(t, fiber.StatusOK, resp.StatusCode, string(body))
+	assert.Contains(t, string(body), `"id":"fofa"`)
+}
+
+func TestSettingsSkillsReturnsEmptyArrays(t *testing.T) {
+	cfg := config.DefaultConfig()
+	cfg.BaseFolder = t.TempDir()
+	app := fiber.New()
+	app.Get("/settings/skills", ListSettingsSkills(cfg))
+	req := httptest.NewRequest("GET", "/settings/skills", nil)
+	resp, err := app.Test(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+	var payload map[string]interface{}
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&payload))
+	assert.IsType(t, []interface{}{}, payload["pentest"])
+}
+
 func requestJSON(t *testing.T, app *fiber.App, method, path string, payload interface{}, status int) map[string]interface{} {
 	t.Helper()
 	raw, err := json.Marshal(payload)
