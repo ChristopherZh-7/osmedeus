@@ -3,7 +3,7 @@ name: attack-graphql
 description: "GraphQL vulnerability testing — introspection exposure, complexity DoS, batch abuse, mutation auth bypass"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - graphql
   - api

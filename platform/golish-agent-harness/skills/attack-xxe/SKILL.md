@@ -3,7 +3,7 @@ name: attack-xxe
 description: "XML External Entity injection — file read, SSRF, data exfiltration via out-of-band XML parsing"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - xxe
   - xml

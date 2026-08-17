@@ -3,7 +3,7 @@ name: attack-ssrf
 description: "Server-Side Request Forgery — internal network access, cloud metadata theft, filter bypass techniques"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - ssrf
   - web

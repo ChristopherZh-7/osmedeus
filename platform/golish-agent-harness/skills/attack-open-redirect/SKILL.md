@@ -3,7 +3,7 @@ name: attack-open-redirect
 description: "Open redirect exploitation — URL parameter manipulation, OAuth token theft, phishing chains"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - open-redirect
   - web

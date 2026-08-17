@@ -3,7 +3,7 @@ name: attack-websocket
 description: "WebSocket security testing — CSWSH, message injection, auth bypass, origin validation"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - websocket
   - web

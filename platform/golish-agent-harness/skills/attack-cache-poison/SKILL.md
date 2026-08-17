@@ -3,7 +3,7 @@ name: attack-cache-poison
 description: "Web cache poisoning — unkeyed header/parameter injection to serve malicious content to all users"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - cache-poisoning
   - web

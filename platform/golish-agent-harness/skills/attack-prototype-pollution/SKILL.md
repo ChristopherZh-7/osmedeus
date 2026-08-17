@@ -3,7 +3,7 @@ name: attack-prototype-pollution
 description: "JavaScript prototype pollution — __proto__ injection, constructor.prototype, gadget chain exploitation"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - prototype-pollution
   - javascript

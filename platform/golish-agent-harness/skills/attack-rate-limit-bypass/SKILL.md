@@ -3,7 +3,7 @@ name: attack-rate-limit-bypass
 description: "Rate limit bypass testing — XFF rotation, case variation, method switching, header manipulation"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - rate-limit
   - brute-force

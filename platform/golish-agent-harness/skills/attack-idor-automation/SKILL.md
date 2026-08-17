@@ -3,7 +3,7 @@ name: attack-idor-automation
 description: "IDOR automated testing — cross-account access, horizontal/vertical privilege escalation, mass data exposure"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - idor
   - bac

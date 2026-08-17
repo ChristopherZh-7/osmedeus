@@ -3,7 +3,7 @@ name: attack-race-condition
 description: "Race condition / TOCTOU testing — concurrent requests to exploit time-of-check-to-time-of-use flaws"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - race-condition
   - toctou

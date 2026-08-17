@@ -3,7 +3,7 @@ name: attack-subdomain-takeover
 description: "Subdomain takeover — CNAME detection, cloud service fingerprinting, dangling DNS exploitation"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - subdomain-takeover
   - dns
@@ -84,7 +84,7 @@ attack_script cloud_storage_enum TARGET --json-output
 
 After confirming a dangling CNAME:
 1. Create the resource on the target service (e.g., GitHub Pages repo, S3 bucket)
-2. Serve a harmless proof page (e.g., `cyberstrike-takeover-proof.html`)
+2. Serve a harmless proof page (e.g., `golish-takeover-proof.html`)
 3. Verify it's accessible at `subdomain.TARGET.com`
 
 ## What Constitutes a Finding

@@ -3,7 +3,7 @@ name: attack-ssti
 description: "Server-Side Template Injection — detection, engine fingerprinting, and exploitation across 7 template engines"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - ssti
   - rce

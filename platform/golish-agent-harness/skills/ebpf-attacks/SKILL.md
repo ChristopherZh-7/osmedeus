@@ -90,7 +90,7 @@ Detect attack primitives that bypass classical syscall hooks and operate through
 | ptrace injection | `ebpf ptrace_sniff --duration 60` | Monitor ATTACH → POKEDATA → SETREGS shellcode injection sequences |
 | Cross-process memory | `ebpf crossmem_sniff --duration 60` | Detect stealthy process_vm_writev/readv memory injection |
 | Race condition exploits | `ebpf userfaultfd_sniff --duration 60` | Detect userfaultfd-based timing control primitives |
-| BPF integrity | `ebpf bpf_integrity --baseline --duration 300` | Verify CyberStrike hook integrity, detect unauthorized BPF program loads |
+| BPF integrity | `ebpf bpf_integrity --baseline --duration 300` | Verify managed hook integrity, detect unauthorized BPF program loads |
 | Netlink manipulation | `ebpf netlink_sniff --duration 60` | Detect stealthy route/firewall rule manipulation via netlink |
 | Sandbox weakening | `ebpf seccomp_sniff --duration 60` | Detect processes disabling their own seccomp/prctl security profiles |
 | Shared memory IPC | `ebpf mmap_sniff --duration 60` | Detect covert IPC via mmap MAP_SHARED, shmget, shmat — data flows without syscalls |
@@ -116,7 +116,7 @@ Detect attack primitives that bypass classical syscall hooks and operate through
 
 **userfaultfd monitoring** detects creation of userfaultfd file descriptors. Legitimate use is rare (QEMU/KVM live migration); in exploit context, userfaultfd provides precise timing control for race condition exploitation.
 
-**BPF integrity verification** takes a baseline of loaded BPF programs via `bpftool` and periodically verifies no CyberStrike programs have been detached or tampered with. Also monitors `bpf()` syscall for unauthorized program loads.
+**BPF integrity verification** takes a baseline of loaded BPF programs via `bpftool` and periodically verifies no managed programs have been detached or tampered with. It also monitors the `bpf()` syscall for unauthorized program loads.
 
 **Netlink monitoring** captures netlink socket messages for NEWROUTE, DELROUTE, NEWRULE, DELRULE operations — detecting stealthy routing table and firewall rule manipulation.
 
@@ -127,10 +127,10 @@ Detect attack primitives that bypass classical syscall hooks and operate through
 Always run cleanup before exiting a target.
 
 ```bash
-# List all CyberStrike eBPF programs on the system
+# List all managed eBPF programs on the system
 ebpf cleanup
 
-# Remove all CyberStrike eBPF programs
+# Remove all managed eBPF programs
 ebpf cleanup --remove --force
 
 # Dry run — show what would be removed

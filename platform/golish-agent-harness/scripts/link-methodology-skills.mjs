@@ -1,4 +1,4 @@
-import { lstat, mkdir, readlink, rename, stat, symlink } from "node:fs/promises";
+import { lstat, mkdir, readdir, readlink, rename, stat, symlink } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
@@ -19,9 +19,16 @@ async function isDirectory(path) {
 
 async function sourceRoot(input) {
   const direct = resolve(input);
-  const nested = join(direct, ".cyberstrike", "skill");
-  if (await isDirectory(nested)) return nested;
-  if (await isDirectory(direct)) return direct;
+  if (await isDirectory(direct)) {
+    const hiddenDirectories = (await readdir(direct, { withFileTypes: true }))
+      .filter((entry) => entry.isDirectory() && entry.name.startsWith("."))
+      .sort((left, right) => left.name.localeCompare(right.name));
+    for (const entry of hiddenDirectories) {
+      const nested = join(direct, entry.name, "skill");
+      if (await isDirectory(nested)) return nested;
+    }
+    return direct;
+  }
   throw new Error(`Methodology Skill source does not exist: ${direct}`);
 }
 

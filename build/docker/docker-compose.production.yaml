@@ -75,7 +75,7 @@ services:
       - GOLISH_DSH_PORT=3080
       - GOLISH_DSH_TRUSTED_HOST=agent-harness:3080
       - GOLISH_API_URL=http://server:8002
-      - GOLISH_CYBERSTRIKE_SKILLS_DIR=/app/vendor/cyberstrike-skills
+      - GOLISH_METHODOLOGY_SKILLS_DIR=/app/vendor/methodology-skills
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
     volumes:
       - agent-harness-data:/home/node/.dsh

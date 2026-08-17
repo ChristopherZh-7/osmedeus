@@ -3,7 +3,7 @@ name: attack-cors
 description: "CORS misconfiguration testing — origin reflection, wildcard bypass, null origin, credential leakage"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - cors
   - web

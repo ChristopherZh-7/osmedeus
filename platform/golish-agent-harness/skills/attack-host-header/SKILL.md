@@ -3,7 +3,7 @@ name: attack-host-header
 description: "Host header injection — password reset poisoning, cache poisoning, routing bypass, SSRF via Host"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - host-header
   - web

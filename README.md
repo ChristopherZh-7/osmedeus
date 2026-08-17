@@ -44,7 +44,7 @@ make deploy
 
 This starts PostgreSQL, Redis, the Golish server and workers, and the
 version-locked DeepSeek Harness with its plugins, bundled Skills, and 7,600+
-CyberStrike corpus. Only the Golish server port (`8002` by default) is
+methodology corpus. Only the Golish server port (`8002` by default) is
 published. DSH remains on the private Docker network and is used through the
 native Agent Pentest UI; its separate web port is not exposed.
 

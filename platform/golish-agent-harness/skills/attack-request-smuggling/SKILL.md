@@ -3,7 +3,7 @@ name: attack-request-smuggling
 description: "HTTP request smuggling — CL.TE, TE.CL, TE.TE desync attacks for cache poisoning and auth bypass"
 category: "web-application"
 version: "1.0"
-author: "cyberstrike-official"
+author: "upstream contributors"
 tags:
   - request-smuggling
   - http-desync
