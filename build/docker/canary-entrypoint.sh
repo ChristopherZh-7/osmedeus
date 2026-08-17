@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Canary test entrypoint: starts API server in background and keeps container alive.
 # Tests interact via:
-#   docker exec osm-canary osmedeus run ...
-#   curl http://localhost:8002/osm/api/...
+#   docker exec golish-canary golish run ...
+#   curl http://localhost:8002/golish/api/...
 
 set -euo pipefail
 
-echo "[canary] Starting osmedeus API server on :8002 ..."
-osmedeus serve --port 8002 --host 0.0.0.0 -A &
+echo "[canary] Starting golish API server on :8002 ..."
+golish serve --port 8002 --host 0.0.0.0 -A &
 SERVER_PID=$!
 
 # Give the server a moment to bind

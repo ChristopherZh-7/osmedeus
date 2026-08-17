@@ -537,7 +537,7 @@ func TestCloud_SSHKeyConfiguration(t *testing.T) {
 
 	// Set SSH user
 	_, _, err = runCLIWithLog(t, log,
-		"cloud", "config", "set", "ssh.user", "osmedeus")
+		"cloud", "config", "set", "ssh.user", "golish")
 	require.NoError(t, err)
 
 	// Verify configuration

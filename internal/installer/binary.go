@@ -12,15 +12,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
-	"github.com/j3ssie/osmedeus/v5/public"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/public"
 	"go.uber.org/zap"
 )
 
 // DefaultRegistryURL is the default URL for the binary registry
-const DefaultRegistryURL = "https://raw.githubusercontent.com/osmedeus/osmedeus-base/main/registry-metadata.json"
+const DefaultRegistryURL = "https://raw.githubusercontent.com/ChristopherZh-7/golish-registry/main/registry-metadata-direct-fetch.json"
 
 // maxRegistrySize bounds how much registry JSON is read from a remote source
 const maxRegistrySize = 32 << 20 // 32MB
@@ -448,7 +448,7 @@ func InstallBinary(name string, registry BinaryRegistry, binariesFolder string, 
 }
 
 // maybePrependSudo prepends "sudo" to package manager commands when not running as root.
-// This ensures commands like "apt install coreutils" work on cloud VMs where osmedeus
+// This ensures commands like "apt install coreutils" work on cloud VMs where golish
 // runs as an unprivileged user (e.g., ubuntu on AWS).
 func maybePrependSudo(command string) string {
 	if runtime.GOOS == "windows" || runtime.GOOS == "darwin" {
@@ -482,7 +482,7 @@ func executeCommand(command string) error {
 		cmd = exec.Command("sh", "-c", command)
 	}
 
-	if os.Getenv("OSMEDEUS_SILENT") == "1" {
+	if os.Getenv("GOLISH_SILENT") == "1" {
 		cmd.Stdout = io.Discard
 		cmd.Stderr = io.Discard
 	} else {
@@ -570,7 +570,7 @@ func downloadAndExtractBinary(name, url, binariesFolder string, customHeaders ma
 	}
 
 	// Create temp directory for download
-	tempDir, err := os.MkdirTemp("", "osmedeus-binary-*")
+	tempDir, err := os.MkdirTemp("", "golish-binary-*")
 	if err != nil {
 		return fmt.Errorf("failed to create temp directory: %w", err)
 	}

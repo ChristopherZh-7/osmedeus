@@ -1,6 +1,6 @@
 # Dockerfile for Nix e2e tests
 # Uses the official nixos/nix image with experimental features enabled
-# Builds the osmedeus binary inside the container for architecture compatibility
+# Builds the golish binary inside the container for architecture compatibility
 
 FROM ubuntu:22.04
 

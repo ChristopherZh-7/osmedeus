@@ -1,6 +1,6 @@
 # GCP Provider Guide
 
-Step-by-step guide for running osmedeus cloud on Google Cloud Platform Compute Engine instances.
+Step-by-step guide for running golish cloud on Google Cloud Platform Compute Engine instances.
 
 ## Prerequisites
 
@@ -34,33 +34,33 @@ The simplest approach is to assign the **Compute Admin** (`roles/compute.admin`)
 ### Create a Service Account and Key
 
 1. Go to **IAM & Admin** > **Service Accounts** > **Create Service Account**
-2. Name it `osmedeus-cloud` (or similar)
+2. Name it `golish-cloud` (or similar)
 3. Grant it the **Compute Admin** role
 4. Go to the service account > **Keys** > **Add Key** > **Create new key** > **JSON**
-5. Save the JSON file (e.g., `~/.gcp/osmedeus-sa.json`)
+5. Save the JSON file (e.g., `~/.gcp/golish-sa.json`)
 
 Or via `gcloud` CLI:
 
 ```bash
 # Create service account
-gcloud iam service-accounts create osmedeus-cloud \
-  --display-name="Osmedeus Cloud Scanner"
+gcloud iam service-accounts create golish-cloud \
+  --display-name="Golish Cloud Scanner"
 
 # Grant Compute Admin role
 gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
-  --member="serviceAccount:osmedeus-cloud@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
+  --member="serviceAccount:golish-cloud@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
   --role="roles/compute.admin"
 
 # Create and download key file
-gcloud iam service-accounts keys create ~/.gcp/osmedeus-sa.json \
-  --iam-account=osmedeus-cloud@YOUR_PROJECT_ID.iam.gserviceaccount.com
+gcloud iam service-accounts keys create ~/.gcp/golish-sa.json \
+  --iam-account=golish-cloud@YOUR_PROJECT_ID.iam.gserviceaccount.com
 ```
 
 You can also export the credentials file path as an environment variable:
 
 ```bash
 export GCP_PROJECT_ID=your-project-id
-export GCP_CREDENTIALS_FILE=~/.gcp/osmedeus-sa.json
+export GCP_CREDENTIALS_FILE=~/.gcp/golish-sa.json
 ```
 
 ## Configuration
@@ -69,28 +69,28 @@ export GCP_CREDENTIALS_FILE=~/.gcp/osmedeus-sa.json
 
 ```bash
 # Enable cloud feature
-osmedeus config set cloud.enabled true
+golish config set cloud.enabled true
 
 # Credentials
-osmedeus cloud config set providers.gcp.project_id ${GCP_PROJECT_ID}
-osmedeus cloud config set providers.gcp.credentials_file ${GCP_CREDENTIALS_FILE}
-osmedeus cloud config set providers.gcp.region us-central1
-osmedeus cloud config set providers.gcp.zone us-central1-a
-osmedeus cloud config set defaults.provider gcp
+golish cloud config set providers.gcp.project_id ${GCP_PROJECT_ID}
+golish cloud config set providers.gcp.credentials_file ${GCP_CREDENTIALS_FILE}
+golish cloud config set providers.gcp.region us-central1
+golish cloud config set providers.gcp.zone us-central1-a
+golish cloud config set defaults.provider gcp
 
 # SSH
-osmedeus cloud config set ssh.private_key_path ~/.ssh/id_rsa
-osmedeus cloud config set ssh.public_key_path ~/.ssh/id_rsa.pub
-osmedeus cloud config set ssh.user root
+golish cloud config set ssh.private_key_path ~/.ssh/id_rsa
+golish cloud config set ssh.public_key_path ~/.ssh/id_rsa.pub
+golish cloud config set ssh.user root
 
 # Clean the setup scripts first
-osmedeus cloud config set setup.commands.clear ""
+golish cloud config set setup.commands.clear ""
 
 # Worker setup
-osmedeus cloud config set setup.commands.add "sudo apt-get update"
-osmedeus cloud config set setup.commands.add "sudo apt-get install -y -qq curl git tmux unzip jq rsync"
-osmedeus cloud config set setup.commands.add "curl -fsSL https://www.osmedeus.org/install.sh | bash"
-osmedeus cloud config set setup.commands.add "osmedeus install base --preset"
+golish cloud config set setup.commands.add "sudo apt-get update"
+golish cloud config set setup.commands.add "sudo apt-get install -y -qq curl git tmux unzip jq rsync"
+golish cloud config set setup.commands.add "curl -fsSL https://raw.githubusercontent.com/ChristopherZh-7/golish-registry/main/install.sh | bash"
+golish cloud config set setup.commands.add "golish install base --preset"
 ```
 
 ### Machine Types
@@ -106,7 +106,7 @@ osmedeus cloud config set setup.commands.add "osmedeus install base --preset"
 
 ```bash
 # Set machine type
-osmedeus cloud config set providers.gcp.machine_type n1-standard-2
+golish cloud config set providers.gcp.machine_type n1-standard-2
 ```
 
 ### Preemptible Instances
@@ -114,7 +114,7 @@ osmedeus cloud config set providers.gcp.machine_type n1-standard-2
 Preemptible VMs cost up to 80% less than on-demand. They last at most 24 hours and can be reclaimed, but are ideal for security scanning workloads.
 
 ```bash
-osmedeus cloud config set providers.gcp.use_preemptible true
+golish cloud config set providers.gcp.use_preemptible true
 ```
 
 ### Regions and Zones
@@ -134,8 +134,8 @@ Pick a region close to your targets or with the lowest pricing:
 | Sydney | Australia | `australia-southeast1` | `australia-southeast1-a` |
 
 ```bash
-osmedeus cloud config set providers.gcp.region us-central1
-osmedeus cloud config set providers.gcp.zone us-central1-a
+golish cloud config set providers.gcp.region us-central1
+golish cloud config set providers.gcp.zone us-central1-a
 ```
 
 > **Note:** The zone must be within the selected region.
@@ -147,15 +147,15 @@ Use a custom image family with tools pre-installed for faster startup:
 ```bash
 # Default is ubuntu-2204-lts from the ubuntu-os-cloud project
 # Use your own custom image family if you have one
-osmedeus cloud config set providers.gcp.image_family my-osmedeus-image
+golish cloud config set providers.gcp.image_family my-golish-image
 ```
 
 ### Cost Limits
 
 ```bash
-osmedeus cloud config set limits.max_hourly_spend 1.00
-osmedeus cloud config set limits.max_total_spend 10.00
-osmedeus cloud config set limits.max_instances 10
+golish cloud config set limits.max_hourly_spend 1.00
+golish cloud config set limits.max_total_spend 10.00
+golish cloud config set limits.max_instances 10
 ```
 
 ## Examples
@@ -163,7 +163,7 @@ osmedeus cloud config set limits.max_instances 10
 ### Quick Domain Recon
 
 ```bash
-osmedeus cloud run -f fast -t example.com --auto-destroy
+golish cloud run -f fast -t example.com --auto-destroy
 ```
 
 Cost: ~$0.03 (1 x e2-medium x 1 hour)
@@ -172,7 +172,7 @@ Cost: ~$0.03 (1 x e2-medium x 1 hour)
 
 ```bash
 # targets.txt: one domain per line
-osmedeus cloud run -f general -T targets.txt --instances 5 --sync-back --auto-destroy
+golish cloud run -f general -T targets.txt --instances 5 --sync-back --auto-destroy
 ```
 
 Cost: ~$0.48 (5 x n1-standard-2 x 1 hour)
@@ -180,18 +180,18 @@ Cost: ~$0.48 (5 x n1-standard-2 x 1 hour)
 ### Custom Nmap Scan
 
 ```bash
-osmedeus cloud run \
-  --custom-cmd "nmap -sV -sC {{Target}} -oA /tmp/osm-custom/nmap" \
-  --sync-path "/tmp/osm-custom/" \
+golish cloud run \
+  --custom-cmd "nmap -sV -sC {{Target}} -oA /tmp/golish-custom/nmap" \
+  --sync-path "/tmp/golish-custom/" \
   -t example.com --auto-destroy
 ```
 
 ### Distributed Nuclei Scanning
 
 ```bash
-osmedeus cloud run \
-  --custom-cmd "cat {{Target}} | nuclei -o /tmp/osm-custom/results.txt" \
-  --sync-path "/tmp/osm-custom/results.txt" \
+golish cloud run \
+  --custom-cmd "cat {{Target}} | nuclei -o /tmp/golish-custom/results.txt" \
+  --sync-path "/tmp/golish-custom/results.txt" \
   --sync-dest "./nuclei-gcp" \
   -T urls.txt --instances 10 --auto-destroy
 ```
@@ -202,15 +202,15 @@ Cost: ~$0.34 (10 x e2-medium x 1 hour)
 
 ```bash
 # Configure preemptible
-osmedeus cloud config set providers.gcp.use_preemptible true
-osmedeus cloud config set providers.gcp.machine_type n1-standard-2
+golish cloud config set providers.gcp.use_preemptible true
+golish cloud config set providers.gcp.machine_type n1-standard-2
 
 # Run a heavy scan for cheap
-osmedeus cloud run \
-  --custom-cmd "subfinder -d {{Target}} -all -o /tmp/osm-custom/subs.txt" \
-  --custom-cmd "cat /tmp/osm-custom/subs.txt | httpx -td -o /tmp/osm-custom/live.txt" \
-  --custom-cmd "cat /tmp/osm-custom/live.txt | nuclei -o /tmp/osm-custom/nuclei.txt" \
-  --sync-path "/tmp/osm-custom/" \
+golish cloud run \
+  --custom-cmd "subfinder -d {{Target}} -all -o /tmp/golish-custom/subs.txt" \
+  --custom-cmd "cat /tmp/golish-custom/subs.txt | httpx -td -o /tmp/golish-custom/live.txt" \
+  --custom-cmd "cat /tmp/golish-custom/live.txt | nuclei -o /tmp/golish-custom/nuclei.txt" \
+  --sync-path "/tmp/golish-custom/" \
   -t example.com --auto-destroy
 ```
 
@@ -220,30 +220,30 @@ Cost: ~$0.019 (1 x n1-standard-2 preemptible x 1 hour)
 
 ```bash
 # Create instances once (saves setup time on subsequent runs)
-osmedeus cloud create --provider gcp -n 3
+golish cloud create --provider gcp -n 3
 
 # Run scans throughout the day
-osmedeus cloud run -f fast -t target1.com --reuse
-osmedeus cloud run -f fast -t target2.com --reuse
-osmedeus cloud run --custom-cmd "nuclei -u target3.com -o /tmp/osm-custom/nuclei.txt" \
-  --sync-path "/tmp/osm-custom/" -t target3.com --reuse
+golish cloud run -f fast -t target1.com --reuse
+golish cloud run -f fast -t target2.com --reuse
+golish cloud run --custom-cmd "nuclei -u target3.com -o /tmp/golish-custom/nuclei.txt" \
+  --sync-path "/tmp/golish-custom/" -t target3.com --reuse
 
 # Destroy at end of day
-osmedeus cloud destroy all --force
+golish cloud destroy all --force
 ```
 
 ### Multi-Region Scanning
 
 ```bash
 # Scan US targets from Iowa
-osmedeus cloud config set providers.gcp.region us-central1
-osmedeus cloud config set providers.gcp.zone us-central1-a
-osmedeus cloud run -f fast -t us-company.com --auto-destroy
+golish cloud config set providers.gcp.region us-central1
+golish cloud config set providers.gcp.zone us-central1-a
+golish cloud run -f fast -t us-company.com --auto-destroy
 
 # Scan APAC targets from Singapore
-osmedeus cloud config set providers.gcp.region asia-southeast1
-osmedeus cloud config set providers.gcp.zone asia-southeast1-a
-osmedeus cloud run -f fast -t apac-company.com --auto-destroy
+golish cloud config set providers.gcp.region asia-southeast1
+golish cloud config set providers.gcp.zone asia-southeast1-a
+golish cloud run -f fast -t apac-company.com --auto-destroy
 ```
 
 ## Troubleshooting
@@ -264,18 +264,18 @@ Make sure the JSON key file path is correct and the file exists:
 
 ```bash
 # Check the file exists
-ls -la ~/.gcp/osmedeus-sa.json
+ls -la ~/.gcp/golish-sa.json
 
 # Or set via environment variable
 export GCP_CREDENTIALS_FILE=/absolute/path/to/key.json
-osmedeus cloud config set providers.gcp.credentials_file ${GCP_CREDENTIALS_FILE}
+golish cloud config set providers.gcp.credentials_file ${GCP_CREDENTIALS_FILE}
 ```
 
 ### Instances Not Starting
 
 ```bash
 # Check with debug output
-osmedeus cloud run -f fast -t example.com --debug
+golish cloud run -f fast -t example.com --debug
 
 # Common causes:
 # - Quota exceeded (check Quotas page in Cloud Console)
@@ -296,10 +296,10 @@ gcloud services enable compute.googleapis.com --project=YOUR_PROJECT_ID
 
 ```bash
 # Verify firewall rule allows SSH (port 22)
-gcloud compute firewall-rules list --filter="name~osmedeus"
+gcloud compute firewall-rules list --filter="name~golish"
 
 # Check with verbose setup
-osmedeus cloud run -f fast -t example.com --verbose-setup
+golish cloud run -f fast -t example.com --verbose-setup
 ```
 
 ### Preemptible Instance Terminated
@@ -314,18 +314,18 @@ Preemptible VMs are reclaimed after 24 hours or when GCP needs capacity. The sca
 
 ```bash
 # List all infrastructure
-osmedeus cloud list
+golish cloud list
 
 # Destroy specific
-osmedeus cloud destroy <infra-id>
+golish cloud destroy <infra-id>
 
 # Nuclear option
-osmedeus cloud destroy all --force
+golish cloud destroy all --force
 
-# If osmedeus state is out of sync, check GCP console directly:
-# Compute Engine > VM Instances > filter by label "osmedeus"
+# If golish state is out of sync, check GCP console directly:
+# Compute Engine > VM Instances > filter by label "golish"
 # Or via gcloud:
-gcloud compute instances list --filter="labels.osmedeus:*"
+gcloud compute instances list --filter="labels.golish:*"
 ```
 
 ## Cost Optimization

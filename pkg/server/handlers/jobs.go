@@ -3,9 +3,9 @@ package handlers
 import (
 	"context"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
 )
 
 // JobStatus represents the aggregated status of a job (run group)
@@ -34,7 +34,7 @@ type JobProgress struct {
 // @Success 200 {object} map[string]interface{} "Job status"
 // @Failure 404 {object} map[string]interface{} "Job not found"
 // @Security BearerAuth
-// @Router /osm/api/jobs/{id} [get]
+// @Router /golish/api/jobs/{id} [get]
 func GetJobStatus(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		jobID := c.Params("id")

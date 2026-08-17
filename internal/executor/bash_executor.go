@@ -12,10 +12,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/metrics"
-	"github.com/j3ssie/osmedeus/v5/internal/runner"
-	"github.com/j3ssie/osmedeus/v5/internal/template"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/metrics"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/runner"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/template"
 	"go.uber.org/zap"
 )
 

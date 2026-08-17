@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )

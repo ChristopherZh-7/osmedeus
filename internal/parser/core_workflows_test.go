@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -13,7 +13,7 @@ import (
 func TestBundledCoreWorkflowVisibility(t *testing.T) {
 	_, sourceFile, _, ok := runtime.Caller(0)
 	require.True(t, ok)
-	loader := NewLoader(filepath.Join(filepath.Dir(sourceFile), "..", "..", "platform", "osmedeus-workflow"))
+	loader := NewLoader(filepath.Join(filepath.Dir(sourceFile), "..", "..", "platform", "golish-workflow"))
 	workflows, err := loader.LoadAllWorkflows()
 	require.NoError(t, err)
 

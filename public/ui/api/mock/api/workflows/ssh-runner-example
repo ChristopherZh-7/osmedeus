@@ -223,7 +223,7 @@ steps:
 
   # ===========================================================================
   # Function step (always runs locally, regardless of workflow runner)
-  # Note: Function steps execute on the host running osmedeus, not remote
+  # Note: Function steps execute on the host running golish, not remote
   # ===========================================================================
   - name: log-completion
     type: function

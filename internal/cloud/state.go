@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/j3ssie/osmedeus/v5/internal/json"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/json"
 )
 
 // SaveInfrastructureState persists infrastructure state to disk

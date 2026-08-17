@@ -84,7 +84,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/artifacts": {
+        "/golish/api/artifacts": {
             "get": {
                 "security": [
                     {
@@ -158,7 +158,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/artifacts/{workspace_name}": {
+        "/golish/api/artifacts/{workspace_name}": {
             "get": {
                 "security": [
                     {
@@ -227,7 +227,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/asset-stats": {
+        "/golish/api/asset-stats": {
             "get": {
                 "security": [
                     {
@@ -267,7 +267,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/assets": {
+        "/golish/api/assets": {
             "get": {
                 "security": [
                     {
@@ -334,7 +334,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/assets/diff": {
+        "/golish/api/assets/diff": {
             "get": {
                 "security": [
                     {
@@ -396,7 +396,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/assets/diffs": {
+        "/golish/api/assets/diffs": {
             "get": {
                 "security": [
                     {
@@ -451,7 +451,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/database/tables": {
+        "/golish/api/database/tables": {
             "get": {
                 "security": [
                     {
@@ -484,7 +484,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/database/tables/{table}/clear": {
+        "/golish/api/database/tables/{table}/clear": {
             "post": {
                 "security": [
                     {
@@ -545,7 +545,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/event-logs": {
+        "/golish/api/event-logs": {
             "get": {
                 "security": [
                     {
@@ -636,7 +636,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/event-receiver/status": {
+        "/golish/api/event-receiver/status": {
             "get": {
                 "description": "Returns the status of the event receiver including enabled state and counts",
                 "consumes": [
@@ -659,7 +659,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/event-receiver/workflows": {
+        "/golish/api/event-receiver/workflows": {
             "get": {
                 "description": "Returns all workflows registered with the event receiver",
                 "consumes": [
@@ -682,7 +682,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/events/emit": {
+        "/golish/api/events/emit": {
             "post": {
                 "description": "Emits an event that can trigger event-triggered workflows",
                 "consumes": [
@@ -723,7 +723,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/functions/eval": {
+        "/golish/api/functions/eval": {
             "post": {
                 "security": [
                     {
@@ -770,7 +770,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/functions/list": {
+        "/golish/api/functions/list": {
             "get": {
                 "security": [
                     {
@@ -796,7 +796,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/jobs/{id}": {
+        "/golish/api/jobs/{id}": {
             "get": {
                 "security": [
                     {
@@ -838,7 +838,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/llm/v1/chat/completions": {
+        "/golish/api/llm/v1/chat/completions": {
             "post": {
                 "security": [
                     {
@@ -891,7 +891,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/llm/v1/embeddings": {
+        "/golish/api/llm/v1/embeddings": {
             "post": {
                 "security": [
                     {
@@ -944,7 +944,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/login": {
+        "/golish/api/login": {
             "post": {
                 "description": "Authenticate user and get JWT token",
                 "consumes": [
@@ -995,7 +995,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/logout": {
+        "/golish/api/logout": {
             "post": {
                 "description": "Clear the session cookie",
                 "produces": [
@@ -1018,7 +1018,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/registry-info": {
+        "/golish/api/registry-info": {
             "get": {
                 "security": [
                     {
@@ -1066,7 +1066,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/registry-install": {
+        "/golish/api/registry-install": {
             "post": {
                 "security": [
                     {
@@ -1120,7 +1120,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/runs": {
+        "/golish/api/runs": {
             "get": {
                 "security": [
                     {
@@ -1238,7 +1238,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/runs/{id}": {
+        "/golish/api/runs/{id}": {
             "get": {
                 "security": [
                     {
@@ -1341,7 +1341,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/runs/{id}/duplicate": {
+        "/golish/api/runs/{id}/duplicate": {
             "post": {
                 "security": [
                     {
@@ -1383,7 +1383,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/runs/{id}/start": {
+        "/golish/api/runs/{id}/start": {
             "post": {
                 "security": [
                     {
@@ -1432,7 +1432,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/schedules": {
+        "/golish/api/schedules": {
             "get": {
                 "security": [
                     {
@@ -1519,7 +1519,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/schedules/{id}": {
+        "/golish/api/schedules/{id}": {
             "get": {
                 "security": [
                     {
@@ -1653,7 +1653,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/schedules/{id}/disable": {
+        "/golish/api/schedules/{id}/disable": {
             "post": {
                 "security": [
                     {
@@ -1688,7 +1688,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/schedules/{id}/enable": {
+        "/golish/api/schedules/{id}/enable": {
             "post": {
                 "security": [
                     {
@@ -1723,7 +1723,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/schedules/{id}/trigger": {
+        "/golish/api/schedules/{id}/trigger": {
             "post": {
                 "security": [
                     {
@@ -1758,7 +1758,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/settings/reload": {
+        "/golish/api/settings/reload": {
             "post": {
                 "security": [
                     {
@@ -1798,7 +1798,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/settings/status": {
+        "/golish/api/settings/status": {
             "get": {
                 "security": [
                     {
@@ -1824,7 +1824,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/settings/yaml": {
+        "/golish/api/settings/yaml": {
             "get": {
                 "security": [
                     {
@@ -1856,7 +1856,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/snapshot-download/{workspace_name}": {
+        "/golish/api/snapshot-download/{workspace_name}": {
             "get": {
                 "security": [
                     {
@@ -1904,7 +1904,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/snapshots": {
+        "/golish/api/snapshots": {
             "get": {
                 "security": [
                     {
@@ -1937,7 +1937,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/snapshots/export": {
+        "/golish/api/snapshots/export": {
             "post": {
                 "security": [
                     {
@@ -1997,7 +1997,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/snapshots/import": {
+        "/golish/api/snapshots/import": {
             "post": {
                 "security": [
                     {
@@ -2066,7 +2066,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/snapshots/{name}": {
+        "/golish/api/snapshots/{name}": {
             "delete": {
                 "security": [
                     {
@@ -2122,7 +2122,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/stats": {
+        "/golish/api/stats": {
             "get": {
                 "security": [
                     {
@@ -2154,7 +2154,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/step-results": {
+        "/golish/api/step-results": {
             "get": {
                 "security": [
                     {
@@ -2227,7 +2227,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/tasks": {
+        "/golish/api/tasks": {
             "get": {
                 "security": [
                     {
@@ -2312,7 +2312,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/tasks/{id}": {
+        "/golish/api/tasks/{id}": {
             "get": {
                 "security": [
                     {
@@ -2354,7 +2354,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/upload-file": {
+        "/golish/api/upload-file": {
             "post": {
                 "security": [
                     {
@@ -2399,7 +2399,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/vulnerabilities": {
+        "/golish/api/vulnerabilities": {
             "get": {
                 "security": [
                     {
@@ -2524,7 +2524,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/vulnerabilities/diff": {
+        "/golish/api/vulnerabilities/diff": {
             "get": {
                 "security": [
                     {
@@ -2586,7 +2586,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/vulnerabilities/diffs": {
+        "/golish/api/vulnerabilities/diffs": {
             "get": {
                 "security": [
                     {
@@ -2641,7 +2641,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/vulnerabilities/summary": {
+        "/golish/api/vulnerabilities/summary": {
             "get": {
                 "security": [
                     {
@@ -2682,7 +2682,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/vulnerabilities/{id}": {
+        "/golish/api/vulnerabilities/{id}": {
             "get": {
                 "security": [
                     {
@@ -2792,7 +2792,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/workers": {
+        "/golish/api/workers": {
             "get": {
                 "security": [
                     {
@@ -2825,7 +2825,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/workers/{id}": {
+        "/golish/api/workers/{id}": {
             "get": {
                 "security": [
                     {
@@ -2874,7 +2874,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/workflow-upload": {
+        "/golish/api/workflow-upload": {
             "post": {
                 "security": [
                     {
@@ -2919,7 +2919,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/workflows": {
+        "/golish/api/workflows": {
             "get": {
                 "security": [
                     {
@@ -2952,7 +2952,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/workflows/refresh": {
+        "/golish/api/workflows/refresh": {
             "post": {
                 "security": [
                     {
@@ -2996,7 +2996,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/workflows/tags": {
+        "/golish/api/workflows/tags": {
             "get": {
                 "security": [
                     {
@@ -3029,7 +3029,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/workflows/{name}": {
+        "/golish/api/workflows/{name}": {
             "get": {
                 "security": [
                     {
@@ -3078,7 +3078,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/workspace-names": {
+        "/golish/api/workspace-names": {
             "get": {
                 "security": [
                     {
@@ -3113,7 +3113,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/osm/api/workspaces": {
+        "/golish/api/workspaces": {
             "get": {
                 "security": [
                     {

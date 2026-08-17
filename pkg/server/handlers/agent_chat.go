@@ -7,10 +7,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/executor"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/executor"
 )
 
 // AgentChatRequest represents an OpenAI-compatible chat completion request for ACP agents.
@@ -56,7 +56,7 @@ var agentMu sync.Mutex
 // @Failure 409 {object} map[string]interface{} "Agent already running"
 // @Failure 500 {object} map[string]interface{} "Agent error"
 // @Security BearerAuth
-// @Router /osm/api/agent/chat/completions [post]
+// @Router /golish/api/agent/chat/completions [post]
 func AgentChat(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req AgentChatRequest

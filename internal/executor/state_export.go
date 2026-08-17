@@ -1,8 +1,8 @@
 package executor
 
 import (
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/state"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/state"
 )
 
 // ExportState exports the current run state to a JSON file

@@ -12,7 +12,7 @@ Manage server configuration settings.
 List both embedded coding-assistant Skills and intelligent-pentest runtime Skills:
 
 ```bash
-curl http://localhost:8002/osm/api/settings/skills \
+curl http://localhost:8002/golish/api/settings/skills \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -24,7 +24,7 @@ Create a runtime Skill by sending its directory identifier and complete
 `SKILL.md` content. The frontmatter `name` must match `slug`.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/settings/skills \
+curl -X POST http://localhost:8002/golish/api/settings/skills \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   --data '{
@@ -36,15 +36,15 @@ curl -X POST http://localhost:8002/osm/api/settings/skills \
 Read, replace, or delete one runtime Skill:
 
 ```bash
-curl http://localhost:8002/osm/api/settings/skills/custom-recon \
+curl http://localhost:8002/golish/api/settings/skills/custom-recon \
   -H "Authorization: Bearer $TOKEN"
 
-curl -X PUT http://localhost:8002/osm/api/settings/skills/custom-recon \
+curl -X PUT http://localhost:8002/golish/api/settings/skills/custom-recon \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   --data '{"content":"---\nname: custom-recon\ndescription: Updated guidance\n---\n\n# Instructions\n"}'
 
-curl -X DELETE http://localhost:8002/osm/api/settings/skills/custom-recon \
+curl -X DELETE http://localhost:8002/golish/api/settings/skills/custom-recon \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -57,16 +57,16 @@ when the Harness restarts; use a new slug for persistent local customization.
 Get the entire YAML configuration file with sensitive fields redacted. Fields containing `_key`, `secret`, `password`, `username`, or `_token` are replaced with `[REDACTED]`.
 
 ```bash
-curl http://localhost:8002/osm/api/settings/yaml \
+curl http://localhost:8002/golish/api/settings/yaml \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Response:** (text/yaml)
 ```yaml
 # =============================================================================
-# Osmedeus Configuration File
+# Golish Configuration File
 # =============================================================================
-base_folder: ~/osmedeus-base
+base_folder: ~/golish-base
 
 environments:
   binaries_path: "{{base_folder}}/binaries"
@@ -96,7 +96,7 @@ database:
 Replace the entire YAML configuration file with new content. A backup of the existing configuration is created before overwriting.
 
 ```bash
-curl -X PUT http://localhost:8002/osm/api/settings/yaml \
+curl -X PUT http://localhost:8002/golish/api/settings/yaml \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: text/yaml" \
   --data-binary @new-config.yaml
@@ -108,8 +108,8 @@ curl -X PUT http://localhost:8002/osm/api/settings/yaml \
 ```json
 {
   "message": "Configuration updated successfully",
-  "path": "/home/user/osmedeus-base/osm-settings.yaml",
-  "backup": "/home/user/osmedeus-base/osm-settings.yaml.backup"
+  "path": "/home/user/golish-base/golish-settings.yaml",
+  "backup": "/home/user/golish-base/golish-settings.yaml.backup"
 }
 ```
 
@@ -128,7 +128,7 @@ curl -X PUT http://localhost:8002/osm/api/settings/yaml \
 Trigger a hot-reload of the configuration file without restarting the server.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/settings/reload \
+curl -X POST http://localhost:8002/golish/api/settings/reload \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -136,7 +136,7 @@ curl -X POST http://localhost:8002/osm/api/settings/reload \
 ```json
 {
   "message": "Configuration reloaded successfully",
-  "path": "/home/user/osmedeus-base/osm-settings.yaml"
+  "path": "/home/user/golish-base/golish-settings.yaml"
 }
 ```
 
@@ -155,14 +155,14 @@ curl -X POST http://localhost:8002/osm/api/settings/reload \
 Get the current status of the hot-reloadable configuration, including last reload time and any errors.
 
 ```bash
-curl http://localhost:8002/osm/api/settings/status \
+curl http://localhost:8002/golish/api/settings/status \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Response:**
 ```json
 {
-  "path": "/home/user/osmedeus-base/osm-settings.yaml",
+  "path": "/home/user/golish-base/golish-settings.yaml",
   "last_reload": "2025-01-15T10:30:00Z",
   "is_watching": true,
   "error": ""

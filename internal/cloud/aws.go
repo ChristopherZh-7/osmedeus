@@ -128,7 +128,7 @@ func (p *AWSProvider) CreateInfrastructure(ctx context.Context, opts *CreateOpti
 	infraID := fmt.Sprintf("cloud-aws-%d", time.Now().Unix())
 	statePath := opts.StatePath
 
-	pm, err := NewPulumiManager("osmedeus-cloud", infraID, statePath)
+	pm, err := NewPulumiManager("golish-cloud", infraID, statePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Pulumi manager: %w", err)
 	}
@@ -177,7 +177,7 @@ func (p *AWSProvider) CreateInfrastructure(ctx context.Context, opts *CreateOpti
 func (p *AWSProvider) DestroyInfrastructure(ctx context.Context, infra *Infrastructure) error {
 	statePath := infra.StatePath
 
-	pm, err := NewPulumiManager("osmedeus-cloud", infra.PulumiStackID, statePath)
+	pm, err := NewPulumiManager("golish-cloud", infra.PulumiStackID, statePath)
 	if err != nil {
 		return fmt.Errorf("failed to create Pulumi manager: %w", err)
 	}
@@ -317,8 +317,8 @@ func (p *AWSProvider) createInstanceProgram(infraID string, opts *CreateOptions)
 		}
 
 		// Create security group allowing SSH inbound and all outbound
-		sg, err := awsec2.NewSecurityGroup(ctx, "osmedeus-sg", &awsec2.SecurityGroupArgs{
-			Description: pulumi.String("Osmedeus worker security group"),
+		sg, err := awsec2.NewSecurityGroup(ctx, "golish-sg", &awsec2.SecurityGroupArgs{
+			Description: pulumi.String("Golish worker security group"),
 			Ingress: awsec2.SecurityGroupIngressArray{
 				&awsec2.SecurityGroupIngressArgs{
 					Protocol:   pulumi.String("tcp"),
@@ -336,7 +336,7 @@ func (p *AWSProvider) createInstanceProgram(infraID string, opts *CreateOptions)
 				},
 			},
 			Tags: pulumi.StringMap{
-				"Name":   pulumi.String(fmt.Sprintf("osmedeus-workers-%s", suffix)),
+				"Name":   pulumi.String(fmt.Sprintf("golish-workers-%s", suffix)),
 				"Region": pulumi.String(regionResult.Name),
 			},
 		})
@@ -345,8 +345,8 @@ func (p *AWSProvider) createInstanceProgram(infraID string, opts *CreateOptions)
 		}
 
 		// Create key pair
-		keyPair, err := awsec2.NewKeyPair(ctx, "osmedeus-key", &awsec2.KeyPairArgs{
-			KeyName:   pulumi.String(fmt.Sprintf("osmedeus-key-%s", suffix)),
+		keyPair, err := awsec2.NewKeyPair(ctx, "golish-key", &awsec2.KeyPairArgs{
+			KeyName:   pulumi.String(fmt.Sprintf("golish-key-%s", suffix)),
 			PublicKey: pulumi.String(opts.SSHPublicKey),
 		})
 		if err != nil {
@@ -355,7 +355,7 @@ func (p *AWSProvider) createInstanceProgram(infraID string, opts *CreateOptions)
 
 		// Create instances
 		for i := 0; i < opts.InstanceCount; i++ {
-			instanceName := fmt.Sprintf("osmw-%s-%d", suffix, i)
+			instanceName := fmt.Sprintf("glw-%s-%d", suffix, i)
 
 			instance, err := awsec2.NewInstance(ctx, instanceName, &awsec2.InstanceArgs{
 				Ami:                      pulumi.String(ami),
@@ -366,7 +366,7 @@ func (p *AWSProvider) createInstanceProgram(infraID string, opts *CreateOptions)
 				AssociatePublicIpAddress: pulumi.Bool(true),
 				Tags: pulumi.StringMap{
 					"Name":    pulumi.String(instanceName),
-					"Project": pulumi.String("osmedeus"),
+					"Project": pulumi.String("golish"),
 					"Role":    pulumi.String("worker"),
 					"Index":   pulumi.String(strconv.Itoa(i)),
 				},

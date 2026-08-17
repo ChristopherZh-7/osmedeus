@@ -15,12 +15,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/retry"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/dop251/goja"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/retry"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
 	"go.uber.org/zap"
 )
 
@@ -1173,7 +1173,7 @@ func (vf *vmFunc) moveFile(call goja.FunctionCall) goja.Value {
 	return vf.vm.ToValue(true)
 }
 
-// snapshotExport exports a workspace as a ZIP snapshot by running osmedeus snapshot export as a subprocess.
+// snapshotExport exports a workspace as a ZIP snapshot by running golish snapshot export as a subprocess.
 // Usage: snapshot_export(workspace, dest?) -> string (zip path on success, empty on failure)
 func (vf *vmFunc) snapshotExport(call goja.FunctionCall) goja.Value {
 	workspace := call.Argument(0).String()
@@ -1232,7 +1232,7 @@ func (vf *vmFunc) snapshotExport(call goja.FunctionCall) goja.Value {
 	return vf.vm.ToValue(zipPath)
 }
 
-// snapshotImport imports a workspace from a ZIP snapshot by running osmedeus snapshot import as a subprocess.
+// snapshotImport imports a workspace from a ZIP snapshot by running golish snapshot import as a subprocess.
 // Usage: snapshot_import(source) -> string (workspace name on success, empty on failure)
 func (vf *vmFunc) snapshotImport(call goja.FunctionCall) goja.Value {
 	source := call.Argument(0).String()
@@ -1301,9 +1301,9 @@ func parseParamsToFlags(params string) []string {
 	return flags
 }
 
-// runOsmedeus executes the current osmedeus binary with the given flag (-m or -f), name, target, and optional params.
+// runGolish executes the current golish binary with the given flag (-m or -f), name, target, and optional params.
 // Returns the combined stdout+stderr output as a string.
-func (vf *vmFunc) runOsmedeus(flag, name, target, params, funcName string) goja.Value {
+func (vf *vmFunc) runGolish(flag, name, target, params, funcName string) goja.Value {
 	// Find the current executable
 	exePath, err := os.Executable()
 	if err != nil {
@@ -1338,7 +1338,7 @@ func (vf *vmFunc) runOsmedeus(flag, name, target, params, funcName string) goja.
 	return vf.vm.ToValue(strings.TrimSpace(string(output)))
 }
 
-// runModule runs an osmedeus module as a subprocess
+// runModule runs an golish module as a subprocess
 // Usage: run_module(module, target, params?) -> string
 // params is optional comma-separated key=value pairs: "threads=10,deep=true"
 func (vf *vmFunc) runModule(call goja.FunctionCall) goja.Value {
@@ -1351,10 +1351,10 @@ func (vf *vmFunc) runModule(call goja.FunctionCall) goja.Value {
 		return vf.vm.ToValue("")
 	}
 
-	return vf.runOsmedeus("-m", module, target, params, "run_module")
+	return vf.runGolish("-m", module, target, params, "run_module")
 }
 
-// runFlow runs an osmedeus flow as a subprocess
+// runFlow runs an golish flow as a subprocess
 // Usage: run_flow(flow, target, params?) -> string
 // params is optional comma-separated key=value pairs: "threads=10,deep=true"
 func (vf *vmFunc) runFlow(call goja.FunctionCall) goja.Value {
@@ -1367,7 +1367,7 @@ func (vf *vmFunc) runFlow(call goja.FunctionCall) goja.Value {
 		return vf.vm.ToValue("")
 	}
 
-	return vf.runOsmedeus("-f", flow, target, params, "run_flow")
+	return vf.runGolish("-f", flow, target, params, "run_flow")
 }
 
 // runAgent runs an ACP agent subprocess and returns its output.
@@ -1487,7 +1487,7 @@ func (vf *vmFunc) runOnMaster(call goja.FunctionCall) goja.Value {
 		log.Warn("run_on_master: not in distributed mode, running locally",
 			zap.String("action", action),
 			zap.String("hint", "ensure worker mode is active and Redis is configured"))
-		vf.runOsmedeus("-m", workflow, target, params, "run_on_master")
+		vf.runGolish("-m", workflow, target, params, "run_on_master")
 		return vf.vm.ToValue(true)
 
 	case "bash":
@@ -1587,7 +1587,7 @@ func (vf *vmFunc) runOnWorker(call goja.FunctionCall) goja.Value {
 		}
 		// Fallback: run locally
 		log.Warn("run_on_worker: not in distributed mode, running locally")
-		vf.runOsmedeus("-m", workflow, target, params, "run_on_worker")
+		vf.runGolish("-m", workflow, target, params, "run_on_worker")
 		return vf.vm.ToValue(true)
 
 	case "bash":

@@ -88,7 +88,7 @@ func waitForRedis(t *testing.T, log *TestLogger, port string, timeout time.Durat
 	t.Fatalf("Redis not ready after %v", timeout)
 }
 
-// startMaster starts osmedeus server with --master flag
+// startMaster starts golish server with --master flag
 func startMaster(t *testing.T, log *TestLogger, ctx context.Context) (*exec.Cmd, func()) {
 	t.Helper()
 	binary := getBinaryPath(t)
@@ -124,7 +124,7 @@ func startMaster(t *testing.T, log *TestLogger, ctx context.Context) (*exec.Cmd,
 	}
 }
 
-// startWorker starts osmedeus worker join
+// startWorker starts golish worker join
 func startWorker(t *testing.T, log *TestLogger, ctx context.Context, workerID int) (*exec.Cmd, func()) {
 	t.Helper()
 	binary := getBinaryPath(t)
@@ -213,7 +213,7 @@ type TasksResponse struct {
 // getWorkers retrieves workers from the API
 func getWorkers(t *testing.T, port string) []WorkerInfo {
 	t.Helper()
-	url := fmt.Sprintf("http://localhost:%s/osm/api/workers", port)
+	url := fmt.Sprintf("http://localhost:%s/golish/api/workers", port)
 
 	resp, err := http.Get(url)
 	require.NoError(t, err, "Failed to get workers")
@@ -250,7 +250,7 @@ func waitForWorkerCount(t *testing.T, log *TestLogger, port string, count int, t
 // getTasks retrieves tasks from the API
 func getTasks(t *testing.T, port string) []TaskInfo {
 	t.Helper()
-	url := fmt.Sprintf("http://localhost:%s/osm/api/tasks", port)
+	url := fmt.Sprintf("http://localhost:%s/golish/api/tasks", port)
 
 	resp, err := http.Get(url)
 	require.NoError(t, err, "Failed to get tasks")
@@ -274,7 +274,7 @@ func getTasks(t *testing.T, port string) []TaskInfo {
 // getTaskByID retrieves a specific task from the API
 func getTaskByID(t *testing.T, port, taskID string) *TaskInfo {
 	t.Helper()
-	url := fmt.Sprintf("http://localhost:%s/osm/api/tasks/%s", port, taskID)
+	url := fmt.Sprintf("http://localhost:%s/golish/api/tasks/%s", port, taskID)
 
 	resp, err := http.Get(url)
 	require.NoError(t, err, "Failed to get task")
@@ -407,7 +407,7 @@ func TestDistributed_MasterStartup(t *testing.T) {
 
 	// Verify workers endpoint is available
 	log.Step("Verifying workers API endpoint")
-	resp, err = http.Get(fmt.Sprintf("http://localhost:%s/osm/api/workers", testServerPort))
+	resp, err = http.Get(fmt.Sprintf("http://localhost:%s/golish/api/workers", testServerPort))
 	require.NoError(t, err)
 	defer func() { _ = resp.Body.Close() }()
 	assert.Equal(t, 200, resp.StatusCode)

@@ -8,7 +8,7 @@ import "sync"
 type TmuxHooks struct {
 	// OnSessionCreated fires after tmux_run successfully creates a session.
 	// runUUID will be empty when invoked outside a tracked run (e.g. ad-hoc
-	// `osmedeus func e`); implementations must tolerate that.
+	// `golish func e`); implementations must tolerate that.
 	OnSessionCreated func(runUUID, sessionName string)
 
 	// OnSessionDestroyed fires after tmux_kill successfully destroys a session,

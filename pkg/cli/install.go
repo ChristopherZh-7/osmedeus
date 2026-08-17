@@ -10,12 +10,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/installer"
-	"github.com/j3ssie/osmedeus/v5/internal/parser"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
-	"github.com/j3ssie/osmedeus/v5/public"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/installer"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/parser"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/public"
 	"github.com/spf13/cobra"
 )
 
@@ -89,33 +89,33 @@ var installBinaryCmd = &cobra.Command{
 	Short:   "Install binary tools from registry",
 	Long:    `Install one or more binary tools from the registry. Skips binaries already available in PATH.`,
 	Example: `  # List binaries in registry
-  osmedeus install binary --list-registry-direct-fetch
-  osmedeus install binary --list-registry-nix-build
+  golish install binary --list-registry-direct-fetch
+  golish install binary --list-registry-nix-build
 
   # Install specific binaries
-  osmedeus install binary --name nuclei
-  osmedeus install binary --name nuclei --name ffuf --name httpx
-  osmedeus install binary -n nuclei -n ffuf
+  golish install binary --name nuclei
+  golish install binary --name nuclei --name ffuf --name httpx
+  golish install binary -n nuclei -n ffuf
 
   # Install all required binaries
-  osmedeus install binary --all
+  golish install binary --all
 
   # Install all binaries including optional
-  osmedeus install binary --all --install-optional
+  golish install binary --all --install-optional
 
   # Check binary installation status
-  osmedeus install binary --name amass --check
-  osmedeus install binary --all --check
+  golish install binary --name amass --check
+  golish install binary --all --check
 
   # Install via go install
-  osmedeus install binary --name nuclei --go-install
-  osmedeus install binary --all --go-install
-  osmedeus install binary --go-install-pkg github.com/tomnomnom/waybackurls@latest
+  golish install binary --name nuclei --go-install
+  golish install binary --all --go-install
+  golish install binary --go-install-pkg github.com/tomnomnom/waybackurls@latest
 
   # Install via Nix
-  osmedeus install binary --nix-installation
-  osmedeus install binary --name nuclei --nix-build-install
-  osmedeus install binary --all --nix-build-install`,
+  golish install binary --nix-installation
+  golish install binary --name nuclei --nix-build-install
+  golish install binary --all --nix-build-install`,
 	RunE: runInstallBinary,
 }
 
@@ -123,8 +123,8 @@ var installBinaryCmd = &cobra.Command{
 var installEnvCmd = &cobra.Command{
 	Use:     "env",
 	Short:   "Add binaries path to shell configuration",
-	Long:    `Add the osmedeus binaries folder to your PATH in shell configuration files (~/.bashrc, ~/.zshrc, ~/.profile).`,
-	Example: `  osmedeus install env`,
+	Long:    `Add the golish binaries folder to your PATH in shell configuration files (~/.bashrc, ~/.zshrc, ~/.profile).`,
+	Example: `  golish install env`,
 	RunE:    runInstallEnv,
 }
 
@@ -133,17 +133,17 @@ var installValidateCmd = &cobra.Command{
 	Use:     "validate",
 	Aliases: []string{"val"},
 	Short:   "Check and fix environment health (folders, config, workflows)",
-	Long: `Validate the osmedeus installation by checking:
+	Long: `Validate the golish installation by checking:
   - Required folders exist (base, workspaces, workflows, binaries, data)
   - Configuration files are valid
   - Workflows can be loaded and parsed correctly
 
-This is the primary command for health checks. 'osmedeus health' is an alias for this command.`,
-	Example: `  osmedeus install validate`,
+This is the primary command for health checks. 'golish health' is an alias for this command.`,
+	Example: `  golish install validate`,
 	RunE:    runInstallValidate,
 }
 
-// installSkillsCmd is an alias for `osmedeus skills install`, registered here so
+// installSkillsCmd is an alias for `golish skills install`, registered here so
 // skills are discoverable alongside the other install targets. A cobra command
 // has a single parent, so the alias is a thin second command sharing the handler
 // and flag variables — the same pattern as `workflow install`.
@@ -152,10 +152,10 @@ var installSkillsCmd = &cobra.Command{
 	Aliases: []string{"skill"},
 	Short:   "Install coding-agent skills into a skills directory",
 	Long: `Install the skill bundles embedded in this binary into a coding agent's
-skills directory. Alias for 'osmedeus skills install'.`,
-	Example: `  osmedeus install skills
-  osmedeus install skills --scope global
-  osmedeus install skills --agent codex`,
+skills directory. Alias for 'golish skills install'.`,
+	Example: `  golish install skills
+  golish install skills --scope global
+  golish install skills --agent codex`,
 	Args: cobra.ArbitraryArgs,
 	RunE: RunSkillsInstall,
 }
@@ -193,9 +193,9 @@ func RunInstallWorkflow(cmd *cobra.Command, args []string) error {
 	}
 
 	if workflowPreset {
-		workflowURL := os.Getenv("OSM_WORKFLOW_URL")
+		workflowURL := os.Getenv("GOLISH_WORKFLOW_URL")
 		if workflowURL != "" {
-			printer.Info("Using workflow URL from OSM_WORKFLOW_URL environment variable")
+			printer.Info("Using workflow URL from GOLISH_WORKFLOW_URL environment variable")
 			printer.Println("  %s %s", terminal.SymbolBullet, terminal.Gray(workflowURL))
 		} else {
 			workflowURL = core.DEFAULT_WORKFLOW_REPO
@@ -234,7 +234,7 @@ func printWorkflowSummary(printer *terminal.Printer, workflowsPath string) {
 				terminal.Yellow(fmt.Sprintf("%d", len(modules))))
 			printer.Println("  %s Run %s to see workflow details",
 				terminal.Gray(terminal.SymbolLightning),
-				terminal.Cyan("osmedeus workflow ls"))
+				terminal.Cyan("golish workflow ls"))
 		}
 	}
 }
@@ -271,9 +271,9 @@ func runInstallBase(cmd *cobra.Command, args []string) error {
 
 	if basePreset {
 		// Get preset URL from environment or use default
-		presetURL := os.Getenv("OSM_PRESET_URL")
+		presetURL := os.Getenv("GOLISH_PRESET_URL")
 		if presetURL != "" {
-			printer.Info("Using preset URL from OSM_PRESET_URL environment variable")
+			printer.Info("Using preset URL from GOLISH_PRESET_URL environment variable")
 			printer.Println("  %s %s", terminal.SymbolBullet, terminal.Gray(presetURL))
 		} else {
 			presetURL = core.DEFAULT_BASE_REPO
@@ -295,10 +295,10 @@ func runInstallBase(cmd *cobra.Command, args []string) error {
 		printer.Success("Base installed from: %s", terminal.Cyan(presetURL))
 		printer.Newline()
 
-		// Install workflows from OSM_WORKFLOW_URL or DEFAULT_WORKFLOW_REPO
-		workflowURL := os.Getenv("OSM_WORKFLOW_URL")
+		// Install workflows from GOLISH_WORKFLOW_URL or DEFAULT_WORKFLOW_REPO
+		workflowURL := os.Getenv("GOLISH_WORKFLOW_URL")
 		if workflowURL != "" {
-			printer.Info("Using workflow URL from OSM_WORKFLOW_URL environment variable")
+			printer.Info("Using workflow URL from GOLISH_WORKFLOW_URL environment variable")
 			printer.Println("  %s %s", terminal.SymbolBullet, terminal.Gray(workflowURL))
 		} else {
 			workflowURL = core.DEFAULT_WORKFLOW_REPO
@@ -423,7 +423,7 @@ func runInstallBinary(cmd *cobra.Command, args []string) error {
 	// Check if Nix build install is requested but Nix isn't installed
 	if (nixBuildInstall || len(nixPkgs) > 0) && !installer.IsNixInstalled() {
 		printer.Error("Nix is not installed")
-		printer.Println("%s Install Nix with: %s", terminal.BoldCyan("◆"), terminal.Gray("osmedeus install binary --nix-installation"))
+		printer.Println("%s Install Nix with: %s", terminal.BoldCyan("◆"), terminal.Gray("golish install binary --nix-installation"))
 		printer.Info("Or manually run:")
 		printer.GrayOutput(installer.NixInstallCommandPrettyForHost())
 		printer.Newline()
@@ -511,7 +511,7 @@ func runInstallBinary(cmd *cobra.Command, args []string) error {
 	}
 
 	if shouldInitializeBaseForBinary(cfg.BaseFolder) {
-		printer.Info("Base folder not initialized, running: %s", terminal.Gray("osmedeus install base --sample"))
+		printer.Info("Base folder not initialized, running: %s", terminal.Gray("golish install base --sample"))
 		if err := replaceBaseFolderWithEmbeddedSample(cfg.BaseFolder); err != nil {
 			return err
 		}
@@ -719,7 +719,7 @@ func shouldInitializeBaseForBinary(baseFolder string) bool {
 	}
 	for _, entry := range entries {
 		name := entry.Name()
-		if name == "osm-settings.yaml" || name == ".DS_Store" {
+		if name == "golish-settings.yaml" || name == ".DS_Store" {
 			continue
 		}
 		return false
@@ -787,9 +787,9 @@ func printOptionalBinarySkipMessage(printer *terminal.Printer, skippedOptional i
 	printer.Println("%s Skipping %d optional binaries (use %s to include them)", terminal.BoldCyan("◆"), skippedOptional, flag)
 	printer.Println("  %s", terminal.Gray("Optional binaries may require extra tools in your $PATH (e.g., go, pip)."))
 
-	cmd := "osmedeus install binary --all --install-optional"
+	cmd := "golish install binary --all --install-optional"
 	if nixMode {
-		cmd = "osmedeus install binary --all --nix-build-install --install-optional"
+		cmd = "golish install binary --all --nix-build-install --install-optional"
 	}
 	printer.Println("  %s", terminal.Gray("Example: "+cmd))
 }
@@ -923,10 +923,10 @@ func printNixBinaries(printer *terminal.Printer, descWidth int, showTags bool) e
 	printer.Println("  nix develop")
 	printer.Newline()
 	printer.Println("  " + terminal.Green("# Install specific binary via Nix"))
-	printer.Println("  osmedeus install binary --name nuclei --nix-build-install")
+	printer.Println("  golish install binary --name nuclei --nix-build-install")
 	printer.Newline()
 	printer.Println("  " + terminal.Green("# Install all binaries via Nix"))
-	printer.Println("  osmedeus install binary --all --nix-build-install")
+	printer.Println("  golish install binary --all --nix-build-install")
 
 	printer.Newline()
 	printer.Println(terminal.Gray("Total: %d binaries in %d categories"), totalTools, len(categories))
@@ -1074,13 +1074,13 @@ func printRegistryBinaries(registryPath string, headers map[string]string, print
 	printer.Newline()
 	printer.Println(terminal.BoldCyan("### Usage Examples"))
 	printer.Println("  " + terminal.Green("# Install specific binaries"))
-	printer.Println("  osmedeus install binary --name nuclei --name httpx")
+	printer.Println("  golish install binary --name nuclei --name httpx")
 	printer.Newline()
 	printer.Println("  " + terminal.Green("# Install all required binaries"))
-	printer.Println("  osmedeus install binary --all")
+	printer.Println("  golish install binary --all")
 	printer.Newline()
 	printer.Println("  " + terminal.Green("# Install all binaries including optional"))
-	printer.Println("  osmedeus install binary --all --install-optional")
+	printer.Println("  golish install binary --all --install-optional")
 
 	printer.Newline()
 	printer.Println(terminal.Gray("Total: %d required, %d optional"), len(required), len(optional))
@@ -1141,9 +1141,9 @@ func runInstallValidate(cmd *cobra.Command, args []string) error {
 		printer := terminal.NewPrinter()
 
 		// Get preset URL from environment or use default
-		presetURL := os.Getenv("OSM_PRESET_URL")
+		presetURL := os.Getenv("GOLISH_PRESET_URL")
 		if presetURL != "" {
-			printer.Info("Using preset URL from OSM_PRESET_URL environment variable")
+			printer.Info("Using preset URL from GOLISH_PRESET_URL environment variable")
 			printer.Println("  %s %s", terminal.SymbolBullet, terminal.Gray(presetURL))
 		} else {
 			presetURL = core.DEFAULT_BASE_REPO
@@ -1208,7 +1208,7 @@ func runInstallEnv(cmd *cobra.Command, args []string) error {
 
 	// The export line to add
 	exportLine := fmt.Sprintf(`export PATH="%s:$PATH"`, binariesFolder)
-	comment := "# Added by osmedeus"
+	comment := "# Added by golish"
 
 	printer.Println("%s Binaries folder: %s", terminal.BoldCyan("◆"), terminal.White(binariesFolder))
 	printer.Println("%s Detected shell: %s", terminal.BoldCyan("◆"), terminal.White(shellDisplayName(shell)))
@@ -1368,7 +1368,7 @@ func ensureBinariesPathInEnv(printer *terminal.Printer, binariesFolder string, s
 	}
 
 	// Skip shell config modification in test environments
-	if os.Getenv("OSM_SKIP_PATH_SETUP") == "1" {
+	if os.Getenv("GOLISH_SKIP_PATH_SETUP") == "1" {
 		// Still add to current process PATH
 		if !pathContainsDir(os.Getenv("PATH"), binariesFolder) {
 			currentPath := os.Getenv("PATH")
@@ -1401,7 +1401,7 @@ func ensureBinariesPathInEnv(printer *terminal.Printer, binariesFolder string, s
 	shell := detectShell()
 	configFile := shellConfigForShell(homeDir, shell)
 	exportLine := fmt.Sprintf(`export PATH="%s:$PATH"`, binariesFolder)
-	comment := "# Added by osmedeus"
+	comment := "# Added by golish"
 
 	updated, _ := addOrUpdateShellConfigBlock(configFile, exportLine, comment)
 	if updated {
@@ -1432,7 +1432,7 @@ func ensureNixProfileBinInProcess(printer *terminal.Printer) {
 
 func ensureNixProfileBinInShell(printer *terminal.Printer) {
 	// Skip in test environments
-	if os.Getenv("OSM_SKIP_PATH_SETUP") == "1" {
+	if os.Getenv("GOLISH_SKIP_PATH_SETUP") == "1" {
 		return
 	}
 
@@ -1449,7 +1449,7 @@ func ensureNixProfileBinInShell(printer *terminal.Printer) {
 	shell := detectShell()
 	primaryConfig := shellConfigForShell(homeDir, shell)
 	exportLine := fmt.Sprintf(`export PATH="$PATH:%s"`, nixBinDir)
-	comment := "# Added by osmedeus (nix)"
+	comment := "# Added by golish (nix)"
 
 	updated, err := addToShellConfig(primaryConfig, exportLine, comment)
 	if err != nil {
@@ -1505,7 +1505,7 @@ func addOrUpdateShellConfigBlock(configFile, exportLine, comment string) (bool, 
 		return false, nil
 	}
 
-	legacyComments := []string{"# Added by osmedeus", "# Added by osmedeus install env"}
+	legacyComments := []string{"# Added by golish", "# Added by golish install env"}
 	lines := strings.Split(content, "\n")
 
 	for i := 0; i < len(lines); i++ {
@@ -1547,7 +1547,7 @@ func printInstallBinaryHelp(cmd *cobra.Command) {
 	fmt.Print(terminal.Banner())
 
 	fmt.Println(terminal.BoldCyan("◆ Usage"))
-	fmt.Printf("  %s %s\n\n", terminal.Yellow("osmedeus install binary"), terminal.Gray("[flags]"))
+	fmt.Printf("  %s %s\n\n", terminal.Yellow("golish install binary"), terminal.Gray("[flags]"))
 
 	fmt.Println(terminal.BoldCyan("◆ Modes"))
 	fmt.Printf("  %s %s\n", terminal.Yellow("direct-fetch"), terminal.Gray("download from registry metadata (github-release)"))
@@ -1556,32 +1556,32 @@ func printInstallBinaryHelp(cmd *cobra.Command) {
 
 	fmt.Println(terminal.BoldCyan("◆ Examples"))
 	fmt.Printf("  %s\n", terminal.Green("# List available binaries"))
-	fmt.Printf("  %s\n", terminal.Gray("osmedeus install binary --list-registry-direct-fetch"))
-	fmt.Printf("  %s\n\n", terminal.Gray("osmedeus install binary --list-registry-nix-build"))
+	fmt.Printf("  %s\n", terminal.Gray("golish install binary --list-registry-direct-fetch"))
+	fmt.Printf("  %s\n\n", terminal.Gray("golish install binary --list-registry-nix-build"))
 
 	fmt.Printf("  %s\n", terminal.Green("# Install specific binaries (auto-detects method from registry)"))
-	fmt.Printf("  %s\n", terminal.Gray("osmedeus install binary --name nuclei"))
-	fmt.Printf("  %s\n", terminal.Gray("osmedeus install binary --name nuclei --name httpx --name ffuf"))
-	fmt.Printf("  %s\n\n", terminal.Gray("osmedeus install binary -n dalfox -n gau -n interactsh"))
+	fmt.Printf("  %s\n", terminal.Gray("golish install binary --name nuclei"))
+	fmt.Printf("  %s\n", terminal.Gray("golish install binary --name nuclei --name httpx --name ffuf"))
+	fmt.Printf("  %s\n\n", terminal.Gray("golish install binary -n dalfox -n gau -n interactsh"))
 
 	fmt.Printf("  %s\n", terminal.Green("# Install all required binaries"))
-	fmt.Printf("  %s\n", terminal.Gray("osmedeus install binary --all"))
-	fmt.Printf("  %s\n\n", terminal.Gray("osmedeus install binary --all --install-optional"))
+	fmt.Printf("  %s\n", terminal.Gray("golish install binary --all"))
+	fmt.Printf("  %s\n\n", terminal.Gray("golish install binary --all --install-optional"))
 
 	fmt.Printf("  %s\n", terminal.Green("# Check binary installation status"))
-	fmt.Printf("  %s\n", terminal.Gray("osmedeus install binary --name nuclei --check"))
-	fmt.Printf("  %s\n\n", terminal.Gray("osmedeus install binary --all --check"))
+	fmt.Printf("  %s\n", terminal.Gray("golish install binary --name nuclei --check"))
+	fmt.Printf("  %s\n\n", terminal.Gray("golish install binary --all --check"))
 
 	fmt.Printf("  %s\n", terminal.Green("# Download via go-getter (git clone, archives, etc.)"))
-	fmt.Printf("  %s\n", terminal.Gray("osmedeus install binary --go-getter github.com/user/repo.git"))
-	fmt.Printf("  %s\n", terminal.Gray("osmedeus install binary --go-getter github.com/user/repo.git?ref=main&depth=1"))
-	fmt.Printf("  %s\n", terminal.Gray("osmedeus install binary --go-getter https://github.com/user/repo.git//subfolder"))
-	fmt.Printf("  %s\n\n", terminal.Gray("osmedeus install binary --go-getter github.com/user/repo.git --go-getter-dest /opt/tools"))
+	fmt.Printf("  %s\n", terminal.Gray("golish install binary --go-getter github.com/user/repo.git"))
+	fmt.Printf("  %s\n", terminal.Gray("golish install binary --go-getter github.com/user/repo.git?ref=main&depth=1"))
+	fmt.Printf("  %s\n", terminal.Gray("golish install binary --go-getter https://github.com/user/repo.git//subfolder"))
+	fmt.Printf("  %s\n\n", terminal.Gray("golish install binary --go-getter github.com/user/repo.git --go-getter-dest /opt/tools"))
 
 	fmt.Printf("  %s\n", terminal.Green("# Install via Nix (requires Nix)"))
-	fmt.Printf("  %s\n", terminal.Gray("osmedeus install binary --nix-installation"))
-	fmt.Printf("  %s\n", terminal.Gray("osmedeus install binary --name nuclei --nix-build-install"))
-	fmt.Printf("  %s\n\n", terminal.Gray("osmedeus install binary --nix-pkgs nixpkgs#redis --nix-pkgs nixpkgs#jq"))
+	fmt.Printf("  %s\n", terminal.Gray("golish install binary --nix-installation"))
+	fmt.Printf("  %s\n", terminal.Gray("golish install binary --name nuclei --nix-build-install"))
+	fmt.Printf("  %s\n\n", terminal.Gray("golish install binary --nix-pkgs nixpkgs#redis --nix-pkgs nixpkgs#jq"))
 
 	if cmd == nil {
 		return
@@ -1606,9 +1606,9 @@ func init() {
 	installCmd.PersistentFlags().StringArrayVar(&customHeaders, "custom-header", []string{}, "custom HTTP header(s) for downloads (format: 'Key: Value', can be repeated)")
 
 	installBaseCmd.Flags().BoolVar(&baseSample, "sample", false, "initialize base folder from embedded sample (replaces existing base folder)")
-	installBaseCmd.Flags().BoolVar(&basePreset, "preset", false, "install from OSM_PRESET_URL environment variable (default: DEFAULT_BASE_REPO)")
-	installBaseCmd.Flags().BoolVar(&keepSetting, "keep-setting", false, "restore previous osm-settings.yaml after base installation")
-	installWorkflowCmd.Flags().BoolVar(&workflowPreset, "preset", false, "install from OSM_WORKFLOW_URL environment variable (default: DEFAULT_WORKFLOW_REPO)")
+	installBaseCmd.Flags().BoolVar(&basePreset, "preset", false, "install from GOLISH_PRESET_URL environment variable (default: DEFAULT_BASE_REPO)")
+	installBaseCmd.Flags().BoolVar(&keepSetting, "keep-setting", false, "restore previous golish-settings.yaml after base installation")
+	installWorkflowCmd.Flags().BoolVar(&workflowPreset, "preset", false, "install from GOLISH_WORKFLOW_URL environment variable (default: DEFAULT_WORKFLOW_REPO)")
 	// Note: --force flag is now global (defined in root.go)
 
 	// Binary command flags
@@ -1645,7 +1645,7 @@ func init() {
 
 	installValidateCmd.Flags().BoolVar(&validateSample, "sample", false, "initialize base folder from embedded sample (replaces existing base folder)")
 	installValidateCmd.Flags().BoolVar(&validatePreset, "preset", false, "install ready-to-use base from default repository")
-	installValidateCmd.Flags().BoolVar(&keepSetting, "keep-setting", false, "restore previous osm-settings.yaml after base installation")
+	installValidateCmd.Flags().BoolVar(&keepSetting, "keep-setting", false, "restore previous golish-settings.yaml after base installation")
 }
 
 // parseCustomHeaders converts the string slice of "Key: Value" pairs to a map

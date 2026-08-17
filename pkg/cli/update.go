@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/updater"
 	"github.com/charmbracelet/glamour"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
-	"github.com/j3ssie/osmedeus/v5/internal/updater"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +24,7 @@ var (
 // updateCmd represents the update command
 var updateCmd = &cobra.Command{
 	Use:   "update",
-	Short: "Update osmedeus to the latest version",
+	Short: "Update golish to the latest version",
 	Long:  UsageUpdate(),
 	RunE:  runUpdate,
 }
@@ -123,7 +123,7 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 
 	// Check-only mode
 	if updateCheck {
-		printer.Info("Run 'osmedeus update' to install this version")
+		printer.Info("Run 'golish update' to install this version")
 		return nil
 	}
 
@@ -154,7 +154,7 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		printer.Success("Successfully updated from %s to %s",
 			terminal.Gray(result.OldVersion),
 			terminal.Green(result.NewVersion))
-		printer.Info("Restart osmedeus to use the new version")
+		printer.Info("Restart golish to use the new version")
 	} else {
 		printer.Info("No update was performed")
 	}
@@ -176,7 +176,7 @@ func confirmUpdatePrompt() bool {
 // UsageUpdate returns the Long description for the update command
 func UsageUpdate() string {
 	return terminal.BoldCyan("◆ Description") + `
-  Update osmedeus binary to the latest version from GitHub releases.
+  Update golish binary to the latest version from GitHub releases.
   Compares semantic versions and downloads the appropriate binary for
   your platform.
 
@@ -188,16 +188,16 @@ func UsageUpdate() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Check for updates") + `
-  osmedeus update ` + terminal.Yellow("--check") + `
+  golish update ` + terminal.Yellow("--check") + `
 
   ` + terminal.Green("# Update to latest version") + `
-  osmedeus update
+  golish update
 
   ` + terminal.Green("# Force reinstall current version") + `
-  osmedeus update ` + terminal.Yellow("--force") + `
+  golish update ` + terminal.Yellow("--force") + `
 
   ` + terminal.Green("# Update to specific version") + `
-  osmedeus update ` + terminal.Yellow("--version") + ` v5.1.0
+  golish update ` + terminal.Yellow("--version") + ` v5.1.0
 
 ` + docsFooter()
 }

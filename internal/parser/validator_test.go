@@ -3,7 +3,7 @@ package parser
 import (
 	"testing"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -300,11 +300,11 @@ func TestDependencyChecker_CheckVariables_RepoType_GitURLs(t *testing.T) {
 	}
 
 	tests := []string{
-		"https://github.com/osmedeus/assets",
-		"https://github.com/osmedeus/assets.git",
-		"git@github.com:osmedeus/assets.git",
-		"github.com/osmedeus/assets",
-		"git://github.com/osmedeus/assets.git",
+		"https://github.com/ChristopherZh-7/assets",
+		"https://github.com/ChristopherZh-7/assets.git",
+		"git@github.com:ChristopherZh-7/assets.git",
+		"github.com/ChristopherZh-7/assets",
+		"git://github.com/ChristopherZh-7/assets.git",
 	}
 
 	for _, tc := range tests {

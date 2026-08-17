@@ -11,7 +11,7 @@ import (
 func TestNewHotReloadableConfig(t *testing.T) {
 	// Create temp directory with config file
 	tmpDir := t.TempDir()
-	configPath := filepath.Join(tmpDir, "osm-settings.yaml")
+	configPath := filepath.Join(tmpDir, "golish-settings.yaml")
 
 	// Write initial config
 	initialConfig := `
@@ -59,7 +59,7 @@ func TestNewHotReloadableConfig_FileNotFound(t *testing.T) {
 func TestHotReloadableConfig_Reload(t *testing.T) {
 	// Create temp directory with config file
 	tmpDir := t.TempDir()
-	configPath := filepath.Join(tmpDir, "osm-settings.yaml")
+	configPath := filepath.Join(tmpDir, "golish-settings.yaml")
 
 	// Write initial config
 	initialConfig := `
@@ -113,7 +113,7 @@ server:
 func TestHotReloadableConfig_ReloadInvalidConfig(t *testing.T) {
 	// Create temp directory with config file
 	tmpDir := t.TempDir()
-	configPath := filepath.Join(tmpDir, "osm-settings.yaml")
+	configPath := filepath.Join(tmpDir, "golish-settings.yaml")
 
 	// Write initial config
 	initialConfig := `
@@ -161,7 +161,7 @@ this is not: valid yaml
 func TestHotReloadableConfig_OnChange(t *testing.T) {
 	// Create temp directory with config file
 	tmpDir := t.TempDir()
-	configPath := filepath.Join(tmpDir, "osm-settings.yaml")
+	configPath := filepath.Join(tmpDir, "golish-settings.yaml")
 
 	// Write initial config
 	initialConfig := `
@@ -236,7 +236,7 @@ server:
 func TestHotReloadableConfig_Watch(t *testing.T) {
 	// Create temp directory with config file
 	tmpDir := t.TempDir()
-	configPath := filepath.Join(tmpDir, "osm-settings.yaml")
+	configPath := filepath.Join(tmpDir, "golish-settings.yaml")
 
 	// Write initial config
 	initialConfig := `
@@ -303,7 +303,7 @@ server:
 func TestHotReloadableConfig_Stop(t *testing.T) {
 	// Create temp directory with config file
 	tmpDir := t.TempDir()
-	configPath := filepath.Join(tmpDir, "osm-settings.yaml")
+	configPath := filepath.Join(tmpDir, "golish-settings.yaml")
 
 	// Write initial config
 	initialConfig := `
@@ -345,7 +345,7 @@ server:
 func TestHotReloadableConfig_WatchTwice(t *testing.T) {
 	// Create temp directory with config file
 	tmpDir := t.TempDir()
-	configPath := filepath.Join(tmpDir, "osm-settings.yaml")
+	configPath := filepath.Join(tmpDir, "golish-settings.yaml")
 
 	// Write initial config
 	initialConfig := `
@@ -378,7 +378,7 @@ server:
 func TestWithDebounceDuration(t *testing.T) {
 	// Create temp directory with config file
 	tmpDir := t.TempDir()
-	configPath := filepath.Join(tmpDir, "osm-settings.yaml")
+	configPath := filepath.Join(tmpDir, "golish-settings.yaml")
 
 	initialConfig := `
 base_folder: /tmp/test
@@ -403,7 +403,7 @@ server:
 func TestHotReloadableConfig_GetConfigPath(t *testing.T) {
 	// Create temp directory with config file
 	tmpDir := t.TempDir()
-	configPath := filepath.Join(tmpDir, "osm-settings.yaml")
+	configPath := filepath.Join(tmpDir, "golish-settings.yaml")
 
 	initialConfig := `
 base_folder: /tmp/test

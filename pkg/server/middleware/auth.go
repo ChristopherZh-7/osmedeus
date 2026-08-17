@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
 )
 
 // Claims represents JWT claims
@@ -33,7 +33,7 @@ func JWTAuth(cfg *config.Config) fiber.Handler {
 
 		// Fall back to cookie (browser clients)
 		if tokenString == "" {
-			cookie := c.Cookies("osmedeus_session")
+			cookie := c.Cookies("golish_session")
 			if cookie != "" {
 				// URL decode the cookie value
 				decoded, err := url.QueryUnescape(cookie)
@@ -108,7 +108,7 @@ func GetUser(c *fiber.Ctx) *Claims {
 // APIKeyAuth creates API key authentication middleware
 func APIKeyAuth(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		apiKey := c.Get("x-osm-api-key")
+		apiKey := c.Get("x-golish-api-key")
 
 		if !isValidAPIKey(apiKey, cfg.Server.AuthAPIKey) {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -144,7 +144,7 @@ func isValidAPIKey(provided, expected string) bool {
 func CombinedAuth(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Try API key first
-		apiKey := c.Get("x-osm-api-key")
+		apiKey := c.Get("x-golish-api-key")
 		if apiKey != "" && isValidAPIKey(apiKey, cfg.Server.AuthAPIKey) {
 			return c.Next()
 		}

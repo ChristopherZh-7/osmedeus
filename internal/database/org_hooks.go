@@ -98,7 +98,7 @@ func invalidateWorkspaceOrgCache() {
 //
 // Deriving the org from the workspace rather than threading it through every
 // import function means org membership always follows the workspace: reassigning
-// a workspace with `osmedeus org assign` retargets its future imports too.
+// a workspace with `golish org assign` retargets its future imports too.
 func GetOrgUUIDForWorkspace(ctx context.Context, workspace string) string {
 	if workspace == "" {
 		return DefaultOrgUUID

@@ -1,32 +1,32 @@
-# Osmedeus Production Stack with PostgreSQL
+# Golish Production Stack with PostgreSQL
 # ==========================================
 # Usage:
 #   make deploy
 #
 # The deploy helper generates credentials/config, builds every image, waits for
-# health checks, and leaves only the Osmedeus server port published.
+# health checks, and leaves only the Golish server port published.
 
 services:
   # PostgreSQL - Primary database for persistent storage
   postgres:
     image: postgres:16-alpine
-    container_name: osmedeus-postgres
+    container_name: golish-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-osmedeus}
+      POSTGRES_USER: ${POSTGRES_USER:-golish}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
-      POSTGRES_DB: ${POSTGRES_DB:-osmedeus}
+      POSTGRES_DB: ${POSTGRES_DB:-golish}
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-osmedeus} -d ${POSTGRES_DB:-osmedeus}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-golish} -d ${POSTGRES_DB:-golish}"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     networks:
-      - osmedeus-network
+      - golish-network
     # Uncomment to expose PostgreSQL externally (not recommended for production)
     # ports:
     #   - "5432:5432"
@@ -34,7 +34,7 @@ services:
   # Redis - Message queue for distributed task processing
   redis:
     image: redis:7-alpine
-    container_name: osmedeus-redis
+    container_name: golish-redis
     restart: unless-stopped
     command: >
       redis-server
@@ -50,7 +50,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - osmedeus-network
+      - golish-network
     # Uncomment to expose Redis externally (not recommended for production)
     # ports:
     #   - "6379:6379"
@@ -58,28 +58,28 @@ services:
   # DeepSeek Harness - interactive pentest agent runtime
   agent-harness:
     build:
-      context: ../../platform/osmedeus-agent-harness
+      context: ../../platform/golish-agent-harness
       dockerfile: Dockerfile
       args:
         HTTP_PROXY: ${HTTP_PROXY:-}
         HTTPS_PROXY: ${HTTPS_PROXY:-}
         NO_PROXY: ${NO_PROXY:-}
-    image: osmedeus-agent-harness:latest
-    container_name: osmedeus-agent-harness
+    image: golish-agent-harness:latest
+    container_name: golish-agent-harness
     restart: unless-stopped
     environment:
       - DSH_HOME=/home/node/.dsh
       - DSH_TELEMETRY_MODE=DISABLED
       - DSH_PERMISSION_MODE=${DSH_PERMISSION_MODE:-workspace-write}
-      - OSM_DSH_HOST=0.0.0.0
-      - OSM_DSH_PORT=3080
-      - OSM_DSH_TRUSTED_HOST=agent-harness:3080
-      - OSM_API_URL=http://server:8002
-      - OSM_CYBERSTRIKE_SKILLS_DIR=/app/vendor/cyberstrike-skills
+      - GOLISH_DSH_HOST=0.0.0.0
+      - GOLISH_DSH_PORT=3080
+      - GOLISH_DSH_TRUSTED_HOST=agent-harness:3080
+      - GOLISH_API_URL=http://server:8002
+      - GOLISH_CYBERSTRIKE_SKILLS_DIR=/app/vendor/cyberstrike-skills
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
     volumes:
       - agent-harness-data:/home/node/.dsh
-      - workspaces:/osmedeus/workspaces:ro
+      - workspaces:/golish/workspaces:ro
     expose:
       - "3080"
     healthcheck:
@@ -89,7 +89,7 @@ services:
       start_period: 20s
       retries: 5
     networks:
-      - osmedeus-network
+      - golish-network
     logging:
       driver: "json-file"
       options:
@@ -105,19 +105,19 @@ services:
         HTTP_PROXY: ${HTTP_PROXY:-}
         HTTPS_PROXY: ${HTTPS_PROXY:-}
         NO_PROXY: ${NO_PROXY:-}
-    image: osmedeus:latest
-    container_name: osmedeus-server
+    image: golish:latest
+    container_name: golish-server
     restart: unless-stopped
     ports:
-      - "${OSM_SERVER_PORT:-8002}:8002"
+      - "${GOLISH_SERVER_PORT:-8002}:8002"
     environment:
       # These are passed to the container but config is read from mounted file
       - TZ=${TZ:-UTC}
     volumes:
-      - osmedeus-data:/root/osmedeus-base
-      - workspaces:/root/workspaces-osmedeus
+      - golish-data:/root/golish-base
+      - workspaces:/root/workspaces-golish
       # Directory mount allows the server's atomic settings rename to persist.
-      - "${OSM_SETTINGS_DIR:-.}:/root/osmedeus-settings"
+      - "${GOLISH_SETTINGS_DIR:-.}:/root/golish-settings"
     depends_on:
       postgres:
         condition: service_healthy
@@ -133,7 +133,7 @@ services:
       start_period: 30s
       retries: 3
     networks:
-      - osmedeus-network
+      - golish-network
     logging:
       driver: "json-file"
       options:
@@ -149,14 +149,14 @@ services:
         HTTP_PROXY: ${HTTP_PROXY:-}
         HTTPS_PROXY: ${HTTPS_PROXY:-}
         NO_PROXY: ${NO_PROXY:-}
-    image: osmedeus:latest
+    image: golish:latest
     restart: unless-stopped
     environment:
       - TZ=${TZ:-UTC}
     volumes:
-      - osmedeus-data:/root/osmedeus-base
-      - workspaces:/root/workspaces-osmedeus
-      - "${OSM_SETTINGS_DIR:-.}:/root/osmedeus-settings:ro"
+      - golish-data:/root/golish-base
+      - workspaces:/root/workspaces-golish
+      - "${GOLISH_SETTINGS_DIR:-.}:/root/golish-settings:ro"
     depends_on:
       redis:
         condition: service_healthy
@@ -173,7 +173,7 @@ services:
           cpus: '0.5'
           memory: 512M
     networks:
-      - osmedeus-network
+      - golish-network
     logging:
       driver: "json-file"
       options:
@@ -183,21 +183,21 @@ services:
 volumes:
   postgres-data:
     driver: local
-    name: osmedeus-postgres-data
+    name: golish-postgres-data
   redis-data:
     driver: local
-    name: osmedeus-redis-data
-  osmedeus-data:
+    name: golish-redis-data
+  golish-data:
     driver: local
-    name: osmedeus-app-data
+    name: golish-app-data
   workspaces:
     driver: local
-    name: osmedeus-workspaces
+    name: golish-workspaces
   agent-harness-data:
     driver: local
-    name: osmedeus-agent-harness-data
+    name: golish-agent-harness-data
 
 networks:
-  osmedeus-network:
+  golish-network:
     driver: bridge
-    name: osmedeus-network
+    name: golish-network

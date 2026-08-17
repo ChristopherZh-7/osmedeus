@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  osmedeus-toolbox:
+  golish-toolbox:
     build:
       context: ../..
       dockerfile: build/docker/Dockerfile.toolbox
@@ -9,23 +9,23 @@ services:
         VERSION: "5.0.0"
         BUILD_TIME: "${BUILD_TIME:-unknown}"
         COMMIT_HASH: "${COMMIT_HASH:-unknown}"
-    image: osmedeus-toolbox:latest
-    container_name: osmedeus-toolbox
-    hostname: osmedeus-toolbox
+    image: golish-toolbox:latest
+    container_name: golish-toolbox
+    hostname: golish-toolbox
     volumes:
       # Persist workspaces and scan results
-      - osmedeus-workspaces:/root/workspaces-osmedeus
+      - golish-workspaces:/root/workspaces-golish
       # Persist database
-      - osmedeus-data:/root/osmedeus-base
+      - golish-data:/root/golish-base
     ports:
       - "8002:8002"
     environment:
-      - OSMEDEUS_BASE=/root/osmedeus-base
+      - GOLISH_BASE=/root/golish-base
     # Keep container running for interactive use
     stdin_open: true
     tty: true
     restart: unless-stopped
 
 volumes:
-  osmedeus-workspaces:
-  osmedeus-data:
+  golish-workspaces:
+  golish-data:

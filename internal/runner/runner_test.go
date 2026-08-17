@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -160,7 +160,7 @@ func TestSSHRunner_Cancel_KillsRemoteProcessGroup(t *testing.T) {
 	defer func() { _ = r.Cleanup(ctx) }()
 
 	// Unique marker so we can identify *this* test's process across runs.
-	markerID := fmt.Sprintf("osm-sshcancel-%d", time.Now().UnixNano())
+	markerID := fmt.Sprintf("golish-sshcancel-%d", time.Now().UnixNano())
 	markerFile := fmt.Sprintf("/tmp/%s.heartbeat", markerID)
 	defer func() {
 		// Best-effort cleanup of any stragglers between test runs.
@@ -273,7 +273,7 @@ func TestNewRunner_HostFindsToolsInsidePipeline(t *testing.T) {
 		Runner: core.RunnerTypeHost,
 	}
 
-	r, err := NewRunner(workflow, "/path/to/osmedeus", toolsDir)
+	r, err := NewRunner(workflow, "/path/to/golish", toolsDir)
 	require.NoError(t, err)
 	result, err := r.Execute(context.Background(), "printf pipeline-ok | pipeline-tool")
 

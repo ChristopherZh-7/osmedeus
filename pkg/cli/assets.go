@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/spf13/cobra"
 )
 
@@ -164,7 +164,7 @@ func runAssetsList(ctx context.Context, args []string) error {
 
 	if records.TotalCount > endRecord {
 		nextOffset := records.Offset + records.Limit
-		printer.Info("Next page: osmedeus assets --offset %d --limit %d", nextOffset, assetsLimit)
+		printer.Info("Next page: golish assets --offset %d --limit %d", nextOffset, assetsLimit)
 	}
 
 	return nil

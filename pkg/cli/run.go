@@ -20,19 +20,19 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/distributed"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/executor"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/fileio"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/heuristics"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/installer"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/parser"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/goccy/go-yaml"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/distributed"
-	"github.com/j3ssie/osmedeus/v5/internal/executor"
-	"github.com/j3ssie/osmedeus/v5/internal/fileio"
-	"github.com/j3ssie/osmedeus/v5/internal/heuristics"
-	"github.com/j3ssie/osmedeus/v5/internal/installer"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/parser"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -155,7 +155,7 @@ func init() {
 
 	// Queue flags
 	runCmd.Flags().BoolVar(&queueRun, "queue", false, "queue the run for later processing instead of executing immediately")
-	runCmd.Flags().BoolVar(&queueRunProcess, "queue-run", false, "process queued tasks (alias for 'osmedeus worker queue run')")
+	runCmd.Flags().BoolVar(&queueRunProcess, "queue-run", false, "process queued tasks (alias for 'golish worker queue run')")
 
 	// Webhook flags
 	runCmd.Flags().BoolVar(&webhookRun, "as-webhook", false, "register a webhook trigger for this run instead of executing immediately")
@@ -354,7 +354,7 @@ func runRun(cmd *cobra.Command, args []string) error {
 
 	// Print greeting message (skip in CI mode)
 	if !ciOutputFormat {
-		printer.Println("%s Initiating Osmedeus %s - Crafted with %s by %s",
+		printer.Println("%s Initiating Golish %s - Crafted with %s by %s",
 			terminal.Yellow(terminal.SymbolLightning),
 			terminal.Cyan(core.VERSION),
 			terminal.Red("<3"),
@@ -437,7 +437,7 @@ func runRun(cmd *cobra.Command, args []string) error {
 	// This helps when users haven't reloaded their shell after installation
 	ensureExternalBinariesInPath(cfg)
 
-	// Handle --queue-run mode (alias for 'osmedeus worker queue run')
+	// Handle --queue-run mode (alias for 'golish worker queue run')
 	if queueRunProcess {
 		queueConcurrency = concurrency
 		queueRedisURL = redisURLRun
@@ -1283,7 +1283,7 @@ func collectTargets() ([]string, error) {
 
 	// --convert-to-file: write all targets into a temp file and return the file path
 	if convertToFile && len(allTargets) > 0 {
-		tmpFile := filepath.Join(os.TempDir(), fmt.Sprintf("osm-input-%s.txt", uuid.New().String()[:8]))
+		tmpFile := filepath.Join(os.TempDir(), fmt.Sprintf("golish-input-%s.txt", uuid.New().String()[:8]))
 		if err := os.WriteFile(tmpFile, []byte(strings.Join(allTargets, "\n")+"\n"), 0644); err != nil {
 			return nil, fmt.Errorf("failed to write temp target file: %w", err)
 		}
@@ -1920,7 +1920,7 @@ func runDistributedRun(cfg *config.Config, allTargets []string, printer *termina
 
 	// Check Redis is configured
 	if !cfg.IsRedisConfigured() {
-		return fmt.Errorf("redis not configured. Add redis section to osm-settings.yaml or use --redis-url")
+		return fmt.Errorf("redis not configured. Add redis section to golish-settings.yaml or use --redis-url")
 	}
 
 	// Determine workflow name and kind
@@ -1976,7 +1976,7 @@ func runDistributedRun(cfg *config.Config, allTargets []string, printer *termina
 	// Print summary
 	fmt.Println()
 	printer.Info("Submitted %d tasks to the distributed queue", len(taskIDs))
-	printer.Info("Use 'osmedeus worker status' to check worker availability")
+	printer.Info("Use 'golish worker status' to check worker availability")
 	printer.Info("Tasks will be processed by available workers")
 
 	return nil
@@ -2194,7 +2194,7 @@ func runWebhookRun(cfg *config.Config, allTargets []string, printer *terminal.Pr
 		}
 
 		// Build webhook URL
-		webhookPath := fmt.Sprintf("/osm/api/webhook-runs/%s/trigger", webhookUUID)
+		webhookPath := fmt.Sprintf("/golish/api/webhook-runs/%s/trigger", webhookUUID)
 		if webhookAuthKey != "" {
 			webhookPath += fmt.Sprintf("?key=%s", webhookAuthKey)
 		}
@@ -2211,8 +2211,8 @@ func runWebhookRun(cfg *config.Config, allTargets []string, printer *terminal.Pr
 
 	fmt.Println()
 	printer.SecurityWarning("Webhook URLs allow unauthenticated scan triggering.")
-	printer.Info("Ensure 'enable_trigger_via_webhook: true' is set in osm-settings.yaml")
-	printer.Info("Use '%s' to list registered webhooks", terminal.Cyan("osmedeus worker webhooks"))
+	printer.Info("Ensure 'enable_trigger_via_webhook: true' is set in golish-settings.yaml")
+	printer.Info("Use '%s' to list registered webhooks", terminal.Cyan("golish worker webhooks"))
 
 	return nil
 }
@@ -2294,8 +2294,8 @@ func runCronSchedule(cfg *config.Config, allTargets []string, printer *terminal.
 
 	fmt.Println()
 	printer.Info("Created %d cron schedule(s)", created)
-	printer.Info("Use '%s' to list schedules", terminal.Cyan("osmedeus db ls --table schedules"))
-	printer.Info("Run '%s' to activate the scheduler", terminal.Cyan("osmedeus serve"))
+	printer.Info("Use '%s' to list schedules", terminal.Cyan("golish db ls --table schedules"))
+	printer.Info("Run '%s' to activate the scheduler", terminal.Cyan("golish serve"))
 
 	return nil
 }
@@ -2409,8 +2409,8 @@ func queueRuns(ctx context.Context, cfg *config.Config, workflowName, workflowKi
 
 	fmt.Println()
 	printer.Info("Queued %s task(s) (group: %s)", terminal.Cyan(fmt.Sprintf("%d", queuedCount)), terminal.Gray(runGroupID[:8]))
-	printer.Info("Use '%s' to view queued tasks", terminal.Cyan("osmedeus worker queue list"))
-	printer.Info("Use '%s' to process queued tasks", terminal.Cyan("osmedeus worker queue run"))
+	printer.Info("Use '%s' to view queued tasks", terminal.Cyan("golish worker queue list"))
+	printer.Info("Use '%s' to process queued tasks", terminal.Cyan("golish worker queue run"))
 
 	return nil
 }
@@ -2447,7 +2447,7 @@ func pushQueuedRunToRedis(ctx context.Context, cfg *config.Config, run *database
 
 // ensureExternalBinariesInPath adds the external-binaries folder to PATH if it exists
 // and is not already present. This ensures installed tools are available even if
-// the user hasn't reloaded their shell after running `osmedeus install binary`.
+// the user hasn't reloaded their shell after running `golish install binary`.
 func ensureExternalBinariesInPath(cfg *config.Config) {
 	if cfg.BinariesPath == "" {
 		return

@@ -3,15 +3,15 @@ package cloud
 import "strings"
 
 // GenerateCloudInit generates the cloud-init user data script for worker VMs.
-// The script installs osmedeus, sets up SSH access, and joins the worker to the master.
+// The script installs golish, sets up SSH access, and joins the worker to the master.
 func GenerateCloudInit(redisURL, sshPublicKey string, setupCommands []string) string {
 	var sb strings.Builder
 
 	sb.WriteString(`#!/bin/bash
 set -e
 
-# Install osmedeus
-curl -fsSL https://www.osmedeus.org/install.sh | bash
+# Install golish
+curl -fsSL https://raw.githubusercontent.com/ChristopherZh-7/golish-registry/main/install.sh | bash
 
 # Setup SSH keys
 mkdir -p ~/.ssh
@@ -24,7 +24,7 @@ chmod 600 ~/.ssh/authorized_keys
 `)
 
 	if redisURL != "" {
-		sb.WriteString("\n# Join as worker\nosmedeus worker join --redis-url ")
+		sb.WriteString("\n# Join as worker\ngolish worker join --redis-url ")
 		sb.WriteString(redisURL)
 		sb.WriteString(" --get-public-ip\n")
 	}

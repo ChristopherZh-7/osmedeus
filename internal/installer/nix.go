@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
 	"github.com/orivej/go-nix/nix/parser"
 	"go.uber.org/zap"
 )
@@ -63,7 +63,7 @@ func InstallNix() error {
 	// @NOTE: This is intentional - the Nix installation command is a hardcoded trusted
 	// command from Determinate Systems for installing the Nix package manager.
 	cmd := exec.Command("sh", "-c", installCmd)
-	if os.Getenv("OSMEDEUS_SILENT") == "1" {
+	if os.Getenv("GOLISH_SILENT") == "1" {
 		cmd.Stdout = io.Discard
 		cmd.Stderr = io.Discard
 	} else {

@@ -12,10 +12,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/goccy/go-yaml/ast"
 	"github.com/goccy/go-yaml/parser"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
 	"github.com/spf13/cobra"
 )
 
@@ -51,7 +51,7 @@ func normalizeConfigSetArgs(args []string) (string, string, error) {
 // configCmd - parent command for config management
 var configCmd = &cobra.Command{
 	Use:   "config",
-	Short: "Manage osmedeus configuration",
+	Short: "Manage golish configuration",
 	Long:  UsageConfig(),
 }
 
@@ -98,7 +98,7 @@ var configListCmd = &cobra.Command{
 
 func init() {
 	configCmd.AddCommand(configCleanCmd)
-	configCleanCmd.Flags().BoolVar(&configCleanWS, "clean-ws", false, "also remove workspace data directory (e.g. ~/workspaces-osmedeus)")
+	configCleanCmd.Flags().BoolVar(&configCleanWS, "clean-ws", false, "also remove workspace data directory (e.g. ~/workspaces-golish)")
 	configCmd.AddCommand(configSetCmd)
 	configSetCmd.Flags().SetInterspersed(false) // Allow negative numbers as positional args
 	configSetCmd.Flags().StringVar(&configSetFromFile, "from-file", "", "Read key-value pairs from a file (or use - for stdin)")
@@ -119,7 +119,7 @@ func runConfigClean(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("configuration not loaded")
 	}
 
-	settingsPath := filepath.Join(cfg.BaseFolder, "osm-settings.yaml")
+	settingsPath := filepath.Join(cfg.BaseFolder, "golish-settings.yaml")
 
 	// Backup existing config if present
 	if _, err := os.Stat(settingsPath); err == nil {
@@ -185,7 +185,7 @@ func runConfigSet(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("configuration not loaded")
 	}
 
-	settingsPath := filepath.Join(cfg.BaseFolder, "osm-settings.yaml")
+	settingsPath := filepath.Join(cfg.BaseFolder, "golish-settings.yaml")
 
 	// Load fresh from file to avoid runtime-only fields
 	freshCfg, err := config.LoadFromFile(settingsPath)
@@ -195,7 +195,7 @@ func runConfigSet(cmd *cobra.Command, args []string) error {
 
 	currentAuthUsername, _ := primaryServerAuthUser(freshCfg)
 	if currentAuthUsername == "" {
-		currentAuthUsername = "osmedeus"
+		currentAuthUsername = "golish"
 	}
 
 	var setErrors []string
@@ -244,7 +244,7 @@ func runConfigView(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("configuration not loaded")
 	}
 
-	settingsPath := filepath.Join(cfg.BaseFolder, "osm-settings.yaml")
+	settingsPath := filepath.Join(cfg.BaseFolder, "golish-settings.yaml")
 	fileCfg, err := config.LoadFromFile(settingsPath)
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
@@ -253,7 +253,7 @@ func runConfigView(cmd *cobra.Command, args []string) error {
 	// Check for wildcard pattern
 	if strings.Contains(key, "*") {
 		if !configViewForce {
-			return fmt.Errorf("wildcard patterns require --force flag\n\nExample: osmedeus config view '%s' --force", key)
+			return fmt.Errorf("wildcard patterns require --force flag\n\nExample: golish config view '%s' --force", key)
 		}
 		return runConfigViewPattern(key, settingsPath, fileCfg)
 	}
@@ -380,7 +380,7 @@ func runConfigList(cmd *cobra.Command, args []string) error {
 		filter = strings.ToLower(args[0])
 	}
 
-	settingsPath := filepath.Join(cfg.BaseFolder, "osm-settings.yaml")
+	settingsPath := filepath.Join(cfg.BaseFolder, "golish-settings.yaml")
 	fileCfg, err := config.LoadFromFile(settingsPath)
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
@@ -884,7 +884,7 @@ func setAgentHarnessValue(cfg *config.Config, parts []string, value string) erro
 	return nil
 }
 
-// setCloudMainValue sets a cloud config field in the main osm-settings
+// setCloudMainValue sets a cloud config field in the main golish-settings
 func setCloudMainValue(cfg *config.Config, parts []string, value string) error {
 	if len(parts) == 0 {
 		return fmt.Errorf("missing cloud field. Use: cloud.enabled, cloud.cloud_path, or cloud.cloud_settings")
@@ -897,7 +897,7 @@ func setCloudMainValue(cfg *config.Config, parts []string, value string) error {
 	case "cloud_settings":
 		cfg.Cloud.CloudSettings = value
 	default:
-		return fmt.Errorf("unknown cloud field: %s. For provider/limits config use: osmedeus cloud config set <key> <value>", parts[0])
+		return fmt.Errorf("unknown cloud field: %s. For provider/limits config use: golish cloud config set <key> <value>", parts[0])
 	}
 	return nil
 }
@@ -932,7 +932,7 @@ func setServerValue(cfg *config.Config, parts []string, value string) error {
 	case "password":
 		username, _ := primaryServerAuthUser(cfg)
 		if username == "" {
-			username = "osmedeus"
+			username = "golish"
 		}
 		if cfg.Server.SimpleUserMapKey == nil {
 			cfg.Server.SimpleUserMapKey = map[string]string{}
@@ -984,8 +984,8 @@ func primaryServerAuthUser(cfg *config.Config) (string, string) {
 	if len(cfg.Server.SimpleUserMapKey) == 0 {
 		return "", ""
 	}
-	if pass, ok := cfg.Server.SimpleUserMapKey["osmedeus"]; ok {
-		return "osmedeus", pass
+	if pass, ok := cfg.Server.SimpleUserMapKey["golish"]; ok {
+		return "golish", pass
 	}
 	keys := make([]string, 0, len(cfg.Server.SimpleUserMapKey))
 	for k := range cfg.Server.SimpleUserMapKey {
@@ -1702,8 +1702,8 @@ func resolveConfigSetPairs(args []string, fromFile string) ([][2]string, error) 
 //	key value
 //	key = value
 //	key="value"
-//	osmedeus config set key value
-//	osmedeus cloud config set key value
+//	golish config set key value
+//	golish cloud config set key value
 func parseConfigSetLines(input string) ([][2]string, error) {
 	var pairs [][2]string
 	scanner := bufio.NewScanner(strings.NewReader(input))
@@ -1718,7 +1718,7 @@ func parseConfigSetLines(input string) ([][2]string, error) {
 			continue
 		}
 
-		// Strip leading "osmedeus cloud config set" or "osmedeus config set" prefix
+		// Strip leading "golish cloud config set" or "golish config set" prefix
 		line = stripConfigSetPrefix(line)
 
 		// Parse key-value from the remaining content
@@ -1742,10 +1742,10 @@ func parseConfigSetLines(input string) ([][2]string, error) {
 
 // stripConfigSetPrefix removes known CLI prefixes from a config set line.
 func stripConfigSetPrefix(line string) string {
-	// Try to strip "osmedeus cloud config set " or "osmedeus config set "
+	// Try to strip "golish cloud config set " or "golish config set "
 	prefixes := []string{
-		"osmedeus cloud config set ",
-		"osmedeus config set ",
+		"golish cloud config set ",
+		"golish config set ",
 	}
 	lower := strings.ToLower(line)
 	for _, prefix := range prefixes {

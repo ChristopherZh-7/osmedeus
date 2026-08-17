@@ -14,14 +14,14 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/cloud"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/snapshot"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/public"
 	"github.com/goccy/go-yaml/parser"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/cloud"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/snapshot"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
-	"github.com/j3ssie/osmedeus/v5/public"
 	"github.com/spf13/cobra"
 )
 
@@ -33,18 +33,18 @@ var (
 	cloudForce     bool
 
 	// Cloud run flags
-	cloudFlowName      string
-	cloudModuleName    string
-	cloudTarget        string
-	cloudTargetFile    string
-	cloudTimeout       string
-	cloudAutoDestroy   bool
-	cloudReuseInfra    bool
-	cloudReuseWith     string
-	cloudVerboseSetup  bool
-	cloudUseAnsible    bool
-	cloudSkipSetup     bool
-	cloudSyncBack      bool
+	cloudFlowName     string
+	cloudModuleName   string
+	cloudTarget       string
+	cloudTargetFile   string
+	cloudTimeout      string
+	cloudAutoDestroy  bool
+	cloudReuseInfra   bool
+	cloudReuseWith    string
+	cloudVerboseSetup bool
+	cloudUseAnsible   bool
+	cloudSkipSetup    bool
+	cloudSyncBack     bool
 
 	// Cloud run chunk flags
 	cloudChunkSize  int
@@ -54,12 +54,11 @@ var (
 	cloudCustomCmds     []string // --custom-cmd (repeatable)
 	cloudCustomPostCmds []string // --custom-post-cmd (repeatable)
 	cloudSyncPaths      []string // --sync-path (repeatable)
-	cloudSyncDest       string   // --sync-dest (default "./osm-sync-back")
+	cloudSyncDest       string   // --sync-dest (default "./golish-sync-back")
 
 	// Cloud config set flags
 	cloudConfigSetFromFile string
 )
-
 
 // cloudCmd represents the cloud command
 var cloudCmd = &cobra.Command{
@@ -71,29 +70,29 @@ var cloudCmd = &cobra.Command{
 
 ` + terminal.BoldCyan("▷ Quick Start") + `
   # 1. Configure provider credentials
-  ` + terminal.Green("osmedeus cloud config set providers.aws.access_key_id <key>") + `
-  ` + terminal.Green("osmedeus cloud config set providers.aws.secret_access_key <secret>") + `
-  ` + terminal.Green("osmedeus cloud config set providers.aws.region ap-southeast-1") + `
-  ` + terminal.Green("osmedeus cloud config set defaults.provider aws") + `
+  ` + terminal.Green("golish cloud config set providers.aws.access_key_id <key>") + `
+  ` + terminal.Green("golish cloud config set providers.aws.secret_access_key <secret>") + `
+  ` + terminal.Green("golish cloud config set providers.aws.region ap-southeast-1") + `
+  ` + terminal.Green("golish cloud config set defaults.provider aws") + `
 
   # 2. Configure SSH keys
-  ` + terminal.Green("osmedeus cloud config set ssh.private_key_path ~/.ssh/id_rsa") + `
-  ` + terminal.Green("osmedeus cloud config set ssh.public_key_path ~/.ssh/id_rsa.pub") + `
+  ` + terminal.Green("golish cloud config set ssh.private_key_path ~/.ssh/id_rsa") + `
+  ` + terminal.Green("golish cloud config set ssh.public_key_path ~/.ssh/id_rsa.pub") + `
 
   # 3. Add setup commands (runs on each worker before scanning)
-  ` + terminal.Green(`osmedeus cloud config set setup.commands.add "curl -fsSL https://www.osmedeus.org/install.sh | bash"`) + `
-  ` + terminal.Green(`osmedeus cloud config set setup.commands.add "osmedeus install base --preset"`) + `
+  ` + terminal.Green(`golish cloud config set setup.commands.add "curl -fsSL https://raw.githubusercontent.com/ChristopherZh-7/golish-registry/main/install.sh | bash"`) + `
+  ` + terminal.Green(`golish cloud config set setup.commands.add "golish install base --preset"`) + `
 
   # 4. Run a scan on cloud infrastructure
-  ` + terminal.Green("osmedeus cloud run -f fast -t example.com --instances 1") + `
+  ` + terminal.Green("golish cloud run -f fast -t example.com --instances 1") + `
 
 ` + terminal.BoldCyan("▷ Common Commands") + `
-  ` + terminal.Green("osmedeus cloud config list") + `              Show cloud configuration
-  ` + terminal.Green("osmedeus cloud create --provider aws -n 3") + `  Create 3 AWS instances
-  ` + terminal.Green("osmedeus cloud ls") + `                         List active infrastructure
-  ` + terminal.Green("osmedeus cloud run -f general -t target.com") + ` Run scan on cloud workers
-  ` + terminal.Green("osmedeus cloud destroy <id>") + `               Destroy specific infrastructure
-  ` + terminal.Green("osmedeus cloud destroy all --force") + `        Destroy all infrastructure
+  ` + terminal.Green("golish cloud config list") + `              Show cloud configuration
+  ` + terminal.Green("golish cloud create --provider aws -n 3") + `  Create 3 AWS instances
+  ` + terminal.Green("golish cloud ls") + `                         List active infrastructure
+  ` + terminal.Green("golish cloud run -f general -t target.com") + ` Run scan on cloud workers
+  ` + terminal.Green("golish cloud destroy <id>") + `               Destroy specific infrastructure
+  ` + terminal.Green("golish cloud destroy all --force") + `        Destroy all infrastructure
 `,
 }
 
@@ -112,20 +111,20 @@ var cloudConfigSetCmd = &cobra.Command{
   Set a cloud configuration value using dot notation.
 
 ` + terminal.BoldCyan("▷ Examples") + `
-  ` + terminal.Green("osmedeus cloud config set defaults.provider digitalocean") + `
-  ` + terminal.Green("osmedeus cloud config set ssh.user ubuntu") + `
+  ` + terminal.Green("golish cloud config set defaults.provider digitalocean") + `
+  ` + terminal.Green("golish cloud config set ssh.user ubuntu") + `
 
   ` + terminal.Green("# Batch set from a file") + `
-  osmedeus cloud config set ` + terminal.Yellow("--from-file") + ` cloud-config.txt
+  golish cloud config set ` + terminal.Yellow("--from-file") + ` cloud-config.txt
 
   ` + terminal.Green("# Pipe from stdin") + `
-  cat cloud-config.txt | osmedeus cloud config set ` + terminal.Yellow("--from-file") + ` -
+  cat cloud-config.txt | golish cloud config set ` + terminal.Yellow("--from-file") + ` -
 
 ` + terminal.BoldCyan("▷ File Format") + `
   Lines can use any of these formats:
     ssh.user "ubuntu"
     ssh.user = "ubuntu"
-    osmedeus cloud config set ssh.user "ubuntu"
+    golish cloud config set ssh.user "ubuntu"
   Lines starting with # are ignored.
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -281,7 +280,6 @@ var cloudConfigListCmd = &cobra.Command{
 	},
 }
 
-
 // cloudConfigCleanCmd resets cloud config and state to a fresh preset
 var cloudConfigCleanCmd = &cobra.Command{
 	Use:   "clean",
@@ -293,8 +291,8 @@ var cloudConfigCleanCmd = &cobra.Command{
   By default this command asks for confirmation. Use --force to skip.
 
 ` + terminal.BoldCyan("▷ Examples") + `
-  ` + terminal.Green("osmedeus cloud config clean") + `
-  ` + terminal.Green("osmedeus cloud config clean --force") + `
+  ` + terminal.Green("golish cloud config clean") + `
+  ` + terminal.Green("golish cloud config clean --force") + `
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfg := config.Get()
@@ -426,9 +424,9 @@ var cloudCreateCmd = &cobra.Command{
   Provision cloud VMs. Instances stay running until you destroy them.
 
 ` + terminal.BoldCyan("▷ Examples") + `
-  ` + terminal.Green("osmedeus cloud create --provider aws --instances 1") + `
-  ` + terminal.Green("osmedeus cloud create --provider digitalocean -n 3") + `
-  ` + terminal.Green("osmedeus cloud create --provider hetzner --instances 2") + `
+  ` + terminal.Green("golish cloud create --provider aws --instances 1") + `
+  ` + terminal.Green("golish cloud create --provider digitalocean -n 3") + `
+  ` + terminal.Green("golish cloud create --provider hetzner --instances 2") + `
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfg := config.Get()
@@ -437,7 +435,7 @@ var cloudCreateCmd = &cobra.Command{
 		}
 
 		if !cfg.Cloud.Enabled {
-			return fmt.Errorf("cloud features are disabled. Enable in osm-settings.yaml: cloud.enabled = true")
+			return fmt.Errorf("cloud features are disabled. Enable in golish-settings.yaml: cloud.enabled = true")
 		}
 
 		// Load cloud config
@@ -524,7 +522,7 @@ var cloudCreateCmd = &cobra.Command{
 			InstanceCount: instanceCount,
 			SSHPublicKey:  sshPublicKey,
 			SetupCommands: cloudCfg.Setup.Commands,
-			Tags:          map[string]string{"managed-by": "osmedeus"},
+			Tags:          map[string]string{"managed-by": "golish"},
 		}
 
 		printer.Newline()
@@ -619,7 +617,7 @@ var cloudCreateCmd = &cobra.Command{
 			}
 		}
 
-		printer.Info("Destroy when done: %s", terminal.Gray(fmt.Sprintf("osmedeus cloud destroy %s", infra.ID)))
+		printer.Info("Destroy when done: %s", terminal.Gray(fmt.Sprintf("golish cloud destroy %s", infra.ID)))
 
 		return nil
 	},
@@ -715,13 +713,13 @@ var cloudDestroyCmd = &cobra.Command{
 
 ` + terminal.BoldCyan("▷ Examples") + `
   # Destroy a specific infrastructure
-  ` + terminal.Green("osmedeus cloud destroy cloud-aws-1775159841") + `
+  ` + terminal.Green("golish cloud destroy cloud-aws-1775159841") + `
 
   # Destroy all infrastructure (requires --force)
-  ` + terminal.Green("osmedeus cloud destroy all --force") + `
+  ` + terminal.Green("golish cloud destroy all --force") + `
 
   # List available infrastructure IDs
-  ` + terminal.Green("osmedeus cloud ls") + `
+  ` + terminal.Green("golish cloud ls") + `
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfg := config.Get()
@@ -823,63 +821,63 @@ var cloudRunCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Run workflow on cloud infrastructure",
 	Long: terminal.BoldCyan("◆ Description") + `
-  Provision cloud VMs, run setup commands, execute an osmedeus workflow,
+  Provision cloud VMs, run setup commands, execute an golish workflow,
   and stream output back to your terminal.
 
 ` + terminal.BoldCyan("▷ Examples") + `
   # Run a flow on a new AWS instance
-  ` + terminal.Green("osmedeus cloud run -f fast -t example.com --provider aws --instances 1") + `
+  ` + terminal.Green("golish cloud run -f fast -t example.com --provider aws --instances 1") + `
 
   # Run a module with a timeout
-  ` + terminal.Green("osmedeus cloud run -m enum-subdomain -t example.com --timeout 30m") + `
+  ` + terminal.Green("golish cloud run -m enum-subdomain -t example.com --timeout 30m") + `
 
   # Run on multiple instances
-  ` + terminal.Green("osmedeus cloud run -f general -t example.com --provider aws --instances 3") + `
+  ` + terminal.Green("golish cloud run -f general -t example.com --provider aws --instances 3") + `
 
   # Auto-destroy infrastructure after scan completes
-  ` + terminal.Green("osmedeus cloud run -f fast -t example.com --auto-destroy") + `
+  ` + terminal.Green("golish cloud run -f fast -t example.com --auto-destroy") + `
 
   # Reuse existing infrastructure (auto-discover from saved state)
-  ` + terminal.Green("osmedeus cloud run -f fast -t example.com --reuse") + `
+  ` + terminal.Green("golish cloud run -f fast -t example.com --reuse") + `
 
   # Reuse specific instances by IP
-  ` + terminal.Green("osmedeus cloud run -f fast -t example.com --reuse-with '1.2.3.4,5.6.7.8'") + `
+  ` + terminal.Green("golish cloud run -f fast -t example.com --reuse-with '1.2.3.4,5.6.7.8'") + `
 
   # Show full setup command output
-  ` + terminal.Green("osmedeus cloud run -f fast -t example.com --verbose-setup") + `
+  ` + terminal.Green("golish cloud run -f fast -t example.com --verbose-setup") + `
 
   # Run with targets from a file
-  ` + terminal.Green("osmedeus cloud run -f domain-list-recon -T targets.txt --instances 2") + `
+  ` + terminal.Green("golish cloud run -f domain-list-recon -T targets.txt --instances 2") + `
 
   # Sync results back to local machine after scan
-  ` + terminal.Green("osmedeus cloud run -f fast -t example.com --sync-back") + `
+  ` + terminal.Green("golish cloud run -f fast -t example.com --sync-back") + `
 
   # Full lifecycle: provision, scan, sync results, destroy
-  ` + terminal.Green("osmedeus cloud run -f fast -t example.com --sync-back --auto-destroy") + `
+  ` + terminal.Green("golish cloud run -f fast -t example.com --sync-back --auto-destroy") + `
 
   # Combine: reuse infra + sync + auto-destroy
-  ` + terminal.Green("osmedeus cloud run -f fast -t example.com --reuse --sync-back --auto-destroy") + `
+  ` + terminal.Green("golish cloud run -f fast -t example.com --reuse --sync-back --auto-destroy") + `
 
 ` + terminal.BoldCyan("▷ Custom Command Mode") + `
-  # Run custom commands on cloud workers (no osmedeus workflow)
-  ` + terminal.Green("osmedeus cloud run --custom-cmd 'nmap -sV {{Target}} -oA /tmp/osm-custom/nmap' -t example.com") + `
+  # Run custom commands on cloud workers (no golish workflow)
+  ` + terminal.Green("golish cloud run --custom-cmd 'nmap -sV {{Target}} -oA /tmp/golish-custom/nmap' -t example.com") + `
 
   # Multiple commands with post-processing and sync-back
-  ` + terminal.Green(`osmedeus cloud run \
-    --custom-cmd 'nuclei -u {{Target}} -o /tmp/osm-custom/nuclei.txt' \
-    --custom-post-cmd 'cat /tmp/osm-custom/nuclei.txt | notify' \
-    --sync-path '/tmp/osm-custom/' \
+  ` + terminal.Green(`golish cloud run \
+    --custom-cmd 'nuclei -u {{Target}} -o /tmp/golish-custom/nuclei.txt' \
+    --custom-post-cmd 'cat /tmp/golish-custom/nuclei.txt | notify' \
+    --sync-path '/tmp/golish-custom/' \
     -t example.com`) + `
 
   # Distribute targets across workers with custom commands
-  ` + terminal.Green(`osmedeus cloud run \
-    --custom-cmd 'cat {{Target}} | httpx -o /tmp/osm-custom/live.txt' \
-    --sync-path '/tmp/osm-custom/live.txt' \
+  ` + terminal.Green(`golish cloud run \
+    --custom-cmd 'cat {{Target}} | httpx -o /tmp/golish-custom/live.txt' \
+    --sync-path '/tmp/golish-custom/live.txt' \
     --sync-dest './my-results' \
     -T targets.txt --instances 3`) + `
 
   # Run on existing infrastructure
-  ` + terminal.Green("osmedeus cloud run --custom-cmd 'whoami && id' -t example.com --reuse") + `
+  ` + terminal.Green("golish cloud run --custom-cmd 'whoami && id' -t example.com --reuse") + `
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfg := config.Get()
@@ -888,7 +886,7 @@ var cloudRunCmd = &cobra.Command{
 		}
 
 		if !cfg.Cloud.Enabled {
-			return fmt.Errorf("cloud features are disabled. Enable in osm-settings.yaml: cloud.enabled = true")
+			return fmt.Errorf("cloud features are disabled. Enable in golish-settings.yaml: cloud.enabled = true")
 		}
 
 		// Validate workflow flags
@@ -1011,7 +1009,7 @@ var cloudRunCmd = &cobra.Command{
 				InstanceCount: instanceCount,
 				SSHPublicKey:  sshPublicKey,
 				SetupCommands: cloudCfg.Setup.Commands,
-				Tags:          map[string]string{"managed-by": "osmedeus"},
+				Tags:          map[string]string{"managed-by": "golish"},
 			}
 
 			newInfra, createErr := lm.CreateAndRun(ctx, createOpts)
@@ -1125,9 +1123,9 @@ var cloudRunCmd = &cobra.Command{
 			// Build the base command prefix (flow or module)
 			var baseCmd string
 			if cloudFlowName != "" {
-				baseCmd = fmt.Sprintf("osmedeus run -f %s", cloudFlowName)
+				baseCmd = fmt.Sprintf("golish run -f %s", cloudFlowName)
 			} else {
-				baseCmd = fmt.Sprintf("osmedeus run -m %s", cloudModuleName)
+				baseCmd = fmt.Sprintf("golish run -m %s", cloudModuleName)
 			}
 			if cloudTimeout != "" {
 				baseCmd += fmt.Sprintf(" --timeout %s", cloudTimeout)
@@ -1188,13 +1186,13 @@ var cloudRunCmd = &cobra.Command{
 
 					// Write chunk to local temp file
 					uid := uuid.New().String()[:8]
-					localTmp := filepath.Join(os.TempDir(), fmt.Sprintf("osm-cloud-targets-%s-%d.txt", uid, i))
+					localTmp := filepath.Join(os.TempDir(), fmt.Sprintf("golish-cloud-targets-%s-%d.txt", uid, i))
 					if writeErr := os.WriteFile(localTmp, []byte(strings.Join(chunk, "\n")+"\n"), 0644); writeErr != nil {
 						return fmt.Errorf("failed to write temp target file: %w", writeErr)
 					}
 
 					// SCP to remote worker
-					remotePath := fmt.Sprintf("/tmp/osm-targets-%d.txt", i)
+					remotePath := fmt.Sprintf("/tmp/golish-targets-%d.txt", i)
 					printer.Info("Uploading %d targets to %s (%s)", len(chunk), worker.Name, terminal.Cyan(worker.PublicIP))
 					if scpErr := scpFileToRemote(sshAuth.KeyPath, sshAuth.User, worker.PublicIP, localTmp, remotePath); scpErr != nil {
 						_ = os.Remove(localTmp)
@@ -1207,7 +1205,7 @@ var cloudRunCmd = &cobra.Command{
 
 					tasks = append(tasks, workerTask{
 						resource:  worker,
-						osmCmd:    workerCmd,
+						golishCmd: workerCmd,
 						chunkInfo: fmt.Sprintf("%d targets", len(chunk)),
 						targets:   chunk,
 					})
@@ -1217,16 +1215,16 @@ var cloudRunCmd = &cobra.Command{
 				singleCmd := fmt.Sprintf("%s -t %s", baseCmd, cloudTarget)
 				for _, res := range readyWorkers {
 					tasks = append(tasks, workerTask{
-						resource: res,
-						osmCmd:   singleCmd,
-						targets:  []string{cloudTarget},
+						resource:  res,
+						golishCmd: singleCmd,
+						targets:   []string{cloudTarget},
 					})
 				}
 			}
 
 			// Step 6: Run scans in parallel
 			printer.Section("Starting Scans")
-			pathSetup := "export PATH=$HOME/.local/bin:$HOME/osmedeus-base/external-binaries:$HOME/go/bin:/usr/local/go/bin:$PATH"
+			pathSetup := "export PATH=$HOME/.local/bin:$HOME/golish-base/external-binaries:$HOME/go/bin:/usr/local/go/bin:$PATH"
 
 			var wg sync.WaitGroup
 			scanErrors := make([]error, len(tasks))
@@ -1238,10 +1236,10 @@ var cloudRunCmd = &cobra.Command{
 					label := t.resource.Name
 					if t.chunkInfo != "" {
 						printer.Info("[%s] %s (%s@%s): %s",
-							label, t.chunkInfo, terminal.Cyan(sshUser), terminal.Bold(t.resource.PublicIP), terminal.Gray(t.osmCmd))
+							label, t.chunkInfo, terminal.Cyan(sshUser), terminal.Bold(t.resource.PublicIP), terminal.Gray(t.golishCmd))
 					} else {
 						printer.Info("[%s] (%s@%s): %s",
-							label, terminal.Cyan(sshUser), terminal.Bold(t.resource.PublicIP), terminal.Gray(t.osmCmd))
+							label, terminal.Cyan(sshUser), terminal.Bold(t.resource.PublicIP), terminal.Gray(t.golishCmd))
 					}
 
 					// Create a Run record for this worker (best-effort)
@@ -1274,7 +1272,7 @@ var cloudRunCmd = &cobra.Command{
 								"cloud_infra_id": infra.ID,
 								"worker_name":    t.resource.Name,
 								"worker_ip":      t.resource.PublicIP,
-								"osm_command":    t.osmCmd,
+								"golish_command": t.golishCmd,
 							},
 							Status:      "running",
 							TriggerType: "cli",
@@ -1296,7 +1294,7 @@ var cloudRunCmd = &cobra.Command{
 						onLine = newCloudProgressParser(ctx, workerRunUUID)
 					}
 
-					scanCmd := fmt.Sprintf("%s && %s", pathSetup, t.osmCmd)
+					scanCmd := fmt.Sprintf("%s && %s", pathSetup, t.golishCmd)
 					var scanErr error
 					if onLine != nil {
 						scanErr = runSSHCommandStreamingAuthWithCallback(sshAuth, t.resource.PublicIP, scanCmd, onLine, t.resource.Name)
@@ -1363,7 +1361,7 @@ var cloudRunCmd = &cobra.Command{
 					lm := cloud.NewLifecycleManager(destroyCfg, destroyProvider, nil)
 					if destroyErr := lm.Destroy(ctx, infra); destroyErr != nil {
 						printer.Warning("Failed to destroy: %v", destroyErr)
-						printer.Warning("Manual cleanup: osmedeus cloud destroy %s", infra.ID)
+						printer.Warning("Manual cleanup: golish cloud destroy %s", infra.ID)
 					} else {
 						printer.Success("Infrastructure %s destroyed", terminal.BoldGreen(infra.ID))
 					}
@@ -1379,7 +1377,7 @@ var cloudRunCmd = &cobra.Command{
 			}
 			printer.Divider()
 			printer.Newline()
-			printer.Bullet(fmt.Sprintf("Destroy:  %s", terminal.Gray(fmt.Sprintf("osmedeus cloud destroy %s", infra.ID))))
+			printer.Bullet(fmt.Sprintf("Destroy:  %s", terminal.Gray(fmt.Sprintf("golish cloud destroy %s", infra.ID))))
 		}
 
 		return nil
@@ -1470,7 +1468,7 @@ func runSSHCommandStreamingAuthWithCallback(auth cloudSSHAuth, host, command str
 }
 
 // newCloudProgressParser returns a callback that parses structured log lines from remote
-// osmedeus output and increments the completed_steps counter for the given run.
+// golish output and increments the completed_steps counter for the given run.
 func newCloudProgressParser(ctx context.Context, runUUID string) func(string) {
 	return func(line string) {
 		idx := strings.Index(line, "{")
@@ -1504,10 +1502,10 @@ func scpFileToRemote(keyPath, user, host, localPath, remotePath string) error {
 	return uploadFileAuth(cloudSSHAuth{KeyPath: keyPath, User: user}, host, localPath, remotePath)
 }
 
-// isOsmedeusRunning checks if an osmedeus process is running on a remote host.
+// isGolishRunning checks if an golish process is running on a remote host.
 // Returns true if busy, false if idle. Errors are treated as unreachable.
-func isOsmedeusRunning(auth cloudSSHAuth, host string) (bool, error) {
-	out, err := runSSHCommandAuth(auth, host, "pgrep -f 'osmedeus run|osmedeus cloud' || true")
+func isGolishRunning(auth cloudSSHAuth, host string) (bool, error) {
+	out, err := runSSHCommandAuth(auth, host, "pgrep -f 'golish run|golish cloud' || true")
 	if err != nil {
 		return false, err
 	}
@@ -1515,14 +1513,14 @@ func isOsmedeusRunning(auth cloudSSHAuth, host string) (bool, error) {
 }
 
 // discoverAndPrioritizeInfra loads all saved infrastructures, checks SSH reachability,
-// and prioritizes idle instances (no osmedeus process running).
+// and prioritizes idle instances (no golish process running).
 func discoverAndPrioritizeInfra(statePath string, auth cloudSSHAuth) (*cloud.Infrastructure, error) {
 	allInfras, err := cloud.ListInfrastructures(statePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list infrastructures: %w", err)
 	}
 	if len(allInfras) == 0 {
-		return nil, fmt.Errorf("no saved infrastructure found. Provision first with: osmedeus cloud run -f <flow> -t <target>")
+		return nil, fmt.Errorf("no saved infrastructure found. Provision first with: golish cloud run -f <flow> -t <target>")
 	}
 
 	// Collect all resources with public IPs across all infrastructures
@@ -1562,14 +1560,14 @@ func discoverAndPrioritizeInfra(statePath string, auth cloudSSHAuth) (*cloud.Inf
 				results <- checkResult{idx: idx, reachable: false}
 				return
 			}
-			busy, err := isOsmedeusRunning(auth, res.PublicIP)
+			busy, err := isGolishRunning(auth, res.PublicIP)
 			if err != nil {
 				printer.Warning("Skipping %s (%s): SSH error: %v", res.Name, res.PublicIP, err)
 				results <- checkResult{idx: idx, reachable: false}
 				return
 			}
 			if busy {
-				printer.Info("Instance %s (%s) is busy (osmedeus running)", res.Name, terminal.Yellow(res.PublicIP))
+				printer.Info("Instance %s (%s) is busy (golish running)", res.Name, terminal.Yellow(res.PublicIP))
 			} else {
 				printer.Info("Instance %s (%s) is idle", res.Name, terminal.Green(res.PublicIP))
 			}
@@ -1695,7 +1693,7 @@ func splitTargetsForWorkers(allTargets []string, workerCount int) [][]string {
 // workerTask holds the per-worker command and metadata for parallel scan execution.
 type workerTask struct {
 	resource  cloud.Resource
-	osmCmd    string
+	golishCmd string
 	chunkInfo string   // e.g. "5 targets"
 	targets   []string // targets assigned to this worker (for sync-back)
 }
@@ -1714,14 +1712,14 @@ func setupWorkerViaSSHAuth(auth cloudSSHAuth, host string, commands []string) er
 
 	if len(cmds) == 0 {
 		p.Info("No setup commands configured — skipping worker setup")
-		p.Info("Configure via: %s", terminal.Gray("osmedeus cloud config set setup.commands.add \"<command>\""))
+		p.Info("Configure via: %s", terminal.Gray("golish cloud config set setup.commands.add \"<command>\""))
 		return nil
 	}
 
 	p.Info("Running %d setup commands on %s...", len(cmds), terminal.Cyan(host))
 
-	// PATH prefix so osmedeus and tools are found in non-interactive shells
-	envPrefix := "export DEBIAN_FRONTEND=noninteractive && export PATH=$HOME/.local/bin:$HOME/osmedeus-base/external-binaries:$HOME/go/bin:/usr/local/go/bin:$PATH"
+	// PATH prefix so golish and tools are found in non-interactive shells
+	envPrefix := "export DEBIAN_FRONTEND=noninteractive && export PATH=$HOME/.local/bin:$HOME/golish-base/external-binaries:$HOME/go/bin:/usr/local/go/bin:$PATH"
 
 	for i, cmd := range cmds {
 		p.Info("  [%d/%d] %s %s", i+1, len(cmds), terminal.Gray("$"), terminal.Cyan(cmd))
@@ -1763,7 +1761,7 @@ func runPostCommandsAuth(auth cloudSSHAuth, host string, commands []string, vars
 		return
 	}
 
-	envPrefix := "export DEBIAN_FRONTEND=noninteractive && export PATH=$HOME/.local/bin:$HOME/osmedeus-base/external-binaries:$HOME/go/bin:/usr/local/go/bin:$PATH"
+	envPrefix := "export DEBIAN_FRONTEND=noninteractive && export PATH=$HOME/.local/bin:$HOME/golish-base/external-binaries:$HOME/go/bin:/usr/local/go/bin:$PATH"
 
 	p.Info("Running %d post-setup commands on %s...", len(cmds), terminal.Cyan(host))
 	for i, cmd := range cmds {
@@ -1850,12 +1848,12 @@ func executeCustomCommands(
 
 			worker := readyWorkers[i]
 			uid := uuid.New().String()[:8]
-			localTmp := filepath.Join(os.TempDir(), fmt.Sprintf("osm-cloud-targets-%s-%d.txt", uid, i))
+			localTmp := filepath.Join(os.TempDir(), fmt.Sprintf("golish-cloud-targets-%s-%d.txt", uid, i))
 			if writeErr := os.WriteFile(localTmp, []byte(strings.Join(chunk, "\n")+"\n"), 0644); writeErr != nil {
 				printer.Warning("Failed to write temp target file: %v", writeErr)
 				continue
 			}
-			remotePath := fmt.Sprintf("/tmp/osm-targets-%d.txt", i)
+			remotePath := fmt.Sprintf("/tmp/golish-targets-%d.txt", i)
 			printer.Info("Uploading %d targets to %s (%s)", len(chunk), worker.Name, terminal.Cyan(worker.PublicIP))
 			if scpErr := scpFileToRemote(sshAuth.KeyPath, sshAuth.User, worker.PublicIP, localTmp, remotePath); scpErr != nil {
 				_ = os.Remove(localTmp)
@@ -1893,8 +1891,8 @@ func executeCustomCommands(
 	scanErrors := make([]error, len(workerCtxs))
 	var wg sync.WaitGroup
 
-	pathSetup := "export PATH=$HOME/.local/bin:$HOME/osmedeus-base/external-binaries:$HOME/go/bin:/usr/local/go/bin:$PATH"
-	workdirSetup := "mkdir -p /tmp/osm-custom && cd /tmp/osm-custom"
+	pathSetup := "export PATH=$HOME/.local/bin:$HOME/golish-base/external-binaries:$HOME/go/bin:/usr/local/go/bin:$PATH"
+	workdirSetup := "mkdir -p /tmp/golish-custom && cd /tmp/golish-custom"
 
 	for i, wCtx := range workerCtxs {
 		tasks[i] = workerTask{
@@ -2060,7 +2058,7 @@ func runAnsibleSetup(ansibleCfg *config.AnsibleSetup, workers []cloud.Resource, 
 	}
 
 	var inv strings.Builder
-	inv.WriteString("[osmedeus_workers]\n")
+	inv.WriteString("[golish_workers]\n")
 	for _, w := range workers {
 		if w.PublicIP == "" {
 			continue
@@ -2080,7 +2078,7 @@ func runAnsibleSetup(ansibleCfg *config.AnsibleSetup, workers []cloud.Resource, 
 		}
 		inv.WriteString(hostLine + "\n")
 	}
-	inv.WriteString("\n[osmedeus_workers:vars]\n")
+	inv.WriteString("\n[golish_workers:vars]\n")
 	inv.WriteString("ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR'\n")
 
 	if err := os.WriteFile(inventoryPath, []byte(inv.String()), 0644); err != nil {
@@ -2146,7 +2144,7 @@ func ensureCloudInfraPresets(baseFolder string) {
 
 // waitForSSH waits for SSH (port 22) to become reachable on the given host
 // syncWorkspaceBack downloads a workspace from a remote worker and imports it locally.
-// It runs `osmedeus snapshot export` on the remote, downloads the ZIP via SFTP,
+// It runs `golish snapshot export` on the remote, downloads the ZIP via SFTP,
 // then imports using the existing snapshot import (which handles path differences and DB replay).
 func syncWorkspaceBack(auth cloudSSHAuth, host, target string, cfg *config.Config) error {
 	p := terminal.NewPrinter()
@@ -2158,12 +2156,12 @@ func syncWorkspaceBack(auth cloudSSHAuth, host, target string, cfg *config.Confi
 	}
 	defer client.Close()
 
-	pathSetup := "export PATH=$HOME/.local/bin:$HOME/osmedeus-base/external-binaries:$HOME/go/bin:/usr/local/go/bin:$PATH"
+	pathSetup := "export PATH=$HOME/.local/bin:$HOME/golish-base/external-binaries:$HOME/go/bin:/usr/local/go/bin:$PATH"
 	remoteZip := fmt.Sprintf("/tmp/%s.zip", target)
 
 	// Step 1: Export workspace on remote
 	p.Info("  Exporting workspace on %s for target %s...", terminal.Cyan(host), terminal.Bold(target))
-	exportCmd := fmt.Sprintf("%s && osmedeus snapshot export %s -o %s", pathSetup, target, remoteZip)
+	exportCmd := fmt.Sprintf("%s && golish snapshot export %s -o %s", pathSetup, target, remoteZip)
 	out, exitCode, runErr := client.RunCommand(ctx, exportCmd)
 	if runErr != nil || exitCode != 0 {
 		return fmt.Errorf("remote snapshot export failed (exit %d): %s", exitCode, strings.TrimSpace(out))
@@ -2219,7 +2217,7 @@ func waitForSSHPort(host, port string, timeout time.Duration) error {
 // cloudSetupCmd sets up a remote machine without provisioning
 var cloudSetupCmd = &cobra.Command{
 	Use:   "setup <ip> [ip2] [ip3] ...",
-	Short: "Setup osmedeus on existing remote machines",
+	Short: "Setup golish on existing remote machines",
 	Long: terminal.BoldCyan("◆ Description") + `
   Run setup commands on existing remote machines via SSH.
   Uses the same SSH key, user, and setup.commands from cloud-settings.yaml
@@ -2227,19 +2225,19 @@ var cloudSetupCmd = &cobra.Command{
 
 ` + terminal.BoldCyan("▷ Examples") + `
   # Setup a single machine
-  ` + terminal.Green("osmedeus cloud setup 1.2.3.4") + `
+  ` + terminal.Green("golish cloud setup 1.2.3.4") + `
 
   # Setup multiple machines
-  ` + terminal.Green("osmedeus cloud setup 1.2.3.4 5.6.7.8 9.10.11.12") + `
+  ` + terminal.Green("golish cloud setup 1.2.3.4 5.6.7.8 9.10.11.12") + `
 
   # Show full setup output
-  ` + terminal.Green("osmedeus cloud setup 1.2.3.4 --verbose-setup") + `
+  ` + terminal.Green("golish cloud setup 1.2.3.4 --verbose-setup") + `
 
   # Use ansible playbook for setup
-  ` + terminal.Green("osmedeus cloud setup 1.2.3.4 5.6.7.8 --ansible") + `
+  ` + terminal.Green("golish cloud setup 1.2.3.4 5.6.7.8 --ansible") + `
 
   # Then run a scan using the setup machines
-  ` + terminal.Green("osmedeus cloud run -f fast -t example.com --reuse") + `
+  ` + terminal.Green("golish cloud run -f fast -t example.com --reuse") + `
 `,
 	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -2367,7 +2365,7 @@ var cloudSetupCmd = &cobra.Command{
 		}
 		printer.Divider()
 		printer.Newline()
-		printer.Info("Run a scan: %s", terminal.Gray("osmedeus cloud run -f fast -t example.com --reuse"))
+		printer.Info("Run a scan: %s", terminal.Gray("golish cloud run -f fast -t example.com --reuse"))
 
 		return nil
 	},
@@ -2686,5 +2684,5 @@ func init() {
 	cloudRunCmd.Flags().StringArrayVar(&cloudCustomCmds, "custom-cmd", nil, "Custom command to run on workers (repeatable, mutually exclusive with -f/-m)")
 	cloudRunCmd.Flags().StringArrayVar(&cloudCustomPostCmds, "custom-post-cmd", nil, "Post-command to run after custom-cmds succeed (repeatable)")
 	cloudRunCmd.Flags().StringArrayVar(&cloudSyncPaths, "sync-path", nil, "Remote file/dir to download after execution (repeatable)")
-	cloudRunCmd.Flags().StringVar(&cloudSyncDest, "sync-dest", "./osm-sync-back", "Local base directory for synced files")
+	cloudRunCmd.Flags().StringVar(&cloudSyncDest, "sync-dest", "./golish-sync-back", "Local base directory for synced files")
 }

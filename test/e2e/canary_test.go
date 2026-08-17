@@ -20,9 +20,9 @@ import (
 // ── constants ────────────────────────────────────────────────────────────────
 
 const (
-	canaryContainerName = "osm-canary"
+	canaryContainerName = "golish-canary"
 	canaryAPIBase       = "http://localhost:8002"
-	canaryWorkspaceRoot = "/root/workspaces-osmedeus"
+	canaryWorkspaceRoot = "/root/workspaces-golish"
 )
 
 // ── compose helpers ──────────────────────────────────────────────────────────
@@ -266,7 +266,7 @@ func canaryAPIGet(t *testing.T, path string) map[string]any {
 // getRunsForWorkspace returns runs filtered by workspace name.
 func getRunsForWorkspace(t *testing.T, ws string) []any {
 	t.Helper()
-	result := canaryAPIGet(t, "/osm/api/runs?workspace="+ws)
+	result := canaryAPIGet(t, "/golish/api/runs?workspace="+ws)
 	data, _ := result["data"].([]any)
 	return data
 }
@@ -274,7 +274,7 @@ func getRunsForWorkspace(t *testing.T, ws string) []any {
 // getAssetsForWorkspace returns assets filtered by workspace name.
 func getAssetsForWorkspace(t *testing.T, ws string) []any {
 	t.Helper()
-	result := canaryAPIGet(t, "/osm/api/assets?workspace="+ws)
+	result := canaryAPIGet(t, "/golish/api/assets?workspace="+ws)
 	data, _ := result["data"].([]any)
 	return data
 }
@@ -282,7 +282,7 @@ func getAssetsForWorkspace(t *testing.T, ws string) []any {
 // getVulnsForWorkspace returns vulnerabilities filtered by workspace name.
 func getVulnsForWorkspace(t *testing.T, ws string) []any {
 	t.Helper()
-	result := canaryAPIGet(t, "/osm/api/vulnerabilities?workspace="+ws)
+	result := canaryAPIGet(t, "/golish/api/vulnerabilities?workspace="+ws)
 	data, _ := result["data"].([]any)
 	return data
 }
@@ -290,7 +290,7 @@ func getVulnsForWorkspace(t *testing.T, ws string) []any {
 // getWorkspaces returns all workspace records.
 func getWorkspaces(t *testing.T) []map[string]any {
 	t.Helper()
-	result := canaryAPIGet(t, "/osm/api/workspaces")
+	result := canaryAPIGet(t, "/golish/api/workspaces")
 	raw, _ := result["data"].([]any)
 	var out []map[string]any
 	for _, item := range raw {
@@ -336,13 +336,13 @@ func dumpCanaryDiagnostics(t *testing.T) {
 	}
 
 	// Workspace listing
-	if body, err := canaryAPIGetRaw("/osm/api/workspaces"); err == nil {
-		t.Logf("--- GET /osm/api/workspaces ---\n%s", body)
+	if body, err := canaryAPIGetRaw("/golish/api/workspaces"); err == nil {
+		t.Logf("--- GET /golish/api/workspaces ---\n%s", body)
 	}
 
 	// Run listing
-	if body, err := canaryAPIGetRaw("/osm/api/runs"); err == nil {
-		t.Logf("--- GET /osm/api/runs ---\n%s", body)
+	if body, err := canaryAPIGetRaw("/golish/api/runs"); err == nil {
+		t.Logf("--- GET /golish/api/runs ---\n%s", body)
 	}
 
 	t.Log("=== END CANARY DIAGNOSTICS ===")
@@ -464,7 +464,7 @@ func testCanaryRepoScan(t *testing.T) {
 	// Run the scan
 	log.Step("Running repo flow")
 	out, err := dockerExecStream(t, log, 25*time.Minute,
-		"osmedeus", "run", "-f", "repo", "-t", targetURL)
+		"golish", "run", "-f", "repo", "-t", targetURL)
 	if err != nil {
 		log.Error("Repo scan command error: %v\nOutput: %s", err, out)
 	}
@@ -504,13 +504,13 @@ func testCanaryRepoScan(t *testing.T) {
 		runUUID, _ := firstRun["run_uuid"].(string)
 		if runUUID != "" {
 			// Steps
-			stepsResp := canaryAPIGet(t, fmt.Sprintf("/osm/api/runs/%s/steps", runUUID))
+			stepsResp := canaryAPIGet(t, fmt.Sprintf("/golish/api/runs/%s/steps", runUUID))
 			stepsData, _ := stepsResp["data"].([]any)
 			assert.NotEmpty(t, stepsData, "expected step results for run %s", runUUID)
 			log.Info("Run %s has %d step results", runUUID, len(stepsData))
 
 			// Artifacts
-			artifactsResp := canaryAPIGet(t, fmt.Sprintf("/osm/api/runs/%s/artifacts", runUUID))
+			artifactsResp := canaryAPIGet(t, fmt.Sprintf("/golish/api/runs/%s/artifacts", runUUID))
 			artifactsData, _ := artifactsResp["data"].([]any)
 			log.Info("Run %s has %d artifacts", runUUID, len(artifactsData))
 		}
@@ -547,7 +547,7 @@ func testCanaryDomainLiteScan(t *testing.T) {
 	// Run the scan
 	log.Step("Running domain-lite flow")
 	out, err := dockerExecStream(t, log, 20*time.Minute,
-		"osmedeus", "run", "--debug", "-f", "domain-lite", "-t", target)
+		"golish", "run", "--debug", "-f", "domain-lite", "-t", target)
 	if err != nil {
 		log.Error("Domain-lite scan command error: %v\nOutput: %s", err, out)
 	}
@@ -624,7 +624,7 @@ func testCanaryCIDRScan(t *testing.T) {
 	// Run the scan
 	log.Step("Running cidr flow")
 	out, err := dockerExecStream(t, log, 25*time.Minute,
-		"osmedeus", "run", "-f", "cidr", "-t", "/tmp/list-of-ips.txt")
+		"golish", "run", "-f", "cidr", "-t", "/tmp/list-of-ips.txt")
 	if err != nil {
 		log.Error("CIDR scan command error: %v\nOutput: %s", err, out)
 	}
@@ -697,7 +697,7 @@ func testCanaryGeneralScan(t *testing.T) {
 	// Run the scan (~40min timeout for domain-list-recon flow)
 	log.Step("Running domain-list-recon flow")
 	out, err := dockerExecStream(t, log, 40*time.Minute,
-		"osmedeus", "run", "--debug", "-f", "domain-list-recon", "-t", "/tmp/list-of-domains.txt")
+		"golish", "run", "--debug", "-f", "domain-list-recon", "-t", "/tmp/list-of-domains.txt")
 	if err != nil {
 		log.Error("Domain-list-recon scan command error: %v\nOutput: %s", err, out)
 	}
@@ -813,13 +813,13 @@ func testCanaryGeneralScan(t *testing.T) {
 		runUUID, _ := firstRun["run_uuid"].(string)
 		if runUUID != "" {
 			// Steps — domain-list-recon flow has multiple modules, expect step results
-			stepsResp := canaryAPIGet(t, fmt.Sprintf("/osm/api/runs/%s/steps", runUUID))
+			stepsResp := canaryAPIGet(t, fmt.Sprintf("/golish/api/runs/%s/steps", runUUID))
 			stepsData, _ := stepsResp["data"].([]any)
 			assert.NotEmpty(t, stepsData, "expected step results for run %s", runUUID)
 			log.Info("Run %s has %d step results", runUUID, len(stepsData))
 
 			// Artifacts
-			artifactsResp := canaryAPIGet(t, fmt.Sprintf("/osm/api/runs/%s/artifacts", runUUID))
+			artifactsResp := canaryAPIGet(t, fmt.Sprintf("/golish/api/runs/%s/artifacts", runUUID))
 			artifactsData, _ := artifactsResp["data"].([]any)
 			log.Info("Run %s has %d artifacts", runUUID, len(artifactsData))
 		}

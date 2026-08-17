@@ -1,6 +1,6 @@
-# Cloud Tests for Osmedeus
+# Cloud Tests for Golish
 
-This document describes the E2E and integration tests for the osmedeus cloud functionality.
+This document describes the E2E and integration tests for the golish cloud functionality.
 
 ## Overview
 
@@ -267,13 +267,13 @@ Skipped tests:
 
 ```bash
 # Check if cloud config is interfering
-rm -rf ~/.osmedeus-base/cloud-settings.yaml
+rm -rf ~/.golish-base/cloud-settings.yaml
 
 # Run with verbose output
 go test -v -run TestCloud_ConfigSet ./test/e2e/
 
 # Check for leftover temp files
-ls /tmp | grep -i osmedeus
+ls /tmp | grep -i golish
 ```
 
 ### Debugging

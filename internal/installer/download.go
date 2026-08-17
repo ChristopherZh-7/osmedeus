@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
 	"go.uber.org/zap"
 )
 
@@ -346,7 +346,7 @@ func FetchToTemp(source string, customHeaders map[string]string) (string, error)
 	sourceType := DetectSourceType(source)
 
 	// Create temp directory
-	tempDir, err := os.MkdirTemp("", "osmedeus-install-*")
+	tempDir, err := os.MkdirTemp("", "golish-install-*")
 	if err != nil {
 		return "", fmt.Errorf("failed to create temp directory: %w", err)
 	}

@@ -1,8 +1,8 @@
 package linter
 
 import (
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 	"github.com/goccy/go-yaml/ast"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
 )
 
 // Severity represents the severity level of a lint issue

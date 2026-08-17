@@ -11,37 +11,37 @@ Get a paginated list of event logs with optional filtering.
 
 **List all event logs:**
 ```bash
-curl http://localhost:8002/osm/api/event-logs \
+curl http://localhost:8002/golish/api/event-logs \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **With pagination:**
 ```bash
-curl "http://localhost:8002/osm/api/event-logs?offset=0&limit=50" \
+curl "http://localhost:8002/golish/api/event-logs?offset=0&limit=50" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by workspace:**
 ```bash
-curl "http://localhost:8002/osm/api/event-logs?workspace=example.com" \
+curl "http://localhost:8002/golish/api/event-logs?workspace=example.com" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by topic:**
 ```bash
-curl "http://localhost:8002/osm/api/event-logs?topic=run.completed" \
+curl "http://localhost:8002/golish/api/event-logs?topic=run.completed" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by run ID:**
 ```bash
-curl "http://localhost:8002/osm/api/event-logs?run_id=abc12345" \
+curl "http://localhost:8002/golish/api/event-logs?run_id=abc12345" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Multiple filters:**
 ```bash
-curl "http://localhost:8002/osm/api/event-logs?workspace=example.com&processed=false&limit=100" \
+curl "http://localhost:8002/golish/api/event-logs?workspace=example.com&processed=false&limit=100" \
   -H "Authorization: Bearer $TOKEN"
 ```
 

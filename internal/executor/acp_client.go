@@ -10,8 +10,8 @@ import (
 	"strings"
 	"sync"
 
+	oslogger "github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
 	acp "github.com/coder/acp-go-sdk"
-	oslogger "github.com/j3ssie/osmedeus/v5/internal/logger"
 	"go.uber.org/zap"
 )
 
@@ -39,7 +39,7 @@ func withStreamWriter(w io.Writer) acpClientOption {
 	}
 }
 
-// acpClient implements the acp.Client interface for osmedeus agent-acp steps.
+// acpClient implements the acp.Client interface for golish agent-acp steps.
 // It accumulates agent output text and auto-approves permission requests.
 type acpClient struct {
 	mu           sync.Mutex
@@ -281,7 +281,7 @@ func (c *acpClient) WriteTextFile(_ context.Context, p acp.WriteTextFileRequest)
 // CreateTerminal returns a stub terminal ID (no-op).
 func (c *acpClient) CreateTerminal(_ context.Context, p acp.CreateTerminalRequest) (acp.CreateTerminalResponse, error) {
 	oslogger.Get().Debug("acp CreateTerminal (no-op)", zap.String("command", p.Command))
-	return acp.CreateTerminalResponse{TerminalId: "osmedeus-stub-term"}, nil
+	return acp.CreateTerminalResponse{TerminalId: "golish-stub-term"}, nil
 }
 
 // KillTerminalCommand is a no-op.

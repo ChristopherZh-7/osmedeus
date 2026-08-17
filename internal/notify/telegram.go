@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
 )
 
 // TelegramClient wraps the Telegram bot API

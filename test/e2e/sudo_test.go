@@ -56,8 +56,8 @@ func TestSudo_FlagAccepted(t *testing.T) {
 	if os.Geteuid() == 0 {
 		t.Skip("test must run as non-root user")
 	}
-	if os.Getenv("OSM_TEST_SUDO") == "" {
-		t.Skip("set OSM_TEST_SUDO=1 to run interactive sudo tests")
+	if os.Getenv("GOLISH_TEST_SUDO") == "" {
+		t.Skip("set GOLISH_TEST_SUDO=1 to run interactive sudo tests")
 	}
 
 	log := NewTestLogger(t)

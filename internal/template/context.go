@@ -1,7 +1,7 @@
 package template
 
 import (
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 )
 
 // BuildContext builds a template context from an execution context

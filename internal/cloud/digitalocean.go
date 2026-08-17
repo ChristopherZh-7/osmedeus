@@ -96,7 +96,7 @@ func (p *DigitalOceanProvider) CreateInfrastructure(ctx context.Context, opts *C
 	infraID := fmt.Sprintf("cloud-do-%d", time.Now().Unix())
 	statePath := opts.StatePath
 
-	pm, err := NewPulumiManager("osmedeus-cloud", infraID, statePath)
+	pm, err := NewPulumiManager("golish-cloud", infraID, statePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Pulumi manager: %w", err)
 	}
@@ -139,7 +139,7 @@ func (p *DigitalOceanProvider) CreateInfrastructure(ctx context.Context, opts *C
 func (p *DigitalOceanProvider) DestroyInfrastructure(ctx context.Context, infra *Infrastructure) error {
 	statePath := infra.StatePath
 
-	pm, err := NewPulumiManager("osmedeus-cloud", infra.PulumiStackID, statePath)
+	pm, err := NewPulumiManager("golish-cloud", infra.PulumiStackID, statePath)
 	if err != nil {
 		return fmt.Errorf("failed to create Pulumi manager: %w", err)
 	}
@@ -225,8 +225,8 @@ func (p *DigitalOceanProvider) createDropletProgram(parentCtx context.Context, i
 		if keyExists {
 			sshKeyFingerprint = pulumi.String(existingFingerprint)
 		} else {
-			sshKey, err := digitalocean.NewSshKey(ctx, "osmedeus-ssh-key", &digitalocean.SshKeyArgs{
-				Name:      pulumi.String(fmt.Sprintf("osmedeus-key-%s", suffix)),
+			sshKey, err := digitalocean.NewSshKey(ctx, "golish-ssh-key", &digitalocean.SshKeyArgs{
+				Name:      pulumi.String(fmt.Sprintf("golish-key-%s", suffix)),
 				PublicKey: pulumi.String(opts.SSHPublicKey),
 			})
 			if err != nil {
@@ -236,8 +236,8 @@ func (p *DigitalOceanProvider) createDropletProgram(parentCtx context.Context, i
 		}
 
 		// Create firewall allowing SSH
-		fw, err := digitalocean.NewFirewall(ctx, "osmedeus-firewall", &digitalocean.FirewallArgs{
-			Name: pulumi.String(fmt.Sprintf("osmedeus-fw-%s", suffix)),
+		fw, err := digitalocean.NewFirewall(ctx, "golish-firewall", &digitalocean.FirewallArgs{
+			Name: pulumi.String(fmt.Sprintf("golish-fw-%s", suffix)),
 			InboundRules: digitalocean.FirewallInboundRuleArray{
 				&digitalocean.FirewallInboundRuleArgs{
 					Protocol:  pulumi.String("tcp"),
@@ -282,7 +282,7 @@ func (p *DigitalOceanProvider) createDropletProgram(parentCtx context.Context, i
 
 		// Create droplets
 		for i := 0; i < opts.InstanceCount; i++ {
-			dropletName := fmt.Sprintf("osmw-%s-%d", suffix, i)
+			dropletName := fmt.Sprintf("glw-%s-%d", suffix, i)
 
 			droplet, err := digitalocean.NewDroplet(ctx, dropletName, &digitalocean.DropletArgs{
 				Image:    pulumi.String(image),
@@ -293,7 +293,7 @@ func (p *DigitalOceanProvider) createDropletProgram(parentCtx context.Context, i
 					sshKeyFingerprint,
 				},
 				Tags: pulumi.StringArray{
-					pulumi.String("osmedeus"),
+					pulumi.String("golish"),
 					pulumi.String("worker"),
 				},
 			})

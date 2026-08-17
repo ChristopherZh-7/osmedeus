@@ -1,4 +1,4 @@
-.PHONY: build run test test-unit test-integration test-workflow-integration test-e2e test-e2e-verbose test-e2e-ssh test-e2e-api test-e2e-nix test-e2e-install test-e2e-cloud test-sudo test-cloud test-docker test-ssh test-distributed distributed-e2e-up distributed-e2e-run distributed-e2e-down test-canary-all test-canary-repo test-canary-domain test-canary-ip test-canary-general canary-up canary-down test-all test-summary test-ci clean install install-core install-gotestsum lint fmt db-seed db-clean db-migrate run-server-debug swagger update-ui sync-skills sync-platform snapshot-release github-release bump-version npm-binaries npm-build npm-pack npm-publish run-github-action docker-toolbox docker-toolbox-run docker-toolbox-shell docker-publish docker-buildx-setup deploy deploy-check deploy-status deploy-logs deploy-down deploy-credentials dsh-install dsh-start dsh-check dsh-version dsh-upgrade dsh-link-cyberstrike
+.PHONY: build run test test-unit test-integration test-workflow-integration test-e2e test-e2e-verbose test-e2e-ssh test-e2e-api test-e2e-nix test-e2e-install test-e2e-cloud test-sudo test-cloud test-docker test-ssh test-distributed distributed-e2e-up distributed-e2e-run distributed-e2e-down test-canary-all test-canary-repo test-canary-domain test-canary-ip test-canary-general canary-up canary-down test-all test-summary test-ci clean install install-core install-gotestsum lint fmt db-seed db-clean db-migrate run-server-debug swagger update-ui sync-skills sync-platform snapshot-release github-release bump-version npm-binaries npm-build npm-pack npm-publish run-github-action docker-toolbox docker-toolbox-run docker-toolbox-shell docker-publish docker-buildx-setup deploy deploy-check deploy-status deploy-logs deploy-down deploy-credentials dsh-install dsh-start dsh-check dsh-version dsh-upgrade dsh-link-methodology
 
 # Go parameters
 GOCMD=go
@@ -7,7 +7,7 @@ GOTEST=$(GOCMD) test
 GOGET=$(GOCMD) get
 GOFMT=$(GOCMD) fmt
 GOMOD=$(GOCMD) mod
-BINARY_NAME=osmedeus
+BINARY_NAME=golish
 BINARY_DIR=build/bin
 
 # Console output prefix (cyan color)
@@ -48,16 +48,16 @@ all: build
 build:
 	@echo "$(PREFIX) Building $(BINARY_NAME)..."
 	@mkdir -p $(BINARY_DIR)
-	$(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME) ./cmd/osmedeus
+	$(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME) ./cmd/golish
 	@echo "$(PREFIX) Installing $(BINARY_NAME) to $(GOBIN_PATH)..."
 	@mkdir -p $(GOBIN_PATH)
 	@rm -f $(GOBIN_PATH)/$(BINARY_NAME)
 	@cp $(BINARY_DIR)/$(BINARY_NAME) $(GOBIN_PATH)/$(BINARY_NAME)
 
 # Install the full local platform: Go binary plus the version-locked Harness,
-# Osmedeus plugins, bundled DSH Skills, and bundled CyberStrike corpus.
+# Golish plugins, bundled DSH Skills, and bundled Methodology corpus.
 install: install-core dsh-install
-	@echo "$(PREFIX) Full Osmedeus platform installation completed"
+	@echo "$(PREFIX) Full Golish platform installation completed"
 
 # Install only the Go binary. This remains available for release packaging and
 # environments that intentionally run the Harness in a separate container.
@@ -71,7 +71,7 @@ install-core:
 	fi
 
 # Build, initialize, and start the complete containerized platform. Only the
-# Osmedeus server port is published; DeepSeek Harness stays on Docker's private
+# Golish server port is published; DeepSeek Harness stays on Docker's private
 # network and is consumed through the integrated Agent Pentest API/UI.
 DEPLOY_SCRIPT=build/scripts/deploy.sh
 
@@ -98,20 +98,20 @@ build-all: build-linux build-darwin build-windows
 
 build-linux:
 	@echo "$(PREFIX) Building for Linux..."
-	GOOS=linux GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME)-linux-amd64 ./cmd/osmedeus
+	GOOS=linux GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME)-linux-amd64 ./cmd/golish
 
 build-darwin:
 	@echo "$(PREFIX) Building for macOS..."
-	GOOS=darwin GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME)-darwin-amd64 ./cmd/osmedeus
-	GOOS=darwin GOARCH=arm64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME)-darwin-arm64 ./cmd/osmedeus
+	GOOS=darwin GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME)-darwin-amd64 ./cmd/golish
+	GOOS=darwin GOARCH=arm64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME)-darwin-arm64 ./cmd/golish
 
 build-windows:
 	@echo "$(PREFIX) Building for Windows..."
-	GOOS=windows GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME)-windows-amd64.exe ./cmd/osmedeus
+	GOOS=windows GOARCH=amd64 $(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME)-windows-amd64.exe ./cmd/golish
 
 # Run the application
 run:
-	$(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME) ./cmd/osmedeus
+	$(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME) ./cmd/golish
 	./$(BINARY_DIR)/$(BINARY_NAME)
 
 # Run with specific command
@@ -220,7 +220,7 @@ distributed-e2e-up:
 
 distributed-e2e-run:
 	@echo "$(PREFIX) Submitting distributed scan from master container..."
-	docker exec osm-e2e-master osmedeus run -f repo -D -t https://github.com/juice-shop/juice-shop
+	docker exec golish-e2e-master golish run -f repo -D -t https://github.com/juice-shop/juice-shop
 	@echo "$(PREFIX) Scan submitted. Tailing worker logs (Ctrl+C to stop)..."
 	docker-compose -f build/docker/docker-compose.distributed-e2e.yaml logs -f worker
 
@@ -263,7 +263,7 @@ test-e2e-cloud: build install-gotestsum
 	$(TESTCMD) $(TESTFLAGS) -run TestCloud ./test/e2e/...
 
 # Sudo-aware tests (requires interactive sudo prompt)
-test-sudo: export OSM_TEST_SUDO=1
+test-sudo: export GOLISH_TEST_SUDO=1
 test-sudo: build install-gotestsum
 	@echo "$(PREFIX) Running sudo-aware tests (may prompt for password)..."
 	$(TESTCMD) $(TESTFLAGS) -run TestSudo ./test/e2e/...
@@ -371,10 +371,10 @@ swagger:
 
 # Build the dashboard from platform/ and refresh the embedded UI.
 #
-# platform/osmedeus-dashboard/ is the source of truth; its build output is
+# platform/golish-dashboard/ is the source of truth; its build output is
 # gitignored, so this builds before copying. Set DASHBOARD_SKIP_BUILD=1 to reuse
 # an existing build (e.g. when the tree has not changed).
-DASHBOARD_DIR=platform/osmedeus-dashboard
+DASHBOARD_DIR=platform/golish-dashboard
 update-ui:
 	@if [ ! -d "$(DASHBOARD_DIR)" ]; then \
 		echo "$(PREFIX) $(DASHBOARD_DIR) not found"; exit 1; \
@@ -392,12 +392,12 @@ update-ui:
 	@echo "$(PREFIX) UI updated successfully!"
 
 # DeepSeek Harness runs as a separately versioned sidecar. Its exact tested
-# version and lockfile live in platform/osmedeus-agent-harness so regular starts
+# version and lockfile live in platform/golish-agent-harness so regular starts
 # never float to a newer developer-preview release.
-DSH_DIR=platform/osmedeus-agent-harness
+DSH_DIR=platform/golish-agent-harness
 DSH_PROXY ?=
 DSH_NPM_ENV=$(if $(strip $(DSH_PROXY)),HTTP_PROXY=$(DSH_PROXY) HTTPS_PROXY=$(DSH_PROXY),)
-CYBERSTRIKE_SKILLS_DIR ?=
+METHODOLOGY_SKILLS_DIR ?=
 
 dsh-install:
 	@echo "$(PREFIX) Installing version-locked DeepSeek Harness, plugins, and bundled Skills..."
@@ -417,11 +417,11 @@ dsh-check:
 dsh-version:
 	@cd $(DSH_DIR) && npm run verify:install
 
-dsh-link-cyberstrike:
-	@if [ -z "$(CYBERSTRIKE_SKILLS_DIR)" ]; then \
-		echo "Usage: make dsh-link-cyberstrike CYBERSTRIKE_SKILLS_DIR=/path/to/CyberStrike-main"; exit 2; \
+dsh-link-methodology:
+	@if [ -z "$(METHODOLOGY_SKILLS_DIR)" ]; then \
+		echo "Usage: make dsh-link-methodology METHODOLOGY_SKILLS_DIR=/path/to/skill-corpus"; exit 2; \
 	fi
-	@cd $(DSH_DIR) && node scripts/link-cyberstrike-skills.mjs "$(abspath $(CYBERSTRIKE_SKILLS_DIR))"
+	@cd $(DSH_DIR) && node scripts/link-methodology-skills.mjs "$(abspath $(METHODOLOGY_SKILLS_DIR))"
 
 dsh-upgrade:
 	@if [ -z "$(DSH_VERSION)" ]; then \
@@ -437,7 +437,7 @@ dsh-upgrade:
 # review and commit in the destination repos yourself unless PLATFORM_COMMIT=1.
 #
 #   make sync-platform
-#   make sync-platform PLATFORM=osmedeus-registry
+#   make sync-platform PLATFORM=golish-registry
 #   make sync-platform PLATFORM_COMMIT=1
 sync-platform:
 	@bash build/scripts/sync-platform.sh
@@ -447,19 +447,19 @@ sync-platform:
 # public/skills/ is the source of truth: bundles are authored here and embedded
 # in the binary by //go:embed, so an installed skill always matches the running
 # version. This target pushes them to a local checkout of the public
-# osmedeus-skills repo (SKILLS_DEST) — it only writes files; review and commit
+# golish-skills repo (SKILLS_DEST) — it only writes files; review and commit
 # in that repo yourself.
 #
 #   make sync-skills
-#   make sync-skills SKILLS_DEST=/path/to/osmedeus-skills
+#   make sync-skills SKILLS_DEST=/path/to/golish-skills
 #
 # Every top-level directory containing a SKILL.md is copied, so adding a bundle
 # needs no change here. --delete is scoped to each bundle directory, so file
 # removals propagate without ever touching the destination's .git, README.md
 # (upstream keeps its own landing page) or anything else that is not a bundle.
-SKILLS_REPO ?= https://github.com/osmedeus/osmedeus-skills.git
+SKILLS_REPO ?= https://github.com/ChristopherZh-7/golish-skills.git
 SKILLS_SRC = public/skills
-SKILLS_DEST ?= ../osmedeus-skills
+SKILLS_DEST ?= ../golish-skills
 
 sync-skills:
 	@set -e; \
@@ -495,32 +495,32 @@ dev-setup: install-gotestsum
 
 # Docker build
 docker-build:
-	docker build -t osmedeus:$(VERSION) -f build/docker/Dockerfile .
+	docker build -t golish:$(VERSION) -f build/docker/Dockerfile .
 
 # Docker run
 docker-run:
-	docker run -p 8002:8002 osmedeus:$(VERSION)
+	docker run -p 8002:8002 golish:$(VERSION)
 
 # Docker toolbox build (with all tools pre-installed)
 docker-toolbox:
-	@echo "$(PREFIX) Building osmedeus-toolbox Docker image..."
+	@echo "$(PREFIX) Building golish-toolbox Docker image..."
 	docker-compose -f build/docker/docker-compose.toolbox.yaml build \
 		--build-arg BUILD_TIME=$(BUILD_TIME) \
 		--build-arg COMMIT_HASH=$(COMMIT_HASH)
-	@echo "$(PREFIX) osmedeus-toolbox image built successfully!"
+	@echo "$(PREFIX) golish-toolbox image built successfully!"
 	@echo "$(PREFIX) Run with: docker-compose -f build/docker/docker-compose.toolbox.yaml up -d"
 
 # Docker toolbox run
 docker-toolbox-run:
-	@echo "$(PREFIX) Starting osmedeus-toolbox container..."
+	@echo "$(PREFIX) Starting golish-toolbox container..."
 	docker-compose -f build/docker/docker-compose.toolbox.yaml up -d
-	@echo "$(PREFIX) Container started! Enter with: docker exec -it osmedeus-toolbox bash"
+	@echo "$(PREFIX) Container started! Enter with: docker exec -it golish-toolbox bash"
 
 # Docker toolbox shell (interactive)
 docker-toolbox-shell:
-	docker exec -it osmedeus-toolbox bash
+	docker exec -it golish-toolbox bash
 
-DOCKER_IMAGE ?= j3ssie/osmedeus:latest
+DOCKER_IMAGE ?= ghcr.io/christopherzh-7/golish-pentest-platform:latest
 
 # Docker publish (build and push a multi-arch image to Docker Hub)
 #
@@ -533,24 +533,24 @@ DOCKER_IMAGE ?= j3ssie/osmedeus:latest
 # Requires QEMU/binfmt for the foreign-arch runtime steps (run
 # `make docker-buildx-setup` once if builds fail with exec-format errors).
 docker-publish:
-	@echo "$(PREFIX) Ensuring buildx builder 'osmedeus-builder' exists..."
-	@docker buildx inspect osmedeus-builder >/dev/null 2>&1 || \
-		docker buildx create --name osmedeus-builder --driver docker-container --bootstrap
+	@echo "$(PREFIX) Ensuring buildx builder 'golish-builder' exists..."
+	@docker buildx inspect golish-builder >/dev/null 2>&1 || \
+		docker buildx create --name golish-builder --driver docker-container --bootstrap
 	@repo=$$(echo "$(DOCKER_IMAGE)" | cut -d: -f1); \
 	for arch in amd64 arm64; do \
 		echo "$(PREFIX) Building linux/$$arch..."; \
 		docker buildx build \
-			--builder osmedeus-builder \
+			--builder golish-builder \
 			--platform linux/$$arch \
 			-f build/docker/Dockerfile \
 			--build-arg BUILD_TIME=$(BUILD_TIME) \
 			--build-arg COMMIT_HASH=$(COMMIT_HASH) \
 			--output "type=image,name=$$repo,push-by-digest=true,name-canonical=true,push=true" \
-			--metadata-file /tmp/osmedeus-$$arch.json \
+			--metadata-file /tmp/golish-$$arch.json \
 			. || exit 1; \
 	done; \
-	amd64_digest=$$(jq -r '."containerimage.digest"' /tmp/osmedeus-amd64.json); \
-	arm64_digest=$$(jq -r '."containerimage.digest"' /tmp/osmedeus-arm64.json); \
+	amd64_digest=$$(jq -r '."containerimage.digest"' /tmp/golish-amd64.json); \
+	arm64_digest=$$(jq -r '."containerimage.digest"' /tmp/golish-arm64.json); \
 	echo "$(PREFIX) Combining into multi-arch manifest $(DOCKER_IMAGE)..."; \
 	docker buildx imagetools create -t $(DOCKER_IMAGE) \
 		$$repo@$$amd64_digest $$repo@$$arm64_digest || exit 1; \
@@ -564,16 +564,16 @@ docker-buildx-setup:
 	@echo "$(PREFIX) QEMU emulators registered."
 
 # Release commands (GoReleaser)
-# Registry assets are vendored under platform/osmedeus-registry/, so these copies
+# Registry assets are vendored under platform/golish-registry/, so these copies
 # no longer depend on a sibling checkout existing next to this repo.
-REGISTRY_DIR=platform/osmedeus-registry
+REGISTRY_DIR=platform/golish-registry
 
 snapshot-release:
 	@echo "$(PREFIX) Update registry-metadata-direct-fetch.json..."
 	cp $(REGISTRY_DIR)/registry-metadata-direct-fetch.json public/presets/registry-metadata-direct-fetch.json
 	@echo "$(PREFIX) Building $(BINARY_NAME)..."
 	@mkdir -p $(BINARY_DIR)
-	$(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME) ./cmd/osmedeus
+	$(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME) ./cmd/golish
 	@echo "$(PREFIX) Installing $(BINARY_NAME) to $(GOBIN_PATH)..."
 	@mkdir -p $(GOBIN_PATH)
 	@rm -f $(GOBIN_PATH)/$(BINARY_NAME)
@@ -587,7 +587,7 @@ snapshot-release:
 local-release:
 	@echo "$(PREFIX) Building $(BINARY_NAME)..."
 	@mkdir -p $(BINARY_DIR)
-	$(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME) ./cmd/osmedeus
+	$(GOBUILD) $(LDFLAGS) -o $(BINARY_DIR)/$(BINARY_NAME) ./cmd/golish
 	@mkdir -p $(GOBIN_PATH)
 	@rm -f $(GOBIN_PATH)/$(BINARY_NAME)
 	@cp $(BINARY_DIR)/$(BINARY_NAME) $(GOBIN_PATH)/$(BINARY_NAME)
@@ -613,7 +613,7 @@ bump-version:
 	@PART="$(PART)" LABEL="$(LABEL)" SET="$(SET)" DRY_RUN="$(DRY_RUN)" bash build/scripts/bump-version.sh
 
 # --- npm distribution -----------------------------------------------------
-# Publish the osmedeus binary to npm as @j3ssie/osmedeus. The binary ships
+# Publish the golish binary to npm as @christopherzh-7/golish. The binary ships
 # gzipped inside per-platform optional-dependency packages (one npm name,
 # version-suffixed platform builds). See build/npm/build.mjs.
 NPM_OUT_DIR=build/dist-npm
@@ -631,7 +631,7 @@ NPM_LDFLAGS=-ldflags "-s -w -X main.BuildTime=$(BUILD_TIME) -X main.CommitHash=$
 # version number can never be corrected, only superseded.
 #
 # The check is the .build-version stamp npm-binaries writes after all four builds
-# succeed, NOT a version-string grep of the binary: osmedeus embeds docs, presets
+# succeed, NOT a version-string grep of the binary: golish embeds docs, presets
 # and UI assets that mention other versions, so a substring match false-matches.
 # Recursive (=) so it only runs when referenced by the npm-build/npm-pack guards.
 NPM_NEEDS_BUILD=$(shell stamp=$$(cat $(NPM_BIN_DIR)/.build-version 2>/dev/null); bins=$$(ls $(NPM_BIN_DIR)/$(BINARY_NAME)_*/$(BINARY_NAME) 2>/dev/null | wc -l | tr -d ' '); if [ "$$stamp" != "$(NPM_VERSION)" ] || [ "$$bins" -lt 4 ]; then echo yes; else echo no; fi)
@@ -649,7 +649,7 @@ npm-binaries:
 		mkdir -p $${stage_dir}; \
 		GOOS=$${GOOS} GOARCH=$${GOARCH} CGO_ENABLED=0 \
 			$(GOBUILD) -trimpath $(NPM_LDFLAGS) \
-			-o $${stage_dir}/$(BINARY_NAME) ./cmd/osmedeus; \
+			-o $${stage_dir}/$(BINARY_NAME) ./cmd/golish; \
 	done
 	@echo "$(NPM_VERSION)" > $(NPM_BIN_DIR)/.build-version
 	@echo "$(PREFIX) Binaries staged in $(NPM_BIN_DIR)/ (version $(NPM_VERSION))"
@@ -663,7 +663,7 @@ npm-build:
 		$(MAKE) npm-binaries; \
 	fi
 	@echo "$(PREFIX) Staging npm packages (version $(NPM_VERSION))..."
-	OSMEDEUS_VERSION=$(NPM_VERSION) node build/npm/build.mjs
+	GOLISH_VERSION=$(NPM_VERSION) node build/npm/build.mjs
 
 # Stage + produce inspectable .tgz tarballs (npm pack) for each package.
 npm-pack:
@@ -672,14 +672,14 @@ npm-pack:
 		$(MAKE) npm-binaries; \
 	fi
 	@echo "$(PREFIX) Staging + packing npm tarballs (version $(NPM_VERSION))..."
-	OSMEDEUS_VERSION=$(NPM_VERSION) node build/npm/build.mjs --pack
+	GOLISH_VERSION=$(NPM_VERSION) node build/npm/build.mjs --pack
 	@echo "$(PREFIX) Tarballs written to $(NPM_OUT_DIR)/"
 
 # Publish to npm: platform packages FIRST (so the main package's
 # optionalDependencies resolve), then the main package. Every run pins the
 # `latest` dist-tag to the version being published (the main package is
 # published as `latest` and `latest` is re-asserted + verified afterward), so
-# `npm i -g @j3ssie/osmedeus` always installs this version.
+# `npm i -g @christopherzh-7/golish` always installs this version.
 #
 # Auth comes from ~/.npmrc:
 #   //registry.npmjs.org/:_authToken=${NPM_TOKEN}
@@ -687,7 +687,7 @@ npm-pack:
 # interpolates ${NPM_TOKEN} from the environment — just keep NPM_TOKEN
 # exported. Set DRY_RUN=1 to preview (no token needed; --dry-run only packs).
 npm-publish: npm-build
-	@echo "$(PREFIX) Publishing @j3ssie/osmedeus ($(NPM_VERSION)) to npm [latest -> $(NPM_VERSION)]..."
+	@echo "$(PREFIX) Publishing @christopherzh-7/golish ($(NPM_VERSION)) to npm [latest -> $(NPM_VERSION)]..."
 	@set -e; \
 		if [ "$(DRY_RUN)" = "1" ]; then \
 			DRY="--dry-run"; \
@@ -710,11 +710,11 @@ npm-publish: npm-build
 			|| { echo "\033[31m[!] publish failed: main\033[0m"; exit 12; }; \
 		if [ "$(DRY_RUN)" != "1" ]; then \
 			echo "$(PREFIX)   pointing 'latest' dist-tag at $(NPM_VERSION)"; \
-			npm dist-tag add @j3ssie/osmedeus@$(NPM_VERSION) latest \
+			npm dist-tag add @christopherzh-7/golish@$(NPM_VERSION) latest \
 				|| { echo "\033[31m[!] dist-tag add failed\033[0m"; exit 13; }; \
 			resolved=""; \
 			for i in 1 2 3 4 5 6; do \
-				resolved=$$(npm dist-tag ls @j3ssie/osmedeus --prefer-online 2>/dev/null \
+				resolved=$$(npm dist-tag ls @christopherzh-7/golish --prefer-online 2>/dev/null \
 					| sed -n 's/^latest: //p'); \
 				[ "$$resolved" = "$(NPM_VERSION)" ] && break; \
 				echo "$(PREFIX)   latest still '$$resolved' (npm registry cache lag) — retry $$i/6 in 10s"; \
@@ -722,7 +722,7 @@ npm-publish: npm-build
 			done; \
 			if [ "$$resolved" != "$(NPM_VERSION)" ]; then \
 				echo "\033[31m[!] latest resolved to '$$resolved', expected '$(NPM_VERSION)' after retries\033[0m"; \
-				echo "\033[31m    Publish likely succeeded — verify: npm dist-tag ls @j3ssie/osmedeus\033[0m"; \
+				echo "\033[31m    Publish likely succeeded — verify: npm dist-tag ls @christopherzh-7/golish\033[0m"; \
 				exit 14; \
 			fi; \
 			echo "$(PREFIX)   verified: latest -> $$resolved"; \
@@ -745,7 +745,7 @@ db-migrate: build
 # Help
 help:
 	@echo ""
-	@echo "\033[32m Osmedeus $(VERSION) - A Modern Orchestration Engine for Security\033[0m"
+	@echo "\033[32m Golish $(VERSION) - A Modern Orchestration Engine for Security\033[0m"
 	@echo "\033[36m                 Crafted with \033[31m<3\033[35m by $(AUTHOR)                      \033[0m"
 	@echo "\033[34m     ──────────────────────────────────────────────────\033[0m"
 	@echo ""
@@ -803,7 +803,7 @@ help:
 	@echo "\033[33m  DOCKER\033[0m"
 	@echo "    make docker-build     Build Docker image"
 	@echo "    make docker-run       Run Docker container"
-	@echo "    make docker-publish   Build & push multi-arch (amd64+arm64) j3ssie/osmedeus:latest (sequential)"
+	@echo "    make docker-publish   Build & push multi-arch (amd64+arm64) ghcr.io/christopherzh-7/golish-pentest-platform:latest (sequential)"
 	@echo "    make docker-buildx-setup  Register QEMU for cross-arch builds (one-time)"
 	@echo "    make docker-toolbox       Build toolbox image (all tools pre-installed)"
 	@echo "    make docker-toolbox-run   Start toolbox container"
@@ -817,7 +817,7 @@ help:
 	@echo "    make bump-version     Bump version in constants.go ($(VERSION) -> next patch)"
 	@echo "                          PART=minor|major|pre|release SET=<ver> DRY_RUN=1"
 	@echo "    make npm-binaries     Cross-compile the 4 npm target platforms"
-	@echo "    make npm-build        Stage @j3ssie/osmedeus npm packages into build/dist-npm/"
+	@echo "    make npm-build        Stage @christopherzh-7/golish npm packages into build/dist-npm/"
 	@echo "    make npm-pack         npm-build + produce inspectable .tgz tarballs"
 	@echo "    make npm-publish      Publish to npm; auth via ~/.npmrc (NPM_TOKEN env var)"
 	@echo ""

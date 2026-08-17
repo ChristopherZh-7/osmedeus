@@ -11,7 +11,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 )
@@ -43,7 +43,7 @@ func NewSSHRunner(config *core.RunnerConfig, binaryPath string) (*SSHRunner, err
 	return &SSHRunner{
 		config:     config,
 		binaryPath: binaryPath,
-		remoteDir:  "~/.osmedeus-remote",
+		remoteDir:  "~/.golish-remote",
 	}, nil
 }
 
@@ -88,7 +88,7 @@ func (r *SSHRunner) expandPath(path string) string {
 	return path
 }
 
-// copyBinary copies the osmedeus binary to the remote machine using SFTP
+// copyBinary copies the golish binary to the remote machine using SFTP
 func (r *SSHRunner) copyBinary() error {
 	if r.client == nil {
 		return fmt.Errorf("SSH client not connected")
@@ -125,7 +125,7 @@ func (r *SSHRunner) copyBinary() error {
 	}
 
 	// Create remote file
-	destPath := filepath.Join(remotePath, "osmedeus")
+	destPath := filepath.Join(remotePath, "golish")
 	remoteFile, err := sftpClient.Create(destPath)
 	if err != nil {
 		return fmt.Errorf("failed to create remote file: %w", err)
@@ -206,7 +206,7 @@ func ExecuteSSHCommand(ctx context.Context, client *ssh.Client, command string) 
 
 	// Pin the pidfile to /tmp: callers (e.g. SSHRunner.Setup) may invoke this
 	// before any remote scratch directory exists; /tmp is always writable.
-	pidFile := fmt.Sprintf("/tmp/.osm-pid-%d-%d.tmp",
+	pidFile := fmt.Sprintf("/tmp/.golish-pid-%d-%d.tmp",
 		time.Now().UnixNano(), atomic.AddInt64(&sshPidCounter, 1))
 
 	// No `exec` here: keeping the wrapper sh alive means pipelines (which

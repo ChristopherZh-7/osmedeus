@@ -50,16 +50,16 @@ definitions:
 host: localhost:8002
 info:
   contact:
-    email: support@osmedeus.org
-    name: Osmedeus Support
-    url: https://github.com/j3ssie/osmedeus
+    email: support@golish.org
+    name: Golish Support
+    url: https://github.com/ChristopherZh-7/golish-pentest-platform
   description: Modern Orchestration Engine for Security - REST API for managing security
     automation workflows, scans, and distributed task execution.
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-  termsOfService: https://docs.osmedeus.org/terms/
-  title: Osmedeus API
+  termsOfService: https://github.com/ChristopherZh-7/golish-pentest-platform/tree/main/docs/terms/
+  title: Golish API
   version: 5.0.0
 paths:
   /:
@@ -77,7 +77,7 @@ paths:
       summary: Server info
       tags:
       - Info
-  /osm/api/login:
+  /golish/api/login:
     post:
       consumes:
       - application/json
@@ -111,7 +111,7 @@ paths:
       summary: User login
       tags:
       - Auth
-  /osm/api/new-scan:
+  /golish/api/new-scan:
     post:
       consumes:
       - application/json
@@ -146,7 +146,7 @@ paths:
       summary: Create a new scan
       tags:
       - Scans
-  /osm/api/upload-file:
+  /golish/api/upload-file:
     post:
       consumes:
       - multipart/form-data
@@ -176,7 +176,7 @@ paths:
       summary: Upload input file
       tags:
       - Files
-  /osm/api/workflow-upload:
+  /golish/api/workflow-upload:
     post:
       consumes:
       - multipart/form-data
@@ -205,7 +205,7 @@ paths:
       summary: Upload workflow file
       tags:
       - Workflows
-  /osm/api/tasks:
+  /golish/api/tasks:
     get:
       description: Get a list of all running and completed tasks
       produces:
@@ -260,7 +260,7 @@ paths:
       summary: Submit a new task
       tags:
       - Distributed
-  /osm/api/tasks/{id}:
+  /golish/api/tasks/{id}:
     get:
       description: Get details for a specific task by ID
       parameters:
@@ -287,7 +287,7 @@ paths:
       summary: Get task details
       tags:
       - Distributed
-  /osm/api/workers:
+  /golish/api/workers:
     get:
       description: Get a list of all registered workers in the distributed pool
       produces:
@@ -308,7 +308,7 @@ paths:
       summary: List all workers
       tags:
       - Distributed
-  /osm/api/workers/{id}:
+  /golish/api/workers/{id}:
     get:
       description: Get details for a specific worker by ID
       parameters:
@@ -340,7 +340,7 @@ paths:
       summary: Get worker details
       tags:
       - Distributed
-  /osm/api/workflows:
+  /golish/api/workflows:
     get:
       description: Get a list of all available workflows with details
       produces:
@@ -361,7 +361,7 @@ paths:
       summary: List all workflows
       tags:
       - Workflows
-  /osm/api/workflows/{name}:
+  /golish/api/workflows/{name}:
     get:
       description: Get detailed information about a specific workflow. Use show_yaml=true
         to get raw YAML content.
@@ -393,7 +393,7 @@ paths:
       summary: Get workflow details
       tags:
       - Workflows
-  /osm/api/workspaces:
+  /golish/api/workspaces:
     get:
       description: Get a list of all scan workspaces
       produces:
@@ -414,7 +414,7 @@ paths:
       summary: List all workspaces
       tags:
       - Workspaces
-  /osm/api/snapshot-download/{workspace_name}:
+  /golish/api/snapshot-download/{workspace_name}:
     get:
       description: Compress a workspace folder into a zip file and download it
       parameters:

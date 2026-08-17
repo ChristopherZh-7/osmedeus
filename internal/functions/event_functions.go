@@ -5,9 +5,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/notify"
 	"github.com/dop251/goja"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/notify"
 	"go.uber.org/zap"
 )
 
@@ -40,7 +40,7 @@ func (vf *vmFunc) generateEvent(call goja.FunctionCall) goja.Value {
 
 	// Get runtime context for RunID and WorkflowName
 	var runID, workflowName string
-	sourceType := "eval" // Default to "eval" for events generated via osmedeus eval
+	sourceType := "eval" // Default to "eval" for events generated via golish eval
 	if ctx := vf.getContext(); ctx != nil {
 		runID = ctx.scanID
 		workflowName = ctx.workflowName
@@ -49,7 +49,7 @@ func (vf *vmFunc) generateEvent(call goja.FunctionCall) goja.Value {
 		}
 	}
 
-	// Generate UUID if no run context (e.g., from osmedeus eval)
+	// Generate UUID if no run context (e.g., from golish eval)
 	if runID == "" {
 		runID = uuid.New().String()[:8] // Short UUID for eval-generated events
 	}
@@ -99,7 +99,7 @@ func (vf *vmFunc) generateEventFromFile(call goja.FunctionCall) goja.Value {
 
 	// Get runtime context for RunID and WorkflowName
 	var runID, workflowName string
-	sourceType := "eval" // Default to "eval" for events generated via osmedeus eval
+	sourceType := "eval" // Default to "eval" for events generated via golish eval
 	if ctx := vf.getContext(); ctx != nil {
 		runID = ctx.scanID
 		workflowName = ctx.workflowName
@@ -108,7 +108,7 @@ func (vf *vmFunc) generateEventFromFile(call goja.FunctionCall) goja.Value {
 		}
 	}
 
-	// Generate UUID if no run context (e.g., from osmedeus eval)
+	// Generate UUID if no run context (e.g., from golish eval)
 	if runID == "" {
 		runID = uuid.New().String()[:8] // Short UUID for eval-generated events
 	}

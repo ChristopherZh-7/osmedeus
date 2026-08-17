@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"github.com/j3ssie/osmedeus/v5/internal/json"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/json"
 	"io"
 	"net"
 	"os"
@@ -13,12 +13,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/state"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/dop251/goja"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/state"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
 	"go.uber.org/zap"
 )
 

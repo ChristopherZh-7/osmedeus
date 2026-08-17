@@ -1,0 +1,102 @@
+# Golish production configuration template
+# ==========================================
+# `make deploy` copies this file into .golish-deploy/, replaces the marked
+# secrets, and mounts the generated copy read-only. Do not put real secrets in
+# this tracked template.
+
+base_folder: /root/golish-base
+
+environments:
+  external_binaries_path: "{{base_folder}}/external-binaries"
+  external_data: "{{base_folder}}/external-data"
+  external_configs: "{{base_folder}}/external-configs"
+  workspaces: /root/workspaces-golish
+  workflows: "{{base_folder}}/workflows"
+  snapshot: "{{base_folder}}/snapshot"
+  markdown_report_templates: "{{base_folder}}/markdown-report-templates"
+  external_agent_configs: "{{base_folder}}/external-agent-configs"
+  external_scripts: "{{base_folder}}/external-scripts"
+
+database:
+  db_engine: postgresql
+  host: postgres
+  port: 5432
+  username: golish
+  password: "__POSTGRES_PASSWORD__"
+  db_name: golish
+  connection_timeout: 60
+  ssl_mode: disable
+
+server:
+  host: "0.0.0.0"
+  port: 8002
+  ui_path: "{{base_folder}}/ui/"
+  workspace_prefix_key: "__WORKSPACE_PREFIX_KEY__"
+  simple_user_map_key:
+    admin: "__GOLISH_ADMIN_PASSWORD__"
+  jwt:
+    secret_signing_key: "__GOLISH_JWT_SECRET__"
+    expiration_minutes: 1440
+  license: "open-source"
+  enable_metrics: true
+  cors_allowed_origins: "reflect-origin"
+  enabled_auth_api: false
+  auth_api_key: "__GOLISH_API_KEY__"
+  enable_trigger_via_webhook: false
+
+agent_harness:
+  enabled: true
+  provider: deepseek-harness
+  # This name resolves only inside the private Compose network.
+  base_url: http://agent-harness:3080
+  # The dashboard uses Golish' native Agent Pentest UI and never needs to
+  # open the DSH web application directly.
+  web_ui_enabled: false
+  public_url: ""
+  workspace_mount_path: /golish/workspaces
+  request_timeout_seconds: 5
+  rag_enabled: false
+
+scan_tactic:
+  aggressive: 50
+  default: 20
+  gently: 5
+
+# Passive company-intelligence credentials. Values are write-only in the UI and
+# persist in this deployment state file across `make deploy` runs.
+global_vars:
+  FOFA_EMAIL:
+    value: ""
+    as_env: false
+  FOFA_API_KEY:
+    value: ""
+    as_env: false
+  FOFA_BASE_URL:
+    value: "https://fofa.info/api/v1/search/all"
+    as_env: false
+  QUAKE_API_KEY:
+    value: ""
+    as_env: false
+  QUAKE_BASE_URL:
+    value: "https://quake.360.net/api/v3/search/quake_service"
+    as_env: false
+  HUNTER_API_KEY:
+    value: ""
+    as_env: false
+  HUNTER_BASE_URL:
+    value: "https://hunter.qianxin.com/openApi/search"
+    as_env: false
+  ZEROZONE_API_KEY:
+    value: ""
+    as_env: false
+  ZEROZONE_BASE_URL:
+    value: "https://0.zone/api/data/"
+    as_env: false
+
+redis:
+  host: redis
+  port: 6379
+  username: ""
+  password: ""
+  db: 0
+  connection_timeout: 60

@@ -4,9 +4,9 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
 )
 
 // ListEventLogs handles listing event logs with filtering and pagination
@@ -26,7 +26,7 @@ import (
 // @Success 200 {object} map[string]interface{} "List of event logs with pagination"
 // @Failure 500 {object} map[string]interface{} "Failed to fetch event logs"
 // @Security BearerAuth
-// @Router /osm/api/event-logs [get]
+// @Router /golish/api/event-logs [get]
 func ListEventLogs(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Parse query parameters

@@ -28,8 +28,8 @@ func toStringSlice(v interface{}) []string {
 
 func TestGenerateTmuxSessionName(t *testing.T) {
 	name := generateTmuxSessionName()
-	assert.True(t, strings.HasPrefix(name, "bosm-"), "should have bosm- prefix")
-	// "bosm-" (5) + 8 random chars = 13
+	assert.True(t, strings.HasPrefix(name, "glsh-"), "should have glsh- prefix")
+	// "glsh-" (5) + 8 random chars = 13
 	assert.Equal(t, 13, len(name), "should be 13 characters total")
 }
 
@@ -56,7 +56,7 @@ func TestTmuxSessionExistsNonexistent(t *testing.T) {
 	if tmuxBin == "" {
 		t.Skip("tmux not installed")
 	}
-	assert.False(t, tmuxSessionExists(tmuxBin, "nonexistent-session-bosm-test-999"))
+	assert.False(t, tmuxSessionExists(tmuxBin, "nonexistent-session-glsh-test-999"))
 }
 
 // Integration tests - require tmux to be installed
@@ -79,7 +79,7 @@ func TestTmuxRunAndKill(t *testing.T) {
 
 	sessionName, ok := result.(string)
 	assert.True(t, ok, "should return string")
-	assert.True(t, strings.HasPrefix(sessionName, "bosm-"), "should have bosm- prefix")
+	assert.True(t, strings.HasPrefix(sessionName, "glsh-"), "should have glsh- prefix")
 
 	// Verify session exists
 	tmuxBin := findTmuxBin()
@@ -130,7 +130,7 @@ func TestTmuxRunInvokesHooksWithRunUUID(t *testing.T) {
 	result, err := rt.Execute(`tmux_run("sleep 60")`, ctx)
 	assert.NoError(t, err)
 	sessionName, _ := result.(string)
-	assert.True(t, strings.HasPrefix(sessionName, "bosm-"))
+	assert.True(t, strings.HasPrefix(sessionName, "glsh-"))
 
 	createdMu.Lock()
 	if assert.Len(t, created, 1) {
@@ -156,7 +156,7 @@ func TestTmuxRunWithCustomName(t *testing.T) {
 	}
 
 	rt := NewGojaRuntime()
-	customName := "test-tmux-custom-bosm"
+	customName := "test-tmux-custom-glsh"
 
 	result, err := rt.Execute(`tmux_run("sleep 60", "`+customName+`")`, nil)
 	assert.NoError(t, err)
@@ -237,7 +237,7 @@ func TestTmuxCaptureNonexistent(t *testing.T) {
 	}
 
 	rt := NewGojaRuntime()
-	result, err := rt.Execute(`tmux_capture("nonexistent-bosm-999")`, nil)
+	result, err := rt.Execute(`tmux_capture("nonexistent-glsh-999")`, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, "", result)
 }
@@ -248,7 +248,7 @@ func TestTmuxSendNonexistent(t *testing.T) {
 	}
 
 	rt := NewGojaRuntime()
-	result, err := rt.Execute(`tmux_send("nonexistent-bosm-999", "echo hi")`, nil)
+	result, err := rt.Execute(`tmux_send("nonexistent-glsh-999", "echo hi")`, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, false, result)
 }
@@ -259,7 +259,7 @@ func TestTmuxKillNonexistent(t *testing.T) {
 	}
 
 	rt := NewGojaRuntime()
-	result, err := rt.Execute(`tmux_kill("nonexistent-bosm-999")`, nil)
+	result, err := rt.Execute(`tmux_kill("nonexistent-glsh-999")`, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, false, result)
 }
@@ -272,25 +272,25 @@ func TestTmuxList(t *testing.T) {
 	rt := NewGojaRuntime()
 
 	// Create two sessions
-	result1, err := rt.Execute(`tmux_run("sleep 60", "bosm-list-test-1")`, nil)
+	result1, err := rt.Execute(`tmux_run("sleep 60", "glsh-list-test-1")`, nil)
 	assert.NoError(t, err)
-	assert.Equal(t, "bosm-list-test-1", result1)
+	assert.Equal(t, "glsh-list-test-1", result1)
 
-	result2, err := rt.Execute(`tmux_run("sleep 60", "bosm-list-test-2")`, nil)
+	result2, err := rt.Execute(`tmux_run("sleep 60", "glsh-list-test-2")`, nil)
 	assert.NoError(t, err)
-	assert.Equal(t, "bosm-list-test-2", result2)
+	assert.Equal(t, "glsh-list-test-2", result2)
 
 	// List sessions
 	listResult, err := rt.Execute(`tmux_list()`, nil)
 	assert.NoError(t, err)
 
 	names := toStringSlice(listResult)
-	assert.Contains(t, names, "bosm-list-test-1")
-	assert.Contains(t, names, "bosm-list-test-2")
+	assert.Contains(t, names, "glsh-list-test-1")
+	assert.Contains(t, names, "glsh-list-test-2")
 
 	// Cleanup
-	_, _ = rt.Execute(`tmux_kill("bosm-list-test-1")`, nil)
-	_, _ = rt.Execute(`tmux_kill("bosm-list-test-2")`, nil)
+	_, _ = rt.Execute(`tmux_kill("glsh-list-test-1")`, nil)
+	_, _ = rt.Execute(`tmux_kill("glsh-list-test-2")`, nil)
 }
 
 func TestTmuxListEmpty(t *testing.T) {
@@ -317,17 +317,17 @@ func TestTmuxCaptureAll(t *testing.T) {
 	rt := NewGojaRuntime()
 
 	// Create two bash sessions with distinct output
-	_, err := rt.Execute(`tmux_run("bash", "bosm-capall-1")`, nil)
+	_, err := rt.Execute(`tmux_run("bash", "glsh-capall-1")`, nil)
 	assert.NoError(t, err)
 
-	_, err = rt.Execute(`tmux_run("bash", "bosm-capall-2")`, nil)
+	_, err = rt.Execute(`tmux_run("bash", "glsh-capall-2")`, nil)
 	assert.NoError(t, err)
 
 	// Send distinct echo commands
-	_, err = rt.Execute(`tmux_send("bosm-capall-1", "echo 'MARKER_ALPHA_123'")`, nil)
+	_, err = rt.Execute(`tmux_send("glsh-capall-1", "echo 'MARKER_ALPHA_123'")`, nil)
 	assert.NoError(t, err)
 
-	_, err = rt.Execute(`tmux_send("bosm-capall-2", "echo 'MARKER_BETA_456'")`, nil)
+	_, err = rt.Execute(`tmux_send("glsh-capall-2", "echo 'MARKER_BETA_456'")`, nil)
 	assert.NoError(t, err)
 
 	// Wait for commands to execute
@@ -341,12 +341,12 @@ func TestTmuxCaptureAll(t *testing.T) {
 	assert.True(t, ok)
 
 	// Verify both session headers and outputs are present
-	assert.Contains(t, captured, "=== session: bosm-capall-1 ===")
-	assert.Contains(t, captured, "=== session: bosm-capall-2 ===")
+	assert.Contains(t, captured, "=== session: glsh-capall-1 ===")
+	assert.Contains(t, captured, "=== session: glsh-capall-2 ===")
 	assert.Contains(t, captured, "MARKER_ALPHA_123")
 	assert.Contains(t, captured, "MARKER_BETA_456")
 
 	// Cleanup
-	_, _ = rt.Execute(`tmux_kill("bosm-capall-1")`, nil)
-	_, _ = rt.Execute(`tmux_kill("bosm-capall-2")`, nil)
+	_, _ = rt.Execute(`tmux_kill("glsh-capall-1")`, nil)
+	_, _ = rt.Execute(`tmux_kill("glsh-capall-2")`, nil)
 }

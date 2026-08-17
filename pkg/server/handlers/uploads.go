@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/parser"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/parser"
 )
 
 // UploadFile handles uploading a file containing a list of inputs
@@ -25,7 +25,7 @@ import (
 // @Success 200 {object} map[string]interface{} "File uploaded with path"
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Security BearerAuth
-// @Router /osm/api/upload-file [post]
+// @Router /golish/api/upload-file [post]
 func UploadFile(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Get the file from the form
@@ -93,7 +93,7 @@ func UploadFile(cfg *config.Config) fiber.Handler {
 // @Success 201 {object} map[string]interface{} "Workflow uploaded"
 // @Failure 400 {object} map[string]interface{} "Invalid request or YAML"
 // @Security BearerAuth
-// @Router /osm/api/workflow-upload [post]
+// @Router /golish/api/workflow-upload [post]
 func UploadWorkflow(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Get the file from the form
@@ -196,7 +196,7 @@ func UploadWorkflow(cfg *config.Config) fiber.Handler {
 // @Failure 404 {object} map[string]interface{} "Workspace not found"
 // @Failure 500 {object} map[string]interface{} "Failed to create snapshot"
 // @Security BearerAuth
-// @Router /osm/api/snapshot-download/{workspace_name} [get]
+// @Router /golish/api/snapshot-download/{workspace_name} [get]
 func SnapshotDownload(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		workspaceName := c.Params("workspace_name")

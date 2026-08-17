@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 )
 
 func TestDataEnvelopeSerialization(t *testing.T) {
@@ -105,7 +105,7 @@ func TestEventSerialization(t *testing.T) {
 
 func TestKeyConstants(t *testing.T) {
 	// Verify key prefixes are properly formatted
-	expectedPrefix := "osm:"
+	expectedPrefix := "golish:"
 
 	keys := map[string]string{
 		"KeyPrefix":        KeyPrefix,
@@ -127,20 +127,20 @@ func TestKeyConstants(t *testing.T) {
 	}
 
 	// Verify specific keys
-	if KeyEventsPrefix != "osm:events:" {
-		t.Errorf("KeyEventsPrefix mismatch: expected osm:events:, got %s", KeyEventsPrefix)
+	if KeyEventsPrefix != "golish:events:" {
+		t.Errorf("KeyEventsPrefix mismatch: expected golish:events:, got %s", KeyEventsPrefix)
 	}
-	if KeyDataRuns != "osm:data:runs" {
-		t.Errorf("KeyDataRuns mismatch: expected osm:data:runs, got %s", KeyDataRuns)
+	if KeyDataRuns != "golish:data:runs" {
+		t.Errorf("KeyDataRuns mismatch: expected golish:data:runs, got %s", KeyDataRuns)
 	}
-	if KeyDataSteps != "osm:data:steps" {
-		t.Errorf("KeyDataSteps mismatch: expected osm:data:steps, got %s", KeyDataSteps)
+	if KeyDataSteps != "golish:data:steps" {
+		t.Errorf("KeyDataSteps mismatch: expected golish:data:steps, got %s", KeyDataSteps)
 	}
-	if KeyDataEvents != "osm:data:events" {
-		t.Errorf("KeyDataEvents mismatch: expected osm:data:events, got %s", KeyDataEvents)
+	if KeyDataEvents != "golish:data:events" {
+		t.Errorf("KeyDataEvents mismatch: expected golish:data:events, got %s", KeyDataEvents)
 	}
-	if KeyDataArtifacts != "osm:data:artifacts" {
-		t.Errorf("KeyDataArtifacts mismatch: expected osm:data:artifacts, got %s", KeyDataArtifacts)
+	if KeyDataArtifacts != "golish:data:artifacts" {
+		t.Errorf("KeyDataArtifacts mismatch: expected golish:data:artifacts, got %s", KeyDataArtifacts)
 	}
 }
 

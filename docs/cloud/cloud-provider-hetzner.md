@@ -1,6 +1,6 @@
 # Hetzner Provider Guide
 
-Step-by-step guide for running osmedeus cloud on Hetzner Cloud servers. Hetzner offers the lowest cost per instance among all supported providers, making it ideal for high-volume scanning.
+Step-by-step guide for running golish cloud on Hetzner Cloud servers. Hetzner offers the lowest cost per instance among all supported providers, making it ideal for high-volume scanning.
 
 ## Prerequisites
 
@@ -27,27 +27,27 @@ export HETZNER_API_TOKEN="your-token-here"
 
 ```bash
 # Enable cloud feature
-osmedeus config set cloud.enabled true
+golish config set cloud.enabled true
 
 # Credentials
-osmedeus cloud config set providers.hetzner.token ${HETZNER_API_TOKEN}
-osmedeus cloud config set providers.hetzner.location hel1
-osmedeus cloud config set providers.hetzner.server_type "cx23"  # 2 vCPU, 4GB RAM (current generation)
-osmedeus cloud config set defaults.provider hetzner
+golish cloud config set providers.hetzner.token ${HETZNER_API_TOKEN}
+golish cloud config set providers.hetzner.location hel1
+golish cloud config set providers.hetzner.server_type "cx23"  # 2 vCPU, 4GB RAM (current generation)
+golish cloud config set defaults.provider hetzner
 
 # SSH
-osmedeus cloud config set ssh.private_key_path ~/.ssh/id_rsa
-osmedeus cloud config set ssh.public_key_path ~/.ssh/id_rsa.pub
-osmedeus cloud config set ssh.user root
+golish cloud config set ssh.private_key_path ~/.ssh/id_rsa
+golish cloud config set ssh.public_key_path ~/.ssh/id_rsa.pub
+golish cloud config set ssh.user root
 
 # Clean the setup scripts first
-osmedeus cloud config set setup.commands.clear ""
+golish cloud config set setup.commands.clear ""
 
 # Worker setup
-osmedeus cloud config set setup.commands.add "sudo apt-get update"
-osmedeus cloud config set setup.commands.add "sudo apt-get install -y -qq curl git tmux unzip jq rsync"
-osmedeus cloud config set setup.commands.add "curl -fsSL https://www.osmedeus.org/install.sh | bash"
-osmedeus cloud config set setup.commands.add "osmedeus install base --preset"
+golish cloud config set setup.commands.add "sudo apt-get update"
+golish cloud config set setup.commands.add "sudo apt-get install -y -qq curl git tmux unzip jq rsync"
+golish cloud config set setup.commands.add "curl -fsSL https://raw.githubusercontent.com/ChristopherZh-7/golish-registry/main/install.sh | bash"
+golish cloud config set setup.commands.add "golish install base --preset"
 ```
 
 ### Server Types
@@ -64,7 +64,7 @@ Hetzner's pricing is significantly cheaper than other providers:
 | cpx31 | 4 | 8 GB | 160 GB | ~$0.015 | ~$10.00 | CPU-optimized, more RAM |
 
 ```bash
-osmedeus cloud config set providers.hetzner.server_type cx32
+golish cloud config set providers.hetzner.server_type cx32
 ```
 
 ### Locations
@@ -79,7 +79,7 @@ osmedeus cloud config set providers.hetzner.server_type cx32
 | Singapore | `sin` | Asia |
 
 ```bash
-osmedeus cloud config set providers.hetzner.location fsn1
+golish cloud config set providers.hetzner.location fsn1
 ```
 
 ### Custom Image
@@ -91,7 +91,7 @@ Use a pre-built snapshot for faster boot:
 # Hetzner Console > Servers > your-server > Snapshots > Create Snapshot
 # Note the snapshot ID
 
-osmedeus cloud config set providers.hetzner.image 12345678
+golish cloud config set providers.hetzner.image 12345678
 ```
 
 ### SSH Key (optional)
@@ -100,15 +100,15 @@ If you have an SSH key registered in Hetzner Cloud:
 
 ```bash
 # Hetzner Console > Security > SSH Keys > note the key name
-osmedeus cloud config set providers.hetzner.ssh_key_name my-key-name
+golish cloud config set providers.hetzner.ssh_key_name my-key-name
 ```
 
 ### Cost Limits
 
 ```bash
-osmedeus cloud config set limits.max_hourly_spend 0.50
-osmedeus cloud config set limits.max_total_spend 5.00
-osmedeus cloud config set limits.max_instances 20
+golish cloud config set limits.max_hourly_spend 0.50
+golish cloud config set limits.max_total_spend 5.00
+golish cloud config set limits.max_instances 20
 ```
 
 ## Examples
@@ -116,7 +116,7 @@ osmedeus cloud config set limits.max_instances 20
 ### Quick Domain Recon
 
 ```bash
-osmedeus cloud run -f fast -t example.com --auto-destroy
+golish cloud run -f fast -t example.com --auto-destroy
 ```
 
 Cost: ~$0.007 (1 x cx22 x 1 hour) -- less than a penny.
@@ -127,7 +127,7 @@ Hetzner's low prices make it perfect for scanning many targets:
 
 ```bash
 # 20 workers scanning 200 targets for ~$0.28
-osmedeus cloud run \
+golish cloud run \
   -f fast -T targets.txt --instances 20 \
   --sync-back --auto-destroy
 ```
@@ -137,11 +137,11 @@ Cost: 20 x $0.007 x 2 hours = **$0.28**
 ### Custom Command Pipeline
 
 ```bash
-osmedeus cloud run \
-  --custom-cmd "subfinder -d {{Target}} -o /tmp/osm-custom/subs.txt" \
-  --custom-cmd "cat /tmp/osm-custom/subs.txt | httpx -o /tmp/osm-custom/live.txt" \
-  --custom-cmd "cat /tmp/osm-custom/live.txt | nuclei -o /tmp/osm-custom/nuclei.txt" \
-  --sync-path "/tmp/osm-custom/" \
+golish cloud run \
+  --custom-cmd "subfinder -d {{Target}} -o /tmp/golish-custom/subs.txt" \
+  --custom-cmd "cat /tmp/golish-custom/subs.txt | httpx -o /tmp/golish-custom/live.txt" \
+  --custom-cmd "cat /tmp/golish-custom/live.txt | nuclei -o /tmp/golish-custom/nuclei.txt" \
+  --sync-path "/tmp/golish-custom/" \
   -t example.com --auto-destroy
 ```
 
@@ -151,9 +151,9 @@ Cost: ~$0.007
 
 ```bash
 # Split 10,000 URLs across 10 Hetzner workers
-osmedeus cloud run \
-  --custom-cmd "cat {{Target}} | nuclei -o /tmp/osm-custom/results.txt" \
-  --sync-path "/tmp/osm-custom/results.txt" \
+golish cloud run \
+  --custom-cmd "cat {{Target}} | nuclei -o /tmp/golish-custom/results.txt" \
+  --sync-path "/tmp/golish-custom/results.txt" \
   --sync-dest "./nuclei-hetzner" \
   -T urls.txt --instances 10 --auto-destroy
 ```
@@ -164,12 +164,12 @@ Cost: 10 x $0.007 x 1 hour = **$0.07**
 
 ```bash
 # Use a bigger instance for masscan (needs more resources)
-osmedeus cloud config set providers.hetzner.server_type cx32
+golish cloud config set providers.hetzner.server_type cx32
 
-osmedeus cloud run \
-  --custom-cmd "masscan {{Target}} -p1-65535 --rate 10000 -oG /tmp/osm-custom/masscan.txt" \
-  --custom-cmd "cat /tmp/osm-custom/masscan.txt | grep 'Host:' | awk '{print \$2\":\" \$5}' | sed 's|/.*||' > /tmp/osm-custom/open-ports.txt" \
-  --sync-path "/tmp/osm-custom/" \
+golish cloud run \
+  --custom-cmd "masscan {{Target}} -p1-65535 --rate 10000 -oG /tmp/golish-custom/masscan.txt" \
+  --custom-cmd "cat /tmp/golish-custom/masscan.txt | grep 'Host:' | awk '{print \$2\":\" \$5}' | sed 's|/.*||' > /tmp/golish-custom/open-ports.txt" \
+  --sync-path "/tmp/golish-custom/" \
   -t 203.0.113.0/24 --auto-destroy
 ```
 
@@ -177,15 +177,15 @@ osmedeus cloud run \
 
 ```bash
 # Create 5 workers and keep them running all day
-osmedeus cloud create --provider hetzner -n 5
+golish cloud create --provider hetzner -n 5
 
 # Run multiple scans throughout the day
-osmedeus cloud run -f fast -t target1.com --reuse
-osmedeus cloud run --custom-cmd "nmap -sV {{Target}}" -t target2.com --reuse
-osmedeus cloud run -f general -T targets.txt --reuse
+golish cloud run -f fast -t target1.com --reuse
+golish cloud run --custom-cmd "nmap -sV {{Target}}" -t target2.com --reuse
+golish cloud run -f general -T targets.txt --reuse
 
 # Destroy at end of day
-osmedeus cloud destroy all --force
+golish cloud destroy all --force
 ```
 
 Cost: 5 x $0.007 x 8 hours = **$0.28** for a full day of scanning on 5 machines.
@@ -196,26 +196,26 @@ Hetzner's European locations are useful when you need scans originating from EU 
 
 ```bash
 # Use German datacenter
-osmedeus cloud config set providers.hetzner.location fsn1
-osmedeus cloud run -f fast -t eu-target.com --auto-destroy
+golish cloud config set providers.hetzner.location fsn1
+golish cloud run -f fast -t eu-target.com --auto-destroy
 
 # Use Finnish datacenter
-osmedeus cloud config set providers.hetzner.location hel1
-osmedeus cloud run -f fast -t nordic-target.com --auto-destroy
+golish cloud config set providers.hetzner.location hel1
+golish cloud run -f fast -t nordic-target.com --auto-destroy
 ```
 
 ### High-Performance with cx42
 
 ```bash
 # Use 8 vCPU / 16 GB RAM instance for heavy parallel scanning
-osmedeus cloud config set providers.hetzner.server_type cx42
+golish cloud config set providers.hetzner.server_type cx42
 
-osmedeus cloud run \
-  --custom-cmd "subfinder -d {{Target}} -all -o /tmp/osm-custom/subs.txt" \
-  --custom-cmd "cat /tmp/osm-custom/subs.txt | httpx -td -threads 200 -o /tmp/osm-custom/live.txt" \
-  --custom-cmd "cat /tmp/osm-custom/live.txt | nuclei -c 100 -o /tmp/osm-custom/nuclei.txt" \
-  --custom-cmd "cat /tmp/osm-custom/live.txt | katana -d 3 -jc -o /tmp/osm-custom/crawl.txt" \
-  --sync-path "/tmp/osm-custom/" \
+golish cloud run \
+  --custom-cmd "subfinder -d {{Target}} -all -o /tmp/golish-custom/subs.txt" \
+  --custom-cmd "cat /tmp/golish-custom/subs.txt | httpx -td -threads 200 -o /tmp/golish-custom/live.txt" \
+  --custom-cmd "cat /tmp/golish-custom/live.txt | nuclei -c 100 -o /tmp/golish-custom/nuclei.txt" \
+  --custom-cmd "cat /tmp/golish-custom/live.txt | katana -d 3 -jc -o /tmp/golish-custom/crawl.txt" \
+  --sync-path "/tmp/golish-custom/" \
   -t example.com --auto-destroy
 ```
 
@@ -241,7 +241,7 @@ Hetzner is ~3x cheaper than DigitalOcean and ~6x cheaper than AWS for equivalent
 Your API token is invalid or expired. Generate a new one in the Hetzner Cloud Console.
 
 ```bash
-osmedeus cloud config set providers.hetzner.token <new-token>
+golish cloud config set providers.hetzner.token <new-token>
 ```
 
 ### Server Type Not Available
@@ -249,7 +249,7 @@ osmedeus cloud config set providers.hetzner.token <new-token>
 Some server types may not be available in all locations. Try a different location:
 
 ```bash
-osmedeus cloud config set providers.hetzner.location nbg1
+golish cloud config set providers.hetzner.location nbg1
 ```
 
 ### SSH Connection Issues
@@ -257,13 +257,13 @@ osmedeus cloud config set providers.hetzner.location nbg1
 Hetzner servers default to `root` user:
 
 ```bash
-osmedeus cloud config set ssh.user root
+golish cloud config set ssh.user root
 ```
 
 Verify your SSH key is correctly configured:
 
 ```bash
-osmedeus cloud run --custom-cmd "whoami" -t test --verbose-setup
+golish cloud run --custom-cmd "whoami" -t test --verbose-setup
 ```
 
 ### Rate Limiting
@@ -274,16 +274,16 @@ Hetzner's API has rate limits. If creating many instances at once, you may hit t
 
 ```bash
 # List all infrastructure
-osmedeus cloud list
+golish cloud list
 
 # Destroy specific
-osmedeus cloud destroy <infra-id>
+golish cloud destroy <infra-id>
 
 # Destroy everything
-osmedeus cloud destroy all --force
+golish cloud destroy all --force
 
 # If out of sync, check Hetzner Console directly:
-# Console > Servers > look for osmedeus-prefixed servers
+# Console > Servers > look for golish-prefixed servers
 ```
 
 ## Best Practices

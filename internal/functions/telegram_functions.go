@@ -3,10 +3,10 @@ package functions
 import (
 	"os"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/installer"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/notify"
 	"github.com/dop251/goja"
-	"github.com/j3ssie/osmedeus/v5/internal/installer"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/notify"
 	"go.uber.org/zap"
 )
 

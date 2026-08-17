@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/dop251/goja"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
 	"go.uber.org/zap"
 )
 
@@ -54,7 +54,7 @@ func listTmuxSessions(tmuxBin string) []string {
 	return sessions
 }
 
-// generateTmuxSessionName produces a session name in the format "bosm-<random8>".
+// generateTmuxSessionName produces a short Golish-owned session name.
 func generateTmuxSessionName() string {
 	const charset = "abcdefghijklmnopqrstuvwxyz0123456789"
 	rng := mrand.New(mrand.NewSource(time.Now().UnixNano()))
@@ -63,7 +63,7 @@ func generateTmuxSessionName() string {
 	for i := range b {
 		b[i] = charset[rng.Intn(len(charset))]
 	}
-	return "bosm-" + string(b)
+	return "glsh-" + string(b)
 }
 
 // tmuxRun creates a detached tmux session running the given command.

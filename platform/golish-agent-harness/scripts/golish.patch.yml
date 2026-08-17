@@ -1,0 +1,12 @@
+- id: directory-picker
+  disabled: true
+
+- insert:
+    - id: golish-directory-picker
+      name: '@deepseek-ai/dsh-host-directory-picker-browse'
+
+    - id: golish-plugin
+      name: '@golish/dsh-plugin'
+
+    - id: golish-pentagi-orchestrator
+      name: '@golish/dsh-pentagi-orchestrator'

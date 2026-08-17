@@ -8,10 +8,10 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/installer"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/public"
 	"github.com/goccy/go-yaml"
-	"github.com/j3ssie/osmedeus/v5/internal/installer"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
-	"github.com/j3ssie/osmedeus/v5/public"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 )
@@ -22,7 +22,7 @@ const embedSkillsRoot = "skills"
 
 // defaultInstallSkill is installed when `skills install` runs without an
 // explicit skill name.
-const defaultInstallSkill = "osmedeus-expert"
+const defaultInstallSkill = "golish-expert"
 
 // Skill directories understood by the supported coding agents. ".agents" is
 // the cross-agent convention; ".claude" is Claude Code specific.
@@ -41,9 +41,9 @@ var (
 
 // bundledSkill is a parsed skill bundle shipped inside the binary.
 type bundledSkill struct {
-	Name        string   // directory name, e.g. "osmedeus-expert"
+	Name        string   // directory name, e.g. "golish-expert"
 	Description string   // from SKILL.md frontmatter
-	EmbedDir    string   // path inside public.EmbedFS, e.g. "skills/osmedeus-expert"
+	EmbedDir    string   // path inside public.EmbedFS, e.g. "skills/golish-expert"
 	References  []string // reference paths relative to EmbedDir, e.g. "references/cli-flags.md"
 }
 
@@ -76,7 +76,7 @@ reference files, or --all to output every bundled skill.
 
 Useful for piping a skill into an agent that does not read skill directories:
 
-  osmedeus skills get osmedeus-expert --full | your-agent`,
+  golish skills get golish-expert --full | your-agent`,
 	Args: cobra.ArbitraryArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runSkillsGet(args)
@@ -101,19 +101,19 @@ Destination is chosen from --agent and --scope:
 An already-installed skill is skipped unless --force is given. --dir overrides
 the computed destination entirely.`,
 	Example: `  # Install the default skill into ./.claude/skills/
-  osmedeus skills install
+  golish skills install
 
   # Install globally so every project sees it
-  osmedeus skills install --scope global
+  golish skills install --scope global
 
   # Install for a Codex-style agent reading .agents/skills/
-  osmedeus skills install --agent codex
+  golish skills install --agent codex
 
   # Install every bundled skill, overwriting existing copies
-  osmedeus skills install --all --force
+  golish skills install --all --force
 
   # Install to an explicit directory
-  osmedeus skills install --dir ~/my-agent/skills`,
+  golish skills install --dir ~/my-agent/skills`,
 	Args: cobra.ArbitraryArgs,
 	RunE: RunSkillsInstall,
 }
@@ -460,7 +460,7 @@ func RunSkillsInstall(cmd *cobra.Command, args []string) error {
 	fmt.Println()
 	printer.Info("%d installed, %d skipped", installed, skipped)
 	if installed > 0 {
-		printer.Info("Your agent will auto-trigger on these skills when you ask about osmedeus")
+		printer.Info("Your agent will auto-trigger on these skills when you ask about golish")
 	}
 	return nil
 }

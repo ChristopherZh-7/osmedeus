@@ -2,10 +2,10 @@ package core
 
 // AgentToolDef defines a tool available to the agent.
 // Supports two styles:
-//   - Preset: references a built-in osmedeus function by name (schema auto-generated)
+//   - Preset: references a built-in golish function by name (schema auto-generated)
 //   - Custom: explicit name, description, parameters schema, and handler expression
 type AgentToolDef struct {
-	// Preset tool — name of an osmedeus function (schema auto-generated from PresetToolRegistry)
+	// Preset tool — name of an golish function (schema auto-generated from PresetToolRegistry)
 	Preset string `yaml:"preset,omitempty" json:"preset,omitempty"`
 
 	// Custom tool fields

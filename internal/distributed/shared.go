@@ -3,7 +3,7 @@ package distributed
 import (
 	"sync"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
 )
 
 var (

@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
 )
 
 // LLMChatRequest represents a direct LLM chat completion request
@@ -140,7 +140,7 @@ type llmEmbeddingAPIUsage struct {
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Failure 500 {object} map[string]interface{} "LLM error"
 // @Security BearerAuth
-// @Router /osm/api/llm/v1/chat/completions [post]
+// @Router /golish/api/llm/v1/chat/completions [post]
 func LLMChat(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req LLMChatRequest
@@ -233,7 +233,7 @@ func LLMChat(cfg *config.Config) fiber.Handler {
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Failure 500 {object} map[string]interface{} "LLM error"
 // @Security BearerAuth
-// @Router /osm/api/llm/v1/embeddings [post]
+// @Router /golish/api/llm/v1/embeddings [post]
 func LLMEmbedding(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req LLMEmbeddingRequest

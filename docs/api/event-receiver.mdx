@@ -12,7 +12,7 @@ These endpoints are only available when the event receiver is enabled (default w
 Get the current status of the event receiver including registered triggers.
 
 ```bash
-curl http://localhost:8002/osm/api/event-receiver/status \
+curl http://localhost:8002/golish/api/event-receiver/status \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -38,7 +38,7 @@ curl http://localhost:8002/osm/api/event-receiver/status \
 Get a list of all workflows registered with the event receiver, including their triggers.
 
 ```bash
-curl http://localhost:8002/osm/api/event-receiver/workflows \
+curl http://localhost:8002/golish/api/event-receiver/workflows \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -89,7 +89,7 @@ curl http://localhost:8002/osm/api/event-receiver/workflows \
 Emit a custom event to trigger event-based workflows.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/events/emit \
+curl -X POST http://localhost:8002/golish/api/events/emit \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{

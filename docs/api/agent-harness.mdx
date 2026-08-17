@@ -5,14 +5,14 @@ description: "DeepSeek Harness sidecar connection and compatibility status"
 
 # Agent Harness API
 
-Osmedeus connects to DeepSeek Harness as an independently versioned sidecar.
+Golish connects to DeepSeek Harness as an independently versioned sidecar.
 The sidecar is optional at process startup; its connection state is exposed to
 authenticated dashboard clients through the status endpoint.
 
 ## Get connection status
 
 ```http
-GET /osm/api/agent-harness/status
+GET /golish/api/agent-harness/status
 ```
 
 Example response when ready:
@@ -34,7 +34,7 @@ Possible status values:
 
 | Status | Meaning |
 | --- | --- |
-| `disabled` | Integration is disabled in `osm-settings.yaml` |
+| `disabled` | Integration is disabled in `golish-settings.yaml` |
 | `ready` | The service is reachable and exposes the expected DSH Web boot contract |
 | `incompatible` | A service responded, but it is not a compatible DSH Web host |
 | `unavailable` | The URL is invalid, timed out, or returned an error response |
@@ -48,32 +48,32 @@ agent_harness:
   base_url: http://127.0.0.1:3080
   web_ui_enabled: true
   public_url: http://127.0.0.1:3080
-  # Optional path where the DSH sidecar sees Osmedeus Workspace files.
+  # Optional path where the DSH sidecar sees Golish Workspace files.
   # The production compose profile mounts them read-only at this path.
-  workspace_mount_path: /osmedeus/workspaces
+  workspace_mount_path: /golish/workspaces
   request_timeout_seconds: 5
 ```
 
 The one-command production deployment sets `web_ui_enabled: false` and does
-not publish DSH's port to the host. Osmedeus still reaches the persistent DSH
+not publish DSH's port to the host. Golish still reaches the persistent DSH
 RPC runtime over the private Compose network, while the browser uses only the
-native Agent Pentest UI and authenticated Osmedeus endpoints. DSH's official
+native Agent Pentest UI and authenticated Golish endpoints. DSH's official
 `headless` profile is intentionally not used here because it handles one task
 and exits instead of preserving interactive sessions.
 
 ## Agent Pentest sessions
 
-List the Osmedeus-to-DSH mappings. `org`, `workspace_id`, `offset`, and `limit`
+List the Golish-to-DSH mappings. `org`, `workspace_id`, `offset`, and `limit`
 are optional filters.
 
 ```http
-GET /osm/api/agent-pentest/sessions?org=acme&workspace_id=42
+GET /golish/api/agent-pentest/sessions?org=acme&workspace_id=42
 ```
 
-Create a native DSH session from an authorized Osmedeus scope:
+Create a native DSH session from an authorized Golish scope:
 
 ```http
-POST /osm/api/agent-pentest/sessions
+POST /golish/api/agent-pentest/sessions
 Content-Type: application/json
 
 {
@@ -87,16 +87,16 @@ The selected assets must belong to the Workspace. An empty `asset_ids` array
 creates a Workspace-only scope. The response includes the frozen asset
 snapshot, native `dsh_workspace_id`, `dsh_session_id`, and `harness_web_url`.
 
-Fetch one mapping by its Osmedeus UUID:
+Fetch one mapping by its Golish UUID:
 
 ```http
-GET /osm/api/agent-pentest/sessions/{uuid}
+GET /golish/api/agent-pentest/sessions/{uuid}
 ```
 
 Delete a mapping and its platform-owned coverage, task, plan, and memory data:
 
 ```http
-DELETE /osm/api/agent-pentest/sessions/{uuid}
+DELETE /golish/api/agent-pentest/sessions/{uuid}
 ```
 
 The corresponding DSH conversation is archived because the Harness does not
@@ -106,18 +106,18 @@ findings are retained independently.
 ## Native Chat and Trajectory
 
 The dashboard does not embed the DSH web application. The mapped root Session
-is the operator-facing Primary Agent. Osmedeus renders its conversation,
+is the operator-facing Primary Agent. Golish renders its conversation,
 execution details, tool calls, collaboration cards, and composer while DSH runs
 headlessly behind authenticated proxy endpoints:
 
 ```http
-GET  /osm/api/agent-pentest/sessions/{uuid}/harness/history
-POST /osm/api/agent-pentest/sessions/{uuid}/harness/messages
-POST /osm/api/agent-pentest/sessions/{uuid}/harness/questions/{rpc_id}/answer
-POST /osm/api/agent-pentest/sessions/{uuid}/harness/questions/{rpc_id}/cancel
-POST /osm/api/agent-pentest/sessions/{uuid}/harness/queue/{item_id}/supplement
-DELETE /osm/api/agent-pentest/sessions/{uuid}/harness/queue/{item_id}
-POST /osm/api/agent-pentest/sessions/{uuid}/harness/cancel
+GET  /golish/api/agent-pentest/sessions/{uuid}/harness/history
+POST /golish/api/agent-pentest/sessions/{uuid}/harness/messages
+POST /golish/api/agent-pentest/sessions/{uuid}/harness/questions/{rpc_id}/answer
+POST /golish/api/agent-pentest/sessions/{uuid}/harness/questions/{rpc_id}/cancel
+POST /golish/api/agent-pentest/sessions/{uuid}/harness/queue/{item_id}/supplement
+DELETE /golish/api/agent-pentest/sessions/{uuid}/harness/queue/{item_id}
+POST /golish/api/agent-pentest/sessions/{uuid}/harness/cancel
 ```
 
 Send a message with:
@@ -175,7 +175,7 @@ from DSH's next-step inbox carries `view.kind = "steering"` so the conversation
 can label it **已补充** without guessing from event order. Pending queue rows are
 published by the PentAGI plugin through the `pentagiQueue` session projection.
 The browser supplies
-only the Osmedeus session UUID. Osmedeus resolves the mapped DSH session ID
+only the Golish session UUID. Golish resolves the mapped DSH session ID
 after applying org authorization, preventing a client from addressing arbitrary
 Harness sessions.
 
@@ -191,10 +191,10 @@ descendant tree, open each child transcript, continue a resumable child, and
 interrupt its current turn:
 
 ```http
-GET  /osm/api/agent-pentest/sessions/{uuid}/harness/subagents
-GET  /osm/api/agent-pentest/sessions/{uuid}/harness/subagents/{child_id}/history
-POST /osm/api/agent-pentest/sessions/{uuid}/harness/subagents/{child_id}/messages
-POST /osm/api/agent-pentest/sessions/{uuid}/harness/subagents/{child_id}/interrupt
+GET  /golish/api/agent-pentest/sessions/{uuid}/harness/subagents
+GET  /golish/api/agent-pentest/sessions/{uuid}/harness/subagents/{child_id}/history
+POST /golish/api/agent-pentest/sessions/{uuid}/harness/subagents/{child_id}/messages
+POST /golish/api/agent-pentest/sessions/{uuid}/harness/subagents/{child_id}/interrupt
 ```
 
 The list is flattened in pre-order with `parent_session_id` and `depth` fields
@@ -202,73 +202,73 @@ for native tree rendering. One-shot children are read-only. Continuable
 children accept follow-up messages while idle or running; interrupt stops only
 the current turn and preserves the conversation.
 
-Osmedeus never trusts a DSH parent session identifier from the browser. Before
+Golish never trusts a DSH parent session identifier from the browser. Before
 every history or control operation it walks the catalog from the authorized
 Pentest Session root and resolves the child's immediate parent and mode from
 DSH itself. Traversal is bounded to six levels and 200 entries.
 
 ## Reconnaissance context bridge
 
-When a native DSH session is created, Osmedeus builds a frozen authorization
+When a native DSH session is created, Golish builds a frozen authorization
 scope from the selected assets and publishes a versioned context document to
-the Osmedeus DSH plugin. The document contains the selected Workspace and
+the Golish DSH plugin. The document contains the selected Workspace and
 assets, related vulnerability leads, recent runs, and artifact metadata. It
 does not expand authorization beyond the selected assets.
 
 Read the exact context attached to a session:
 
 ```http
-GET /osm/api/agent-pentest/sessions/{uuid}/context
+GET /golish/api/agent-pentest/sessions/{uuid}/context
 ```
 
 Rebuild and republish it after new reconnaissance data is imported:
 
 ```http
-POST /osm/api/agent-pentest/sessions/{uuid}/context/refresh
+POST /golish/api/agent-pentest/sessions/{uuid}/context/refresh
 ```
 
 The plugin atomically stores `context.json` and a human-readable `CONTEXT.md`
-under `$DSH_HOME/osmedeus/scopes/$DSH_SESSION_ID/`. DSH Skills can locate the
+under `$DSH_HOME/golish/scopes/$DSH_SESSION_ID/`. DSH Skills can locate the
 session-specific file through the official `DSH_HOME` and `DSH_SESSION_ID`
 environment variables.
 
 The sidecar installs its shipped bundles into DSH's official
 `$DSH_HOME/skills` directory at startup. Agents should invoke
-`osmedeus-pentest` first: it loads the context, enforces the immutable scope,
+`golish-pentest` first: it loads the context, enforces the immutable scope,
 and treats scanner findings as hypotheses requiring evidence. Specialized
 `cyberstrike-*` Skills may then be loaded when relevant.
 
 The complete pinned CyberStrike corpus is bundled with the Harness sidecar,
 outside DSH's active Skill catalog. `plugins/dsh-pentagi-orchestrator`
-recursively indexes `$OSM_CYBERSTRIKE_SKILLS_DIR` (automatically set to the
+recursively indexes `$GOLISH_CYBERSTRIKE_SKILLS_DIR` (automatically set to the
 bundled `vendor/cyberstrike-skills` directory) and exposes bounded search,
 category, CWE, tag, technology, attack-chain, and exact lazy-load operations
 through `pentagi_skill`. This keeps thousands of names and descriptions out of
 every model request while making the complete corpus available immediately to
 the root Primary and managed specialists. Loaded CyberStrike instructions
-receive the Osmedeus scope and high-impact-action notice before entering
-context. Setting `OSM_CYBERSTRIKE_SKILLS_DIR` explicitly overrides the bundled
+receive the Golish scope and high-impact-action notice before entering
+context. Setting `GOLISH_CYBERSTRIKE_SKILLS_DIR` explicitly overrides the bundled
 source.
 
 ## Coverage and result writeback
 
 DSH registers two native plugin tools for root agents and Subagents:
 
-- `osmedeus_record_test` records the latest result for one authorized asset,
+- `golish_record_test` records the latest result for one authorized asset,
   attack surface, and test category.
-- `osmedeus_submit_finding` creates an `agent-pentest` vulnerability candidate
+- `golish_submit_finding` creates an `agent-pentest` vulnerability candidate
   with `review_status=pending`.
 
 The plugin identifies the actual calling Session and walks its DSH parent
-lineage to the Osmedeus root Session. A rotating per-session capability is held
+lineage to the Golish root Session. A rotating per-session capability is held
 only in plugin memory; the global API key is never sent to Harness, the model,
-or the browser. Osmedeus rejects asset IDs outside the immutable session
+or the browser. Golish rejects asset IDs outside the immutable session
 snapshot.
 
 Authenticated dashboard clients can read the durable coverage ledger with:
 
 ```http
-GET /osm/api/agent-pentest/sessions/{uuid}/coverage
+GET /golish/api/agent-pentest/sessions/{uuid}/coverage
 ```
 
 The complete action history remains in Trajectory. Coverage is the latest

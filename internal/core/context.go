@@ -37,7 +37,7 @@ type ExecutionContext struct {
 	// WorkspaceName is the workspace identifier for database operations
 	WorkspaceName string
 
-	// OrgUUID is the org this run was explicitly scoped to via --org, $OSMEDEUS_ORG
+	// OrgUUID is the org this run was explicitly scoped to via --org, $GOLISH_ORG
 	// or the active org. Empty means no org was named, in which case a new
 	// workspace lands in the default org and an existing one keeps the org it
 	// already has.

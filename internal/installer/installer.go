@@ -5,16 +5,16 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 )
 
 const (
 	// DatabaseFileName is the name of the database file to preserve during base installation
-	DatabaseFileName = "database-osm.sqlite"
+	DatabaseFileName = "database-golish.sqlite"
 	// SettingsFileName is the name of the settings file
-	SettingsFileName = "osm-settings.yaml"
+	SettingsFileName = "golish-settings.yaml"
 	// SettingsBackupName is the name of the settings backup file
-	SettingsBackupName = "backup-osm-settings.yaml"
+	SettingsBackupName = "backup-golish-settings.yaml"
 )
 
 // Installer handles installation of workflows, base folder, and binaries
@@ -82,7 +82,7 @@ func (i *Installer) InstallWorkflow(source string) error {
 }
 
 // InstallBase installs the base folder from the given source
-// Backs up and restores database-osm.sqlite and external-binaries automatically
+// Backs up and restores database-golish.sqlite and external-binaries automatically
 // Workflows are NOT backed up - they are completely overwritten
 func (i *Installer) InstallBase(source string) error {
 	i.Printer.Info("Installing base folder from: %s", terminal.Gray(source))
@@ -121,7 +121,7 @@ func (i *Installer) InstallBase(source string) error {
 		}
 	}
 
-	// Backup osm-settings.yaml before base folder is removed
+	// Backup golish-settings.yaml before base folder is removed
 	settingsPath := filepath.Join(i.BaseFolder, SettingsFileName)
 	var settingsBackupPath string
 
@@ -285,7 +285,7 @@ func containsWorkflows(dir string) bool {
 }
 
 func backupFile(path string) (string, error) {
-	tempFile, err := os.CreateTemp("", "osmedeus-backup-*")
+	tempFile, err := os.CreateTemp("", "golish-backup-*")
 	if err != nil {
 		return "", err
 	}
@@ -309,7 +309,7 @@ func restoreFile(backupPath, destPath string) error {
 
 // backupDir copies a directory to a temporary location and returns the temp path
 func backupDir(path string) (string, error) {
-	tempDir, err := os.MkdirTemp("", "osmedeus-backup-dir-*")
+	tempDir, err := os.MkdirTemp("", "golish-backup-dir-*")
 	if err != nil {
 		return "", err
 	}
@@ -354,18 +354,18 @@ func copyDir(src, dest string) error {
 
 func cleanupTempParent(tempDir string) {
 	// tempDir might be a subdirectory of the actual temp dir
-	// Walk up to find the osmedeus-install-* parent
+	// Walk up to find the golish-install-* parent
 	for {
 		parent := filepath.Dir(tempDir)
 		base := filepath.Base(tempDir)
 		if parent == tempDir || base == "" {
 			break
 		}
-		if len(base) > 17 && base[:17] == "osmedeus-install-" {
+		if len(base) > 17 && base[:17] == "golish-install-" {
 			_ = os.RemoveAll(tempDir)
 			return
 		}
-		if len(base) > 17 && base[:17] == "osmedeus-binary-" {
+		if len(base) > 17 && base[:17] == "golish-binary-" {
 			_ = os.RemoveAll(tempDir)
 			return
 		}

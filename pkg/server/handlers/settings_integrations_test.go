@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -23,7 +23,7 @@ func TestUpdateIntegrationSettingsWriteOnlyAndPreserve(t *testing.T) {
 	cfg.ResolvePaths()
 	raw, err := cfg.ToYAML()
 	require.NoError(t, err)
-	require.NoError(t, os.WriteFile(filepath.Join(tmp, "osm-settings.yaml"), raw, 0600))
+	require.NoError(t, os.WriteFile(filepath.Join(tmp, "golish-settings.yaml"), raw, 0600))
 
 	app := fiber.New()
 	app.Put("/settings/integrations", UpdateIntegrationSettings(cfg, nil))
@@ -40,7 +40,7 @@ func TestUpdateIntegrationSettingsWriteOnlyAndPreserve(t *testing.T) {
 	require.NoError(t, err)
 	assert.NotContains(t, string(encoded), "fofa-secret", "secrets must never be returned")
 
-	stored, err := config.LoadFromFile(filepath.Join(tmp, "osm-settings.yaml"))
+	stored, err := config.LoadFromFile(filepath.Join(tmp, "golish-settings.yaml"))
 	require.NoError(t, err)
 	assert.Equal(t, "fofa-secret", stored.GlobalVars["FOFA_API_KEY"].Value)
 	assert.Equal(t, "operator@example.com", stored.GlobalVars["FOFA_EMAIL"].Value)
@@ -53,7 +53,7 @@ func TestUpdateIntegrationSettingsWriteOnlyAndPreserve(t *testing.T) {
 		{"id": "zerozone", "keep_api_key": true},
 	}}
 	requestJSON(t, app, "PUT", "/settings/integrations", preserve, fiber.StatusOK)
-	stored, err = config.LoadFromFile(filepath.Join(tmp, "osm-settings.yaml"))
+	stored, err = config.LoadFromFile(filepath.Join(tmp, "golish-settings.yaml"))
 	require.NoError(t, err)
 	assert.Equal(t, "fofa-secret", stored.GlobalVars["FOFA_API_KEY"].Value)
 	assert.Equal(t, "operator@example.com", stored.GlobalVars["FOFA_EMAIL"].Value)
@@ -68,7 +68,7 @@ func TestUpdateIntegrationSettingsWriteOnlyAndPreserve(t *testing.T) {
 	assert.Contains(t, string(productRaw), `"id":"fofa"`)
 	assert.Contains(t, string(productRaw), `"configured":true`)
 
-	settingsFile, err := os.ReadFile(filepath.Join(tmp, "osm-settings.yaml"))
+	settingsFile, err := os.ReadFile(filepath.Join(tmp, "golish-settings.yaml"))
 	require.NoError(t, err)
 	assert.True(t, strings.Contains(string(settingsFile), "FOFA_API_KEY"))
 }
@@ -84,9 +84,9 @@ func TestUpdateIntegrationSettingsFollowsDeploymentSymlink(t *testing.T) {
 	cfg.ResolvePaths()
 	raw, err := cfg.ToYAML()
 	require.NoError(t, err)
-	target := filepath.Join(configDir, "osm-settings.yaml")
+	target := filepath.Join(configDir, "golish-settings.yaml")
 	require.NoError(t, os.WriteFile(target, raw, 0600))
-	link := filepath.Join(baseDir, "osm-settings.yaml")
+	link := filepath.Join(baseDir, "golish-settings.yaml")
 	require.NoError(t, os.Symlink(target, link))
 
 	app := fiber.New()
@@ -107,12 +107,12 @@ func TestUpdateIntegrationSettingsFollowsDeploymentSymlink(t *testing.T) {
 
 func TestProductSettingsExpandsEnvironmentBaseFolder(t *testing.T) {
 	tmp := t.TempDir()
-	t.Setenv("OSMEDEUS_SETTINGS_TEST_BASE", tmp)
+	t.Setenv("GOLISH_SETTINGS_TEST_BASE", tmp)
 	cfg := config.DefaultConfig()
-	cfg.BaseFolder = "$OSMEDEUS_SETTINGS_TEST_BASE"
+	cfg.BaseFolder = "$GOLISH_SETTINGS_TEST_BASE"
 	raw, err := cfg.ToYAML()
 	require.NoError(t, err)
-	require.NoError(t, os.WriteFile(filepath.Join(tmp, "osm-settings.yaml"), raw, 0600))
+	require.NoError(t, os.WriteFile(filepath.Join(tmp, "golish-settings.yaml"), raw, 0600))
 
 	app := fiber.New()
 	app.Get("/settings/product", GetProductSettings(cfg, nil))

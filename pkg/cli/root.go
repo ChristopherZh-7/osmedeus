@@ -12,14 +12,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/executor"
-	"github.com/j3ssie/osmedeus/v5/internal/functions"
-	"github.com/j3ssie/osmedeus/v5/internal/installer"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
-	"github.com/j3ssie/osmedeus/v5/public"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/executor"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/functions"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/installer"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/public"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -73,8 +73,8 @@ Docs: %s
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:     "osmedeus",
-	Short:   "Osmedeus - Workflow Engine for Automated Reconnaissance",
+	Use:     "golish",
+	Short:   "Golish - Workflow Engine for Automated Reconnaissance",
 	Version: core.VERSION,
 	Long:    UsageRoot(),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -116,7 +116,7 @@ var rootCmd = &cobra.Command{
 		if logFileTmp && actualLogFile == "" {
 			// Generate temporary log file with timestamp
 			timestamp := time.Now().Format("20060102-150405")
-			actualLogFile = fmt.Sprintf("osmedeus-log-%s.log", timestamp)
+			actualLogFile = fmt.Sprintf("golish-log-%s.log", timestamp)
 		}
 
 		// Initialize logger
@@ -139,9 +139,9 @@ var rootCmd = &cobra.Command{
 		}
 
 		if silent {
-			_ = os.Setenv("OSMEDEUS_SILENT", "1")
+			_ = os.Setenv("GOLISH_SILENT", "1")
 		} else {
-			_ = os.Unsetenv("OSMEDEUS_SILENT")
+			_ = os.Unsetenv("GOLISH_SILENT")
 		}
 
 		// Disable colors if requested
@@ -157,7 +157,7 @@ var rootCmd = &cobra.Command{
 		// Load configuration
 		if baseFolder == "" {
 			homeDir, _ := os.UserHomeDir()
-			baseFolder = homeDir + "/osmedeus-base"
+			baseFolder = homeDir + "/golish-base"
 		}
 		logger.Get().Debug("Using base folder", zap.String("base_folder", baseFolder))
 
@@ -186,7 +186,7 @@ var rootCmd = &cobra.Command{
 		} else {
 			logger.Get().Debug("Loading configuration",
 				zap.String("base_folder", baseFolder),
-				zap.String("config_file", baseFolder+"/osm-settings.yaml"),
+				zap.String("config_file", baseFolder+"/golish-settings.yaml"),
 			)
 
 			cfg, err = config.Load(baseFolder)
@@ -266,21 +266,21 @@ func Execute() {
 		// (e.g. an existing database missing a column added in a newer version).
 		if strings.Contains(err.Error(), "failed to run migrations") {
 			fmt.Fprintf(os.Stderr, "%s your database schema may be out of date. Run %s to migrate it (rebuild/reinstall the binary first if you just updated).\n",
-				terminal.Yellow("Hint:"), terminal.Cyan("osmedeus db migrate"))
+				terminal.Yellow("Hint:"), terminal.Cyan("golish db migrate"))
 		}
 		os.Exit(1)
 	}
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&settingsFile, "settings-file", "", "settings file path (default is $HOME/osmedeus-base/osm-settings.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&baseFolder, "base-folder", "b", "", "base folder containing workflows and settings (default is $HOME/osmedeus-base/)")
-	rootCmd.PersistentFlags().StringVarP(&workflowFolder, "workflow-folder", "F", "", "custom workflow folder (default is $HOME/osmedeus-base/workflows/)")
+	rootCmd.PersistentFlags().StringVar(&settingsFile, "settings-file", "", "settings file path (default is $HOME/golish-base/golish-settings.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&baseFolder, "base-folder", "b", "", "base folder containing workflows and settings (default is $HOME/golish-base/)")
+	rootCmd.PersistentFlags().StringVarP(&workflowFolder, "workflow-folder", "F", "", "custom workflow folder (default is $HOME/golish-base/workflows/)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "enable verbose output")
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "enable debug mode (verbose + debug logging)")
 	rootCmd.PersistentFlags().BoolVarP(&silent, "silent", "q", false, "silent mode - suppress all output except errors")
 	rootCmd.PersistentFlags().StringVar(&logFile, "log-file", "", "path to log file (logs to both console and file)")
-	rootCmd.PersistentFlags().BoolVar(&logFileTmp, "log-file-tmp", false, "create temporary log file osmedeus-log-<timestamp>.log")
+	rootCmd.PersistentFlags().BoolVar(&logFileTmp, "log-file-tmp", false, "create temporary log file golish-log-<timestamp>.log")
 	rootCmd.PersistentFlags().BoolVarP(&showUsageExamples, "usage-example", "H", false, "show comprehensive usage examples for all commands")
 	rootCmd.PersistentFlags().BoolVar(&showSpinner, "spinner", false, "show spinner animations during execution")
 	rootCmd.PersistentFlags().BoolVar(&disableLogging, "disable-logging", false, "disable all logging output")
@@ -347,14 +347,14 @@ func init() {
 // Returns counts of installed, skipped, and failed binaries.
 // This is a shared helper used by both runFirstTimeSetup and runInstallBase --preset.
 func installRequiredBinaries(cfg *config.Config, printer *terminal.Printer) (installed, skipped, failed int) {
-	if strings.EqualFold(os.Getenv("OSM_IGNORE_REGISTRY"), "true") {
-		printer.Info("%s Skipping automatic binary installation (OSM_IGNORE_REGISTRY=true)",
+	if strings.EqualFold(os.Getenv("GOLISH_IGNORE_REGISTRY"), "true") {
+		printer.Info("%s Skipping automatic binary installation (GOLISH_IGNORE_REGISTRY=true)",
 			terminal.Yellow("⚠"))
 		return 0, 0, 0
 	}
 
 	// Check for registry URL override
-	registryURL := os.Getenv("OSM_REGISTRY_URL")
+	registryURL := os.Getenv("GOLISH_REGISTRY_URL")
 	registryDisplay := "the default registry"
 	if registryURL != "" {
 		registryDisplay = registryURL
@@ -372,7 +372,7 @@ func installRequiredBinaries(cfg *config.Config, printer *terminal.Printer) (ins
 	loadingSpinner.Stop()
 	if err != nil {
 		printer.Warning("Failed to load binary registry: %s", err)
-		printer.Println("  %s", terminal.Gray("You can manually run: osmedeus install binary --all"))
+		printer.Println("  %s", terminal.Gray("You can manually run: golish install binary --all"))
 		return 0, 0, 0
 	}
 
@@ -410,8 +410,8 @@ func installRequiredBinaries(cfg *config.Config, printer *terminal.Printer) (ins
 	sort.Strings(toInstall)
 
 	// Set silent mode for binary installation to reduce noise
-	_ = os.Setenv("OSMEDEUS_SILENT", "1")
-	defer func() { _ = os.Unsetenv("OSMEDEUS_SILENT") }()
+	_ = os.Setenv("GOLISH_SILENT", "1")
+	defer func() { _ = os.Unsetenv("GOLISH_SILENT") }()
 
 	// Suppress logger output during binary installation
 	logCfg := logger.DefaultConfig()
@@ -462,7 +462,7 @@ func installRequiredBinaries(cfg *config.Config, printer *terminal.Printer) (ins
 	return installedCount, skippedCount, failedCount
 }
 
-// createInitializationMarker creates the $HOME/.osmedeus/initialized marker file.
+// createInitializationMarker creates the $HOME/.golish/initialized marker file.
 // This marker indicates that first-time setup has been completed.
 func createInitializationMarker(printer *terminal.Printer) error {
 	homeDir, err := os.UserHomeDir()
@@ -471,13 +471,13 @@ func createInitializationMarker(printer *terminal.Printer) error {
 		return err
 	}
 
-	osmDir := filepath.Join(homeDir, ".osmedeus")
-	if err := os.MkdirAll(osmDir, 0755); err != nil {
-		printer.Warning("Failed to create osmedeus config directory: %s", err)
+	golishDir := filepath.Join(homeDir, ".golish")
+	if err := os.MkdirAll(golishDir, 0755); err != nil {
+		printer.Warning("Failed to create golish config directory: %s", err)
 		return err
 	}
 
-	markerFile := filepath.Join(osmDir, "initialized")
+	markerFile := filepath.Join(golishDir, "initialized")
 	if err := os.WriteFile(markerFile, []byte("initialized\n"), 0644); err != nil {
 		printer.Warning("Failed to create initialization marker: %s", err)
 		return err
@@ -565,7 +565,7 @@ func isLightweightCommand(cmd *cobra.Command) bool {
 		}
 	}
 	// Root command with no args shows help (or usage examples)
-	if name == "osmedeus" {
+	if name == "golish" {
 		return true
 	}
 	return false
@@ -597,21 +597,21 @@ func shouldSkipAutoSetup(cmd *cobra.Command) bool {
 }
 
 // isFirstTimeSetupNeeded checks if base folder needs initialization
-// Returns false if $HOME/.osmedeus/initialized marker or database file exists
+// Returns false if $HOME/.golish/initialized marker or database file exists
 func isFirstTimeSetupNeeded(baseFolder string) bool {
 	if baseFolder == "" {
 		return false
 	}
 
-	// Check for initialization marker file in $HOME/.osmedeus/
+	// Check for initialization marker file in $HOME/.golish/
 	homeDir, _ := os.UserHomeDir()
-	markerFile := filepath.Join(homeDir, ".osmedeus", "initialized")
+	markerFile := filepath.Join(homeDir, ".golish", "initialized")
 	if _, err := os.Stat(markerFile); err == nil {
 		return false // Marker exists, setup already done
 	}
 
 	// Check for database file (also indicates setup was done)
-	dbFile := filepath.Join(baseFolder, "database-osm.sqlite")
+	dbFile := filepath.Join(baseFolder, "database-golish.sqlite")
 	if _, err := os.Stat(dbFile); err == nil {
 		return false // Database exists, setup already done
 	}
@@ -625,7 +625,7 @@ func runFirstTimeSetup(baseFolder string, cfg *config.Config) error {
 
 	// Show welcome banner
 	printer.Newline()
-	printer.Println("%s %s", terminal.Yellow(terminal.SymbolStar), terminal.BoldCyan("Welcome to Osmedeus!"))
+	printer.Println("%s %s", terminal.Yellow(terminal.SymbolStar), terminal.BoldCyan("Welcome to Golish!"))
 	printer.Println("  %s", terminal.HiMagenta("First-time setup detected."))
 	printer.Newline()
 
@@ -634,14 +634,14 @@ func runFirstTimeSetup(baseFolder string, cfg *config.Config) error {
 	printer.Println("  %s Base folder: %s", terminal.SymbolBullet, terminal.Cyan(baseFolder))
 
 	// Check for custom preset URL from environment
-	presetURL := os.Getenv("OSM_PRESET_URL")
+	presetURL := os.Getenv("GOLISH_PRESET_URL")
 	if presetURL == "" {
 		presetURL = core.DEFAULT_BASE_REPO
 	}
 	printer.Println("  %s Preset URL: %s", terminal.SymbolBullet, terminal.Cyan(presetURL))
 
 	// Check for custom workflow URL from environment (default to DEFAULT_WORKFLOW_REPO)
-	workflowURL := os.Getenv("OSM_WORKFLOW_URL")
+	workflowURL := os.Getenv("GOLISH_WORKFLOW_URL")
 	if workflowURL == "" {
 		workflowURL = core.DEFAULT_WORKFLOW_REPO
 	}
@@ -659,7 +659,7 @@ func runFirstTimeSetup(baseFolder string, cfg *config.Config) error {
 	)
 	if err := inst.InstallBase(presetURL); err != nil {
 		printer.Warning("Failed to install preset base: %s", err)
-		printer.Println("  %s", terminal.Gray("You can manually run: osmedeus install validate --preset"))
+		printer.Println("  %s", terminal.Gray("You can manually run: golish install validate --preset"))
 		return err
 	}
 	printer.Success("Base folder installed to: %s", terminal.Cyan(baseFolder))
@@ -670,7 +670,7 @@ func runFirstTimeSetup(baseFolder string, cfg *config.Config) error {
 	printer.Println("  %s Downloading from: %s", terminal.SymbolBullet, terminal.Cyan(workflowURL))
 	if err := inst.InstallWorkflow(workflowURL); err != nil {
 		printer.Warning("Failed to install workflows: %s", err)
-		printer.Println("  %s", terminal.Gray("You can manually run: osmedeus install workflow --preset"))
+		printer.Println("  %s", terminal.Gray("You can manually run: golish install workflow --preset"))
 	} else {
 		printer.Success("Workflows installed to: %s", terminal.Cyan(filepath.Join(baseFolder, "workflows")))
 	}
@@ -707,7 +707,7 @@ func runFirstTimeSetup(baseFolder string, cfg *config.Config) error {
 	if err == nil {
 		config.Set(reloaded)
 		cfg = reloaded
-		printer.Success("Configuration loaded from: %s", terminal.Cyan(filepath.Join(baseFolder, "osm-settings.yaml")))
+		printer.Success("Configuration loaded from: %s", terminal.Cyan(filepath.Join(baseFolder, "golish-settings.yaml")))
 	} else {
 		printer.Warning("Failed to reload config: %s", err)
 	}
@@ -726,8 +726,8 @@ func runFirstTimeSetup(baseFolder string, cfg *config.Config) error {
 
 	// Print next steps hint
 	printer.Println("%s %s", terminal.BoldMagenta(terminal.SymbolLightning), terminal.HiMagenta("Next Steps:"))
-	printer.Println("  %s Run a scan: %s", terminal.SymbolBullet, terminal.Cyan("osmedeus run -f basic-recon -t example.com"))
-	printer.Println("  %s Check health: %s", terminal.SymbolBullet, terminal.Cyan("osmedeus health"))
+	printer.Println("  %s Run a scan: %s", terminal.SymbolBullet, terminal.Cyan("golish run -f basic-recon -t example.com"))
+	printer.Println("  %s Check health: %s", terminal.SymbolBullet, terminal.Cyan("golish health"))
 	printer.Newline()
 
 	return nil

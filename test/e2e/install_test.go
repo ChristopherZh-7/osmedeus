@@ -62,7 +62,7 @@ func setupTestBase(t *testing.T) (basePath string, workspacesPath string, cleanu
 	t.Helper()
 
 	// Create temp directory for test base
-	tempDir, err := os.MkdirTemp("", "osmedeus-test-base-*")
+	tempDir, err := os.MkdirTemp("", "golish-test-base-*")
 	require.NoError(t, err)
 
 	basePath = tempDir
@@ -82,7 +82,7 @@ func setupTestBase(t *testing.T) (basePath string, workspacesPath string, cleanu
 		require.NoError(t, os.MkdirAll(dir, 0755))
 	}
 
-	// Create minimal osm-settings.yaml
+	// Create minimal golish-settings.yaml
 	settingsContent := `base_folder: ` + basePath + `
 environments:
   external_binaries_path: "` + basePath + `/external-binaries"
@@ -93,7 +93,7 @@ environments:
   snapshot: "` + basePath + `/snapshot"
 database:
   db_engine: sqlite
-  db_path: "` + basePath + `/database-osm.sqlite"
+  db_path: "` + basePath + `/database-golish.sqlite"
 server:
   host: "127.0.0.1"
   port: 18099
@@ -103,7 +103,7 @@ server:
     secret_signing_key: test-secret
     expiration_minutes: 60
 `
-	settingsPath := filepath.Join(basePath, "osm-settings.yaml")
+	settingsPath := filepath.Join(basePath, "golish-settings.yaml")
 	require.NoError(t, os.WriteFile(settingsPath, []byte(settingsContent), 0644))
 
 	cleanup = func() {
@@ -198,7 +198,7 @@ func createGitRepo(t *testing.T, sourceDir string) (repoPath string, cleanup fun
 	t.Helper()
 
 	// Create temp directory for git repo
-	tempDir, err := os.MkdirTemp("", "osmedeus-test-git-*")
+	tempDir, err := os.MkdirTemp("", "golish-test-git-*")
 	require.NoError(t, err)
 
 	// Use a path ending with .git so it's recognized as a git URL
@@ -446,7 +446,7 @@ func verifyDatabasePreserved(t *testing.T, log *TestLogger, dbPath string, expec
 	log.Success("Database preservation verified!")
 }
 
-// runInstallWithBase runs the osmedeus install command with a custom base folder
+// runInstallWithBase runs the golish install command with a custom base folder
 func runInstallWithBase(t *testing.T, log *TestLogger, basePath string, args ...string) (stdout, stderr string, err error) {
 	t.Helper()
 	binary := getBinaryPath(t)
@@ -492,7 +492,7 @@ func TestInstall_WorkflowFromLocalZip(t *testing.T) {
 
 	// Create zip from example workflows
 	examplesPath := getExamplesPath(t)
-	workflowsExamplePath := filepath.Join(examplesPath, "osmedeus-base.example", "workflows")
+	workflowsExamplePath := filepath.Join(examplesPath, "golish-base.example", "workflows")
 
 	if _, err := os.Stat(workflowsExamplePath); os.IsNotExist(err) {
 		t.Skipf("Example workflows not found at %s", workflowsExamplePath)
@@ -543,7 +543,7 @@ func TestInstall_WorkflowFromZipURL(t *testing.T) {
 
 	// Create zip from example workflows
 	examplesPath := getExamplesPath(t)
-	workflowsExamplePath := filepath.Join(examplesPath, "osmedeus-base.example", "workflows")
+	workflowsExamplePath := filepath.Join(examplesPath, "golish-base.example", "workflows")
 
 	if _, err := os.Stat(workflowsExamplePath); os.IsNotExist(err) {
 		t.Skipf("Example workflows not found at %s", workflowsExamplePath)
@@ -589,7 +589,7 @@ func TestInstall_WorkflowFromGitURL(t *testing.T) {
 
 	// Create git repo from example workflows
 	examplesPath := getExamplesPath(t)
-	workflowsExamplePath := filepath.Join(examplesPath, "osmedeus-base.example", "workflows")
+	workflowsExamplePath := filepath.Join(examplesPath, "golish-base.example", "workflows")
 
 	if _, err := os.Stat(workflowsExamplePath); os.IsNotExist(err) {
 		t.Skipf("Example workflows not found at %s", workflowsExamplePath)
@@ -629,12 +629,12 @@ func TestInstall_BaseFromLocalZip(t *testing.T) {
 	defer cleanup()
 
 	// Seed database with test data
-	dbPath := filepath.Join(basePath, "database-osm.sqlite")
+	dbPath := filepath.Join(basePath, "database-golish.sqlite")
 	expectedData := seedTestDatabase(t, log, dbPath)
 
 	// Create zip from example base
 	examplesPath := getExamplesPath(t)
-	baseExamplePath := filepath.Join(examplesPath, "osmedeus-base.example")
+	baseExamplePath := filepath.Join(examplesPath, "golish-base.example")
 
 	if _, err := os.Stat(baseExamplePath); os.IsNotExist(err) {
 		t.Skipf("Example base not found at %s", baseExamplePath)
@@ -654,7 +654,7 @@ func TestInstall_BaseFromLocalZip(t *testing.T) {
 	assert.DirExists(t, filepath.Join(basePath, "workflows", "flows"))
 	assert.DirExists(t, filepath.Join(basePath, "external-binaries"))
 	assert.DirExists(t, filepath.Join(basePath, "external-data"))
-	assert.FileExists(t, filepath.Join(basePath, "osm-settings.yaml"))
+	assert.FileExists(t, filepath.Join(basePath, "golish-settings.yaml"))
 
 	// CRITICAL: Verify database was preserved
 	verifyDatabasePreserved(t, log, dbPath, expectedData)
@@ -676,12 +676,12 @@ func TestInstall_BaseFromZipURL(t *testing.T) {
 	defer cleanup()
 
 	// Seed database with test data
-	dbPath := filepath.Join(basePath, "database-osm.sqlite")
+	dbPath := filepath.Join(basePath, "database-golish.sqlite")
 	expectedData := seedTestDatabase(t, log, dbPath)
 
 	// Create zip from example base
 	examplesPath := getExamplesPath(t)
-	baseExamplePath := filepath.Join(examplesPath, "osmedeus-base.example")
+	baseExamplePath := filepath.Join(examplesPath, "golish-base.example")
 
 	if _, err := os.Stat(baseExamplePath); os.IsNotExist(err) {
 		t.Skipf("Example base not found at %s", baseExamplePath)
@@ -704,7 +704,7 @@ func TestInstall_BaseFromZipURL(t *testing.T) {
 
 	// Verify base folder structure
 	assert.DirExists(t, filepath.Join(basePath, "workflows", "modules"))
-	assert.FileExists(t, filepath.Join(basePath, "osm-settings.yaml"))
+	assert.FileExists(t, filepath.Join(basePath, "golish-settings.yaml"))
 
 	// CRITICAL: Verify database was preserved
 	verifyDatabasePreserved(t, log, dbPath, expectedData)
@@ -726,12 +726,12 @@ func TestInstall_BaseFromGitURL(t *testing.T) {
 	defer cleanup()
 
 	// Seed database with test data
-	dbPath := filepath.Join(basePath, "database-osm.sqlite")
+	dbPath := filepath.Join(basePath, "database-golish.sqlite")
 	expectedData := seedTestDatabase(t, log, dbPath)
 
 	// Create git repo from example base
 	examplesPath := getExamplesPath(t)
-	baseExamplePath := filepath.Join(examplesPath, "osmedeus-base.example")
+	baseExamplePath := filepath.Join(examplesPath, "golish-base.example")
 
 	if _, err := os.Stat(baseExamplePath); os.IsNotExist(err) {
 		t.Skipf("Example base not found at %s", baseExamplePath)
@@ -748,7 +748,7 @@ func TestInstall_BaseFromGitURL(t *testing.T) {
 
 	// Verify base folder structure
 	assert.DirExists(t, filepath.Join(basePath, "workflows", "modules"))
-	assert.FileExists(t, filepath.Join(basePath, "osm-settings.yaml"))
+	assert.FileExists(t, filepath.Join(basePath, "golish-settings.yaml"))
 
 	// CRITICAL: Verify database was preserved
 	verifyDatabasePreserved(t, log, dbPath, expectedData)
@@ -784,7 +784,7 @@ func TestInstall_DatabasePreservation(t *testing.T) {
 	basePath, _, cleanup := setupTestBase(t)
 	defer cleanup()
 
-	dbPath := filepath.Join(basePath, "database-osm.sqlite")
+	dbPath := filepath.Join(basePath, "database-golish.sqlite")
 
 	// Step 1: Seed database with specific test data
 	log.Info("Step 1: Seeding database with test data...")
@@ -806,7 +806,7 @@ func TestInstall_DatabasePreservation(t *testing.T) {
 	// Step 3: Create and install new base
 	log.Info("Step 3: Installing new base folder...")
 	examplesPath := getExamplesPath(t)
-	baseExamplePath := filepath.Join(examplesPath, "osmedeus-base.example")
+	baseExamplePath := filepath.Join(examplesPath, "golish-base.example")
 
 	if _, err := os.Stat(baseExamplePath); os.IsNotExist(err) {
 		t.Skipf("Example base not found at %s", baseExamplePath)
@@ -828,10 +828,10 @@ func TestInstall_DatabasePreservation(t *testing.T) {
 
 	// The old workflow_metas entry should have been removed when base was replaced
 	// New workflows from the installed base should be indexable
-	// (Actual re-indexing happens via 'osmedeus workflow refresh' or server startup)
+	// (Actual re-indexing happens via 'golish workflow refresh' or server startup)
 
-	// Verify the new osm-settings.yaml exists
-	assert.FileExists(t, filepath.Join(basePath, "osm-settings.yaml"))
+	// Verify the new golish-settings.yaml exists
+	assert.FileExists(t, filepath.Join(basePath, "golish-settings.yaml"))
 
 	// Step 6: Final verification
 	finalData := getTestData(t, dbPath)
@@ -863,7 +863,7 @@ func TestInstall_WorkflowListAfterInstall(t *testing.T) {
 
 	// Create and install workflows
 	examplesPath := getExamplesPath(t)
-	workflowsExamplePath := filepath.Join(examplesPath, "osmedeus-base.example", "workflows")
+	workflowsExamplePath := filepath.Join(examplesPath, "golish-base.example", "workflows")
 
 	if _, err := os.Stat(workflowsExamplePath); os.IsNotExist(err) {
 		t.Skipf("Example workflows not found at %s", workflowsExamplePath)

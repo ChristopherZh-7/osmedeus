@@ -3,9 +3,9 @@ package handlers
 import (
 	"context"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
 )
 
 // GetSystemStats returns aggregated system statistics
@@ -16,7 +16,7 @@ import (
 // @Success 200 {object} database.SystemStats "System statistics"
 // @Failure 500 {object} map[string]interface{} "Failed to get stats"
 // @Security BearerAuth
-// @Router /osm/api/stats [get]
+// @Router /golish/api/stats [get]
 func GetSystemStats(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx := context.Background()
@@ -43,7 +43,7 @@ func GetSystemStats(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} database.AssetStatsData "Asset statistics"
 // @Failure 500 {object} map[string]interface{} "Failed to get stats"
 // @Security BearerAuth
-// @Router /osm/api/asset-stats [get]
+// @Router /golish/api/asset-stats [get]
 func GetAssetStats(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx := context.Background()

@@ -1,5 +1,5 @@
 # Cloud Infrastructure Configuration Example
-# Save this as: ~/osmedeus-base/cloud/cloud-settings.yaml
+# Save this as: ~/golish-base/cloud/cloud-settings.yaml
 
 # =============================================================================
 # Cloud Provider Credentials
@@ -171,17 +171,17 @@ ssh:
 # You have full control — add whatever install/config steps you need.
 setup:
   commands:
-    - "# Example: install osmedeus and tools"
+    - "# Example: install golish and tools"
     - "# sudo apt-get update && sudo apt-get install -y curl git tmux unzip jq"
-    - "# curl -fsSL https://www.osmedeus.org/install.sh | bash"
-    - "# export PATH=$HOME/.local/bin:$PATH && osmedeus install base --preset"
-    - "# export PATH=$HOME/.local/bin:$PATH && osmedeus install binary --all"
+    - "# curl -fsSL https://raw.githubusercontent.com/ChristopherZh-7/golish-registry/main/install.sh | bash"
+    - "# export PATH=$HOME/.local/bin:$PATH && golish install base --preset"
+    - "# export PATH=$HOME/.local/bin:$PATH && golish install binary --all"
 
   # Post-setup commands run after setup.commands complete.
   # Template variables are expanded per-worker:
   #   {{public_ip}}    - Worker's public IP address
   #   {{private_ip}}   - Worker's private IP address
-  #   {{worker_name}}  - Resource name (e.g., osmw-1775159841-0)
+  #   {{worker_name}}  - Resource name (e.g., glw-1775159841-0)
   #   {{worker_id}}    - Cloud resource ID (e.g., i-0437adf5...)
   #   {{infra_id}}     - Infrastructure ID (e.g., cloud-aws-1775159841)
   #   {{provider}}     - Provider name (e.g., aws, digitalocean)
@@ -189,7 +189,7 @@ setup:
   #   {{index}}        - Worker index (0, 1, 2, ...)
   post_commands:
     - "# Example: register as a distributed worker"
-    - "# osmedeus worker join --redis-url redis://master:6379 --alias {{worker_name}}"
+    - "# golish worker join --redis-url redis://master:6379 --alias {{worker_name}}"
     - "# Example: notify a remote server"
     - "# curl -s https://my-server.com/api/register?ip={{public_ip}}&name={{worker_name}}&infra={{infra_id}}"
 
@@ -202,13 +202,13 @@ setup:
   ansible:
     enabled: false
     # Path to the ansible playbook. A default example is provided at this path.
-    # Edit it to customize: ~/osmedeus-base/cloud-infra/setup-playbook.yaml
+    # Edit it to customize: ~/golish-base/cloud-infra/setup-playbook.yaml
     playbook_path: "{{base_folder}}/cloud-infra/setup-playbook.yaml"
     # Path where the dynamic inventory is written (auto-generated per run)
     inventory_path: "{{base_folder}}/cloud-infra/inventory.ini"
     # Extra variables passed to ansible-playbook as --extra-vars
     extra_vars: {}
-    #   osmedeus_version: "v5.0.2"
+    #   golish_version: "v5.0.2"
     #   redis_url: "redis://master:6379"
     # Additional ansible-playbook flags (e.g., "-vvv" for debug, "--tags setup")
     extra_args: ""
@@ -217,21 +217,21 @@ setup:
 # Usage Examples
 # =============================================================================
 # Set a config value:
-#   osmedeus cloud config set defaults.provider digitalocean
-#   osmedeus cloud config set providers.digitalocean.token ${DIGITALOCEAN_TOKEN}
-#   osmedeus cloud config set limits.max_hourly_spend 5.0
+#   golish cloud config set defaults.provider digitalocean
+#   golish cloud config set providers.digitalocean.token ${DIGITALOCEAN_TOKEN}
+#   golish cloud config set limits.max_hourly_spend 5.0
 #
 # Show current config:
-#   osmedeus cloud config show
+#   golish cloud config show
 #
 # Create infrastructure:
-#   osmedeus cloud create --instances 5
+#   golish cloud create --instances 5
 #
 # List active infrastructure:
-#   osmedeus cloud list
+#   golish cloud list
 #
 # Run workflow on cloud workers:
-#   osmedeus cloud run -f general -t example.com --instances 3
+#   golish cloud run -f general -t example.com --instances 3
 #
 # Destroy infrastructure:
-#   osmedeus cloud destroy
+#   golish cloud destroy

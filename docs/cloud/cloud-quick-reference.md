@@ -4,80 +4,80 @@
 
 ```bash
 # Enable cloud feature
-osmedeus config set cloud.enabled true
+golish config set cloud.enabled true
 
 # Set credentials (pick your provider)
-osmedeus cloud config set providers.aws.access_key_id ${AWS_ACCESS_KEY_ID}
-osmedeus cloud config set providers.aws.secret_access_key ${AWS_SECRET_ACCESS_KEY}
-osmedeus cloud config set providers.aws.region ap-southeast-1
-osmedeus cloud config set defaults.provider aws
+golish cloud config set providers.aws.access_key_id ${AWS_ACCESS_KEY_ID}
+golish cloud config set providers.aws.secret_access_key ${AWS_SECRET_ACCESS_KEY}
+golish cloud config set providers.aws.region ap-southeast-1
+golish cloud config set defaults.provider aws
 
 # SSH keys
-osmedeus cloud config set ssh.private_key_path ~/.ssh/id_rsa
-osmedeus cloud config set ssh.public_key_path ~/.ssh/id_rsa.pub
+golish cloud config set ssh.private_key_path ~/.ssh/id_rsa
+golish cloud config set ssh.public_key_path ~/.ssh/id_rsa.pub
 
 # Clean the setup scripts first
-osmedeus cloud config set setup.commands.clear ""
+golish cloud config set setup.commands.clear ""
 
 # Worker setup commands
-osmedeus cloud config set setup.commands.add "curl -fsSL https://www.osmedeus.org/install.sh | bash"
-osmedeus cloud config set setup.commands.add "osmedeus install base --preset"
+golish cloud config set setup.commands.add "curl -fsSL https://raw.githubusercontent.com/ChristopherZh-7/golish-registry/main/install.sh | bash"
+golish cloud config set setup.commands.add "golish install base --preset"
 ```
 
 ## Configuration
 
 ```bash
-osmedeus cloud config list                              # View all settings
-osmedeus cloud config set <key> <value>                 # Set a value
-osmedeus cloud config set <key>.add <value>             # Append to list
-osmedeus cloud config clean                             # Reset to defaults
+golish cloud config list                              # View all settings
+golish cloud config set <key> <value>                 # Set a value
+golish cloud config set <key>.add <value>             # Append to list
+golish cloud config clean                             # Reset to defaults
 
 # Provider credentials
-osmedeus cloud config set providers.<provider>.<key> <value>
+golish cloud config set providers.<provider>.<key> <value>
 
 # Instance type
-osmedeus cloud config set providers.aws.instance_type t3.large
+golish cloud config set providers.aws.instance_type t3.large
 
 # Spot instances (70-80% cheaper)
-osmedeus cloud config set providers.aws.use_spot true
+golish cloud config set providers.aws.use_spot true
 
 # Cost limits
-osmedeus cloud config set limits.max_hourly_spend 1.00
-osmedeus cloud config set limits.max_total_spend 10.00
-osmedeus cloud config set limits.max_instances 10
+golish cloud config set limits.max_hourly_spend 1.00
+golish cloud config set limits.max_total_spend 10.00
+golish cloud config set limits.max_instances 10
 ```
 
 ## Infrastructure
 
 ```bash
-osmedeus cloud create --provider aws -n 3               # Create instances
-osmedeus cloud list                                     # List active infra
-osmedeus cloud destroy <infra-id>                       # Destroy by ID
-osmedeus cloud destroy all --force                      # Destroy everything
-osmedeus cloud setup --reuse-with "1.2.3.4,5.6.7.8"    # Setup existing machines
+golish cloud create --provider aws -n 3               # Create instances
+golish cloud list                                     # List active infra
+golish cloud destroy <infra-id>                       # Destroy by ID
+golish cloud destroy all --force                      # Destroy everything
+golish cloud setup --reuse-with "1.2.3.4,5.6.7.8"    # Setup existing machines
 ```
 
 ## Workflow Mode
 
 ```bash
 # Basic
-osmedeus cloud run -f fast -t example.com
-osmedeus cloud run -m enum-subdomain -t example.com --timeout 30m
+golish cloud run -f fast -t example.com
+golish cloud run -m enum-subdomain -t example.com --timeout 30m
 
 # Multiple instances
-osmedeus cloud run -f general -t example.com --instances 3 --provider aws
+golish cloud run -f general -t example.com --instances 3 --provider aws
 
 # Multiple targets distributed across workers
-osmedeus cloud run -f fast -T targets.txt --instances 5
-osmedeus cloud run -f fast -T targets.txt --chunk-size 10    # 10 targets per worker
-osmedeus cloud run -f fast -T targets.txt --chunk-count 3    # Split into 3 chunks
+golish cloud run -f fast -T targets.txt --instances 5
+golish cloud run -f fast -T targets.txt --chunk-size 10    # 10 targets per worker
+golish cloud run -f fast -T targets.txt --chunk-count 3    # Split into 3 chunks
 
 # Reuse existing infrastructure
-osmedeus cloud run -f fast -t example.com --reuse
-osmedeus cloud run -f fast -t example.com --reuse-with "1.2.3.4,5.6.7.8"
+golish cloud run -f fast -t example.com --reuse
+golish cloud run -f fast -t example.com --reuse-with "1.2.3.4,5.6.7.8"
 
 # Sync results back + auto-destroy
-osmedeus cloud run -f fast -t example.com --sync-back --auto-destroy
+golish cloud run -f fast -t example.com --sync-back --auto-destroy
 ```
 
 ## Custom Command Mode
@@ -86,31 +86,31 @@ Run arbitrary commands on cloud instances (mutually exclusive with `-f`/`-m`):
 
 ```bash
 # Single command
-osmedeus cloud run --custom-cmd "nmap -sV {{Target}}" -t example.com
+golish cloud run --custom-cmd "nmap -sV {{Target}}" -t example.com
 
 # Multiple sequential commands
-osmedeus cloud run \
-  --custom-cmd "subfinder -d {{Target}} -o /tmp/osm-custom/subs.txt" \
-  --custom-cmd "cat /tmp/osm-custom/subs.txt | httpx -o /tmp/osm-custom/live.txt" \
+golish cloud run \
+  --custom-cmd "subfinder -d {{Target}} -o /tmp/golish-custom/subs.txt" \
+  --custom-cmd "cat /tmp/golish-custom/subs.txt | httpx -o /tmp/golish-custom/live.txt" \
   -t example.com
 
 # Post-commands (run only if all custom-cmds succeed)
-osmedeus cloud run \
-  --custom-cmd "nuclei -u {{Target}} -o /tmp/osm-custom/results.txt" \
-  --custom-post-cmd "cat /tmp/osm-custom/results.txt | notify" \
+golish cloud run \
+  --custom-cmd "nuclei -u {{Target}} -o /tmp/golish-custom/results.txt" \
+  --custom-post-cmd "cat /tmp/golish-custom/results.txt | notify" \
   -t example.com
 
 # Sync results back
-osmedeus cloud run \
-  --custom-cmd "nmap -sV {{Target}} -oA /tmp/osm-custom/scan" \
-  --sync-path "/tmp/osm-custom/" \
+golish cloud run \
+  --custom-cmd "nmap -sV {{Target}} -oA /tmp/golish-custom/scan" \
+  --sync-path "/tmp/golish-custom/" \
   --sync-dest "./my-results" \
   -t example.com
 
 # Distribute targets across workers
-osmedeus cloud run \
-  --custom-cmd "cat {{Target}} | httpx -o /tmp/osm-custom/live.txt" \
-  --sync-path "/tmp/osm-custom/live.txt" \
+golish cloud run \
+  --custom-cmd "cat {{Target}} | httpx -o /tmp/golish-custom/live.txt" \
+  --sync-path "/tmp/golish-custom/live.txt" \
   -T targets.txt --instances 5 --auto-destroy
 ```
 
@@ -130,7 +130,7 @@ osmedeus cloud run \
 
 ### Behavior
 
-- Commands run in `/tmp/osm-custom/` on the remote
+- Commands run in `/tmp/golish-custom/` on the remote
 - Custom-cmds run sequentially per worker, in parallel across workers
 - First failure stops remaining commands and skips post-cmds for that worker
 - Sync downloads to: `<sync-dest>/<worker_name>-<ip>/<remote_path>`
@@ -157,7 +157,7 @@ osmedeus cloud run \
 | `--custom-cmd` | | Custom command (repeatable) |
 | `--custom-post-cmd` | | Post-command (repeatable) |
 | `--sync-path` | | Remote path to download (repeatable) |
-| `--sync-dest` | | Local sync directory (default: `./osm-sync-back`) |
+| `--sync-dest` | | Local sync directory (default: `./golish-sync-back`) |
 
 ## Cost Reference
 

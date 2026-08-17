@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 	"github.com/goccy/go-yaml"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
 )
 
 // ExportWorkflowState writes the workflow YAML to the state file

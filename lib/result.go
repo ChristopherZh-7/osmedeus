@@ -3,7 +3,7 @@ package lib
 import (
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 )
 
 // RunResult holds the result of a workflow execution

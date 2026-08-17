@@ -1,11 +1,11 @@
-# Osmedeus Library SDK
+# Golish Library SDK
 
-Use Osmedeus as a Go library to programmatically execute workflows and evaluate utility functions.
+Use Golish as a Go library to programmatically execute workflows and evaluate utility functions.
 
 ## Installation
 
 ```bash
-go get github.com/j3ssie/osmedeus/v5/lib
+go get github.com/ChristopherZh-7/golish-pentest-platform/v5/lib
 ```
 
 ## Quick Start
@@ -17,7 +17,7 @@ import (
     "fmt"
     "log"
 
-    "github.com/j3ssie/osmedeus/v5/lib"
+    "github.com/ChristopherZh-7/golish-pentest-platform/v5/lib"
 )
 
 func main() {
@@ -302,7 +302,7 @@ if err != nil {
 
 ## Available Functions
 
-The `Eval` functions have access to all Osmedeus utility functions:
+The `Eval` functions have access to all Golish utility functions:
 
 ### File Operations
 
@@ -377,7 +377,7 @@ import (
     "log"
     "time"
 
-    "github.com/j3ssie/osmedeus/v5/lib"
+    "github.com/ChristopherZh-7/golish-pentest-platform/v5/lib"
 )
 
 func main() {
@@ -432,7 +432,7 @@ import (
     "fmt"
     "log"
 
-    "github.com/j3ssie/osmedeus/v5/lib"
+    "github.com/ChristopherZh-7/golish-pentest-platform/v5/lib"
 )
 
 func main() {
@@ -473,7 +473,7 @@ import (
     "fmt"
     "log"
 
-    "github.com/j3ssie/osmedeus/v5/lib"
+    "github.com/ChristopherZh-7/golish-pentest-platform/v5/lib"
 )
 
 func main() {
@@ -516,13 +516,13 @@ package main
 import (
     "log"
 
-    "github.com/j3ssie/osmedeus/v5/internal/config"
-    "github.com/j3ssie/osmedeus/v5/lib"
+    "github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+    "github.com/ChristopherZh-7/golish-pentest-platform/v5/lib"
 )
 
 func main() {
     // Load custom config
-    cfg, err := config.Load("/path/to/osmedeus-base")
+    cfg, err := config.Load("/path/to/golish-base")
     if err != nil {
         // Fall back to default
         cfg = config.DefaultConfig()

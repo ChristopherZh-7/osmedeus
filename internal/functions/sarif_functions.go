@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/dop251/goja"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
 	"github.com/uptrace/bun"
 	"go.uber.org/zap"
 )
@@ -107,7 +107,7 @@ func parseSARIFFile(filePath string) (*sarifDocument, error) {
 	return &doc, nil
 }
 
-// mapSARIFLevel maps SARIF level to osmedeus severity
+// mapSARIFLevel maps SARIF level to golish severity
 func mapSARIFLevel(level string) string {
 	switch strings.ToLower(level) {
 	case "error":

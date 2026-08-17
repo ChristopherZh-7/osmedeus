@@ -60,10 +60,10 @@ type Updater interface {
 
 // Options for configuring the updater
 type Options struct {
-	// Owner is the GitHub repository owner (e.g., "j3ssie")
+	// Owner is the GitHub repository owner (e.g., "ChristopherZh-7")
 	Owner string
 
-	// Repo is the GitHub repository name (e.g., "osmedeus")
+	// Repo is the GitHub repository name (e.g., "golish-pentest-platform")
 	Repo string
 
 	// AllowPrerelease allows updating to prerelease versions
@@ -76,8 +76,8 @@ type Options struct {
 	Verbose bool
 }
 
-// osmUpdater implements the Updater interface
-type osmUpdater struct {
+// golishUpdater implements the Updater interface
+type golishUpdater struct {
 	owner           string
 	repo            string
 	source          Source
@@ -99,7 +99,7 @@ func NewUpdater(opts Options) Updater {
 		}
 	}
 
-	return &osmUpdater{
+	return &golishUpdater{
 		owner:           opts.Owner,
 		repo:            opts.Repo,
 		source:          source,
@@ -115,7 +115,7 @@ func DefaultUpdater(owner, repo string) Updater {
 	})
 }
 
-func (u *osmUpdater) CheckForUpdate(ctx context.Context, currentVersion string) (*Release, bool, error) {
+func (u *golishUpdater) CheckForUpdate(ctx context.Context, currentVersion string) (*Release, bool, error) {
 	if u.source == nil {
 		return nil, false, fmt.Errorf("no release source configured")
 	}
@@ -138,7 +138,7 @@ func (u *osmUpdater) CheckForUpdate(ctx context.Context, currentVersion string) 
 	return release, hasUpdate, nil
 }
 
-func (u *osmUpdater) CheckSpecificVersion(ctx context.Context, version string) (*Release, bool, error) {
+func (u *golishUpdater) CheckSpecificVersion(ctx context.Context, version string) (*Release, bool, error) {
 	if u.source == nil {
 		return nil, false, fmt.Errorf("no release source configured")
 	}
@@ -154,7 +154,7 @@ func (u *osmUpdater) CheckSpecificVersion(ctx context.Context, version string) (
 	return release, true, nil
 }
 
-func (u *osmUpdater) Update(ctx context.Context, currentVersion string, force bool) (*UpdateResult, error) {
+func (u *golishUpdater) Update(ctx context.Context, currentVersion string, force bool) (*UpdateResult, error) {
 	release, hasUpdate, err := u.CheckForUpdate(ctx, currentVersion)
 	if err != nil {
 		return nil, err
@@ -185,7 +185,7 @@ func (u *osmUpdater) Update(ctx context.Context, currentVersion string, force bo
 	}, nil
 }
 
-func (u *osmUpdater) UpdateToVersion(ctx context.Context, currentVersion, targetVersion string, force bool) (*UpdateResult, error) {
+func (u *golishUpdater) UpdateToVersion(ctx context.Context, currentVersion, targetVersion string, force bool) (*UpdateResult, error) {
 	release, found, err := u.CheckSpecificVersion(ctx, targetVersion)
 	if err != nil {
 		return nil, err

@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +15,7 @@ var scanCmd = &cobra.Command{
 	Long:    UsageRun(),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		printer := terminal.NewPrinter()
-		tip := "Tip: 'osmedeus scan' and 'osmedeus execute' are aliases for 'osmedeus run'"
+		tip := "Tip: 'golish scan' and 'golish execute' are aliases for 'golish run'"
 		if terminal.IsCIMode() {
 			printer.Info("%s", tip)
 		} else {

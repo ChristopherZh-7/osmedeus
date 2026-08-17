@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/j3ssie/osmedeus/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
 )
 
 // ConfigProvider provides access to the current configuration.

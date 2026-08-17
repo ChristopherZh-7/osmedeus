@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Build
-make build              # Build to bin/osmedeus
+make build              # Build to bin/golish
 make build-all          # Cross-platform builds (linux, darwin, windows)
 
 # Test
@@ -49,16 +49,16 @@ make canary-up            # Build & start canary container
 make canary-down          # Stop & cleanup canary container
 
 # UI
-make update-ui          # Build platform/osmedeus-dashboard and refresh public/ui/
+make update-ui          # Build platform/golish-dashboard and refresh public/ui/
 make update-ui DASHBOARD_SKIP_BUILD=1   # Reuse an existing dashboard build
 
 # Platform sub-projects
 make sync-platform                        # Publish platform/* OUT to standalone repos
-make sync-platform PLATFORM=osmedeus-registry   # Just one
+make sync-platform PLATFORM=golish-registry   # Just one
 make sync-platform PLATFORM_COMMIT=1      # Also commit and push
 
 # Agent Skills
-make sync-skills                                # Push public/skills/ out to ../osmedeus-skills
+make sync-skills                                # Push public/skills/ out to ../golish-skills
 make sync-skills SKILLS_DEST=/path/to/checkout  # Push to a checkout elsewhere
 
 # Release
@@ -68,14 +68,14 @@ make bump-version SET=v5.1.0-rc.1 # Set an explicit version
 make bump-version DRY_RUN=1       # Preview without writing
 make github-release     # Build and publish GitHub release (GoReleaser)
 make npm-binaries       # Cross-compile the 4 npm target platforms
-make npm-build          # Stage @j3ssie/osmedeus packages into build/dist-npm/
+make npm-build          # Stage @christopherzh-7/golish packages into build/dist-npm/
 make npm-pack           # npm-build + inspectable .tgz tarballs
 make npm-publish        # Publish to npm (needs NPM_TOKEN); DRY_RUN=1 to preview
 ```
 
 ## Architecture Overview
 
-Osmedeus is a workflow engine for security automation. It executes YAML-defined workflows with support for multiple execution environments.
+Golish is a workflow engine for security automation. It executes YAML-defined workflows with support for multiple execution environments.
 
 ### Layered Architecture
 
@@ -135,7 +135,7 @@ Use `goto: _end` to terminate workflow.
 
 ### Workflow Execution Flow
 
-1. CLI parses args ▷ loads config from `~/osmedeus-base/osm-settings.yaml`
+1. CLI parses args ▷ loads config from `~/golish-base/golish-settings.yaml`
 2. Parser loads YAML workflow, validates, caches in Loader
 3. Executor initializes context with built-in variables (`{{Target}}`, `{{Output}}`, etc.)
 4. StepDispatcher routes each step to appropriate executor
@@ -244,12 +244,12 @@ steps:
 
 Run an ACP agent interactively from the terminal:
 ```bash
-osmedeus agent "your message here"              # Run with claude-code (default)
-osmedeus agent --agent codex "your message"     # Use a specific agent
-osmedeus agent --list                            # List available agents
-osmedeus agent --cwd /path/to/project "msg"     # Set working directory
-osmedeus agent --timeout 1h "msg"               # Custom timeout (default: 30m)
-echo "message" | osmedeus agent --stdin          # Read from stdin
+golish agent "your message here"              # Run with claude-code (default)
+golish agent --agent codex "your message"     # Use a specific agent
+golish agent --list                            # List available agents
+golish agent --cwd /path/to/project "msg"     # Set working directory
+golish agent --timeout 1h "msg"               # Custom timeout (default: 30m)
+echo "message" | golish agent --stdin          # Read from stdin
 ```
 
 ### Org (Tenant) Layer
@@ -277,8 +277,8 @@ workspace.
   importers need no org awareness and a re-scan never evicts a row from its org.
   Writes that deliberately set `org_uuid` use raw SQL without a model, so the hooks
   do not fire on them.
-- **Resolution order** (`pkg/cli/org_resolve.go`): `--org` flag → `$OSMEDEUS_ORG_UUID`
-  → `$OSMEDEUS_ORG` → `{{base_folder}}/.active-org` → unset (no filter).
+- **Resolution order** (`pkg/cli/org_resolve.go`): `--org` flag → `$GOLISH_ORG_UUID`
+  → `$GOLISH_ORG` → `{{base_folder}}/.active-org` → unset (no filter).
   `--org` accepts a name or a UUID.
 - **CLI**: `pkg/cli/org.go`. **API**: `pkg/server/handlers/orgs.go`, plus `?org=` on
   the assets, vulnerabilities, runs and workspaces endpoints.
@@ -293,9 +293,9 @@ into this repo so they version together with the code they talk to.
 
 | Directory | Standalone repo | Purpose |
 |-----------|-----------------|---------|
-| `platform/osmedeus-dashboard` | `osmedeus/osmedeus-dashboard` | Next.js UI; built into `public/ui/` and `go:embed`ed |
-| `platform/osmedeus-registry` | `osmedeus/osmedeus-registry` | Binary registry metadata and install scripts |
-| `platform/osmedeus-workflow` | `osmedeus/osmedeus-workflow` | Public workflow collection |
+| `platform/golish-dashboard` | `golish/golish-dashboard` | Next.js UI; built into `public/ui/` and `go:embed`ed |
+| `platform/golish-registry` | `golish/golish-registry` | Binary registry metadata and install scripts |
+| `platform/golish-workflow` | `golish/golish-workflow` | Public workflow collection |
 
 - **This repo is the source of truth.** Edit under `platform/`, then
   `make sync-platform` publishes to the standalone repos. It writes files only —
@@ -303,7 +303,7 @@ into this repo so they version together with the code they talk to.
 - **No nested `.git`.** The sub-projects are plain directories here; their
   history lives in the standalone repos.
 - **Build outputs are gitignored** (`node_modules/`, `.next/`, `build/`, `out/`).
-  `.dockerignore` excludes `platform/*` except `platform/osmedeus-workflow/` so
+  `.dockerignore` excludes `platform/*` except `platform/golish-workflow/` so
   installed frontend `node_modules` never enters the Docker build context while
   production gets the version-matched workflow collection.
 - `.agents/` is un-ignored under `platform/` (`!platform/*/.agents/`) because the
@@ -316,10 +316,10 @@ Targets that consume `platform/` rather than a sibling checkout:
 
 | Target / file | Reads from |
 |---------------|-----------|
-| `make update-ui` | `platform/osmedeus-dashboard` (builds, then copies to `public/ui/`) |
-| `make snapshot-release` | `$(REGISTRY_DIR)` = `platform/osmedeus-registry` for `registry-metadata-direct-fetch.json` and `install.sh` |
-| `build/docker/docker-compose.canary.yaml` | `platform/osmedeus-workflow` mounted as the canary's workflows |
-| `build/docker/Dockerfile` | `platform/osmedeus-workflow` copied over the remote preset for version-locked production workflows |
+| `make update-ui` | `platform/golish-dashboard` (builds, then copies to `public/ui/`) |
+| `make snapshot-release` | `$(REGISTRY_DIR)` = `platform/golish-registry` for `registry-metadata-direct-fetch.json` and `install.sh` |
+| `build/docker/docker-compose.canary.yaml` | `platform/golish-workflow` mounted as the canary's workflows |
+| `build/docker/Dockerfile` | `platform/golish-workflow` copied over the remote preset for version-locked production workflows |
 
 Adding a new consumer? Point it at `platform/<name>/`, never `../<name>/` — the
 sibling checkout may not exist on a fresh clone.
@@ -331,8 +331,8 @@ holds this repo.
 
 ### Bundled Agent Skills
 
-Skill bundles that teach an AI coding agent how to write osmedeus workflows and
-drive the CLI are embedded in the binary and installed via `osmedeus skills install`.
+Skill bundles that teach an AI coding agent how to write golish workflows and
+drive the CLI are embedded in the binary and installed via `golish skills install`.
 Because they ship inside the binary, an installed skill always matches the running version.
 
 - **Content**: `public/skills/<bundle>/` — `SKILL.md` (YAML frontmatter: `name`, `description`) plus optional `references/*.md`
@@ -340,34 +340,34 @@ Because they ship inside the binary, an installed skill always matches the runni
 - **Implementation**: `pkg/cli/skills.go` — `list`, `get`, `install` subcommands
 - **Discovery is filesystem-driven**: any directory under `public/skills/` containing a `SKILL.md` is a bundle, so adding one needs no code change
 - **Install destinations**: `--agent claude` → `.claude/skills/`, `--agent codex|agents` → `.agents/skills/`; `--scope project` (cwd) or `global` (home)
-- **`osmedeus install skills`** is a thin alias sharing `RunSkillsInstall`, mirroring the `workflow install` / `RunInstallWorkflow` pattern (a cobra command has one parent)
+- **`golish install skills`** is a thin alias sharing `RunSkillsInstall`, mirroring the `workflow install` / `RunInstallWorkflow` pattern (a cobra command has one parent)
 
 `public/skills/` is **authored in-tree** — it is the source of truth, so a skill
 change ships in the same commit as the code it documents. The standalone repo
-https://github.com/osmedeus/osmedeus-skills is a published mirror (it lets agents
-install a skill without osmedeus); `make sync-skills` pushes this directory out to
+https://github.com/ChristopherZh-7/golish-skills is a published mirror (it lets agents
+install a skill without golish); `make sync-skills` pushes this directory out to
 a local checkout of it, writing bundle directories only — never the destination's
 `README.md`, which is its own public landing page.
 
-Installing into a project's `.claude/skills/` also benefits `osmedeus agent`, which
+Installing into a project's `.claude/skills/` also benefits `golish agent`, which
 spawns claude-code/codex via ACP in that directory.
 
 ### npm Distribution
 
-`npm install -g @j3ssie/osmedeus` ships the Go binary through npm. Everything
+`npm install -g @christopherzh-7/golish` ships the Go binary through npm. Everything
 lives under `build/npm/` and is driven by the `npm-*` make targets.
 
 - **One npm name, version-suffixed platform builds** (codex-style): the launcher
-  publishes as `@j3ssie/osmedeus@<version>`, each platform build as
-  `@j3ssie/osmedeus@<version>-<tag>` for the four tags `linux-x64`,
+  publishes as `@christopherzh-7/golish@<version>`, each platform build as
+  `@christopherzh-7/golish@<version>-<tag>` for the four tags `linux-x64`,
   `linux-arm64`, `darwin-x64`, `darwin-arm64`. The launcher pulls its own build
   in as an **aliased optionalDependency**
-  (`"@j3ssie/osmedeus-linux-x64": "npm:@j3ssie/osmedeus@<version>-linux-x64"`),
+  (`"@christopherzh-7/golish-linux-x64": "npm:@christopherzh-7/golish@<version>-linux-x64"`),
   so an install downloads exactly one binary.
-- **The binary ships gzipped** (`vendor/<tag>/osmedeus.gz`, ~50MB vs ~240MB raw)
-  because the UI, presets and skills are embedded. `bin/osmedeus.js`
-  decompresses it on first run into `~/.osmedeus/npm-bin/<version>/<tag>/`
-  (override with `$OSMEDEUS_NPM_HOME`) — version-scoped, so an upgrade can never
+- **The binary ships gzipped** (`vendor/<tag>/golish.gz`, ~50MB vs ~240MB raw)
+  because the UI, presets and skills are embedded. `bin/golish.js`
+  decompresses it on first run into `~/.golish/npm-bin/<version>/<tag>/`
+  (override with `$GOLISH_NPM_HOME`) — version-scoped, so an upgrade can never
   exec a stale binary — then `spawn`s it, forwarding args, stdio, signals and
   the exit status.
 - **Publish order matters**: platform packages first, then the launcher, else its
@@ -380,7 +380,7 @@ lives under `build/npm/` and is driven by the `npm-*` make targets.
   `make npm-binaries` writes matches the version being published. Never verify a
   build by grepping the binary for a version string — the embedded
   docs/presets/UI mention other versions and it false-matches.
-- **Files**: `build/npm/build.mjs` (staging), `build/npm/bin/osmedeus.js`
+- **Files**: `build/npm/build.mjs` (staging), `build/npm/bin/golish.js`
   (launcher — kept out of the `bin/` gitignore rule by a `!build/npm/bin/`
   negation), output in `build/dist-npm-bin/` (binaries) and `build/dist-npm/`
   (staged packages), both gitignored.
@@ -388,87 +388,87 @@ lives under `build/npm/` and is driven by the `npm-*` make targets.
 ## CLI Commands
 
 ```bash
-osmedeus run -f <flow> -t <target>              # Run flow workflow
-osmedeus run -m <module> -t <target>            # Run module workflow
-osmedeus run -m <m1> -m <m2> -t <target>        # Run multiple modules in sequence
-osmedeus run -m <module> -t <target> --timeout 2h   # With timeout
-osmedeus run -m <module> -t <target> --repeat       # Repeat continuously
-osmedeus run -m <module> -T targets.txt -c 5    # Concurrent target scanning
-osmedeus run -m <module> -t <target> -P params.yaml  # With params file
-osmedeus workflow list                           # List available workflows
-osmedeus workflow show <name>                    # Show workflow details
-osmedeus workflow validate <name>                # Validate workflow YAML
-osmedeus func list                               # List utility functions
-osmedeus func e 'log_info("{{target}}")'         # Evaluate function
-osmedeus --usage-example                         # Show all usage examples
-osmedeus server                                  # Start REST API (see docs/api/ for endpoints)
-osmedeus server --master                         # Start as distributed master
-osmedeus worker join                             # Join as distributed worker (ID: wosm-<uuid8>)
-osmedeus worker join --get-public-ip             # Join with public IP detection (alias: wosm-<ip>)
-osmedeus install binary --name <name>            # Install specific binary
-osmedeus install binary --all                    # Install all binaries
-osmedeus install binary --name <name> --check    # Check if binary is installed
-osmedeus install binary --all --check            # Check all binaries status
-osmedeus install binary --nix-build-install      # Install binaries via Nix
-osmedeus install binary --nix-installation       # Install Nix package manager
-osmedeus install binary --list-registry-nix-build      # List Nix binaries
-osmedeus install binary --list-registry-direct-fetch   # List direct-fetch binaries
-osmedeus install base --preset                   # Install base from preset repository
-osmedeus install base --preset --keep-setting    # Install base, restore previous osm-settings.yaml
-osmedeus install workflow --preset               # Install workflows from preset repository
-osmedeus install validate --preset               # Validate/install ready-to-use base
-osmedeus install env                             # Add binaries to PATH (auto-detects shell)
-osmedeus install env --all                       # Add to all shell configs
-osmedeus skills                                  # List bundled coding-agent skills (alias: skill)
-osmedeus skills list --json                      # List skills as JSON
-osmedeus skills get <name>                       # Print a skill's SKILL.md to stdout
-osmedeus skills get <name> --full                # Include reference files
-osmedeus skills get --all                        # Print every bundled skill
-osmedeus skills install                          # Install default skill into ./.claude/skills/
-osmedeus skills install --scope global           # Install into ~/.claude/skills/
-osmedeus skills install --agent codex            # Install into .agents/skills/ instead
-osmedeus skills install --all --force            # Install every bundle, overwriting
-osmedeus skills install --dir <path>             # Install to an explicit directory
-osmedeus install skills                          # Alias for 'osmedeus skills install'
-osmedeus update                                  # Self-update to latest version
-osmedeus update --check                          # Check for updates without installing
-osmedeus snapshot export <workspace>             # Export workspace as ZIP
-osmedeus snapshot import <source>                # Import from file or URL
-osmedeus snapshot list                           # List available snapshots
-osmedeus run -m <module> -t <target> -G          # Run with progress bar (shorthand)
-osmedeus run -f <flow> -t <target> -x <module>   # Exclude module(s) from flow
-osmedeus run -f <flow> -t <target> -X <substr>   # Fuzzy-exclude modules by substring
-osmedeus worker status                           # Show registered workers
-osmedeus worker eval -e '<expr>'                 # Evaluate function with distributed hooks
-osmedeus worker set <id> <field> <value>         # Update worker metadata
-osmedeus worker queue list                       # List queued tasks
-osmedeus worker queue new -f <flow> -t <target>  # Queue task for delayed execution
-osmedeus worker queue run --concurrency 5        # Process queued tasks
-osmedeus assets                                  # List discovered assets
-osmedeus assets -w <workspace>                   # Filter assets by workspace
-osmedeus assets --source httpx --type web        # Filter by source and type
-osmedeus assets --stats                          # Show asset statistics
-osmedeus assets --stats -w <workspace>           # Stats filtered by workspace
-osmedeus assets --columns url,title,status_code  # Custom columns
-osmedeus assets --limit 100 --offset 50          # Pagination
-osmedeus assets --json                           # JSON output
-osmedeus assets --org acme                       # Assets across every workspace in an org
-osmedeus org                                     # List orgs (alias: orgs, tenant)
-osmedeus org create acme -d "ACME Corp"          # Create an org
-osmedeus org show acme                           # Org details, counts and workspaces
-osmedeus org assign acme -w acme.com -w acme.io  # Group existing workspaces into an org
-osmedeus org use acme                            # Set the active org (eval $(...) to export)
-osmedeus org use --clear                         # Clear the active org
-osmedeus org rename acme acme-corp               # Rename an org
-osmedeus org delete acme                         # Delete org, data moves to default org
-osmedeus org delete acme --purge                 # Delete org and all its data
-osmedeus run -m <module> -t <target> --org acme  # Attribute a scan to an org
-osmedeus agent "your prompt"                     # Run ACP agent (default: claude-code)
-osmedeus agent --agent codex "your prompt"       # Use a specific agent
-osmedeus agent --list                            # List available agents
-osmedeus agent --cwd /path/to/project "prompt"   # Set working directory
-osmedeus agent --timeout 1h "prompt"             # Custom timeout (default: 30m)
-echo "prompt" | osmedeus agent --stdin           # Read from stdin
+golish run -f <flow> -t <target>              # Run flow workflow
+golish run -m <module> -t <target>            # Run module workflow
+golish run -m <m1> -m <m2> -t <target>        # Run multiple modules in sequence
+golish run -m <module> -t <target> --timeout 2h   # With timeout
+golish run -m <module> -t <target> --repeat       # Repeat continuously
+golish run -m <module> -T targets.txt -c 5    # Concurrent target scanning
+golish run -m <module> -t <target> -P params.yaml  # With params file
+golish workflow list                           # List available workflows
+golish workflow show <name>                    # Show workflow details
+golish workflow validate <name>                # Validate workflow YAML
+golish func list                               # List utility functions
+golish func e 'log_info("{{target}}")'         # Evaluate function
+golish --usage-example                         # Show all usage examples
+golish server                                  # Start REST API (see docs/api/ for endpoints)
+golish server --master                         # Start as distributed master
+golish worker join                             # Join as distributed worker (ID: wgolish-<uuid8>)
+golish worker join --get-public-ip             # Join with public IP detection (alias: wgolish-<ip>)
+golish install binary --name <name>            # Install specific binary
+golish install binary --all                    # Install all binaries
+golish install binary --name <name> --check    # Check if binary is installed
+golish install binary --all --check            # Check all binaries status
+golish install binary --nix-build-install      # Install binaries via Nix
+golish install binary --nix-installation       # Install Nix package manager
+golish install binary --list-registry-nix-build      # List Nix binaries
+golish install binary --list-registry-direct-fetch   # List direct-fetch binaries
+golish install base --preset                   # Install base from preset repository
+golish install base --preset --keep-setting    # Install base, restore previous golish-settings.yaml
+golish install workflow --preset               # Install workflows from preset repository
+golish install validate --preset               # Validate/install ready-to-use base
+golish install env                             # Add binaries to PATH (auto-detects shell)
+golish install env --all                       # Add to all shell configs
+golish skills                                  # List bundled coding-agent skills (alias: skill)
+golish skills list --json                      # List skills as JSON
+golish skills get <name>                       # Print a skill's SKILL.md to stdout
+golish skills get <name> --full                # Include reference files
+golish skills get --all                        # Print every bundled skill
+golish skills install                          # Install default skill into ./.claude/skills/
+golish skills install --scope global           # Install into ~/.claude/skills/
+golish skills install --agent codex            # Install into .agents/skills/ instead
+golish skills install --all --force            # Install every bundle, overwriting
+golish skills install --dir <path>             # Install to an explicit directory
+golish install skills                          # Alias for 'golish skills install'
+golish update                                  # Self-update to latest version
+golish update --check                          # Check for updates without installing
+golish snapshot export <workspace>             # Export workspace as ZIP
+golish snapshot import <source>                # Import from file or URL
+golish snapshot list                           # List available snapshots
+golish run -m <module> -t <target> -G          # Run with progress bar (shorthand)
+golish run -f <flow> -t <target> -x <module>   # Exclude module(s) from flow
+golish run -f <flow> -t <target> -X <substr>   # Fuzzy-exclude modules by substring
+golish worker status                           # Show registered workers
+golish worker eval -e '<expr>'                 # Evaluate function with distributed hooks
+golish worker set <id> <field> <value>         # Update worker metadata
+golish worker queue list                       # List queued tasks
+golish worker queue new -f <flow> -t <target>  # Queue task for delayed execution
+golish worker queue run --concurrency 5        # Process queued tasks
+golish assets                                  # List discovered assets
+golish assets -w <workspace>                   # Filter assets by workspace
+golish assets --source httpx --type web        # Filter by source and type
+golish assets --stats                          # Show asset statistics
+golish assets --stats -w <workspace>           # Stats filtered by workspace
+golish assets --columns url,title,status_code  # Custom columns
+golish assets --limit 100 --offset 50          # Pagination
+golish assets --json                           # JSON output
+golish assets --org acme                       # Assets across every workspace in an org
+golish org                                     # List orgs (alias: orgs, tenant)
+golish org create acme -d "ACME Corp"          # Create an org
+golish org show acme                           # Org details, counts and workspaces
+golish org assign acme -w acme.com -w acme.io  # Group existing workspaces into an org
+golish org use acme                            # Set the active org (eval $(...) to export)
+golish org use --clear                         # Clear the active org
+golish org rename acme acme-corp               # Rename an org
+golish org delete acme                         # Delete org, data moves to default org
+golish org delete acme --purge                 # Delete org and all its data
+golish run -m <module> -t <target> --org acme  # Attribute a scan to an org
+golish agent "your prompt"                     # Run ACP agent (default: claude-code)
+golish agent --agent codex "your prompt"       # Use a specific agent
+golish agent --list                            # List available agents
+golish agent --cwd /path/to/project "prompt"   # Set working directory
+golish agent --timeout 1h "prompt"             # Custom timeout (default: 30m)
+echo "prompt" | golish agent --stdin           # Read from stdin
 ```
 
 ### Event Trigger Input Syntax
@@ -508,7 +508,7 @@ REST API documentation with curl examples is in `docs/api/`. Key endpoint catego
 - **Functions**: Execute utility functions via API
 - **Snapshots**: Export/import workspace archives
 - **LLM**: OpenAI-compatible chat completions and embeddings
-- **Agent ACP**: OpenAI-compatible endpoint that spawns local ACP agent subprocesses (`POST /osm/api/agent/chat/completions`)
+- **Agent ACP**: OpenAI-compatible endpoint that spawns local ACP agent subprocesses (`POST /golish/api/agent/chat/completions`)
 - **Install**: Binary registry and installation management
 
 ## Cloud Documentation
@@ -524,11 +524,11 @@ Cloud infrastructure enables distributed security scanning across multiple provi
 
 Key cloud commands:
 ```bash
-osmedeus cloud config set <key> <value>     # Configure cloud provider
-osmedeus cloud create --instances N          # Provision infrastructure
-osmedeus cloud list                          # List active infrastructure
-osmedeus cloud run -f <flow> -t <target> --instances N  # Run distributed workflow
-osmedeus cloud destroy <id>                  # Destroy infrastructure
+golish cloud config set <key> <value>     # Configure cloud provider
+golish cloud create --instances N          # Provision infrastructure
+golish cloud list                          # List active infrastructure
+golish cloud run -f <flow> -t <target> --instances N  # Run distributed workflow
+golish cloud destroy <id>                  # Destroy infrastructure
 ```
 
 ## Workflow Hooks
@@ -550,8 +550,8 @@ Hooks are defined using `WorkflowHooks` in `internal/core/workflow.go`. Pre-scan
 ## Queue System
 
 Delayed task execution via database and Redis queues:
-- `osmedeus worker queue new -f <flow> -t <target>` - Queue a task (creates Run with `is_queued=true`)
-- `osmedeus worker queue run --concurrency N` - Process queued tasks with configurable parallelism
+- `golish worker queue new -f <flow> -t <target>` - Queue a task (creates Run with `is_queued=true`)
+- `golish worker queue run --concurrency N` - Process queued tasks with configurable parallelism
 - Dual-source polling: database (every 5s) + Redis BRPOP (optional)
 - Deduplication via runUUID tracking
 - Implementation in `pkg/cli/worker_queue.go`
@@ -566,7 +566,7 @@ Utility functions for nmap port scanning and result processing:
 ## Tmux Session Management
 
 Functions for managing long-running background processes:
-- `tmux_run(command, session_name?)` - Create detached tmux session (auto-generates `bosm-<random8>` name)
+- `tmux_run(command, session_name?)` - Create detached tmux session (auto-generates `glsh-<random8>` name)
 - `tmux_capture(session_name)` - Capture pane output (pass `"all"` for all sessions)
 - `tmux_send(session_name, command)` - Send keystrokes to session
 - `tmux_kill(session_name)` / `tmux_list()` - Kill session / list all sessions
@@ -597,8 +597,8 @@ Functions for remote execution and file synchronization:
 ## Webhook Triggers
 
 API endpoints for triggering runs via webhooks:
-- `GET /osm/api/webhook-runs` - List webhook-enabled runs
-- `GET|POST /osm/api/webhook-runs/{uuid}/trigger` - Trigger run via webhook UUID (unauthenticated)
+- `GET /golish/api/webhook-runs` - List webhook-enabled runs
+- `GET|POST /golish/api/webhook-runs/{uuid}/trigger` - Trigger run via webhook UUID (unauthenticated)
 - Runs store `webhook_uuid` and optional `webhook_auth_key` for authentication
 
 ## CDN/WAF Asset Classification
@@ -632,12 +632,12 @@ Assets now include CDN/WAF classification fields derived from httpx JSON data:
 - **Decision Routing**: Uses switch/case syntax for conditional workflow branching
 - **Run Registry**: Tracks active runs with PID management for cancellation support
 - **Write Coordinator**: Batches database writes (step results, progress, artifacts) reducing I/O by ~70%
-- **Install Base Backup**: `InstallBase()` automatically backs up `osm-settings.yaml` to `backup-osm-settings.yaml`; `--keep-setting` flag restores the previous settings after installation
-- **Worker Identity**: Worker IDs use `wosm-<uuid8>` format; default alias is `wosm-<public-ip>` or `wosm-<local-ip>` when no `--alias` is provided
+- **Install Base Backup**: `InstallBase()` automatically backs up `golish-settings.yaml` to `backup-golish-settings.yaml`; `--keep-setting` flag restores the previous settings after installation
+- **Worker Identity**: Worker IDs use `wgolish-<uuid8>` format; default alias is `wgolish-<public-ip>` or `wgolish-<local-ip>` when no `--alias` is provided
 - **Execute Hooks**: Distributed coordination via `RegisterExecuteHooks()` in `internal/functions/execute_hooks.go` - avoids circular imports between functions and distributed packages
 - **Queue System**: Dual-source polling (DB + Redis) with deduplication and configurable concurrency in `pkg/cli/worker_queue.go`
 - **Command Fallback**: `internal/executor/cmd_fallback.go` handles timeout prefix stripping and custom binary path prepending
-- **Bundled Skills**: `public/skills/` is the source of truth, embedded via `//go:embed all:skills`; edit in place, then `make sync-skills` pushes the bundles out to the standalone osmedeus-skills repo (a published mirror) for review and commit there
+- **Bundled Skills**: `public/skills/` is the source of truth, embedded via `//go:embed all:skills`; edit in place, then `make sync-skills` pushes the bundles out to the standalone golish-skills repo (a published mirror) for review and commit there
 - **npm Distribution**: run `make bump-version` before `make npm-publish` — npm versions are immutable, so a version can only be superseded, never re-published. `make npm-binaries` restamps `build/dist-npm-bin/.build-version`; the guard in `build.mjs` fails closed if it does not match
 - **Org Attribution**: never set `org_uuid` manually in a new import path — the `BeforeAppendModel` hooks derive it from the row's workspace. If you add an org-scoped table, add it to `orgScopedTables` and give it a `BeforeAppendModel` hook, or its rows will be invisible to every org query
 

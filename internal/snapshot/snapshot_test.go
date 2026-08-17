@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/state"
-	"github.com/j3ssie/osmedeus/v5/internal/template"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/state"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/template"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -631,29 +631,29 @@ func TestBuildReplayContext(t *testing.T) {
 		}
 
 		cfg := &config.Config{
-			BaseFolder:          "/home/user/osmedeus-base",
-			BinariesPath:        "/home/user/osmedeus-base/external-binaries",
-			DataPath:            "/home/user/osmedeus-base/external-data",
-			WorkspacesPath:      "/home/user/workspaces-osmedeus",
-			WorkflowsPath:       "/home/user/osmedeus-base/workflows",
-			ConfigsPath:         "/home/user/osmedeus-base/external-configs",
-			ExternalScriptsPath: "/home/user/osmedeus-base/external-scripts",
+			BaseFolder:          "/home/user/golish-base",
+			BinariesPath:        "/home/user/golish-base/external-binaries",
+			DataPath:            "/home/user/golish-base/external-data",
+			WorkspacesPath:      "/home/user/workspaces-golish",
+			WorkflowsPath:       "/home/user/golish-base/workflows",
+			ConfigsPath:         "/home/user/golish-base/external-configs",
+			ExternalScriptsPath: "/home/user/golish-base/external-scripts",
 		}
 
-		vars := buildReplayContext("/home/user/workspaces-osmedeus/example.com", "example.com", runInfo, cfg)
+		vars := buildReplayContext("/home/user/workspaces-golish/example.com", "example.com", runInfo, cfg)
 
 		// Core variables
 		assert.Equal(t, "example.com", vars["Target"])
 		assert.Equal(t, "example.com", vars["Workspace"], "Workspace should be overridden to workspaceName")
 		assert.Equal(t, "example.com", vars["TargetSpace"], "TargetSpace should be overridden to workspaceName")
-		assert.Equal(t, "/home/user/workspaces-osmedeus/example.com", vars["Output"], "Output should be overridden to destPath")
+		assert.Equal(t, "/home/user/workspaces-golish/example.com", vars["Output"], "Output should be overridden to destPath")
 
 		// Config path variables (from BuildBuiltinVariables via cfg)
-		assert.Equal(t, "/home/user/osmedeus-base", vars["BaseFolder"])
-		assert.Equal(t, "/home/user/osmedeus-base/external-binaries", vars["Binaries"])
-		assert.Equal(t, "/home/user/osmedeus-base/external-data", vars["Data"])
-		assert.Equal(t, "/home/user/workspaces-osmedeus", vars["Workspaces"])
-		assert.Equal(t, "/home/user/osmedeus-base/workflows", vars["Workflows"])
+		assert.Equal(t, "/home/user/golish-base", vars["BaseFolder"])
+		assert.Equal(t, "/home/user/golish-base/external-binaries", vars["Binaries"])
+		assert.Equal(t, "/home/user/golish-base/external-data", vars["Data"])
+		assert.Equal(t, "/home/user/workspaces-golish", vars["Workspaces"])
+		assert.Equal(t, "/home/user/golish-base/workflows", vars["Workflows"])
 
 		// User params should be merged
 		assert.Equal(t, "true", vars["enableDnsBruteForcing"])
@@ -683,7 +683,7 @@ func TestBuildReplayContext(t *testing.T) {
 			WorkflowName: "test-flow",
 		}
 		cfg := &config.Config{
-			WorkspacesPath: "/home/user/workspaces-osmedeus",
+			WorkspacesPath: "/home/user/workspaces-golish",
 		}
 
 		// Use a different destPath than what BuildBuiltinVariables would compute

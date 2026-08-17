@@ -80,8 +80,8 @@ triggers:
 
 ```bash
 # Run the emitter to generate events
-osmedeus run -m simple-emitter -t example.com
+golish run -m simple-emitter -t example.com
 
 # The receiver will automatically process events if registered with the scheduler
-osmedeus run -m simple-receiver -t example.com
+golish run -m simple-receiver -t example.com
 ```

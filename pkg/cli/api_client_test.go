@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -37,7 +37,7 @@ func TestScheduleClient_SetBaseURL(t *testing.T) {
 func TestScheduleClient_IsServerAvailable(t *testing.T) {
 	t.Run("server available", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			assert.Equal(t, "/osm/server-info", r.URL.Path)
+			assert.Equal(t, "/server-info", r.URL.Path)
 			w.WriteHeader(http.StatusOK)
 		}))
 		defer server.Close()
@@ -84,10 +84,10 @@ func TestScheduleClient_RegisterCronTrigger(t *testing.T) {
 
 	t.Run("success - 201 created", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			assert.Equal(t, "/osm/api/schedules", r.URL.Path)
+			assert.Equal(t, "/golish/api/schedules", r.URL.Path)
 			assert.Equal(t, "POST", r.Method)
 			assert.Equal(t, "application/json", r.Header.Get("Content-Type"))
-			assert.Equal(t, "test-key", r.Header.Get("x-osm-api-key"))
+			assert.Equal(t, "test-key", r.Header.Get("x-golish-api-key"))
 
 			var req scheduleRequest
 			err := json.NewDecoder(r.Body).Decode(&req)
@@ -222,10 +222,10 @@ func TestRunClient_IsServerAvailable(t *testing.T) {
 func TestRunClient_CreateRun(t *testing.T) {
 	t.Run("success - 202 accepted", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			assert.Equal(t, "/osm/api/runs", r.URL.Path)
+			assert.Equal(t, "/golish/api/runs", r.URL.Path)
 			assert.Equal(t, "POST", r.Method)
 			assert.Equal(t, "application/json", r.Header.Get("Content-Type"))
-			assert.Equal(t, "test-key", r.Header.Get("x-osm-api-key"))
+			assert.Equal(t, "test-key", r.Header.Get("x-golish-api-key"))
 
 			var req CreateRunRequest
 			err := json.NewDecoder(r.Body).Decode(&req)
@@ -244,7 +244,7 @@ func TestRunClient_CreateRun(t *testing.T) {
 				Priority:    "high",
 				JobID:       "abc123",
 				Status:      "queued",
-				PollURL:     "/osm/api/jobs/abc123",
+				PollURL:     "/golish/api/jobs/abc123",
 				RunUUID:     "run-uuid-123",
 			}
 			_ = json.NewEncoder(w).Encode(resp)
@@ -354,7 +354,7 @@ func TestRunClient_CreateRun(t *testing.T) {
 				Priority:    "normal",
 				JobID:       "multi123",
 				Status:      "queued",
-				PollURL:     "/osm/api/jobs/multi123",
+				PollURL:     "/golish/api/jobs/multi123",
 			}
 			_ = json.NewEncoder(w).Encode(resp)
 		}))

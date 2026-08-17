@@ -348,14 +348,14 @@ func TestRenderMarkdownReport(t *testing.T) {
 		assert.Contains(t, string(content), "example.com")
 	})
 
-	t.Run("osm-func blocks are executed", func(t *testing.T) {
+	t.Run("golish-func blocks are executed", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		templatePath := filepath.Join(tmpDir, "template.md")
 		outputPath := filepath.Join(tmpDir, "output.md")
 
 		// Use backtick-style string for template with code blocks
 		template := "# Test\n\n" +
-			"```osm-func\n" +
+			"```golish-func\n" +
 			"trim(\"  hello  \")\n" +
 			"```\n"
 		err := os.WriteFile(templatePath, []byte(template), 0644)
@@ -371,7 +371,7 @@ func TestRenderMarkdownReport(t *testing.T) {
 		content, err := os.ReadFile(outputPath)
 		require.NoError(t, err)
 		assert.Contains(t, string(content), "hello")
-		assert.NotContains(t, string(content), "osm-func")
+		assert.NotContains(t, string(content), "golish-func")
 	})
 
 	t.Run("empty template path returns false", func(t *testing.T) {
@@ -412,13 +412,13 @@ func TestRenderMarkdownReport(t *testing.T) {
 		assert.Equal(t, false, result)
 	})
 
-	t.Run("invalid osm-func produces error comment", func(t *testing.T) {
+	t.Run("invalid golish-func produces error comment", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		templatePath := filepath.Join(tmpDir, "template.md")
 		outputPath := filepath.Join(tmpDir, "output.md")
 
 		template := "# Test\n\n" +
-			"```osm-func\n" +
+			"```golish-func\n" +
 			"invalid_syntax(((\n" +
 			"```\n"
 		err := os.WriteFile(templatePath, []byte(template), 0644)
@@ -456,14 +456,14 @@ func TestRenderMarkdownReport(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
-	t.Run("multiple osm-func blocks", func(t *testing.T) {
+	t.Run("multiple golish-func blocks", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		templatePath := filepath.Join(tmpDir, "template.md")
 		outputPath := filepath.Join(tmpDir, "output.md")
 
 		template := "# Test\n\n" +
-			"First: ```osm-func\nlen(\"hello\")\n```\n\n" +
-			"Second: ```osm-func\nlen(\"world!\")\n```\n"
+			"First: ```golish-func\nlen(\"hello\")\n```\n\n" +
+			"Second: ```golish-func\nlen(\"world!\")\n```\n"
 		err := os.WriteFile(templatePath, []byte(template), 0644)
 		require.NoError(t, err)
 
@@ -480,13 +480,13 @@ func TestRenderMarkdownReport(t *testing.T) {
 		assert.Contains(t, string(content), "6") // len("world!")
 	})
 
-	t.Run("mixed variables and osm-func blocks", func(t *testing.T) {
+	t.Run("mixed variables and golish-func blocks", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		templatePath := filepath.Join(tmpDir, "template.md")
 		outputPath := filepath.Join(tmpDir, "output.md")
 
 		template := "# Report for {{Workspace}}\n\n" +
-			"Result: ```osm-func\nto_upper_case(\"test\")\n```\n"
+			"Result: ```golish-func\nto_upper_case(\"test\")\n```\n"
 		err := os.WriteFile(templatePath, []byte(template), 0644)
 		require.NoError(t, err)
 
@@ -507,13 +507,13 @@ func TestRenderMarkdownReport(t *testing.T) {
 		assert.Contains(t, string(content), "TEST")
 	})
 
-	t.Run("osm-func with string concatenation", func(t *testing.T) {
+	t.Run("golish-func with string concatenation", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		templatePath := filepath.Join(tmpDir, "template.md")
 		outputPath := filepath.Join(tmpDir, "output.md")
 
 		template := "# Test\n\n" +
-			"```osm-func\n" +
+			"```golish-func\n" +
 			"\"Hello \" + \"World\"\n" +
 			"```\n"
 		err := os.WriteFile(templatePath, []byte(template), 0644)
@@ -531,12 +531,12 @@ func TestRenderMarkdownReport(t *testing.T) {
 		assert.Contains(t, string(content), "Hello World")
 	})
 
-	t.Run("inline osm-func syntax", func(t *testing.T) {
+	t.Run("inline golish-func syntax", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		templatePath := filepath.Join(tmpDir, "template.md")
 		outputPath := filepath.Join(tmpDir, "output.md")
 
-		template := "Result: `len(\"hello\")`{.osm-func} chars\n"
+		template := "Result: `len(\"hello\")`{.golish-func} chars\n"
 		err := os.WriteFile(templatePath, []byte(template), 0644)
 		require.NoError(t, err)
 
@@ -550,15 +550,15 @@ func TestRenderMarkdownReport(t *testing.T) {
 		content, err := os.ReadFile(outputPath)
 		require.NoError(t, err)
 		assert.Contains(t, string(content), "Result: 5 chars")
-		assert.NotContains(t, string(content), "{.osm-func}")
+		assert.NotContains(t, string(content), "{.golish-func}")
 	})
 
-	t.Run("multiple inline osm-func in one line", func(t *testing.T) {
+	t.Run("multiple inline golish-func in one line", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		templatePath := filepath.Join(tmpDir, "template.md")
 		outputPath := filepath.Join(tmpDir, "output.md")
 
-		template := "A: `len(\"a\")`{.osm-func} B: `len(\"bb\")`{.osm-func}\n"
+		template := "A: `len(\"a\")`{.golish-func} B: `len(\"bb\")`{.golish-func}\n"
 		err := os.WriteFile(templatePath, []byte(template), 0644)
 		require.NoError(t, err)
 
@@ -574,12 +574,12 @@ func TestRenderMarkdownReport(t *testing.T) {
 		assert.Contains(t, string(content), "A: 1 B: 2")
 	})
 
-	t.Run("mixed code blocks and inline osm-func", func(t *testing.T) {
+	t.Run("mixed code blocks and inline golish-func", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		templatePath := filepath.Join(tmpDir, "template.md")
 		outputPath := filepath.Join(tmpDir, "output.md")
 
-		template := "Block: ```osm-func\nlen(\"abc\")\n```\n\nInline: `len(\"de\")`{.osm-func}\n"
+		template := "Block: ```golish-func\nlen(\"abc\")\n```\n\nInline: `len(\"de\")`{.golish-func}\n"
 		err := os.WriteFile(templatePath, []byte(template), 0644)
 		require.NoError(t, err)
 
@@ -596,12 +596,12 @@ func TestRenderMarkdownReport(t *testing.T) {
 		assert.Contains(t, string(content), "Inline: 2")
 	})
 
-	t.Run("invalid inline osm-func produces error comment", func(t *testing.T) {
+	t.Run("invalid inline golish-func produces error comment", func(t *testing.T) {
 		tmpDir := t.TempDir()
 		templatePath := filepath.Join(tmpDir, "template.md")
 		outputPath := filepath.Join(tmpDir, "output.md")
 
-		template := "Result: `invalid_function()`{.osm-func}\n"
+		template := "Result: `invalid_function()`{.golish-func}\n"
 		err := os.WriteFile(templatePath, []byte(template), 0644)
 		require.NoError(t, err)
 

@@ -12,43 +12,43 @@ severity, confidence, review state, source, Pentest Session, or asset value.
 
 **List all vulnerabilities:**
 ```bash
-curl http://localhost:8002/osm/api/vulnerabilities \
+curl http://localhost:8002/golish/api/vulnerabilities \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **List vulnerabilities with pagination:**
 ```bash
-curl "http://localhost:8002/osm/api/vulnerabilities?offset=0&limit=100" \
+curl "http://localhost:8002/golish/api/vulnerabilities?offset=0&limit=100" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by workspace:**
 ```bash
-curl "http://localhost:8002/osm/api/vulnerabilities?workspace=example.com" \
+curl "http://localhost:8002/golish/api/vulnerabilities?workspace=example.com" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by severity:**
 ```bash
-curl "http://localhost:8002/osm/api/vulnerabilities?severity=critical" \
+curl "http://localhost:8002/golish/api/vulnerabilities?severity=critical" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by confidence:**
 ```bash
-curl "http://localhost:8002/osm/api/vulnerabilities?confidence=Certain" \
+curl "http://localhost:8002/golish/api/vulnerabilities?confidence=Certain" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by asset value (partial match):**
 ```bash
-curl "http://localhost:8002/osm/api/vulnerabilities?asset_value=api.example" \
+curl "http://localhost:8002/golish/api/vulnerabilities?asset_value=api.example" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Combine filters:**
 ```bash
-curl "http://localhost:8002/osm/api/vulnerabilities?workspace=example.com&severity=high&offset=0&limit=50" \
+curl "http://localhost:8002/golish/api/vulnerabilities?workspace=example.com&severity=high&offset=0&limit=50" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -126,7 +126,7 @@ Agent-submitted candidates remain in the Vulnerabilities inventory while an
 operator confirms, rejects, or marks them duplicate:
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/vulnerabilities/42/review \
+curl -X POST http://localhost:8002/golish/api/vulnerabilities/42/review \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"status":"confirmed","note":"Reproduced from saved evidence"}'
@@ -155,13 +155,13 @@ Get a summary of vulnerabilities grouped by severity, optionally filtered by wor
 
 **Get summary for all workspaces:**
 ```bash
-curl http://localhost:8002/osm/api/vulnerabilities/summary \
+curl http://localhost:8002/golish/api/vulnerabilities/summary \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Get summary for a specific workspace:**
 ```bash
-curl "http://localhost:8002/osm/api/vulnerabilities/summary?workspace=example.com" \
+curl "http://localhost:8002/golish/api/vulnerabilities/summary?workspace=example.com" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -195,7 +195,7 @@ curl "http://localhost:8002/osm/api/vulnerabilities/summary?workspace=example.co
 Retrieve a single vulnerability by its ID.
 
 ```bash
-curl http://localhost:8002/osm/api/vulnerabilities/1 \
+curl http://localhost:8002/golish/api/vulnerabilities/1 \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -238,7 +238,7 @@ curl http://localhost:8002/osm/api/vulnerabilities/1 \
 Create a new vulnerability record.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/vulnerabilities \
+curl -X POST http://localhost:8002/golish/api/vulnerabilities \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -315,7 +315,7 @@ curl -X POST http://localhost:8002/osm/api/vulnerabilities \
 Delete a vulnerability by ID.
 
 ```bash
-curl -X DELETE http://localhost:8002/osm/api/vulnerabilities/15 \
+curl -X DELETE http://localhost:8002/golish/api/vulnerabilities/15 \
   -H "Authorization: Bearer $TOKEN"
 ```
 

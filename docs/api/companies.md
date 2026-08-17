@@ -21,7 +21,7 @@ a separate authorization request.
 ## Create a draft
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/companies/intake \
+curl -X POST http://localhost:8002/golish/api/companies/intake \
   -H 'Content-Type: application/json' \
   -d '{
     "name": "Acme",
@@ -32,13 +32,13 @@ curl -X POST http://localhost:8002/osm/api/companies/intake \
   }'
 ```
 
-The response includes `name_resolution.status=needs_confirmation`. Osmedeus
+The response includes `name_resolution.status=needs_confirmation`. Golish
 does not infer a legal company name from an LLM response alone.
 
 ## Run passive discovery
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/companies/<company-uuid>/discover
+curl -X POST http://localhost:8002/golish/api/companies/<company-uuid>/discover
 ```
 
 Configured FOFA, Quake, Hunter and 0.zone providers are queried. Discovery uses
@@ -65,7 +65,7 @@ company-owned IP merely because it currently serves a company hostname.
 ## Confirm identity and authorized root domains
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/companies/<company-uuid>/confirm \
+curl -X POST http://localhost:8002/golish/api/companies/<company-uuid>/confirm \
   -H 'Content-Type: application/json' \
   -d '{
     "canonical_name": "Acme Technology Co., Ltd.",
@@ -78,7 +78,7 @@ company workflow separately by passing the confirmed company UUID to the Runs
 API:
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H 'Content-Type: application/json' \
   -d '{
     "flow": "company-recon",
@@ -101,7 +101,7 @@ workspaces. It does not create a second org and still does not start a scan.
 ## Authorize passive candidates
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/companies/<company-uuid>/candidates/authorize \
+curl -X POST http://localhost:8002/golish/api/companies/<company-uuid>/candidates/authorize \
   -H 'Content-Type: application/json' \
   -d '{"candidate_ids": [12, 13]}'
 ```

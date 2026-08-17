@@ -146,10 +146,10 @@ func TestRunControlPlaneTmuxSessionTracking(t *testing.T) {
 	runUUID := "test-run-tmux"
 	controlPlane.Register(runUUID, cancel)
 
-	controlPlane.AddTmuxSession(runUUID, "bosm-aaa11111")
-	controlPlane.AddTmuxSession(runUUID, "bosm-bbb22222")
-	controlPlane.AddTmuxSession(runUUID, "") // ignored
-	controlPlane.AddTmuxSession("", "bosm-ccc33333") // ignored (no run)
+	controlPlane.AddTmuxSession(runUUID, "glsh-aaa11111")
+	controlPlane.AddTmuxSession(runUUID, "glsh-bbb22222")
+	controlPlane.AddTmuxSession(runUUID, "")         // ignored
+	controlPlane.AddTmuxSession("", "glsh-ccc33333") // ignored (no run)
 
 	activeRun := controlPlane.Get(runUUID)
 	count := 0
@@ -161,7 +161,7 @@ func TestRunControlPlaneTmuxSessionTracking(t *testing.T) {
 		t.Errorf("Expected 2 tracked tmux sessions, got %d", count)
 	}
 
-	controlPlane.RemoveTmuxSession(runUUID, "bosm-aaa11111")
+	controlPlane.RemoveTmuxSession(runUUID, "glsh-aaa11111")
 	count = 0
 	activeRun.TmuxSessions.Range(func(_, _ any) bool {
 		count++
@@ -182,8 +182,8 @@ func TestActiveRunKillAllTmuxSessions(t *testing.T) {
 
 	// Track sessions that do not exist; KillAllTmuxSessions should still
 	// report them and clear the map (best-effort cleanup).
-	activeRun.AddTmuxSession("bosm-doesnotexist-1")
-	activeRun.AddTmuxSession("bosm-doesnotexist-2")
+	activeRun.AddTmuxSession("glsh-doesnotexist-1")
+	activeRun.AddTmuxSession("glsh-doesnotexist-2")
 
 	killed := activeRun.KillAllTmuxSessions()
 	if len(killed) != 2 {
@@ -208,13 +208,13 @@ func TestRunControlPlaneCancelKillsTmuxSessions(t *testing.T) {
 	_, cancel := context.WithCancel(context.Background())
 	runUUID := "test-cancel-tmux"
 	controlPlane.Register(runUUID, cancel)
-	controlPlane.AddTmuxSession(runUUID, "bosm-zzz99999")
+	controlPlane.AddTmuxSession(runUUID, "glsh-zzz99999")
 
 	_, sessions, err := controlPlane.Cancel(runUUID)
 	if err != nil {
 		t.Fatalf("Cancel returned error: %v", err)
 	}
-	if len(sessions) != 1 || sessions[0] != "bosm-zzz99999" {
+	if len(sessions) != 1 || sessions[0] != "glsh-zzz99999" {
 		t.Errorf("Expected one tmux session in cancel result, got %v", sessions)
 	}
 }

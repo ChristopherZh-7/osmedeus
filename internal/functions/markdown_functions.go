@@ -14,12 +14,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/charmbracelet/glamour"
 	"github.com/dop251/goja"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
 	"github.com/valyala/fastjson"
 	"go.uber.org/zap"
 )
@@ -925,15 +925,15 @@ func formatValueFromFastjson(val *fastjson.Value) string {
 	}
 }
 
-// osmFuncPattern matches ```osm-func ... ``` code blocks in markdown
-var osmFuncPattern = regexp.MustCompile("(?s)```osm-func\n(.*?)\n```")
+// golishFuncPattern matches ```golish-func ... ``` code blocks in markdown
+var golishFuncPattern = regexp.MustCompile("(?s)```golish-func\n(.*?)\n```")
 
-// osmFuncInlinePattern matches `code`{.osm-func} inline syntax (Pandoc-style)
-var osmFuncInlinePattern = regexp.MustCompile("`([^`]+)`\\{\\.osm-func\\}")
+// golishFuncInlinePattern matches `code`{.golish-func} inline syntax (Pandoc-style)
+var golishFuncInlinePattern = regexp.MustCompile("`([^`]+)`\\{\\.golish-func\\}")
 
-// renderMarkdownReport processes markdown templates with osm-func blocks
+// renderMarkdownReport processes markdown templates with golish-func blocks
 // Usage: render_markdown_report(template_path, output_path) -> bool
-// Reads template, renders {{Variables}}, executes osm-func blocks, writes output
+// Reads template, renders {{Variables}}, executes golish-func blocks, writes output
 func (vf *vmFunc) renderMarkdownReport(call goja.FunctionCall) goja.Value {
 	logger.Get().Debug("Calling renderMarkdownReport")
 
@@ -969,12 +969,12 @@ func (vf *vmFunc) renderMarkdownReport(call goja.FunctionCall) goja.Value {
 	// Step 1: Render {{Variable}} template variables first
 	rendered := vf.renderTemplateVariables(string(content), ctx)
 
-	// Step 2: Find and process osm-func blocks
-	processed := osmFuncPattern.ReplaceAllStringFunc(rendered, func(match string) string {
+	// Step 2: Find and process golish-func blocks
+	processed := golishFuncPattern.ReplaceAllStringFunc(rendered, func(match string) string {
 		// Extract function code from the match
-		code := vf.extractOsmFuncCode(match)
+		code := vf.extractGolishFuncCode(match)
 		if code == "" {
-			return "<!-- ERROR: empty osm-func block -->"
+			return "<!-- ERROR: empty golish-func block -->"
 		}
 
 		// Execute the function code using the Goja VM
@@ -996,11 +996,11 @@ func (vf *vmFunc) renderMarkdownReport(call goja.FunctionCall) goja.Value {
 		}
 	})
 
-	// Step 3: Process `code`{.osm-func} inline syntax
-	processed = osmFuncInlinePattern.ReplaceAllStringFunc(processed, func(match string) string {
-		code := vf.extractOsmFuncInlineCode(match)
+	// Step 3: Process `code`{.golish-func} inline syntax
+	processed = golishFuncInlinePattern.ReplaceAllStringFunc(processed, func(match string) string {
+		code := vf.extractGolishFuncInlineCode(match)
 		if code == "" {
-			return "<!-- ERROR: empty inline osm-func -->"
+			return "<!-- ERROR: empty inline golish-func -->"
 		}
 
 		output, execErr := vf.executeCode(code)
@@ -1098,19 +1098,19 @@ func (vf *vmFunc) renderTemplateVariables(content string, ctx map[string]interfa
 	return result
 }
 
-// extractOsmFuncCode extracts the function code from an osm-func block
-func (vf *vmFunc) extractOsmFuncCode(block string) string {
-	// Remove the ```osm-func\n prefix and \n``` suffix
-	code := strings.TrimPrefix(block, "```osm-func\n")
+// extractGolishFuncCode extracts the function code from a golish-func block
+func (vf *vmFunc) extractGolishFuncCode(block string) string {
+	// Remove the ```golish-func\n prefix and \n``` suffix
+	code := strings.TrimPrefix(block, "```golish-func\n")
 	code = strings.TrimSuffix(code, "\n```")
 	return strings.TrimSpace(code)
 }
 
-// extractOsmFuncInlineCode extracts function code from inline syntax
-func (vf *vmFunc) extractOsmFuncInlineCode(match string) string {
-	// Remove the ` prefix and `{.osm-func} suffix
+// extractGolishFuncInlineCode extracts function code from inline syntax
+func (vf *vmFunc) extractGolishFuncInlineCode(match string) string {
+	// Remove the ` prefix and `{.golish-func} suffix
 	code := strings.TrimPrefix(match, "`")
-	code = strings.TrimSuffix(code, "`{.osm-func}")
+	code = strings.TrimSuffix(code, "`{.golish-func}")
 	return strings.TrimSpace(code)
 }
 
@@ -1163,11 +1163,11 @@ func (vf *vmFunc) generateSecurityReport(call goja.FunctionCall) goja.Value {
 	// Step 1: Render {{Variable}} template variables first
 	rendered := vf.renderTemplateVariables(string(content), ctx)
 
-	// Step 2: Find and process osm-func blocks
-	processed := osmFuncPattern.ReplaceAllStringFunc(rendered, func(match string) string {
-		code := vf.extractOsmFuncCode(match)
+	// Step 2: Find and process golish-func blocks
+	processed := golishFuncPattern.ReplaceAllStringFunc(rendered, func(match string) string {
+		code := vf.extractGolishFuncCode(match)
 		if code == "" {
-			return "<!-- ERROR: empty osm-func block -->"
+			return "<!-- ERROR: empty golish-func block -->"
 		}
 
 		output, execErr := vf.executeCode(code)
@@ -1187,11 +1187,11 @@ func (vf *vmFunc) generateSecurityReport(call goja.FunctionCall) goja.Value {
 		}
 	})
 
-	// Step 3: Process `code`{.osm-func} inline syntax
-	processed = osmFuncInlinePattern.ReplaceAllStringFunc(processed, func(match string) string {
-		code := vf.extractOsmFuncInlineCode(match)
+	// Step 3: Process `code`{.golish-func} inline syntax
+	processed = golishFuncInlinePattern.ReplaceAllStringFunc(processed, func(match string) string {
+		code := vf.extractGolishFuncInlineCode(match)
 		if code == "" {
-			return "<!-- ERROR: empty inline osm-func -->"
+			return "<!-- ERROR: empty inline golish-func -->"
 		}
 
 		output, execErr := vf.executeCode(code)

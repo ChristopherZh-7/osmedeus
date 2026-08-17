@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/distributed"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/distributed"
 )
 
 // ListWorkers returns all registered workers with their current status
@@ -13,7 +13,7 @@ import (
 // @Success 200 {object} map[string]interface{} "List of workers"
 // @Failure 500 {object} map[string]interface{} "Failed to list workers"
 // @Security BearerAuth
-// @Router /osm/api/workers [get]
+// @Router /golish/api/workers [get]
 func ListWorkers(master *distributed.Master) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx := c.Context()
@@ -56,7 +56,7 @@ func ListWorkers(master *distributed.Master) fiber.Handler {
 // @Failure 404 {object} map[string]interface{} "Worker not found"
 // @Failure 500 {object} map[string]interface{} "Failed to get worker"
 // @Security BearerAuth
-// @Router /osm/api/workers/{id} [get]
+// @Router /golish/api/workers/{id} [get]
 func GetWorker(master *distributed.Master) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		workerID := c.Params("id")
@@ -100,7 +100,7 @@ func GetWorker(master *distributed.Master) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "List of running and completed tasks"
 // @Failure 500 {object} map[string]interface{} "Failed to list tasks"
 // @Security BearerAuth
-// @Router /osm/api/tasks [get]
+// @Router /golish/api/tasks [get]
 func ListTasks(master *distributed.Master) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx := c.Context()
@@ -138,7 +138,7 @@ func ListTasks(master *distributed.Master) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "Task details"
 // @Failure 404 {object} map[string]interface{} "Task not found"
 // @Security BearerAuth
-// @Router /osm/api/tasks/{id} [get]
+// @Router /golish/api/tasks/{id} [get]
 func GetTask(master *distributed.Master) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		taskID := c.Params("id")
@@ -186,7 +186,7 @@ type SubmitTaskRequest struct {
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Failure 500 {object} map[string]interface{} "Failed to submit task"
 // @Security BearerAuth
-// @Router /osm/api/tasks [post]
+// @Router /golish/api/tasks [post]
 func SubmitTask(master *distributed.Master) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req SubmitTaskRequest

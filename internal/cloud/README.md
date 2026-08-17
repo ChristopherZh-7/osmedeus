@@ -38,7 +38,7 @@ Created `/internal/cloud/` with the following files:
 #### 3. CLI Commands
 Created `/pkg/cli/cloud.go` with full command tree:
 ```
-osmedeus cloud
+golish cloud
 ├── config
 │   ├── set <key> <value>     # Update cloud-settings.yaml
 │   └── show                   # Display current config
@@ -102,7 +102,7 @@ type Provider interface {
 
 **Worker Integration**:
 - `WaitForWorkers()` polls `distributed.Client.GetAllWorkers()`
-- Filters by `wosm-` or `cloud-` prefix
+- Filters by `wgolish-` or `cloud-` prefix
 - Timeout handling (default 5min)
 - Status callback support
 
@@ -110,7 +110,7 @@ type Provider interface {
 - **Provider struct**: Token, region, size, snapshot, SSH keys, godo client
 - **Validation**: Tests API access via account info
 - **Cost estimation**: Pricing map for common droplet sizes
-- **Cloud-init script**: Installs osmedeus, sets up SSH, joins as worker
+- **Cloud-init script**: Installs golish, sets up SSH, joins as worker
 - **Pulumi integration**: Placeholder for `digitalocean.Droplet` resources
 
 ## What's NOT Yet Implemented
@@ -150,7 +150,7 @@ type Provider interface {
 6. **Image Building**
    - `cloud build` command to create provider images/snapshots
    - Packer integration or provider-native tools
-   - Pre-baked osmedeus images for faster boot
+   - Pre-baked golish images for faster boot
 
 7. **Testing**
    - Unit tests for config, cost, state
@@ -173,24 +173,24 @@ make fmt && make build
 
 ### CLI Test
 ```bash
-./bin/osmedeus cloud --help
+./bin/golish cloud --help
 # ✅ Shows cloud command help
 
-./bin/osmedeus cloud config --help
+./bin/golish cloud config --help
 # ✅ Shows config subcommands
 
-./bin/osmedeus cloud create --help
+./bin/golish cloud create --help
 # ✅ Shows create flags
 ```
 
 ### Config Test
 ```bash
 # Set a config value
-osmedeus cloud config set defaults.provider digitalocean
-osmedeus cloud config set providers.digitalocean.token ${DIGITALOCEAN_TOKEN}
+golish cloud config set defaults.provider digitalocean
+golish cloud config set providers.digitalocean.token ${DIGITALOCEAN_TOKEN}
 
 # Show current config
-osmedeus cloud config show
+golish cloud config show
 ```
 
 ## Architecture Decisions
@@ -248,4 +248,4 @@ The cloud infrastructure feature foundation is **complete and compiles successfu
 3. Adding result collection via SSH
 4. Testing end-to-end with real cloud resources
 
-The implementation follows Osmedeus patterns (Cobra CLI, YAML config, terminal printer) and integrates seamlessly with the existing distributed system.
+The implementation follows Golish patterns (Cobra CLI, YAML config, terminal printer) and integrates seamlessly with the existing distributed system.

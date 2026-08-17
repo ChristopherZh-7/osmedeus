@@ -27,19 +27,19 @@ Fetch binary registry metadata with installation status. Supports two modes:
 Returns binary metadata with download URLs for each platform/architecture.
 
 ```bash
-curl http://localhost:8002/osm/api/registry-info \
+curl http://localhost:8002/golish/api/registry-info \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **With a custom registry URL:**
 ```bash
-curl "http://localhost:8002/osm/api/registry-info?registry_url=https://example.com/my-registry.json" \
+curl "http://localhost:8002/golish/api/registry-info?registry_url=https://example.com/my-registry.json" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **With a local file path:**
 ```bash
-curl "http://localhost:8002/osm/api/registry-info?registry_url=/etc/osmedeus/registry.json" \
+curl "http://localhost:8002/golish/api/registry-info?registry_url=/etc/golish/registry.json" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -47,7 +47,7 @@ curl "http://localhost:8002/osm/api/registry-info?registry_url=/etc/osmedeus/reg
 ```json
 {
   "registry_mode": "direct-fetch",
-  "registry_url": "https://raw.githubusercontent.com/osmedeus/osmedeus-base/main/registry-metadata.json",
+  "registry_url": "https://raw.githubusercontent.com/ChristopherZh-7/golish-base/main/registry-metadata.json",
   "binaries": {
     "nuclei": {
       "desc": "Vulnerability scanner",
@@ -106,13 +106,13 @@ curl "http://localhost:8002/osm/api/registry-info?registry_url=/etc/osmedeus/reg
 Returns Nix flake binaries grouped by category with registry metadata.
 
 ```bash
-curl "http://localhost:8002/osm/api/registry-info?registry_mode=nix-build" \
+curl "http://localhost:8002/golish/api/registry-info?registry_mode=nix-build" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **With a custom metadata registry:**
 ```bash
-curl "http://localhost:8002/osm/api/registry-info?registry_mode=nix-build&registry_url=/etc/osmedeus/registry.json" \
+curl "http://localhost:8002/golish/api/registry-info?registry_mode=nix-build&registry_url=/etc/golish/registry.json" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -184,7 +184,7 @@ curl "http://localhost:8002/osm/api/registry-info?registry_mode=nix-build&regist
 
 Install binaries from registry or workflows from git/zip URL. Supports two installation modes for binaries.
 
-**Endpoint:** `POST /osm/api/registry-install`
+**Endpoint:** `POST /golish/api/registry-install`
 
 **Request Body:**
 
@@ -205,7 +205,7 @@ Downloads binaries directly from GitHub releases or configured URLs.
 
 **Install specific binaries:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/registry-install \
+curl -X POST http://localhost:8002/golish/api/registry-install \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -216,7 +216,7 @@ curl -X POST http://localhost:8002/osm/api/registry-install \
 
 **Install all binaries from registry:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/registry-install \
+curl -X POST http://localhost:8002/golish/api/registry-install \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -232,7 +232,7 @@ curl -X POST http://localhost:8002/osm/api/registry-install \
   "registry_mode": "direct-fetch",
   "installed": ["nuclei", "httpx"],
   "installed_count": 2,
-  "binaries_folder": "/home/user/osmedeus-base/binaries",
+  "binaries_folder": "/home/user/golish-base/binaries",
   "failed": [
     {"name": "ffuf", "error": "download failed"}
   ],
@@ -248,7 +248,7 @@ Installs binaries via Nix package manager using `nix profile add`.
 
 **Install specific binaries via Nix:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/registry-install \
+curl -X POST http://localhost:8002/golish/api/registry-install \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -260,7 +260,7 @@ curl -X POST http://localhost:8002/osm/api/registry-install \
 
 **Install all Nix binaries:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/registry-install \
+curl -X POST http://localhost:8002/golish/api/registry-install \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -277,7 +277,7 @@ curl -X POST http://localhost:8002/osm/api/registry-install \
   "registry_mode": "nix-build",
   "installed": ["amass", "subfinder", "nuclei"],
   "installed_count": 3,
-  "binaries_folder": "/home/user/osmedeus-base/binaries"
+  "binaries_folder": "/home/user/golish-base/binaries"
 }
 ```
 
@@ -297,18 +297,18 @@ Install a workflow from a git repository or zip archive.
 
 **Install workflow from git URL:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/registry-install \
+curl -X POST http://localhost:8002/golish/api/registry-install \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "type": "workflow",
-    "source": "https://github.com/osmedeus/osmedeus-workflow.git"
+    "source": "https://github.com/ChristopherZh-7/golish-workflow.git"
   }'
 ```
 
 **Install workflow from zip URL:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/registry-install \
+curl -X POST http://localhost:8002/golish/api/registry-install \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -321,7 +321,7 @@ curl -X POST http://localhost:8002/osm/api/registry-install \
 ```json
 {
   "message": "Workflow installed successfully",
-  "source": "https://github.com/osmedeus/osmedeus-workflow.git",
-  "workflow_folder": "/home/user/osmedeus-base/workflow"
+  "source": "https://github.com/ChristopherZh-7/golish-workflow.git",
+  "workflow_folder": "/home/user/golish-base/workflow"
 }
 ```

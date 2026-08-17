@@ -7,7 +7,7 @@ params:
   - name: target
     required: true
   - name: output_dir
-    default: /tmp/osm-docker-file-test
+    default: /tmp/golish-docker-file-test
 
 steps:
   # Test 1: std_file - capture stdout to local file

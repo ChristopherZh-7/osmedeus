@@ -8,8 +8,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/spf13/cobra"
 )
 
@@ -54,8 +54,8 @@ var orgUseCmd = &cobra.Command{
 	Use:   "use <name|uuid>",
 	Short: "Set the active org for subsequent commands",
 	Long: "Persists the active org so later commands scope to it without --org.\n" +
-		"Also prints an export line you can eval to set OSMEDEUS_ORG_UUID for the current shell:\n\n" +
-		"  eval $(osmedeus org use acme)\n\n" +
+		"Also prints an export line you can eval to set GOLISH_ORG_UUID for the current shell:\n\n" +
+		"  eval $(golish org use acme)\n\n" +
 		"Run with --clear to go back to the unfiltered all-orgs view.",
 	Args: cobra.MaximumNArgs(1),
 	RunE: runOrgUse,
@@ -282,7 +282,7 @@ func runOrgUse(cmd *cobra.Command, args []string) error {
 		if err := clearActiveOrg(); err != nil {
 			return fmt.Errorf("failed to clear active org: %w", err)
 		}
-		fmt.Println("unset OSMEDEUS_ORG_UUID")
+		fmt.Println("unset GOLISH_ORG_UUID")
 		fmt.Fprintf(os.Stderr, "%s Active org cleared - commands now span all orgs.\n",
 			terminal.StepSuccessSymbol())
 		return nil
@@ -303,7 +303,7 @@ func runOrgUse(cmd *cobra.Command, args []string) error {
 
 		// The export line goes to stdout so `eval $(...)` picks it up; everything
 		// else goes to stderr so eval does not swallow it.
-		fmt.Printf("export OSMEDEUS_ORG_UUID=%s\n", org.UUID)
+		fmt.Printf("export GOLISH_ORG_UUID=%s\n", org.UUID)
 		fmt.Fprintf(os.Stderr, "%s Active org: %s (%s)\n",
 			terminal.StepSuccessSymbol(), terminal.BoldGreen(org.Name), org.UUID)
 		fmt.Fprintf(os.Stderr, "  Saved to %s - picked up automatically by future commands.\n",

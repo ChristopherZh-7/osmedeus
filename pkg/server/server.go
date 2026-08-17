@@ -10,6 +10,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/distributed"
+	oslogger "github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/metrics"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/pkg/server/handlers"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/pkg/server/middleware"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/public"
 	"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -18,20 +28,10 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/swagger"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/distributed"
-	oslogger "github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/metrics"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
-	"github.com/j3ssie/osmedeus/v5/pkg/server/handlers"
-	"github.com/j3ssie/osmedeus/v5/pkg/server/middleware"
-	"github.com/j3ssie/osmedeus/v5/public"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 
-	_ "github.com/j3ssie/osmedeus/v5/docs/api-swagger" // swagger docs
+	_ "github.com/ChristopherZh-7/golish-pentest-platform/v5/docs/api-swagger" // swagger docs
 )
 
 // Options contains server configuration options
@@ -39,7 +39,7 @@ type Options struct {
 	NoAuth              bool                // Disable authentication when true
 	Master              *distributed.Master // Master node for distributed mode (nil if not in master mode)
 	Debug               bool                // Enable debug mode (log request bodies, detailed errors)
-	HotReload           bool                // Enable config hot reload (watches osm-settings.yaml for changes)
+	HotReload           bool                // Enable config hot reload (watches golish-settings.yaml for changes)
 	EnableEventReceiver bool                // Enable event receiver for event-triggered workflows (default: true)
 	EnableScheduler     bool                // Enable scheduler for cron, watch, and event triggers (default: true)
 }
@@ -134,7 +134,7 @@ func New(cfg *config.Config, opts *Options) (*Server, error) {
 	}
 
 	app := fiber.New(fiber.Config{
-		AppName:               "Osmedeus API Server",
+		AppName:               "Golish API Server",
 		ServerHeader:          fmt.Sprintf("%s %s (%s)", core.BINARY, core.VERSION, license),
 		ErrorHandler:          errHandler,
 		DisableStartupMessage: true,
@@ -252,7 +252,7 @@ func (s *Server) setupRoutes() {
 	s.app.Get("/swagger/*", swagger.HandlerDefault)
 
 	// API routes
-	api := s.app.Group("/osm/api")
+	api := s.app.Group("/golish/api")
 
 	// Login - always accessible
 	api.Post("/login", handlers.Login(s.config, s.options.NoAuth))
@@ -478,7 +478,7 @@ func (s *Server) setupRoutes() {
 		if c.Method() == fiber.MethodHead {
 			// For HEAD requests to non-API paths, return 200 OK
 			// This handles UI routes that the filesystem middleware would skip
-			if !strings.HasPrefix(c.Path(), "/osm/api") &&
+			if !strings.HasPrefix(c.Path(), "/golish/api") &&
 				!strings.HasPrefix(c.Path(), "/health") &&
 				!strings.HasPrefix(c.Path(), "/metrics") &&
 				!strings.HasPrefix(c.Path(), "/swagger") {
@@ -675,7 +675,7 @@ func (s *Server) PrintStartupInfo(addr string) {
 	p := terminal.NewPrinter()
 
 	// Banner line
-	fmt.Printf("%s Initiating Osmedeus %s - Crafted with %s by %s\n",
+	fmt.Printf("%s Initiating Golish %s - Crafted with %s by %s\n",
 		terminal.Yellow(terminal.SymbolLightning),
 		terminal.Cyan(core.VERSION),
 		terminal.Red("<3"),
@@ -683,11 +683,11 @@ func (s *Server) PrintStartupInfo(addr string) {
 
 	// Starting server - show both addresses when binding to 0.0.0.0
 	if port, found := strings.CutPrefix(addr, "0.0.0.0:"); found {
-		p.Info("Starting Osmedeus server %s and %s",
+		p.Info("Starting Golish server %s and %s",
 			terminal.Cyan("http://"+addr),
 			terminal.Cyan("http://localhost:"+port))
 	} else {
-		p.Info("Starting Osmedeus server %s", terminal.Cyan("http://"+addr))
+		p.Info("Starting Golish server %s", terminal.Cyan("http://"+addr))
 	}
 
 	// Master mode info
@@ -753,6 +753,6 @@ func (s *Server) PrintStartupInfo(addr string) {
 	// Print credentials tip
 	fmt.Println()
 	fmt.Printf("💡 %s\n", terminal.Gray("Tip: View your login credentials with:"))
-	fmt.Printf("   %s\n", terminal.Cyan("osmedeus config view server.username"))
-	fmt.Printf("   %s\n", terminal.Cyan("osmedeus config view server.password"))
+	fmt.Printf("   %s\n", terminal.Cyan("golish config view server.username"))
+	fmt.Printf("   %s\n", terminal.Cyan("golish config view server.password"))
 }

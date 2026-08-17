@@ -10,7 +10,7 @@ params:
   - name: target
     required: true
   - name: message
-    default: "Hello from Osmedeus"
+    default: "Hello from Golish"
 
 steps:
   - name: echo-separator

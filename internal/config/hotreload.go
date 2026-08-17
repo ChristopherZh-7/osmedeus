@@ -8,8 +8,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
 	"github.com/fsnotify/fsnotify"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
 	"go.uber.org/zap"
 )
 
@@ -58,9 +58,9 @@ func WithLogger(log *zap.Logger) Option {
 }
 
 // NewHotReloadableConfig creates a new HotReloadableConfig for the given base folder.
-// It loads the initial configuration from osm-settings.yaml in the base folder.
+// It loads the initial configuration from golish-settings.yaml in the base folder.
 func NewHotReloadableConfig(baseFolder string, opts ...Option) (*HotReloadableConfig, error) {
-	configPath := filepath.Join(baseFolder, "osm-settings.yaml")
+	configPath := filepath.Join(baseFolder, "golish-settings.yaml")
 
 	// Check that the config file exists
 	if _, err := os.Stat(configPath); err != nil {

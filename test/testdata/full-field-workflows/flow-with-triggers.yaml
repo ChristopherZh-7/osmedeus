@@ -1,7 +1,7 @@
 # =============================================================================
 # Flow Workflow: All Trigger Types Example
 # =============================================================================
-# This file demonstrates ALL trigger types available in osmedeus workflows.
+# This file demonstrates ALL trigger types available in golish workflows.
 # Triggers define when/how a workflow should automatically execute.
 # Trigger types: cron, event, watch, manual
 # =============================================================================
@@ -192,7 +192,7 @@ triggers:
     on: manual
 
     # For manual triggers, enabled controls whether CLI can run this workflow
-    # enabled: true  - Allow: osmedeus run -f triggers-example -t target
+    # enabled: true  - Allow: golish run -f triggers-example -t target
     # enabled: false - Block CLI execution (only scheduled/event triggers work)
     enabled: true
 

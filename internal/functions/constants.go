@@ -111,8 +111,8 @@ const (
 	FnSleep          = "sleep"            // sleep(seconds) -> void (pause for n seconds)
 	FnCommandExists  = "command_exists"   // command_exists(command) -> bool (check if command exists in PATH)
 	FnPickValid      = "pick_valid"       // pick_valid(v1, v2, ..., v10) -> any (first valid value)
-	FnRunModule      = "run_module"       // run_module(module, target, params?) -> string (run osmedeus module)
-	FnRunFlow        = "run_flow"         // run_flow(flow, target, params?) -> string (run osmedeus flow)
+	FnRunModule      = "run_module"       // run_module(module, target, params?) -> string (run golish module)
+	FnRunFlow        = "run_flow"         // run_flow(flow, target, params?) -> string (run golish flow)
 	FnRunOnMaster    = "run_on_master"    // run_on_master(action, ...args) -> bool (execute on master node)
 	FnRunOnWorker    = "run_on_worker"    // run_on_worker(scope, action, ...args) -> bool (execute on worker nodes)
 	FnExecPython     = "exec_python"      // exec_python(code) -> string (run inline Python, prefer uv → python3 → python)
@@ -831,8 +831,8 @@ func FunctionRegistry() map[string][]FunctionInfo {
 			{FnSleep, "sleep(seconds)", "Pause for n seconds", "void", "sleep(5)"},
 			{FnCommandExists, "command_exists(command)", "Check if command exists in PATH", "bool", "command_exists('nmap')"},
 			{FnPickValid, "pick_valid(v1, v2, ..., v10)", "Return first valid value from up to 10 arguments", "any", "pick_valid('', '', 'hello', 'world')"},
-			{FnRunModule, "run_module(module, target, params?)", "Run osmedeus module as subprocess, optional comma-separated key=value params", "string", "run_module('subdomain', 'example.com', 'threads=10,deep=true')"},
-			{FnRunFlow, "run_flow(flow, target, params?)", "Run osmedeus flow as subprocess, optional comma-separated key=value params", "string", "run_flow('general', 'example.com')"},
+			{FnRunModule, "run_module(module, target, params?)", "Run golish module as subprocess, optional comma-separated key=value params", "string", "run_module('subdomain', 'example.com', 'threads=10,deep=true')"},
+			{FnRunFlow, "run_flow(flow, target, params?)", "Run golish flow as subprocess, optional comma-separated key=value params", "string", "run_flow('general', 'example.com')"},
 			{FnExecPython, "exec_python(code)", "Run inline Python code (prefers uv, falls back to python3/python)", "string", "exec_python('print(2+2)')"},
 			{FnExecPythonFile, "exec_python_file(path)", "Run a Python file (prefers uv, falls back to python3/python)", "string", "exec_python_file('/tmp/script.py')"},
 			{FnExecTS, "exec_ts(code)", "Run inline TypeScript code via bun -e", "string", "exec_ts('console.log(2+2)')"},
@@ -955,7 +955,7 @@ func FunctionRegistry() map[string][]FunctionInfo {
 			{FnPrintMarkdownFromFile, "print_markdown_from_file(path)", "Print markdown with syntax highlighting", "void", "print_markdown_from_file('{{Output}}/summary.md')"},
 			{FnConvertJSONLToMarkdown, "convert_jsonl_to_markdown(input_path, output_path)", "Convert JSONL to markdown table and write to file", "bool", "convert_jsonl_to_markdown('{{Output}}/assets.jsonl', '{{Output}}/assets.md')"},
 			{FnConvertCSVToMarkdown, "convert_csv_to_markdown(path)", "Convert CSV to markdown table", "string", "convert_csv_to_markdown('{{Output}}/data.csv')"},
-			{FnRenderMarkdownReport, "render_markdown_report(template_path, output_path)", "Render markdown template with osm-func blocks", "bool", "render_markdown_report('{{Templates}}/report.md', '{{Output}}/report.md')"},
+			{FnRenderMarkdownReport, "render_markdown_report(template_path, output_path)", "Render markdown template with golish-func blocks", "bool", "render_markdown_report('{{Templates}}/report.md', '{{Output}}/report.md')"},
 			{FnGenerateSecurityReport, "generate_security_report(template_path)", "Generate security report from template to {{Output}}/security-report.md and register as artifact", "bool", "generate_security_report('{{MarkdownTemplates}}/security-report-template.md')"},
 			{FnConvertSARIFToMarkdown, "convert_sarif_to_markdown(input_path, output_path)", "Convert SARIF file to markdown table with severity, location, title, description", "bool", "convert_sarif_to_markdown('{{Output}}/semgrep.sarif', '{{Output}}/semgrep.md')"},
 		},
@@ -1025,15 +1025,15 @@ func FunctionRegistry() map[string][]FunctionInfo {
 		CategorySSH: {
 			{FnSSHExec, "ssh_exec(host, command, user?, key_path?, password?, port?)", "Execute command on remote host via SSH (uses connection pool)", "string", "ssh_exec('10.0.0.1', 'whoami', 'root', '~/.ssh/id_rsa')"},
 			{FnSSHRsync, "ssh_rsync(host, src, dest, user?, key_path?, password?, port?)", "Copy local file/directory to remote host via rsync over SSH", "bool", "ssh_rsync('10.0.0.1', '/tmp/data.txt', '/opt/data.txt', 'root', '~/.ssh/id_rsa')"},
-			{FnSyncFromMaster, "sync_from_master(src, dest)", "Request master to rsync file/folder to this worker via SSH", "bool", "sync_from_master('/opt/osmedeus/base/wordlists', '{{BaseFolder}}/wordlists')"},
+			{FnSyncFromMaster, "sync_from_master(src, dest)", "Request master to rsync file/folder to this worker via SSH", "bool", "sync_from_master('/opt/golish/base/wordlists', '{{BaseFolder}}/wordlists')"},
 			{FnSyncFromWorker, "sync_from_worker(identifier, ip, src, dest)", "Pull file/folder from a worker via rsync over SSH", "bool", "sync_from_worker('worker-1', '10.0.0.2', '/opt/output/results.txt', '/tmp/results.txt')"},
 			{FnRsyncToWorker, "rsync_to_worker(identifier, ip, src, dest)", "Push file/folder to a worker via rsync over SSH", "bool", "rsync_to_worker('worker-1', '10.0.0.2', '/tmp/data.txt', '/opt/data.txt')"},
 		},
 		CategoryTmux: {
-			{FnTmuxRun, "tmux_run(command, session_name?)", "Create detached tmux session running command, auto-generates bosm-<random8> name if omitted", "string", "tmux_run('sleep 30')"},
-			{FnTmuxCapture, "tmux_capture(session_name)", "Capture current pane output from tmux session; pass 'all' to capture all sessions", "string", "tmux_capture('bosm-abc12345')"},
-			{FnTmuxSend, "tmux_send(session_name, command)", "Send command (keystrokes + Enter) to existing tmux session", "bool", "tmux_send('bosm-abc12345', 'ls -la')"},
-			{FnTmuxKill, "tmux_kill(session_name)", "Kill (destroy) a tmux session", "bool", "tmux_kill('bosm-abc12345')"},
+			{FnTmuxRun, "tmux_run(command, session_name?)", "Create detached tmux session running command, auto-generates glsh-<random8> name if omitted", "string", "tmux_run('sleep 30')"},
+			{FnTmuxCapture, "tmux_capture(session_name)", "Capture current pane output from tmux session; pass 'all' to capture all sessions", "string", "tmux_capture('glsh-abc12345')"},
+			{FnTmuxSend, "tmux_send(session_name, command)", "Send command (keystrokes + Enter) to existing tmux session", "bool", "tmux_send('glsh-abc12345', 'ls -la')"},
+			{FnTmuxKill, "tmux_kill(session_name)", "Kill (destroy) a tmux session", "bool", "tmux_kill('glsh-abc12345')"},
 			{FnTmuxList, "tmux_list()", "List all tmux session names", "[]string", "tmux_list()"},
 		},
 		CategoryDistributed: {

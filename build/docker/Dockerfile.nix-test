@@ -1,6 +1,6 @@
 # Dockerfile for Nix e2e tests
 # Uses the official nixos/nix image with experimental features enabled
-# Builds the osmedeus binary inside the container for architecture compatibility
+# Builds the golish binary inside the container for architecture compatibility
 
 FROM nixos/nix:latest
 
@@ -23,8 +23,8 @@ COPY public/ public/
 COPY docs/ docs/
 
 # Build the binary inside the container (disable CGO for static build)
-RUN CGO_ENABLED=0 go build -o /app/bin/osmedeus ./cmd/osmedeus && \
-    chmod +x /app/bin/osmedeus
+RUN CGO_ENABLED=0 go build -o /app/bin/golish ./cmd/golish && \
+    chmod +x /app/bin/golish
 
 # Command to keep container running for test execution
 CMD ["sleep", "infinity"]

@@ -9,17 +9,17 @@ Most API endpoints require JWT authentication. First, obtain a token via the log
 
 ## Login
 
-**POST** `/osm/api/login`
+**POST** `/golish/api/login`
 
 Authenticate and obtain a JWT token.
 
 ### Request
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/login \
+curl -X POST http://localhost:8002/golish/api/login \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "osmedeus",
+    "username": "golish",
     "password": "your-password"
   }'
 ```
@@ -59,14 +59,14 @@ curl -X POST http://localhost:8002/osm/api/login \
 
 ## Logout
 
-**POST** `/osm/api/logout`
+**POST** `/golish/api/logout`
 
 Clear the session cookie to log out.
 
 ### Request
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/logout
+curl -X POST http://localhost:8002/golish/api/logout
 ```
 
 ### Response (200 OK)
@@ -94,7 +94,7 @@ Include the token in subsequent requests using the `Authorization: Bearer <token
 export TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 
 # Use in API requests
-curl http://localhost:8002/osm/api/workflows \
+curl http://localhost:8002/golish/api/workflows \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -126,32 +126,32 @@ curl http://localhost:8002/osm/api/workflows \
 
 ## API Key Authentication
 
-As an alternative to JWT tokens, you can authenticate using a static API key via the `x-osm-api-key` header. This is useful for scripts, CI/CD pipelines, or integrations where managing JWT token refresh is impractical.
+As an alternative to JWT tokens, you can authenticate using a static API key via the `x-golish-api-key` header. This is useful for scripts, CI/CD pipelines, or integrations where managing JWT token refresh is impractical.
 
 ### Configuration
 
-API key authentication is configured in `~/osmedeus-base/osm-settings.yaml`:
+API key authentication is configured in `~/golish-base/golish-settings.yaml`:
 
 ```yaml
 server:
   # Enable API key authentication (default: true)
   enabled_auth_api: true
-  # API key for x-osm-api-key header authentication
+  # API key for x-golish-api-key header authentication
   # A random 32-character key is generated on first run
   auth_api_key: "your-api-key-here"
 ```
 
 ### Using the API Key
 
-Include the API key in requests using the `x-osm-api-key` header:
+Include the API key in requests using the `x-golish-api-key` header:
 
 ```bash
 # Store API key in environment variable
-export OSM_API_KEY="your-api-key-here"
+export GOLISH_API_KEY="your-api-key-here"
 
 # Use in API requests
-curl http://localhost:8002/osm/api/workflows \
-  -H "x-osm-api-key: $OSM_API_KEY"
+curl http://localhost:8002/golish/api/workflows \
+  -H "x-golish-api-key: $GOLISH_API_KEY"
 ```
 
 ### Error Response
@@ -176,7 +176,7 @@ curl http://localhost:8002/osm/api/workflows \
 Authentication can be disabled by starting the server with the `--no-auth` flag:
 
 ```bash
-osmedeus server --no-auth
+golish server --no-auth
 ```
 
 When disabled, all API endpoints are accessible without a token.

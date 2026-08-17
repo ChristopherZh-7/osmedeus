@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	// Disable HTML autoescape - osmedeus templates are for shell commands,
+	// Disable HTML autoescape - golish templates are for shell commands,
 	// not HTML output. Escaping breaks JSON and other structured data.
 	pongo2.SetAutoescape(false)
 }

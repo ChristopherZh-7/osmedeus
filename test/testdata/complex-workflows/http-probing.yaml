@@ -12,7 +12,7 @@ params:
   - name: httpTimeout
     default: "10"
   - name: defaultUA
-    default: "User-Agent: Mozilla/5.0 (compatible; Osmedeus/v4; +https://github.com/j3ssie/osmedeus)"
+    default: "User-Agent: Mozilla/5.0 (compatible; Golish/v4; +https://github.com/ChristopherZh-7/golish-pentest-platform)"
 
 steps:
   - name: httpx-probe

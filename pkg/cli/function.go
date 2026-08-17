@@ -13,14 +13,14 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/distributed"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/executor"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/functions"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/template"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/distributed"
-	"github.com/j3ssie/osmedeus/v5/internal/executor"
-	"github.com/j3ssie/osmedeus/v5/internal/functions"
-	"github.com/j3ssie/osmedeus/v5/internal/template"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
 	"github.com/spf13/cobra"
 )
 
@@ -547,8 +547,8 @@ func resolveEvalScript(args []string) (string, error) {
 }
 
 // normalizeScriptExpression checks if the input is a bare function name (without parentheses)
-// and adds () to make it a valid function call. This allows "osmedeus eval cdn_ls_tree"
-// to work the same as "osmedeus eval cdn_ls_tree()"
+// and adds () to make it a valid function call. This allows "golish eval cdn_ls_tree"
+// to work the same as "golish eval cdn_ls_tree()"
 func normalizeScriptExpression(expr string) string {
 	expr = strings.TrimSpace(expr)
 

@@ -1,9 +1,0 @@
-kind: flow
-name: web-analysis
-hidden: true
-description: Alias for url workflow
-extends: url
-tags: recon, url, standard
-help:
-  example_targets: ['https://example.com', 'https://httpbin.org', 'example.com']
-  usage: osmedeus run -f web-analysis -t https://example.com

@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
 )
 
 func listWorkspaceDirs(workspacesDir string) ([]string, error) {
@@ -62,14 +62,14 @@ func resolveWorkspacesDirForListing(cfg *config.Config) string {
 	}
 
 	if home, err := os.UserHomeDir(); err == nil && home != "" {
-		candidate := filepath.Join(home, "workspaces-osmedeus")
+		candidate := filepath.Join(home, "workspaces-golish")
 		if _, err := os.Stat(candidate); err == nil {
 			return candidate
 		}
 	}
 
-	if _, err := os.Stat("/workspaces-osmedeus"); err == nil {
-		return "/workspaces-osmedeus"
+	if _, err := os.Stat("/workspaces-golish"); err == nil {
+		return "/workspaces-golish"
 	}
 
 	return configured
@@ -94,7 +94,7 @@ type filesystemWorkspaceRecord struct {
 // @Success 200 {object} map[string]interface{} "List of workspaces"
 // @Failure 500 {object} map[string]interface{} "Failed to read workspaces"
 // @Security BearerAuth
-// @Router /osm/api/workspaces [get]
+// @Router /golish/api/workspaces [get]
 func ListWorkspaces(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Parse query parameters
@@ -227,7 +227,7 @@ func ListWorkspaces(cfg *config.Config) fiber.Handler {
 // @Success 200 {array} string "Workspace names"
 // @Failure 500 {object} map[string]interface{} "Failed to list workspace names"
 // @Security BearerAuth
-// @Router /osm/api/workspace-names [get]
+// @Router /golish/api/workspace-names [get]
 func ListWorkspaceNames(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx := context.Background()
@@ -306,7 +306,7 @@ func workspacePathForDeletion(cfg *config.Config, name, localPath string) (strin
 // @Failure 404 {object} map[string]interface{} "Workspace not found"
 // @Failure 409 {object} map[string]interface{} "Workspace still has active work"
 // @Security BearerAuth
-// @Router /osm/api/workspaces/{name} [delete]
+// @Router /golish/api/workspaces/{name} [delete]
 func DeleteWorkspace(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		name := strings.TrimSpace(c.Params("name"))

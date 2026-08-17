@@ -1,12 +1,12 @@
 # Security Policy
 
-Osmedeus is a workflow engine that runs commands on your machine. That is what it is for. This
+Golish is a workflow engine that runs commands on your machine. That is what it is for. This
 document draws the line between the code execution that is **intentional** and the code execution
 that is a **vulnerability**, so operators know what they are running and reporters know what is
 worth reporting.
 
 The narrative version of the operator guidance lives at
-[docs.osmedeus.org/others/security-warning](https://docs.osmedeus.org/others/security-warning).
+[docs.golish.org/others/security-warning](https://github.com/ChristopherZh-7/golish-pentest-platform/tree/main/docs/others/security-warning).
 This file is the canonical security model for the repository.
 
 ---
@@ -14,13 +14,13 @@ This file is the canonical security model for the repository.
 ## Supported versions
 
 Security fixes land on `main` and ship in the next release. Only the latest release is supported —
-if you are running an older tag, upgrade with `osmedeus update` before reporting.
+if you are running an older tag, upgrade with `golish update` before reporting.
 
 ---
 
 ## Reporting a vulnerability
 
-Report through [GitHub Security Advisories](https://github.com/j3ssie/osmedeus/security/advisories/new).
+Report through [GitHub Security Advisories](https://github.com/ChristopherZh-7/golish-pentest-platform/security/advisories/new).
 
 Please do not open a public issue, and please do not disclose publicly until a fix is available.
 Include the endpoint or workflow involved, a reproduction, and what an attacker gains. A working
@@ -33,7 +33,7 @@ amount to "the workflow engine ran the command in the workflow" are closed as wo
 
 ## The trust model
 
-Osmedeus executes code because the **operator** asked it to. The operator is the person who runs the
+Golish executes code because the **operator** asked it to. The operator is the person who runs the
 binary, writes the workflows, and holds the API credentials. Everything the operator authors is
 trusted; everything that arrives from outside is not.
 
@@ -47,7 +47,7 @@ trusted; everything that arrives from outside is not.
 | Tool output parsed back in (SARIF, nmap XML, httpx JSON) | **Untrusted** | Data only |
 | Unauthenticated HTTP requests | **Untrusted** | Must not cause execution |
 
-**The test for whether something is a bug:** did the operator ask for this code to run? Osmedeus
+**The test for whether something is a bug:** did the operator ask for this code to run? Golish
 running a command from a workflow the operator installed is the product. The same command running
 because someone else triggered it, because a scan target was named a certain way, or because an
 endpoint documented as read-only executed something — that is a vulnerability.
@@ -59,16 +59,16 @@ endpoint documented as read-only executed something — that is a vulnerability.
 These are not vulnerabilities. They are the tool working.
 
 **Workflows execute arbitrary code.** `bash`, `remote-bash`, `function`, `agent`, and `agent-acp`
-steps run commands, scripts, and LLM-driven tool calls with the privileges of the Osmedeus process.
+steps run commands, scripts, and LLM-driven tool calls with the privileges of the Golish process.
 Never run a workflow you have not read. This is the same posture as Airflow, Argo, GitHub Actions,
 and Jenkins.
 
-**Utility functions execute code.** `osmedeus func e '<expr>'` and the functions API evaluate
+**Utility functions execute code.** `golish func e '<expr>'` and the functions API evaluate
 expressions through a JavaScript runtime that includes `exec_python()`, `exec_ts()`, `tmux_run()`,
 and `ssh_exec()`. Anyone who can call these can run commands. That is the feature.
 
-**Installing binaries executes commands.** `osmedeus install` and
-`POST /osm/api/registry-install` download binaries and run their install commands — including from a
+**Installing binaries executes commands.** `golish install` and
+`POST /golish/api/registry-install` download binaries and run their install commands — including from a
 registry you point at with `registry_url`. Installing *is* executing; a caller who can reach the
 install endpoint and supply a registry can run commands by design. The CLI prints a security warning
 before it does this. Treat install access as equivalent to shell access, and see the read-only
@@ -81,10 +81,10 @@ sends. `ssh_exec()` and the rsync helpers reach configured hosts. Only join mast
 interface is an operator error, not a bug.
 
 **Webhook triggers are unauthenticated.** When `server.enable_trigger_via_webhook` is on,
-`/osm/api/webhook-runs/{uuid}/trigger` starts a run for anyone holding the UUID (plus the optional
+`/golish/api/webhook-runs/{uuid}/trigger` starts a run for anyone holding the UUID (plus the optional
 auth key). The CLI warns about this when it prints a webhook URL. The UUID is the credential.
 
-**Scans look like attacks.** Osmedeus sends traffic that IDS/WAF products will flag. Get
+**Scans look like attacks.** Golish sends traffic that IDS/WAF products will flag. Get
 authorization for every target before you scan it.
 
 ---
@@ -105,7 +105,7 @@ Report these:
   other than the intended one — including via URL parsing tricks, redirects, or log output.
 - **Path traversal.** API parameters reading or writing outside the workspace, or archive extraction
   escaping its destination directory.
-- **SSRF where the operator supplied no URL.** The operator pointing Osmedeus at an internal host is
+- **SSRF where the operator supplied no URL.** The operator pointing Golish at an internal host is
   the feature; a request to an internal host they did not name is not.
 - **Privilege escalation** between workspaces, users, or workers.
 
@@ -118,18 +118,18 @@ Fresh installs generate random values for `auth_api_key` (32 chars), `jwt.secret
 To rotate them:
 
 ```bash
-osmedeus config set server.password "$(openssl rand -hex 12)"
-osmedeus config set server.jwt.secret_signing_key "$(openssl rand -hex 32)"
-osmedeus config set server.auth_api_key "$(openssl rand -hex 24)"
+golish config set server.password "$(openssl rand -hex 12)"
+golish config set server.jwt.secret_signing_key "$(openssl rand -hex 32)"
+golish config set server.auth_api_key "$(openssl rand -hex 24)"
 ```
 
 | Area | Do this |
 |------|---------|
 | Exposure | Never put the API on the public internet. Bind to localhost or a private interface; reach it over a VPN or SSH tunnel |
 | Transport | Terminate TLS at a reverse proxy in front of the server |
-| Auth | Keep `server.enabled_auth_api` on and use the `x-osm-api-key` header for automation |
+| Auth | Keep `server.enabled_auth_api` on and use the `x-golish-api-key` header for automation |
 | Privileges | Run as a dedicated non-root user with the minimum filesystem access it needs |
-| Workflows | Review before running; keep them in version control; `osmedeus workflow validate <name>` |
+| Workflows | Review before running; keep them in version control; `golish workflow validate <name>` |
 | Binaries | Install from the embedded registry or a registry you host; prefer Nix builds for reproducibility |
 | Database | PostgreSQL with TLS in production; encrypt backups |
 | Monitoring | Enable logging and audit access to the API |
@@ -138,7 +138,7 @@ osmedeus config set server.auth_api_key "$(openssl rand -hex 24)"
 
 Be aware of these when deciding how to expose the server:
 
-- **The browser session is not CSRF-hardened.** The `osmedeus_session` cookie is `SameSite=Lax` and
+- **The browser session is not CSRF-hardened.** The `golish_session` cookie is `SameSite=Lax` and
   CORS reflects any origin with credentials allowed. A top-level navigation from another site will
   carry the cookie. Prefer API-key auth for anything scripted, and do not leave a dashboard session
   open in a browser you also use for general browsing while the server is reachable.
@@ -172,7 +172,7 @@ issue:
 
 ## Disclaimer
 
-**Osmedeus is for authorized security testing only.** Unauthorized use may violate the law where you
+**Golish is for authorized security testing only.** Unauthorized use may violate the law where you
 live. By using it you accept that:
 
 - **You need authorization.** Explicit permission before scanning any target, every time.
@@ -180,5 +180,5 @@ live. By using it you accept that:
 - **There is no warranty.** Provided "AS IS". The authors are not liable for damages, claims, or
   legal trouble arising from its use.
 - **It executes code by design.** Review workflows before you run them.
-- **Third-party tools have their own terms.** Comply with the licenses of everything Osmedeus
+- **Third-party tools have their own terms.** Comply with the licenses of everything Golish
   integrates.

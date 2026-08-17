@@ -10,17 +10,17 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/cloud"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/distributed"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/executor"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/parser"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/runner"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/cloud"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/distributed"
-	"github.com/j3ssie/osmedeus/v5/internal/executor"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/parser"
-	"github.com/j3ssie/osmedeus/v5/internal/runner"
 	"go.uber.org/zap"
 )
 
@@ -322,7 +322,7 @@ func executeRunsConcurrently(
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Failure 404 {object} map[string]interface{} "Workflow not found"
 // @Security BearerAuth
-// @Router /osm/api/runs [post]
+// @Router /golish/api/runs [post]
 func CreateRun(cfg *config.Config, master *distributed.Master) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req CreateRunRequest
@@ -751,7 +751,7 @@ func CreateRun(cfg *config.Config, master *distributed.Master) fiber.Handler {
 						if wfKind == "flow" {
 							flag = "f"
 						}
-						remoteCmd := fmt.Sprintf("osmedeus run -%s %s -t %s", flag, wfName, target)
+						remoteCmd := fmt.Sprintf("golish run -%s %s -t %s", flag, wfName, target)
 
 						// Execute via SSH runner
 						sshRunnerCfg := &core.RunnerConfig{
@@ -881,7 +881,7 @@ func CreateRun(cfg *config.Config, master *distributed.Master) fiber.Handler {
 			"run_mode":           runMode,
 			"job_id":             jobID,
 			"status":             "queued",
-			"poll_url":           fmt.Sprintf("/osm/api/jobs/%s", jobID),
+			"poll_url":           fmt.Sprintf("/golish/api/jobs/%s", jobID),
 		}
 
 		// For single target, include target field and run_uuid for backward compatibility
@@ -926,7 +926,7 @@ func CreateRun(cfg *config.Config, master *distributed.Master) fiber.Handler {
 		if runMode == "cloud" {
 			if infraID != "" {
 				response["infra_id"] = infraID
-				response["infra_status_url"] = fmt.Sprintf("/osm/api/cloud/instances/%s/status", infraID)
+				response["infra_status_url"] = fmt.Sprintf("/golish/api/cloud/instances/%s/status", infraID)
 			}
 			if req.CloudProvider != "" {
 				response["cloud_provider"] = req.CloudProvider
@@ -953,7 +953,7 @@ func CreateRun(cfg *config.Config, master *distributed.Master) fiber.Handler {
 // @Param workspace query string false "Filter by workspace name (exact match)"
 // @Success 200 {object} map[string]interface{} "List of runs"
 // @Security BearerAuth
-// @Router /osm/api/runs [get]
+// @Router /golish/api/runs [get]
 func ListRuns(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		offset, _ := strconv.Atoi(c.Query("offset", "0"))
@@ -1011,7 +1011,7 @@ func ListRuns(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "Run details"
 // @Failure 404 {object} map[string]interface{} "Run not found"
 // @Security BearerAuth
-// @Router /osm/api/runs/{id} [get]
+// @Router /golish/api/runs/{id} [get]
 func GetRun(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
@@ -1041,7 +1041,7 @@ func GetRun(cfg *config.Config) fiber.Handler {
 // @Failure 404 {object} map[string]interface{} "Run not found"
 // @Failure 400 {object} map[string]interface{} "Run cannot be cancelled"
 // @Security BearerAuth
-// @Router /osm/api/runs/{id} [delete]
+// @Router /golish/api/runs/{id} [delete]
 func CancelRun(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
@@ -1129,7 +1129,7 @@ func CancelRun(cfg *config.Config) fiber.Handler {
 // @Failure 404 {object} map[string]interface{} "Run not found"
 // @Failure 409 {object} map[string]interface{} "Active run must be cancelled first"
 // @Security BearerAuth
-// @Router /osm/api/runs/{id}/record [delete]
+// @Router /golish/api/runs/{id}/record [delete]
 func DeleteRun(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		run, err := database.DeleteRunRecord(c.UserContext(), c.Params("id"))
@@ -1236,7 +1236,7 @@ func convertParamsToStringMap(params map[string]interface{}) map[string]string {
 // @Success 201 {object} map[string]interface{} "Run duplicated"
 // @Failure 404 {object} map[string]interface{} "Run not found"
 // @Security BearerAuth
-// @Router /osm/api/runs/{id}/duplicate [post]
+// @Router /golish/api/runs/{id}/duplicate [post]
 func DuplicateRun(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
@@ -1294,7 +1294,7 @@ func DuplicateRun(cfg *config.Config) fiber.Handler {
 // @Failure 400 {object} map[string]interface{} "Run cannot be started (not in pending status)"
 // @Failure 404 {object} map[string]interface{} "Run or workflow not found"
 // @Security BearerAuth
-// @Router /osm/api/runs/{id}/start [post]
+// @Router /golish/api/runs/{id}/start [post]
 func StartRun(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")

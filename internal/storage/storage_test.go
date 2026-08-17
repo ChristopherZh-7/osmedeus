@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

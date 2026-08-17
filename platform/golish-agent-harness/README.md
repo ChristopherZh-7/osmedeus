@@ -1,0 +1,168 @@
+# Golish Agent Harness Sidecar
+
+This directory integrates the official DeepSeek Harness as a versioned sidecar.
+It is an adapter owned by Golish, not a fork or vendored copy of the Harness
+source code.
+
+## Runtime contract
+
+- `@deepseek-ai/dsh` is pinned to an exact, tested version in `package.json` and
+  `package-lock.json`.
+- Harness state is stored below `DSH_HOME`; the default is
+  `~/golish-base/agent-harness/dsh-home`.
+- The Harness process starts in a dedicated runtime workspace, never in the
+  Golish source tree or a target-controlled repository.
+- `plugins/dsh-golish-plugin` is the upgrade-safe DSH profile boundary. It
+  deep-links native Sessions and materializes the matching reconnaissance
+  envelope below `DSH_HOME`.
+- `plugins/dsh-pentagi-orchestrator` makes the authorized root conversation the
+  operator-facing Primary and adds controlled named-role collaboration through
+  public DSH plugin seams. It also exposes the Methodology recursive index and
+  lazy loader through `pentagi_skill`. It does not patch Harness packages.
+- `skills/` is copied into DSH's official `$DSH_HOME/skills` discovery root;
+  no Harness package is patched.
+- The complete pinned Methodology corpus is bundled under
+  `vendor/methodology-skills`; the orchestrator indexes it recursively and
+  loads only a selected body.
+- Telemetry is disabled. The default `workspace-write` permission mode keeps
+  DSH approval prompts while allowing evidence to be saved in its workspace.
+- Local development listens on `127.0.0.1:3080` by default. Production keeps
+  port `3080` exclusively on Docker's private network; only Golish' native
+  Agent Pentest UI is exposed to the operator.
+
+## Local development
+
+```bash
+make install
+make dsh-start
+make dsh-check
+```
+
+The official `headless` DSH profile runs one task and exits. Golish needs a
+persistent runtime for sessions, history, steering, cancellation, and child
+agents, so production runs the persistent profile internally without
+publishing its frontend port. Use `make deploy` for that private deployment.
+
+If registry access is slow, apply a proxy only to that command (without
+changing global npm settings):
+
+```bash
+make dsh-install DSH_PROXY=http://127.0.0.1:6152
+```
+
+Useful environment variables:
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `DSH_HOME` | `~/golish-base/agent-harness/dsh-home` | Persistent Harness state |
+| `GOLISH_DSH_HOST` | `127.0.0.1` | Web bind address |
+| `GOLISH_DSH_PORT` | `3080` | Web port |
+| `GOLISH_DSH_TRUSTED_HOST` | empty | Comma-separated extra API authorities (for example `agent-harness:3080`) |
+| `GOLISH_DSH_URL` | derived from host and port | URL used by health checks |
+| `GOLISH_API_URL` | `http://127.0.0.1:8002` | Fixed Golish API origin used by the server-side result bridge |
+| `GOLISH_DSH_WORKSPACE` | `$DSH_HOME/runtime-workspace` | Safe process working directory |
+| `GOLISH_DSH_PATCH` | empty | Optional future Golish profile overlay |
+| `DSH_PERMISSION_MODE` | `workspace-write` | Harness filesystem permission preset |
+| `GOLISH_METHODOLOGY_SKILLS_DIR` | bundled `vendor/methodology-skills` | Optional override for the methodology Skill corpus indexed by `pentagi_skill` |
+
+## Methodology indexed Skill library
+
+DSH's filesystem Skill provider deliberately discovers only one directory
+level and publishes every discovered name and description into the model
+catalog. The Methodology corpus is therefore not copied into `$DSH_HOME/skills`.
+The Golish orchestrator instead recursively indexes the separate local
+corpus on first use and exposes bounded operations through `pentagi_skill`:
+
+- `search`/`list` return at most 50 summaries and support keyword, category,
+  CWE, tag, and technology filters;
+- `load` reads one exact Skill body and prepends the Golish scope and
+  high-impact-action guardrail;
+- `chain` returns prerequisites and related attack-chain Skills;
+- `status` reports index availability and counts; `refresh` rebuilds it after
+  the corpus changes.
+
+The pinned corpus ships with the sidecar and is available to both the root
+Primary and managed specialists immediately after installation. Its upstream
+repository, ref, commit, counts, and license are recorded under `vendor/`.
+An operator can still override the bundled source with a direct directory:
+
+```bash
+GOLISH_METHODOLOGY_SKILLS_DIR=/path/to/skill-corpus make dsh-start
+```
+
+The legacy link helper remains available for development overrides:
+
+```bash
+make dsh-link-methodology METHODOLOGY_SKILLS_DIR=/path/to/skill-corpus
+```
+
+## Golish Workspace adapter seam
+
+Golish remains the source of truth for authorization scope. The Agent
+Pentest page reads Workspaces and Assets from the existing Golish API and
+creates sessions through `POST /golish/api/agent-pentest/sessions`.
+
+The server-side adapter then:
+
+1. Freezes the explicitly selected asset IDs and their minimal metadata in
+   `agent_pentest_sessions` for auditability.
+2. Materializes one platform-controlled DSH directory per Golish Workspace
+   below the Harness runtime workspace.
+3. Reuses or creates a native DSH Workspace with the Golish display name.
+4. Creates one native DSH Session per Agent Pentest session and stores the
+   bidirectional IDs in Golish.
+5. Proxies the exact Session's Chat, Trajectory, and Subagent domains through
+   authenticated Golish endpoints so the dashboard can render a native UI.
+6. Resolves every child-agent operation from the authorized root Session; the
+   browser never supplies a trusted DSH parent identity.
+7. Publishes a bounded, session-specific reconnaissance document to
+   `$DSH_HOME/golish/scopes/$DSH_SESSION_ID/context.json` through the plugin.
+8. Gives the plugin a rotating per-session capability held only in memory. The
+   native `golish_record_test` and `golish_submit_finding` tools use it to
+   write coverage and pending findings back to assets in the frozen scope.
+9. Materializes the immutable root context under each child Session ID before
+   its model step, so every specialist Skill resolves the same authorization.
+10. Returns each collaboration result to Primary's current tool call while DSH
+    keeps the full specialist transcript for audit.
+
+The normal interactive model has one root tool for collaboration:
+
+- `pentagi_delegate`
+
+In collaboration mode Primary can execute normal tools itself and call
+`pentagi_delegate` for a focused Pentester, Coder, Installer, Memorist,
+Searcher, or Adviser. In solo mode all delegation surfaces are denied. The
+legacy durable task/plan tools remain registered for stored-data compatibility
+but are denied in new interactive root turns.
+
+Memory search defaults to the current Pentest Session, so a later task can
+recall facts selected by an earlier task. `task`, `workspace`, and `org` scopes
+are also available explicitly. Exact writes are content-hash deduplicated and
+legacy auto-indexed role summaries are excluded by default. When
+`agent_harness.rag_enabled` is set, Golish fuses deterministic keyword matches
+with local embedding similarity and reports the retrieval mode and per-hit
+scores. If the embedding service is unavailable it degrades to keyword search
+without blocking the agent.
+
+No API credential or target-controlled path is sent to browser plugin code.
+The frozen asset snapshot is not submitted as an automatic model prompt, so
+session creation never triggers an unapproved model run. The root Primary and
+every delegated role load the correct context using Harness-provided
+`DSH_SESSION_ID` when work begins.
+
+## Upgrade policy
+
+DeepSeek Harness is currently a developer preview. Upgrades are explicit so a
+new release cannot silently break the platform:
+
+```bash
+make dsh-upgrade DSH_VERSION=0.1.0-rc.7
+# Optional: add DSH_PROXY=http://127.0.0.1:6152
+make dsh-start
+make dsh-check
+```
+
+The upgrade command updates the exact dependency and lockfile, then verifies
+that the package manifest, installed package, and `dsh --version` agree. Commit
+the resulting `package.json` and `package-lock.json` only after the connection
+check and platform integration tests pass.

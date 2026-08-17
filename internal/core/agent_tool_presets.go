@@ -269,7 +269,7 @@ var PresetToolRegistry = map[string]PresetToolDef{
 		},
 	},
 	"run_module": {
-		Description: "Run an osmedeus module as a subprocess",
+		Description: "Run an golish module as a subprocess",
 		Parameters: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{
@@ -290,7 +290,7 @@ var PresetToolRegistry = map[string]PresetToolDef{
 		},
 	},
 	"run_flow": {
-		Description: "Run an osmedeus flow as a subprocess",
+		Description: "Run an golish flow as a subprocess",
 		Parameters: map[string]interface{}{
 			"type": "object",
 			"properties": map[string]interface{}{

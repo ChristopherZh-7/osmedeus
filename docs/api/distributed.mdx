@@ -12,7 +12,7 @@ These endpoints are only available when running the server in master mode.
 Get a list of all registered workers in the distributed pool.
 
 ```bash
-curl http://localhost:8002/osm/api/workers \
+curl http://localhost:8002/golish/api/workers \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -62,7 +62,7 @@ curl http://localhost:8002/osm/api/workers \
 Get details of a specific worker.
 
 ```bash
-curl http://localhost:8002/osm/api/workers/worker-001 \
+curl http://localhost:8002/golish/api/workers/worker-001 \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -92,7 +92,7 @@ curl http://localhost:8002/osm/api/workers/worker-001 \
 Get a list of all running and completed tasks.
 
 ```bash
-curl http://localhost:8002/osm/api/tasks \
+curl http://localhost:8002/golish/api/tasks \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -164,7 +164,7 @@ curl http://localhost:8002/osm/api/tasks \
 Get details of a specific task.
 
 ```bash
-curl http://localhost:8002/osm/api/tasks/task-12345 \
+curl http://localhost:8002/golish/api/tasks/task-12345 \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -211,7 +211,7 @@ curl http://localhost:8002/osm/api/tasks/task-12345 \
 Submit a new task to the distributed worker queue.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/tasks \
+curl -X POST http://localhost:8002/golish/api/tasks \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -223,7 +223,7 @@ curl -X POST http://localhost:8002/osm/api/tasks \
 
 **With parameters:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/tasks \
+curl -X POST http://localhost:8002/golish/api/tasks \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{

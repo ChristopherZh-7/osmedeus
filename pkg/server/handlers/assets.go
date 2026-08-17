@@ -4,9 +4,9 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
 )
 
 // ListAssets handles listing assets with pagination and filtering
@@ -24,7 +24,7 @@ import (
 // @Failure 400 {object} map[string]interface{} "Unknown org"
 // @Failure 500 {object} map[string]interface{} "Failed to fetch assets"
 // @Security BearerAuth
-// @Router /osm/api/assets [get]
+// @Router /golish/api/assets [get]
 func ListAssets(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Parse query parameters

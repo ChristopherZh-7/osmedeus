@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/runner"
-	"github.com/j3ssie/osmedeus/v5/internal/template"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/runner"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/template"
 	"go.uber.org/zap"
 )
 
@@ -159,7 +159,7 @@ func (e *RemoteBashExecutor) createRunner(runnerType core.RunnerType, cfg *core.
 	}
 
 	// Pass empty string for binaryPath since we only execute shell commands,
-	// not the osmedeus binary itself
+	// not the golish binary itself
 	switch runnerType {
 	case core.RunnerTypeDocker:
 		return runner.NewDockerRunner(runnerCfg, "")

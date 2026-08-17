@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/parser"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/parser"
 )
 
 // ListWorkflows handles listing workflows
@@ -70,7 +70,7 @@ func GetWorkflow(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "List of workflows"
 // @Failure 500 {object} map[string]interface{} "Failed to load workflows"
 // @Security BearerAuth
-// @Router /osm/api/workflows [get]
+// @Router /golish/api/workflows [get]
 func ListWorkflowsVerbose(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Check source parameter - "filesystem" for direct loading, default is "db"
@@ -121,7 +121,7 @@ func ListWorkflowsVerbose(cfg *config.Config) fiber.Handler {
 				return c.JSON(fiber.Map{
 					"data":    []interface{}{},
 					"count":   0,
-					"message": "No workflows indexed. Run 'osmedeus db index workflow' or POST /osm/api/workflows/refresh to index workflows.",
+					"message": "No workflows indexed. Run 'golish db index workflow' or POST /golish/api/workflows/refresh to index workflows.",
 				})
 			}
 		}
@@ -198,7 +198,7 @@ func listWorkflowsFromFilesystem(c *fiber.Ctx, cfg *config.Config) error {
 // @Success 200 {object} map[string]interface{} "Workflow details (JSON) or raw YAML content"
 // @Failure 404 {object} map[string]interface{} "Workflow not found"
 // @Security BearerAuth
-// @Router /osm/api/workflows/{name} [get]
+// @Router /golish/api/workflows/{name} [get]
 func GetWorkflowVerbose(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		name := c.Params("name")
@@ -386,7 +386,7 @@ func ReloadWorkflows(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "Indexing result"
 // @Failure 500 {object} map[string]interface{} "Indexing failed"
 // @Security BearerAuth
-// @Router /osm/api/workflows/refresh [post]
+// @Router /golish/api/workflows/refresh [post]
 func RefreshWorkflowIndex(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		force := c.Query("force") == "true"
@@ -420,7 +420,7 @@ func RefreshWorkflowIndex(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "List of tags"
 // @Failure 500 {object} map[string]interface{} "Failed to get tags"
 // @Security BearerAuth
-// @Router /osm/api/workflows/tags [get]
+// @Router /golish/api/workflows/tags [get]
 func GetAllWorkflowTags(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx := context.Background()

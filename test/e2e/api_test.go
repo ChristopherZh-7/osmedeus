@@ -352,19 +352,19 @@ func testInfoEndpoints(t *testing.T, log *TestLogger) {
 func testWorkflowEndpoints(t *testing.T, log *TestLogger) {
 	log.Info("Testing workflow endpoints")
 
-	// GET /osm/api/workflows (DB-based listing returns pagination)
-	resp := apiGet(t, "/osm/api/workflows")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/workflows should return 200")
+	// GET /golish/api/workflows (DB-based listing returns pagination)
+	resp := apiGet(t, "/golish/api/workflows")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/workflows should return 200")
 	body := parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain data array")
 	// Note: DB-based listing returns "pagination" with "total", not "count"
 	assert.Contains(t, body, "pagination", "Should contain pagination")
 
-	// GET /osm/api/workflows/test-bash?json=true (need json=true to get JSON, otherwise returns YAML)
-	resp = apiGet(t, "/osm/api/workflows/test-bash?json=true")
+	// GET /golish/api/workflows/test-bash?json=true (need json=true to get JSON, otherwise returns YAML)
+	resp = apiGet(t, "/golish/api/workflows/test-bash?json=true")
 	// May return 200 (workflow found) or 404 (workflow not found)
 	assert.True(t, resp.StatusCode == 200 || resp.StatusCode == 404,
-		"GET /osm/api/workflows/test-bash should return 200 or 404")
+		"GET /golish/api/workflows/test-bash should return 200 or 404")
 	if resp.StatusCode == 200 {
 		body = parseJSONResponse(t, resp)
 		assert.Contains(t, body, "name", "Should contain workflow name")
@@ -377,9 +377,9 @@ func testWorkflowEndpoints(t *testing.T, log *TestLogger) {
 func testWorkspaceEndpoints(t *testing.T, log *TestLogger) {
 	log.Info("Testing workspace endpoints")
 
-	// GET /osm/api/workspaces (seeded data)
-	resp := apiGet(t, "/osm/api/workspaces")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/workspaces should return 200")
+	// GET /golish/api/workspaces (seeded data)
+	resp := apiGet(t, "/golish/api/workspaces")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/workspaces should return 200")
 	body := parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain data array")
 	// Seeded data should have workspaces
@@ -394,9 +394,9 @@ func testWorkspaceEndpoints(t *testing.T, log *TestLogger) {
 func testAssetEndpoints(t *testing.T, log *TestLogger) {
 	log.Info("Testing asset endpoints")
 
-	// GET /osm/api/assets (seeded data)
-	resp := apiGet(t, "/osm/api/assets")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/assets should return 200")
+	// GET /golish/api/assets (seeded data)
+	resp := apiGet(t, "/golish/api/assets")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/assets should return 200")
 	body := parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain data array")
 	// Seeded data should have 10 assets
@@ -411,9 +411,9 @@ func testAssetEndpoints(t *testing.T, log *TestLogger) {
 func testStatsEndpoint(t *testing.T, log *TestLogger) {
 	log.Info("Testing stats endpoint")
 
-	// GET /osm/api/stats
-	resp := apiGet(t, "/osm/api/stats")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/stats should return 200")
+	// GET /golish/api/stats
+	resp := apiGet(t, "/golish/api/stats")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/stats should return 200")
 	body := parseJSONResponse(t, resp)
 	assert.Contains(t, body, "workflows", "Should contain workflows count")
 	assert.Contains(t, body, "assets", "Should contain assets count")
@@ -425,11 +425,11 @@ func testStatsEndpoint(t *testing.T, log *TestLogger) {
 func testScheduleEndpoints(t *testing.T, log *TestLogger) {
 	log.Info("Testing schedule endpoints")
 
-	// GET /osm/api/schedules (seeded data)
-	resp := apiGet(t, "/osm/api/schedules")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/schedules should return 200")
+	// GET /golish/api/schedules (seeded data)
+	resp := apiGet(t, "/golish/api/schedules")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/schedules should return 200")
 
-	// POST /osm/api/schedules - Create new schedule
+	// POST /golish/api/schedules - Create new schedule
 	schedule := map[string]interface{}{
 		"name":          "test-api-schedule",
 		"workflow_name": "test-bash",
@@ -438,8 +438,8 @@ func testScheduleEndpoints(t *testing.T, log *TestLogger) {
 		"schedule":      "0 0 * * *",
 		"enabled":       true,
 	}
-	resp = apiPost(t, "/osm/api/schedules", schedule)
-	assert.Equal(t, 201, resp.StatusCode, "POST /osm/api/schedules should return 201")
+	resp = apiPost(t, "/golish/api/schedules", schedule)
+	assert.Equal(t, 201, resp.StatusCode, "POST /golish/api/schedules should return 201")
 	body := parseJSONResponse(t, resp)
 	// Schedule ID is in the "data" object returned by the API
 	data, ok := body["data"].(map[string]interface{})
@@ -448,26 +448,26 @@ func testScheduleEndpoints(t *testing.T, log *TestLogger) {
 	require.True(t, ok, "Data should contain schedule id (lowercase)")
 	require.NotEmpty(t, scheduleID, "Schedule ID should not be empty")
 
-	// GET /osm/api/schedules/:id
-	resp = apiGet(t, "/osm/api/schedules/"+scheduleID)
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/schedules/:id should return 200")
+	// GET /golish/api/schedules/:id
+	resp = apiGet(t, "/golish/api/schedules/"+scheduleID)
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/schedules/:id should return 200")
 
-	// PUT /osm/api/schedules/:id
+	// PUT /golish/api/schedules/:id
 	update := map[string]interface{}{"name": "updated-api-schedule"}
-	resp = apiPut(t, "/osm/api/schedules/"+scheduleID, update)
-	assert.Equal(t, 200, resp.StatusCode, "PUT /osm/api/schedules/:id should return 200")
+	resp = apiPut(t, "/golish/api/schedules/"+scheduleID, update)
+	assert.Equal(t, 200, resp.StatusCode, "PUT /golish/api/schedules/:id should return 200")
 
-	// POST /osm/api/schedules/:id/disable
-	resp = apiPost(t, "/osm/api/schedules/"+scheduleID+"/disable", nil)
-	assert.Equal(t, 200, resp.StatusCode, "POST /osm/api/schedules/:id/disable should return 200")
+	// POST /golish/api/schedules/:id/disable
+	resp = apiPost(t, "/golish/api/schedules/"+scheduleID+"/disable", nil)
+	assert.Equal(t, 200, resp.StatusCode, "POST /golish/api/schedules/:id/disable should return 200")
 
-	// POST /osm/api/schedules/:id/enable
-	resp = apiPost(t, "/osm/api/schedules/"+scheduleID+"/enable", nil)
-	assert.Equal(t, 200, resp.StatusCode, "POST /osm/api/schedules/:id/enable should return 200")
+	// POST /golish/api/schedules/:id/enable
+	resp = apiPost(t, "/golish/api/schedules/"+scheduleID+"/enable", nil)
+	assert.Equal(t, 200, resp.StatusCode, "POST /golish/api/schedules/:id/enable should return 200")
 
-	// DELETE /osm/api/schedules/:id
-	resp = apiDelete(t, "/osm/api/schedules/"+scheduleID)
-	assert.Equal(t, 200, resp.StatusCode, "DELETE /osm/api/schedules/:id should return 200")
+	// DELETE /golish/api/schedules/:id
+	resp = apiDelete(t, "/golish/api/schedules/"+scheduleID)
+	assert.Equal(t, 200, resp.StatusCode, "DELETE /golish/api/schedules/:id should return 200")
 
 	log.Success("Schedule endpoints OK")
 }
@@ -490,18 +490,18 @@ func testRegistryEndpoint(t *testing.T, log *TestLogger) {
 
 	// Default: embedded registry, direct-fetch mode
 	log.Info("Testing default registry (embedded)")
-	resp := apiGet(t, "/osm/api/registry-info")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/registry-info should return 200")
+	resp := apiGet(t, "/golish/api/registry-info")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/registry-info should return 200")
 	body := parseJSONResponse(t, resp)
 	assert.Equal(t, "direct-fetch", body["registry_mode"], "Default mode should be direct-fetch")
 	assert.Contains(t, body, "registry_url", "Should contain registry_url")
 	assert.Contains(t, body, "binaries", "Should contain binaries")
 
-	// direct-fetch with local preset registry file https://github.com/j3ssie/osmedeus/blob/d5aa39ba30545102a8c9717801f16879f8197736/public/presets/registry-metadata-direct-fetch.json
+	// direct-fetch with local preset registry file https://github.com/ChristopherZh-7/golish-pentest-platform/blob/d5aa39ba30545102a8c9717801f16879f8197736/public/presets/registry-metadata-direct-fetch.json
 	log.Info("Testing registry_url with preset file (direct-fetch)")
 	encodedPath := url.QueryEscape(presetRegistryPath)
-	resp = apiGet(t, "/osm/api/registry-info?registry_url="+encodedPath)
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/registry-info with preset file should return 200")
+	resp = apiGet(t, "/golish/api/registry-info?registry_url="+encodedPath)
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/registry-info with preset file should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Equal(t, "direct-fetch", body["registry_mode"], "Mode should be direct-fetch")
 	assert.Equal(t, presetRegistryPath, body["registry_url"], "registry_url in response should match the path passed")
@@ -512,8 +512,8 @@ func testRegistryEndpoint(t *testing.T, log *TestLogger) {
 
 	// nix-build mode (may or may not have Nix; endpoint must respond regardless)
 	log.Info("Testing registry_mode=nix-build (no custom registry_url)")
-	resp = apiGet(t, "/osm/api/registry-info?registry_mode=nix-build")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/registry-info?registry_mode=nix-build should return 200")
+	resp = apiGet(t, "/golish/api/registry-info?registry_mode=nix-build")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/registry-info?registry_mode=nix-build should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Equal(t, "nix-build", body["registry_mode"], "Mode should be nix-build")
 	assert.Contains(t, body, "nix_installed", "Should contain nix_installed field")
@@ -522,8 +522,8 @@ func testRegistryEndpoint(t *testing.T, log *TestLogger) {
 
 	// nix-build mode with preset registry_url for metadata overlay
 	log.Info("Testing registry_mode=nix-build with preset registry_url for metadata")
-	resp = apiGet(t, "/osm/api/registry-info?registry_mode=nix-build&registry_url="+encodedPath)
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/registry-info nix-build+registry_url should return 200")
+	resp = apiGet(t, "/golish/api/registry-info?registry_mode=nix-build&registry_url="+encodedPath)
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/registry-info nix-build+registry_url should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Equal(t, "nix-build", body["registry_mode"], "Mode should be nix-build")
 	assert.Equal(t, presetRegistryPath, body["registry_url"], "registry_url in nix-build response should match the path passed")
@@ -535,15 +535,15 @@ func testRegistryEndpoint(t *testing.T, log *TestLogger) {
 func testDistributedEndpoints(t *testing.T, log *TestLogger) {
 	log.Info("Testing distributed endpoints")
 
-	// GET /osm/api/workers (master mode enabled)
-	resp := apiGet(t, "/osm/api/workers")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/workers should return 200")
+	// GET /golish/api/workers (master mode enabled)
+	resp := apiGet(t, "/golish/api/workers")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/workers should return 200")
 	body := parseJSONResponse(t, resp)
 	assert.Contains(t, body, "count", "Should contain worker count")
 
-	// GET /osm/api/tasks
-	resp = apiGet(t, "/osm/api/tasks")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/tasks should return 200")
+	// GET /golish/api/tasks
+	resp = apiGet(t, "/golish/api/tasks")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/tasks should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "running", "Should contain running tasks")
 	assert.Contains(t, body, "completed", "Should contain completed tasks")
@@ -555,9 +555,9 @@ func testDistributedEndpoints(t *testing.T, log *TestLogger) {
 func testVulnerabilityEndpoints(t *testing.T, log *TestLogger) {
 	log.Info("Testing vulnerability endpoints")
 
-	// GET /osm/api/vulnerabilities (seeded data)
-	resp := apiGet(t, "/osm/api/vulnerabilities")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/vulnerabilities should return 200")
+	// GET /golish/api/vulnerabilities (seeded data)
+	resp := apiGet(t, "/golish/api/vulnerabilities")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/vulnerabilities should return 200")
 	body := parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain data array")
 	assert.Contains(t, body, "pagination", "Should contain pagination")
@@ -565,9 +565,9 @@ func testVulnerabilityEndpoints(t *testing.T, log *TestLogger) {
 	assert.True(t, ok, "Data should be an array")
 	assert.NotEmpty(t, data, "Should have seeded vulnerabilities")
 
-	// GET /osm/api/vulnerabilities/summary
-	resp = apiGet(t, "/osm/api/vulnerabilities/summary")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/vulnerabilities/summary should return 200")
+	// GET /golish/api/vulnerabilities/summary
+	resp = apiGet(t, "/golish/api/vulnerabilities/summary")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/vulnerabilities/summary should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain data")
 	summaryData, ok := body["data"].(map[string]interface{})
@@ -575,7 +575,7 @@ func testVulnerabilityEndpoints(t *testing.T, log *TestLogger) {
 	assert.Contains(t, summaryData, "by_severity", "Should contain severity breakdown")
 	assert.Contains(t, summaryData, "total", "Should contain total count")
 
-	// POST /osm/api/vulnerabilities - Create new vulnerability
+	// POST /golish/api/vulnerabilities - Create new vulnerability
 	vuln := map[string]interface{}{
 		"workspace":   "test-workspace",
 		"vuln_title":  "Test XSS Vulnerability",
@@ -586,8 +586,8 @@ func testVulnerabilityEndpoints(t *testing.T, log *TestLogger) {
 		"asset_value": "test.example.com",
 		"tags":        []string{"xss", "test"},
 	}
-	resp = apiPost(t, "/osm/api/vulnerabilities", vuln)
-	assert.Equal(t, 201, resp.StatusCode, "POST /osm/api/vulnerabilities should return 201")
+	resp = apiPost(t, "/golish/api/vulnerabilities", vuln)
+	assert.Equal(t, 201, resp.StatusCode, "POST /golish/api/vulnerabilities should return 201")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain created data")
 	createdData, ok := body["data"].(map[string]interface{})
@@ -596,19 +596,19 @@ func testVulnerabilityEndpoints(t *testing.T, log *TestLogger) {
 	require.True(t, ok, "Should have numeric id")
 	require.NotZero(t, vulnID, "Vulnerability ID should not be zero")
 
-	// GET /osm/api/vulnerabilities/:id
+	// GET /golish/api/vulnerabilities/:id
 	vulnIDStr := fmt.Sprintf("%.0f", vulnID)
-	resp = apiGet(t, "/osm/api/vulnerabilities/"+vulnIDStr)
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/vulnerabilities/:id should return 200")
+	resp = apiGet(t, "/golish/api/vulnerabilities/"+vulnIDStr)
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/vulnerabilities/:id should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain data")
 
-	// DELETE /osm/api/vulnerabilities/:id
-	resp = apiDelete(t, "/osm/api/vulnerabilities/"+vulnIDStr)
-	assert.Equal(t, 200, resp.StatusCode, "DELETE /osm/api/vulnerabilities/:id should return 200")
+	// DELETE /golish/api/vulnerabilities/:id
+	resp = apiDelete(t, "/golish/api/vulnerabilities/"+vulnIDStr)
+	assert.Equal(t, 200, resp.StatusCode, "DELETE /golish/api/vulnerabilities/:id should return 200")
 
 	// Verify deletion
-	resp = apiGet(t, "/osm/api/vulnerabilities/"+vulnIDStr)
+	resp = apiGet(t, "/golish/api/vulnerabilities/"+vulnIDStr)
 	assert.Equal(t, 404, resp.StatusCode, "GET deleted vulnerability should return 404")
 
 	log.Success("Vulnerability endpoints OK")
@@ -619,9 +619,9 @@ func testRunEndpoints(t *testing.T, log *TestLogger) {
 	log.Info("Testing run endpoints")
 
 	// ===== LIST RUNS =====
-	log.Info("Testing GET /osm/api/runs")
-	resp := apiGet(t, "/osm/api/runs")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/runs should return 200")
+	log.Info("Testing GET /golish/api/runs")
+	resp := apiGet(t, "/golish/api/runs")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/runs should return 200")
 	body := parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain data array")
 	assert.Contains(t, body, "pagination", "Should contain pagination")
@@ -629,40 +629,40 @@ func testRunEndpoints(t *testing.T, log *TestLogger) {
 	assert.True(t, ok, "Data should be an array")
 
 	// Test with pagination parameters
-	resp = apiGet(t, "/osm/api/runs?offset=0&limit=5")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/runs with pagination should return 200")
+	resp = apiGet(t, "/golish/api/runs?offset=0&limit=5")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/runs with pagination should return 200")
 
 	// Test with status filter
-	resp = apiGet(t, "/osm/api/runs?status=completed")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/runs?status=completed should return 200")
+	resp = apiGet(t, "/golish/api/runs?status=completed")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/runs?status=completed should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain data array")
 
 	// Test with workflow filter
-	resp = apiGet(t, "/osm/api/runs?workflow=test-bash")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/runs?workflow=test-bash should return 200")
+	resp = apiGet(t, "/golish/api/runs?workflow=test-bash")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/runs?workflow=test-bash should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain data array")
 
 	// Test with target filter
-	resp = apiGet(t, "/osm/api/runs?target=example")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/runs?target=example should return 200")
+	resp = apiGet(t, "/golish/api/runs?target=example")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/runs?target=example should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain data array")
 
 	// Test with workspace filter
-	resp = apiGet(t, "/osm/api/runs?workspace=example.com")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/runs?workspace=example.com should return 200")
+	resp = apiGet(t, "/golish/api/runs?workspace=example.com")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/runs?workspace=example.com should return 200")
 
 	// ===== CREATE RUN - VALIDATION =====
-	log.Info("Testing POST /osm/api/runs validation")
+	log.Info("Testing POST /golish/api/runs validation")
 
 	// Test missing workflow
 	invalidRun := map[string]interface{}{
 		"target": "test.example.com",
 	}
-	resp = apiPost(t, "/osm/api/runs", invalidRun)
-	assert.Equal(t, 400, resp.StatusCode, "POST /osm/api/runs without workflow should return 400")
+	resp = apiPost(t, "/golish/api/runs", invalidRun)
+	assert.Equal(t, 400, resp.StatusCode, "POST /golish/api/runs without workflow should return 400")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "error", "Should contain error field")
 
@@ -670,8 +670,8 @@ func testRunEndpoints(t *testing.T, log *TestLogger) {
 	invalidRun = map[string]interface{}{
 		"module": "test-bash",
 	}
-	resp = apiPost(t, "/osm/api/runs", invalidRun)
-	assert.Equal(t, 400, resp.StatusCode, "POST /osm/api/runs without target should return 400")
+	resp = apiPost(t, "/golish/api/runs", invalidRun)
+	assert.Equal(t, 400, resp.StatusCode, "POST /golish/api/runs without target should return 400")
 
 	// Test invalid priority
 	invalidRun = map[string]interface{}{
@@ -679,8 +679,8 @@ func testRunEndpoints(t *testing.T, log *TestLogger) {
 		"target":   "test.example.com",
 		"priority": "invalid-priority",
 	}
-	resp = apiPost(t, "/osm/api/runs", invalidRun)
-	assert.Equal(t, 400, resp.StatusCode, "POST /osm/api/runs with invalid priority should return 400")
+	resp = apiPost(t, "/golish/api/runs", invalidRun)
+	assert.Equal(t, 400, resp.StatusCode, "POST /golish/api/runs with invalid priority should return 400")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body["message"], "priority", "Error message should mention priority")
 
@@ -690,13 +690,13 @@ func testRunEndpoints(t *testing.T, log *TestLogger) {
 		"target":   "test.example.com",
 		"run_mode": "invalid-mode",
 	}
-	resp = apiPost(t, "/osm/api/runs", invalidRun)
-	assert.Equal(t, 400, resp.StatusCode, "POST /osm/api/runs with invalid run_mode should return 400")
+	resp = apiPost(t, "/golish/api/runs", invalidRun)
+	assert.Equal(t, 400, resp.StatusCode, "POST /golish/api/runs with invalid run_mode should return 400")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body["message"], "run_mode", "Error message should mention run_mode")
 
 	// ===== CREATE RUN - ALL PRIORITIES =====
-	log.Info("Testing POST /osm/api/runs with all priority levels")
+	log.Info("Testing POST /golish/api/runs with all priority levels")
 	priorities := []string{"low", "normal", "medium", "high", "critical"}
 	for _, priority := range priorities {
 		runReq := map[string]interface{}{
@@ -704,10 +704,10 @@ func testRunEndpoints(t *testing.T, log *TestLogger) {
 			"target":   fmt.Sprintf("priority-%s.example.com", priority),
 			"priority": priority,
 		}
-		resp = apiPost(t, "/osm/api/runs", runReq)
+		resp = apiPost(t, "/golish/api/runs", runReq)
 		// 202 (accepted) or 404 (workflow not found) are valid
 		assert.True(t, resp.StatusCode == 202 || resp.StatusCode == 404,
-			"POST /osm/api/runs with priority=%s should return 202 or 404, got %d", priority, resp.StatusCode)
+			"POST /golish/api/runs with priority=%s should return 202 or 404, got %d", priority, resp.StatusCode)
 		if resp.StatusCode == 202 {
 			body = parseJSONResponse(t, resp)
 			assert.Equal(t, priority, body["priority"], "Response priority should match request")
@@ -715,7 +715,7 @@ func testRunEndpoints(t *testing.T, log *TestLogger) {
 	}
 
 	// ===== CREATE RUN - VALID REQUEST =====
-	log.Info("Testing POST /osm/api/runs with valid request")
+	log.Info("Testing POST /golish/api/runs with valid request")
 	validRun := map[string]interface{}{
 		"module":   "test-bash",
 		"target":   "run-test.example.com",
@@ -724,10 +724,10 @@ func testRunEndpoints(t *testing.T, log *TestLogger) {
 			"custom_param": "test_value",
 		},
 	}
-	resp = apiPost(t, "/osm/api/runs", validRun)
+	resp = apiPost(t, "/golish/api/runs", validRun)
 	// Accept 202 (accepted) or 404 (workflow not found)
 	assert.True(t, resp.StatusCode == 202 || resp.StatusCode == 404,
-		"POST /osm/api/runs should return 202 or 404")
+		"POST /golish/api/runs should return 202 or 404")
 
 	var createdRunUUID string
 	if resp.StatusCode == 202 {
@@ -743,16 +743,16 @@ func testRunEndpoints(t *testing.T, log *TestLogger) {
 	}
 
 	// ===== CREATE RUN - MULTIPLE TARGETS =====
-	log.Info("Testing POST /osm/api/runs with multiple targets")
+	log.Info("Testing POST /golish/api/runs with multiple targets")
 	multiTargetRun := map[string]interface{}{
 		"module":      "test-bash",
 		"targets":     []string{"target1.example.com", "target2.example.com", "target3.example.com"},
 		"concurrency": 2,
 		"priority":    "normal",
 	}
-	resp = apiPost(t, "/osm/api/runs", multiTargetRun)
+	resp = apiPost(t, "/golish/api/runs", multiTargetRun)
 	assert.True(t, resp.StatusCode == 202 || resp.StatusCode == 404,
-		"POST /osm/api/runs with multiple targets should return 202 or 404")
+		"POST /golish/api/runs with multiple targets should return 202 or 404")
 	if resp.StatusCode == 202 {
 		body = parseJSONResponse(t, resp)
 		targetCount, _ := body["target_count"].(float64)
@@ -761,18 +761,18 @@ func testRunEndpoints(t *testing.T, log *TestLogger) {
 	}
 
 	// ===== CREATE RUN - EMPTY TARGET =====
-	log.Info("Testing POST /osm/api/runs with empty_target")
+	log.Info("Testing POST /golish/api/runs with empty_target")
 	emptyTargetRun := map[string]interface{}{
 		"module":       "test-bash",
 		"empty_target": true,
 		"priority":     "low",
 	}
-	resp = apiPost(t, "/osm/api/runs", emptyTargetRun)
+	resp = apiPost(t, "/golish/api/runs", emptyTargetRun)
 	assert.True(t, resp.StatusCode == 202 || resp.StatusCode == 404,
-		"POST /osm/api/runs with empty_target should return 202 or 404")
+		"POST /golish/api/runs with empty_target should return 202 or 404")
 
 	// ===== GET RUN DETAILS =====
-	log.Info("Testing GET /osm/api/runs/:id")
+	log.Info("Testing GET /golish/api/runs/:id")
 
 	// Use a run UUID from earlier if we created one, otherwise use test ID
 	testRunID := "test-run-123"
@@ -788,40 +788,40 @@ func testRunEndpoints(t *testing.T, log *TestLogger) {
 	}
 
 	// GET run by ID - may be 200 (found) or 404 (not found)
-	resp = apiGet(t, "/osm/api/runs/"+testRunID)
+	resp = apiGet(t, "/golish/api/runs/"+testRunID)
 	assert.True(t, resp.StatusCode == 200 || resp.StatusCode == 404,
-		"GET /osm/api/runs/:id should return 200 or 404")
+		"GET /golish/api/runs/:id should return 200 or 404")
 
 	// Test with include_steps query param
-	resp = apiGet(t, "/osm/api/runs/"+testRunID+"?include_steps=true")
+	resp = apiGet(t, "/golish/api/runs/"+testRunID+"?include_steps=true")
 	assert.True(t, resp.StatusCode == 200 || resp.StatusCode == 404,
-		"GET /osm/api/runs/:id?include_steps=true should return 200 or 404")
+		"GET /golish/api/runs/:id?include_steps=true should return 200 or 404")
 
 	// Test with include_artifacts query param
-	resp = apiGet(t, "/osm/api/runs/"+testRunID+"?include_artifacts=true")
+	resp = apiGet(t, "/golish/api/runs/"+testRunID+"?include_artifacts=true")
 	assert.True(t, resp.StatusCode == 200 || resp.StatusCode == 404,
-		"GET /osm/api/runs/:id?include_artifacts=true should return 200 or 404")
+		"GET /golish/api/runs/:id?include_artifacts=true should return 200 or 404")
 
 	// ===== GET RUN STEPS =====
-	log.Info("Testing GET /osm/api/runs/:id/steps")
-	resp = apiGet(t, "/osm/api/runs/"+testRunID+"/steps")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/runs/:id/steps should return 200")
+	log.Info("Testing GET /golish/api/runs/:id/steps")
+	resp = apiGet(t, "/golish/api/runs/"+testRunID+"/steps")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/runs/:id/steps should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain steps data")
 
 	// ===== GET RUN ARTIFACTS =====
-	log.Info("Testing GET /osm/api/runs/:id/artifacts")
-	resp = apiGet(t, "/osm/api/runs/"+testRunID+"/artifacts")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/runs/:id/artifacts should return 200")
+	log.Info("Testing GET /golish/api/runs/:id/artifacts")
+	resp = apiGet(t, "/golish/api/runs/"+testRunID+"/artifacts")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/runs/:id/artifacts should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain artifacts data")
 
 	// ===== DUPLICATE RUN =====
-	log.Info("Testing POST /osm/api/runs/:id/duplicate")
-	resp = apiPost(t, "/osm/api/runs/"+testRunID+"/duplicate", nil)
+	log.Info("Testing POST /golish/api/runs/:id/duplicate")
+	resp = apiPost(t, "/golish/api/runs/"+testRunID+"/duplicate", nil)
 	// May return 201 (created) or 404 (run not found)
 	assert.True(t, resp.StatusCode == 201 || resp.StatusCode == 404,
-		"POST /osm/api/runs/:id/duplicate should return 201 or 404")
+		"POST /golish/api/runs/:id/duplicate should return 201 or 404")
 	if resp.StatusCode == 201 {
 		body = parseJSONResponse(t, resp)
 		assert.Contains(t, body, "run_uuid", "Should contain new run_uuid")
@@ -830,18 +830,18 @@ func testRunEndpoints(t *testing.T, log *TestLogger) {
 	}
 
 	// ===== START RUN =====
-	log.Info("Testing POST /osm/api/runs/:id/start")
-	resp = apiPost(t, "/osm/api/runs/"+testRunID+"/start", nil)
+	log.Info("Testing POST /golish/api/runs/:id/start")
+	resp = apiPost(t, "/golish/api/runs/"+testRunID+"/start", nil)
 	// May return 202 (started), 400 (not pending), or 404 (not found)
 	assert.True(t, resp.StatusCode == 202 || resp.StatusCode == 400 || resp.StatusCode == 404,
-		"POST /osm/api/runs/:id/start should return 202, 400, or 404")
+		"POST /golish/api/runs/:id/start should return 202, 400, or 404")
 
 	// ===== CANCEL RUN =====
-	log.Info("Testing DELETE /osm/api/runs/:id (cancel)")
-	resp = apiDelete(t, "/osm/api/runs/"+testRunID)
+	log.Info("Testing DELETE /golish/api/runs/:id (cancel)")
+	resp = apiDelete(t, "/golish/api/runs/"+testRunID)
 	// May return 200 (cancelled), 400 (cannot cancel), or 404 (not found)
 	assert.True(t, resp.StatusCode == 200 || resp.StatusCode == 400 || resp.StatusCode == 404,
-		"DELETE /osm/api/runs/:id should return 200, 400, or 404")
+		"DELETE /golish/api/runs/:id should return 200, 400, or 404")
 	if resp.StatusCode == 200 {
 		body = parseJSONResponse(t, resp)
 		assert.Contains(t, body, "message", "Should contain message")
@@ -854,22 +854,22 @@ func testRunEndpoints(t *testing.T, log *TestLogger) {
 func testEventLogEndpoints(t *testing.T, log *TestLogger) {
 	log.Info("Testing event log endpoints")
 
-	// GET /osm/api/event-logs
-	resp := apiGet(t, "/osm/api/event-logs")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/event-logs should return 200")
+	// GET /golish/api/event-logs
+	resp := apiGet(t, "/golish/api/event-logs")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/event-logs should return 200")
 	body := parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain data array")
 	assert.Contains(t, body, "pagination", "Should contain pagination")
 
-	// GET /osm/api/event-logs?workspace=example.com (filter)
-	resp = apiGet(t, "/osm/api/event-logs?workspace=example.com")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/event-logs with filter should return 200")
+	// GET /golish/api/event-logs?workspace=example.com (filter)
+	resp = apiGet(t, "/golish/api/event-logs?workspace=example.com")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/event-logs with filter should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain data array")
 
-	// GET /osm/api/event-logs with limit
-	resp = apiGet(t, "/osm/api/event-logs?limit=5")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/event-logs with limit should return 200")
+	// GET /golish/api/event-logs with limit
+	resp = apiGet(t, "/golish/api/event-logs?limit=5")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/event-logs with limit should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "data", "Should contain data array")
 
@@ -880,32 +880,32 @@ func testEventLogEndpoints(t *testing.T, log *TestLogger) {
 func testFunctionEndpoints(t *testing.T, log *TestLogger) {
 	log.Info("Testing function endpoints")
 
-	// GET /osm/api/functions/list
-	resp := apiGet(t, "/osm/api/functions/list")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/functions/list should return 200")
+	// GET /golish/api/functions/list
+	resp := apiGet(t, "/golish/api/functions/list")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/functions/list should return 200")
 	body := parseJSONResponse(t, resp)
 	assert.Contains(t, body, "functions", "Should contain functions list")
 	functions, ok := body["functions"].([]interface{})
 	assert.True(t, ok, "Functions should be an array")
 	assert.NotEmpty(t, functions, "Should have available functions")
 
-	// POST /osm/api/functions/eval - Evaluate a simple script
+	// POST /golish/api/functions/eval - Evaluate a simple script
 	// Note: Uses "script" field, not "expression"
 	evalReq := map[string]interface{}{
 		"script": "1 + 1",
 	}
-	resp = apiPost(t, "/osm/api/functions/eval", evalReq)
-	assert.Equal(t, 200, resp.StatusCode, "POST /osm/api/functions/eval should return 200")
+	resp = apiPost(t, "/golish/api/functions/eval", evalReq)
+	assert.Equal(t, 200, resp.StatusCode, "POST /golish/api/functions/eval should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "result", "Should contain result")
 
-	// POST /osm/api/functions/eval - Evaluate with target variable
+	// POST /golish/api/functions/eval - Evaluate with target variable
 	evalReq = map[string]interface{}{
 		"script": "'hello ' + target",
 		"target": "world",
 	}
-	resp = apiPost(t, "/osm/api/functions/eval", evalReq)
-	assert.Equal(t, 200, resp.StatusCode, "POST /osm/api/functions/eval with target should return 200")
+	resp = apiPost(t, "/golish/api/functions/eval", evalReq)
+	assert.Equal(t, 200, resp.StatusCode, "POST /golish/api/functions/eval with target should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "result", "Should contain result")
 
@@ -916,9 +916,9 @@ func testFunctionEndpoints(t *testing.T, log *TestLogger) {
 func testSettingsEndpoints(t *testing.T, log *TestLogger) {
 	log.Info("Testing settings endpoints")
 
-	// GET /osm/api/settings/yaml - returns raw YAML text, not JSON
-	resp := apiGet(t, "/osm/api/settings/yaml")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/settings/yaml should return 200")
+	// GET /golish/api/settings/yaml - returns raw YAML text, not JSON
+	resp := apiGet(t, "/golish/api/settings/yaml")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/settings/yaml should return 200")
 	// Read raw body - endpoint returns YAML text, not JSON
 	bodyBytes, err := io.ReadAll(resp.Body)
 	require.NoError(t, err, "Should be able to read response body")
@@ -934,18 +934,18 @@ func testSettingsEndpoints(t *testing.T, log *TestLogger) {
 func testWorkflowExtras(t *testing.T, log *TestLogger) {
 	log.Info("Testing workflow extra endpoints")
 
-	// GET /osm/api/workflows/tags
-	resp := apiGet(t, "/osm/api/workflows/tags")
-	assert.Equal(t, 200, resp.StatusCode, "GET /osm/api/workflows/tags should return 200")
+	// GET /golish/api/workflows/tags
+	resp := apiGet(t, "/golish/api/workflows/tags")
+	assert.Equal(t, 200, resp.StatusCode, "GET /golish/api/workflows/tags should return 200")
 	body := parseJSONResponse(t, resp)
 	assert.Contains(t, body, "tags", "Should contain tags array")
 	_, ok := body["tags"].([]interface{})
 	assert.True(t, ok, "Tags should be an array")
 	// May be empty if no workflows have tags, but should still be an array
 
-	// POST /osm/api/workflows/refresh - Refresh workflow index
-	resp = apiPost(t, "/osm/api/workflows/refresh", nil)
-	assert.Equal(t, 200, resp.StatusCode, "POST /osm/api/workflows/refresh should return 200")
+	// POST /golish/api/workflows/refresh - Refresh workflow index
+	resp = apiPost(t, "/golish/api/workflows/refresh", nil)
+	assert.Equal(t, 200, resp.StatusCode, "POST /golish/api/workflows/refresh should return 200")
 	body = parseJSONResponse(t, resp)
 	assert.Contains(t, body, "message", "Should contain message")
 

@@ -12,7 +12,7 @@ Direct API access to Large Language Model capabilities without requiring workflo
 Send a chat completion request to the configured LLM provider.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/llm/v1/chat/completions \
+curl -X POST http://localhost:8002/golish/api/llm/v1/chat/completions \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -67,7 +67,7 @@ curl -X POST http://localhost:8002/osm/api/llm/v1/chat/completions \
 ## With Tools (Function Calling)
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/llm/v1/chat/completions \
+curl -X POST http://localhost:8002/golish/api/llm/v1/chat/completions \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -127,7 +127,7 @@ curl -X POST http://localhost:8002/osm/api/llm/v1/chat/completions \
 Generate vector embeddings for input text.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/llm/v1/embeddings \
+curl -X POST http://localhost:8002/golish/api/llm/v1/embeddings \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{

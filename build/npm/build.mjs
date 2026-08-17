@@ -1,26 +1,26 @@
 #!/usr/bin/env node
-// Stage the @j3ssie/osmedeus npm packages.
+// Stage the @christopherzh-7/golish npm packages.
 //
 // Produces, under build/dist-npm/:
-//   - osmedeus/              the thin launcher package (@j3ssie/osmedeus@<v>)
-//   - osmedeus-<tag>/        4 platform packages (@j3ssie/osmedeus@<v>-<tag>)
+//   - golish/              the thin launcher package (@christopherzh-7/golish@<v>)
+//   - golish-<tag>/        4 platform packages (@christopherzh-7/golish@<v>-<tag>)
 //                            each carrying the gzipped binary in vendor/<tag>/
 //
 // One npm name, version-suffixed platform builds (codex-style): the launcher
 // package pulls its platform build in as an aliased optionalDependency, so
-// `npm i -g @j3ssie/osmedeus` downloads exactly one ~100MB binary.
+// `npm i -g @christopherzh-7/golish` downloads exactly one ~100MB binary.
 //
 // The binary is gzipped so each platform package's *unpacked* size stays well
 // under npm's per-version ceiling instead of shipping the raw ~350MB Go binary.
-// bin/osmedeus.js decompresses it once on first run.
+// bin/golish.js decompresses it once on first run.
 //
-// Source binaries come from build/dist-npm-bin/osmedeus_<goos>_<goarch>/osmedeus
+// Source binaries come from build/dist-npm-bin/golish_<goos>_<goarch>/golish
 // (`make npm-binaries`). Goreleaser output (dist/) works too — the layout and
 // the version check both understand it.
 //
 // Usage:
 //   node build/npm/build.mjs [--pack] [--allow-missing=<tag,tag>] [--dist-dir=<path>]
-//   OSMEDEUS_VERSION=5.0.3 node build/npm/build.mjs
+//   GOLISH_VERSION=5.0.3 node build/npm/build.mjs
 
 import { spawnSync } from "node:child_process";
 import {
@@ -43,7 +43,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
 const OUT_DIR = path.join(REPO_ROOT, "build", "dist-npm");
-const LAUNCHER_SRC = path.join(__dirname, "bin", "osmedeus.js");
+const LAUNCHER_SRC = path.join(__dirname, "bin", "golish.js");
 // Bundle the full project README onto the npm package page.
 const README_SRC = path.join(REPO_ROOT, "README.md");
 const LICENSE_SRC = path.join(REPO_ROOT, "LICENSE");
@@ -52,14 +52,14 @@ const VERSION_GO = path.join(REPO_ROOT, "internal", "core", "constants.go");
 // for. See verifyBuiltVersion().
 const STAMP_FILE = ".build-version";
 
-const NPM_NAME = "@j3ssie/osmedeus";
-const BIN_NAME = "osmedeus";
+const NPM_NAME = "@christopherzh-7/golish";
+const BIN_NAME = "golish";
 const LICENSE_ID = "MIT";
-const HOMEPAGE = "https://www.osmedeus.org";
+const HOMEPAGE = "https://github.com/ChristopherZh-7/golish-pentest-platform";
 const DESCRIPTION =
-  "Osmedeus - A Modern Orchestration Engine for Security";
+  "Golish - A Modern Orchestration Engine for Security";
 const KEYWORDS = [
-  "osmedeus",
+  "golish",
   "security",
   "recon",
   "reconnaissance",
@@ -71,7 +71,7 @@ const KEYWORDS = [
 ];
 const REPOSITORY = {
   type: "git",
-  url: "git+https://github.com/j3ssie/osmedeus.git",
+  url: "git+https://github.com/ChristopherZh-7/golish-pentest-platform.git",
 };
 const ENGINES = { node: ">=16" };
 
@@ -94,7 +94,7 @@ const allowMissing = new Set(
 const distDirArg = (args.find((a) => a.startsWith("--dist-dir=")) || "").split("=")[1];
 const DIST_DIR = path.resolve(
   REPO_ROOT,
-  distDirArg || process.env.OSMEDEUS_NPM_DIST_DIR || path.join("build", "dist-npm-bin"),
+  distDirArg || process.env.GOLISH_NPM_DIST_DIR || path.join("build", "dist-npm-bin"),
 );
 
 function fail(msg) {
@@ -109,8 +109,8 @@ function info(msg) {
 // --- version --------------------------------------------------------------
 
 function deriveBaseVersion() {
-  if (process.env.OSMEDEUS_VERSION) {
-    return process.env.OSMEDEUS_VERSION.replace(/^v/, "");
+  if (process.env.GOLISH_VERSION) {
+    return process.env.GOLISH_VERSION.replace(/^v/, "");
   }
   const src = readFileSync(VERSION_GO, "utf8");
   const m = src.match(/^\s*VERSION\s*=\s*"v?([^"]+)"/m);
@@ -134,7 +134,7 @@ const platformVersion = (tag) => `${baseVersion}-${tag}`;
 //
 // Two authoritative sources, in order:
 //   1. the .build-version stamp `make npm-binaries` writes next to the binaries
-//   2. goreleaser's `osmedeus_<version>_<os>_<arch>.tar.gz` archive names
+//   2. goreleaser's `golish_<version>_<os>_<arch>.tar.gz` archive names
 //
 // Do NOT try to read the version out of the binary: a Go binary carries version
 // strings from embedded content (docs, presets, UI), so a substring match
@@ -154,7 +154,7 @@ function verifyBuiltVersion(expected) {
       fail(
         `built-version mismatch: ${DIST_DIR} was built for ${stamped} but this ` +
           `npm publish is version ${expected}. Those binaries are STALE — publishing ` +
-          `them would ship a binary whose \`osmedeus version\` reports the wrong number. ` +
+          `them would ship a binary whose \`golish version\` reports the wrong number. ` +
           `Run \`make npm-binaries\` to rebuild for ${expected}.`,
       );
     }
@@ -192,8 +192,8 @@ function verifyBuiltVersion(expected) {
 
 // --- locate binaries -------------------------------------------------------
 
-// Matches both `make npm-binaries` output (osmedeus_linux_amd64) and
-// goreleaser's variant-suffixed dirs (osmedeus_linux_amd64_v1).
+// Matches both `make npm-binaries` output (golish_linux_amd64) and
+// goreleaser's variant-suffixed dirs (golish_linux_amd64_v1).
 function findSourceBinary(goos, goarch) {
   const re = new RegExp(`^${BIN_NAME}_${goos}_${goarch}(?:_.+)?$`);
   const dirs = readdirSync(DIST_DIR)
@@ -323,7 +323,7 @@ function npmPack(pkgDir) {
 
 // --- main -----------------------------------------------------------------
 
-info(`osmedeus npm build — version ${baseVersion}`);
+info(`golish npm build — version ${baseVersion}`);
 verifyBuiltVersion(baseVersion);
 if (existsSync(OUT_DIR)) rmSync(OUT_DIR, { recursive: true, force: true });
 mkdirSync(OUT_DIR, { recursive: true });

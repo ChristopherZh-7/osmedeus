@@ -1,4 +1,4 @@
-// Package client provides HTTP client utilities for interacting with a remote osmedeus server.
+// Package client provides HTTP client utilities for interacting with a remote golish server.
 package client
 
 import (
@@ -16,16 +16,16 @@ import (
 
 const (
 	// EnvRemoteURL is the environment variable for the remote server URL
-	EnvRemoteURL = "OSM_REMOTE_URL"
+	EnvRemoteURL = "GOLISH_REMOTE_URL"
 	// EnvAuthKey is the environment variable for the API authentication key
-	EnvAuthKey = "OSM_REMOTE_AUTH_KEY"
+	EnvAuthKey = "GOLISH_REMOTE_AUTH_KEY"
 	// APIBasePath is the base path for API endpoints
-	APIBasePath = "/osm/api"
+	APIBasePath = "/golish/api"
 	// DefaultTimeout is the default HTTP request timeout
 	DefaultTimeout = 30 * time.Second
 )
 
-// Client is an HTTP client for interacting with a remote osmedeus server
+// Client is an HTTP client for interacting with a remote golish server
 type Client struct {
 	baseURL    string
 	authKey    string
@@ -89,7 +89,7 @@ func (c *Client) doRequest(ctx context.Context, method, fullURL string, body io.
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 	if c.authKey != "" {
-		req.Header.Set("x-osm-api-key", c.authKey)
+		req.Header.Set("x-golish-api-key", c.authKey)
 	}
 
 	resp, err := c.httpClient.Do(req)

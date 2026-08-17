@@ -23,7 +23,7 @@ func TestClassifyAssetType(t *testing.T) {
 
 		// repo_name tests
 		{"GitHub repo", "anthropics/claude", "repo_name"},
-		{"GitHub repo with numbers", "j3ssie/osmedeus", "repo_name"},
+		{"GitHub repo with numbers", "ChristopherZh-7/golish", "repo_name"},
 		{"Single word org and repo", "owner/repo", "repo_name"},
 
 		// domain tests

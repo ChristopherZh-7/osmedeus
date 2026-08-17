@@ -132,7 +132,7 @@ func TestCloudSetup_PostCommandVars(t *testing.T) {
 
 	vars := map[string]string{
 		"public_ip":   "10.0.0.1",
-		"worker_name": "osmw-test-0",
+		"worker_name": "glw-test-0",
 		"infra_id":    "cloud-test-123",
 		"provider":    "remote-adhoc",
 		"ssh_user":    cloudTestSSHUser,
@@ -147,7 +147,7 @@ func TestCloudSetup_PostCommandVars(t *testing.T) {
 	}
 
 	assert.Contains(t, expanded, "IP=10.0.0.1")
-	assert.Contains(t, expanded, "NAME=osmw-test-0")
+	assert.Contains(t, expanded, "NAME=glw-test-0")
 	assert.Contains(t, expanded, "INFRA=cloud-test-123")
 	assert.Contains(t, expanded, "PROVIDER=remote-adhoc")
 
@@ -159,7 +159,7 @@ func TestCloudSetup_PostCommandVars(t *testing.T) {
 	out, err := exec.Command("bash", "-c", sshCmd).CombinedOutput()
 	require.NoError(t, err, "Post-command failed: %s", string(out))
 	assert.Contains(t, string(out), "IP=10.0.0.1")
-	assert.Contains(t, string(out), "NAME=osmw-test-0")
+	assert.Contains(t, string(out), "NAME=glw-test-0")
 }
 
 // TestCloudSetup_Ansible tests running an ansible playbook against the SSH container
@@ -177,7 +177,7 @@ func TestCloudSetup_Ansible(t *testing.T) {
 	// Create a simple test playbook (use raw module — no Python needed in container)
 	playbook := `---
 - name: Test Cloud Setup
-  hosts: osmedeus_workers
+  hosts: golish_workers
   gather_facts: no
   tasks:
     - name: Echo test
@@ -191,10 +191,10 @@ func TestCloudSetup_Ansible(t *testing.T) {
 	require.NoError(t, os.WriteFile(playbookPath, []byte(playbook), 0644))
 
 	// Create inventory with password auth
-	inventory := fmt.Sprintf(`[osmedeus_workers]
+	inventory := fmt.Sprintf(`[golish_workers]
 %s ansible_user=%s ansible_ssh_pass=%s ansible_port=%s
 
-[osmedeus_workers:vars]
+[golish_workers:vars]
 ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR'
 `, cloudTestSSHHost, cloudTestSSHUser, cloudTestSSHPass, cloudTestSSHPort)
 
@@ -222,7 +222,7 @@ func sshReadFile(t *testing.T, path string) string {
 }
 
 // TestCloudSetup_FullCLIFlow tests the full cloud setup CLI flow:
-// configure cloud settings, run `osmedeus cloud setup`, verify results via SSH
+// configure cloud settings, run `golish cloud setup`, verify results via SSH
 func TestCloudSetup_FullCLIFlow(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping cloud setup E2E test in short mode")
@@ -323,7 +323,7 @@ func TestCloudSetup_AnsibleCLIFlow(t *testing.T) {
 	require.NoError(t, os.MkdirAll(playbookDir, 0755))
 	playbook := `---
 - name: Test Cloud Setup via CLI
-  hosts: osmedeus_workers
+  hosts: golish_workers
   gather_facts: no
   tasks:
     - name: Write ansible marker

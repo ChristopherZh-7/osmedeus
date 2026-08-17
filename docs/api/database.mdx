@@ -12,7 +12,7 @@ Administrative endpoints for managing the database.
 Get a list of all database tables with their row counts.
 
 ```bash
-curl http://localhost:8002/osm/api/database/tables \
+curl http://localhost:8002/golish/api/database/tables \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -39,7 +39,7 @@ curl http://localhost:8002/osm/api/database/tables \
 Clear all records from a specific database table. Use with caution.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/database/tables/runs/clear \
+curl -X POST http://localhost:8002/golish/api/database/tables/runs/clear \
   -H "Authorization: Bearer $TOKEN"
 ```
 

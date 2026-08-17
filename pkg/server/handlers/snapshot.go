@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/snapshot"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/snapshot"
 )
 
 // SnapshotExportRequest represents the request body for snapshot export
@@ -29,7 +29,7 @@ type SnapshotImportURLRequest struct {
 // @Success 200 {object} map[string]interface{} "List of snapshots"
 // @Failure 500 {object} map[string]interface{} "Failed to list snapshots"
 // @Security BearerAuth
-// @Router /osm/api/snapshots [get]
+// @Router /golish/api/snapshots [get]
 func ListSnapshots(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		snapshots, err := snapshot.ListSnapshots(cfg.SnapshotPath)
@@ -60,7 +60,7 @@ func ListSnapshots(cfg *config.Config) fiber.Handler {
 // @Failure 404 {object} map[string]interface{} "Workspace not found"
 // @Failure 500 {object} map[string]interface{} "Failed to create snapshot"
 // @Security BearerAuth
-// @Router /osm/api/snapshots/export [post]
+// @Router /golish/api/snapshots/export [post]
 func SnapshotExport(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req SnapshotExportRequest
@@ -130,7 +130,7 @@ func SnapshotExport(cfg *config.Config) fiber.Handler {
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Failure 500 {object} map[string]interface{} "Failed to import snapshot"
 // @Security BearerAuth
-// @Router /osm/api/snapshots/import [post]
+// @Router /golish/api/snapshots/import [post]
 func SnapshotImport(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		force := c.FormValue("force") == "true"
@@ -201,7 +201,7 @@ func SnapshotImport(cfg *config.Config) fiber.Handler {
 // @Failure 404 {object} map[string]interface{} "Snapshot not found"
 // @Failure 500 {object} map[string]interface{} "Failed to delete snapshot"
 // @Security BearerAuth
-// @Router /osm/api/snapshots/{name} [delete]
+// @Router /golish/api/snapshots/{name} [delete]
 func DeleteSnapshot(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		name := c.Params("name")

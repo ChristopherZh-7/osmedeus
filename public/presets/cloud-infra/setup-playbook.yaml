@@ -1,29 +1,29 @@
 ---
-# Osmedeus Worker Setup Playbook
-# This playbook installs osmedeus and its dependencies on cloud workers.
+# Golish Worker Setup Playbook
+# This playbook installs golish and its dependencies on cloud workers.
 # Customize this file to fit your setup needs.
 #
 # Usage:
 #   ansible-playbook -i inventory.ini setup-playbook.yaml
 #
-# This playbook is auto-run by `osmedeus cloud run` when ansible is enabled
+# This playbook is auto-run by `golish cloud run` when ansible is enabled
 # in cloud-settings.yaml:
 #   setup:
 #     ansible:
 #       enabled: true
 
-- name: Setup Osmedeus Workers
-  hosts: osmedeus_workers
+- name: Setup Golish Workers
+  hosts: golish_workers
   become: yes
   gather_facts: yes
 
   vars:
-    osmedeus_user: "{{ ansible_user }}"
-    osmedeus_home: "/home/{{ osmedeus_user }}"
-    osmedeus_base: "{{ osmedeus_home }}/osmedeus-base"
-    osmedeus_bin: "{{ osmedeus_home }}/.local/bin"
+    golish_user: "{{ ansible_user }}"
+    golish_home: "/home/{{ golish_user }}"
+    golish_base: "{{ golish_home }}/golish-base"
+    golish_bin: "{{ golish_home }}/.local/bin"
     # Override these via cloud-settings.yaml extra_vars
-    osmedeus_version: "latest"
+    golish_version: "latest"
     install_optional_binaries: false
 
   tasks:
@@ -48,84 +48,84 @@
         state: present
 
     # ---------------------------------------------------------------
-    # Install Osmedeus
+    # Install Golish
     # ---------------------------------------------------------------
-    - name: Check if osmedeus is already installed
+    - name: Check if golish is already installed
       stat:
-        path: "{{ osmedeus_bin }}/osmedeus"
-      register: osmedeus_binary
+        path: "{{ golish_bin }}/golish"
+      register: golish_binary
 
-    - name: Install osmedeus CLI
-      become_user: "{{ osmedeus_user }}"
+    - name: Install golish CLI
+      become_user: "{{ golish_user }}"
       shell: |
-        curl -fsSL https://www.osmedeus.org/install.sh | bash
+        curl -fsSL https://raw.githubusercontent.com/ChristopherZh-7/golish-registry/main/install.sh | bash
       args:
-        creates: "{{ osmedeus_bin }}/osmedeus"
+        creates: "{{ golish_bin }}/golish"
       environment:
-        HOME: "{{ osmedeus_home }}"
-        PATH: "{{ osmedeus_bin }}:{{ osmedeus_home }}/go/bin:/usr/local/go/bin:{{ ansible_env.PATH }}"
+        HOME: "{{ golish_home }}"
+        PATH: "{{ golish_bin }}:{{ golish_home }}/go/bin:/usr/local/go/bin:{{ ansible_env.PATH }}"
 
     # ---------------------------------------------------------------
     # Install Base & Workflows
     # ---------------------------------------------------------------
-    - name: Check if osmedeus base exists
+    - name: Check if golish base exists
       stat:
-        path: "{{ osmedeus_base }}/workflows"
-      register: osmedeus_base_dir
+        path: "{{ golish_base }}/workflows"
+      register: golish_base_dir
 
-    - name: Install osmedeus base and workflows
-      become_user: "{{ osmedeus_user }}"
+    - name: Install golish base and workflows
+      become_user: "{{ golish_user }}"
       shell: |
-        export PATH="{{ osmedeus_bin }}:{{ osmedeus_home }}/go/bin:/usr/local/go/bin:$PATH"
-        osmedeus install base --preset
-      when: not osmedeus_base_dir.stat.exists
+        export PATH="{{ golish_bin }}:{{ golish_home }}/go/bin:/usr/local/go/bin:$PATH"
+        golish install base --preset
+      when: not golish_base_dir.stat.exists
       environment:
-        HOME: "{{ osmedeus_home }}"
+        HOME: "{{ golish_home }}"
 
     # ---------------------------------------------------------------
     # Install Security Binaries
     # ---------------------------------------------------------------
-    - name: Install osmedeus binaries
-      become_user: "{{ osmedeus_user }}"
+    - name: Install golish binaries
+      become_user: "{{ golish_user }}"
       shell: |
-        export PATH="{{ osmedeus_bin }}:{{ osmedeus_base }}/external-binaries:{{ osmedeus_home }}/go/bin:/usr/local/go/bin:$PATH"
-        osmedeus install binary --all {{ '--install-optional' if install_optional_binaries else '' }}
+        export PATH="{{ golish_bin }}:{{ golish_base }}/external-binaries:{{ golish_home }}/go/bin:/usr/local/go/bin:$PATH"
+        golish install binary --all {{ '--install-optional' if install_optional_binaries else '' }}
       environment:
-        HOME: "{{ osmedeus_home }}"
+        HOME: "{{ golish_home }}"
 
     - name: Configure PATH in bashrc
-      become_user: "{{ osmedeus_user }}"
+      become_user: "{{ golish_user }}"
       shell: |
-        export PATH="{{ osmedeus_bin }}:{{ osmedeus_base }}/external-binaries:{{ osmedeus_home }}/go/bin:/usr/local/go/bin:$PATH"
-        osmedeus install env
+        export PATH="{{ golish_bin }}:{{ golish_base }}/external-binaries:{{ golish_home }}/go/bin:/usr/local/go/bin:$PATH"
+        golish install env
       environment:
-        HOME: "{{ osmedeus_home }}"
+        HOME: "{{ golish_home }}"
 
     # ---------------------------------------------------------------
     # Verify Installation
     # ---------------------------------------------------------------
-    - name: Verify osmedeus installation
-      become_user: "{{ osmedeus_user }}"
+    - name: Verify golish installation
+      become_user: "{{ golish_user }}"
       shell: |
-        export PATH="{{ osmedeus_bin }}:{{ osmedeus_base }}/external-binaries:{{ osmedeus_home }}/go/bin:/usr/local/go/bin:$PATH"
-        osmedeus --version
-      register: osmedeus_version_output
+        export PATH="{{ golish_bin }}:{{ golish_base }}/external-binaries:{{ golish_home }}/go/bin:/usr/local/go/bin:$PATH"
+        golish --version
+      register: golish_version_output
       environment:
-        HOME: "{{ osmedeus_home }}"
+        HOME: "{{ golish_home }}"
 
-    - name: Display osmedeus version
+    - name: Display golish version
       debug:
-        msg: "Osmedeus installed: {{ osmedeus_version_output.stdout }}"
+        msg: "Golish installed: {{ golish_version_output.stdout }}"
 
-    - name: Run osmedeus health check
-      become_user: "{{ osmedeus_user }}"
+    - name: Run golish health check
+      become_user: "{{ golish_user }}"
       shell: |
-        export PATH="{{ osmedeus_bin }}:{{ osmedeus_base }}/external-binaries:{{ osmedeus_home }}/go/bin:/usr/local/go/bin:$PATH"
-        osmedeus health
+        export PATH="{{ golish_bin }}:{{ golish_base }}/external-binaries:{{ golish_home }}/go/bin:/usr/local/go/bin:$PATH"
+        golish health
       register: health_output
       ignore_errors: yes
       environment:
-        HOME: "{{ osmedeus_home }}"
+        HOME: "{{ golish_home }}"
 
     - name: Display health check result
       debug:

@@ -9,17 +9,17 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/parser"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
-	"github.com/j3ssie/osmedeus/v5/public"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/parser"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/public"
 	"github.com/spf13/cobra"
 )
 
 var healthCmd = &cobra.Command{
 	Use:   "health",
-	Short: "Check and fix environment health (alias for 'osmedeus install validate')",
+	Short: "Check and fix environment health (alias for 'golish install validate')",
 	Long:  UsageHealth(),
 	RunE:  runHealthWithSample,
 }
@@ -45,7 +45,7 @@ func runHealth(cmd *cobra.Command, args []string) error {
 	}
 
 	printer.Newline()
-	printer.Println("%s Osmedeus Environment Health Check %s",
+	printer.Println("%s Golish Environment Health Check %s",
 		terminal.Yellow(terminal.SymbolMenu),
 		terminal.Cyan(core.VERSION))
 
@@ -70,7 +70,7 @@ func runHealth(cmd *cobra.Command, args []string) error {
 
 	printer.Newline()
 	printer.Println("%s %s %s", terminal.Yellow(terminal.SymbolLightning), terminal.BoldCyan("Tip:"), terminal.Gray("See the full CLI documentation below for more details"))
-	printer.Println(" %s", terminal.Green("https://docs.osmedeus.org/getting-started/cli"))
+	printer.Println(" %s", terminal.Green("https://github.com/ChristopherZh-7/golish-pentest-platform/tree/main/docs/getting-started/cli"))
 
 	return nil
 }
@@ -134,8 +134,8 @@ func checkFolders(printer *terminal.Printer, cfg *config.Config) bool {
 						}
 					}
 					if binaryCount == 0 {
-						if strings.EqualFold(os.Getenv("OSM_IGNORE_REGISTRY"), "true") {
-							printer.Info("  %s Binaries folder empty (OSM_IGNORE_REGISTRY=true, skipping check)",
+						if strings.EqualFold(os.Getenv("GOLISH_IGNORE_REGISTRY"), "true") {
+							printer.Info("  %s Binaries folder empty (GOLISH_IGNORE_REGISTRY=true, skipping check)",
 								terminal.Yellow("⚠"))
 						} else {
 							printer.Error("  %s No binaries detected in %s",
@@ -143,7 +143,7 @@ func checkFolders(printer *terminal.Printer, cfg *config.Config) bool {
 								terminal.White(f.path))
 							printer.Println("    %s Run %s to fetch required binaries",
 								terminal.Yellow("→"),
-								terminal.Cyan("osmedeus install binary --all"))
+								terminal.Cyan("golish install binary --all"))
 							hasErrors = true
 						}
 					}
@@ -168,22 +168,22 @@ func checkConfigFiles(printer *terminal.Printer, cfg *config.Config) bool {
 
 	hasErrors := false
 
-	// Check osm-settings.yaml
-	settingsPath := filepath.Join(cfg.BaseFolder, "osm-settings.yaml")
+	// Check golish-settings.yaml
+	settingsPath := filepath.Join(cfg.BaseFolder, "golish-settings.yaml")
 	if _, err := os.Stat(settingsPath); os.IsNotExist(err) {
 		if err := config.EnsureConfigExists(cfg.BaseFolder); err != nil {
-			printer.Error("  osm-settings.yaml: failed to create - %v", err)
+			printer.Error("  golish-settings.yaml: failed to create - %v", err)
 			hasErrors = true
 		} else {
-			printer.Success("  osm-settings.yaml: created default config")
+			printer.Success("  golish-settings.yaml: created default config")
 		}
 	} else {
 		// Validate existing config
 		if err := cfg.Validate(); err != nil {
-			printer.Error("  osm-settings.yaml: validation failed - %v", err)
+			printer.Error("  golish-settings.yaml: validation failed - %v", err)
 			hasErrors = true
 		} else {
-			printer.Success("  osm-settings.yaml: valid")
+			printer.Success("  golish-settings.yaml: valid")
 		}
 	}
 
@@ -326,7 +326,7 @@ func findWorkflowYAMLFiles(root string) ([]string, error) {
 }
 
 func copyEmbeddedAssets(dest string) error {
-	return copyEmbeddedTree("examples/osmedeus-base.example", dest)
+	return copyEmbeddedTree("examples/golish-base.example", dest)
 }
 
 // copyEmbeddedTree materializes an embedded subtree onto disk, creating parent

@@ -1,14 +1,14 @@
 services:
-  osm-canary:
+  golish-canary:
     build:
       context: ../..
       dockerfile: build/docker/Dockerfile.canary
-    container_name: osm-canary
-    hostname: osm-canary
+    container_name: golish-canary
+    hostname: golish-canary
     volumes:
-      - canary-workspaces:/root/workspaces-osmedeus
-      - canary-data:/root/osmedeus-base
-      - ../../platform/osmedeus-workflow:/root/osmedeus-base/workflows
+      - canary-workspaces:/root/workspaces-golish
+      - canary-data:/root/golish-base
+      - ../../platform/golish-workflow:/root/golish-base/workflows
     ports:
       - "8002:8002"
     healthcheck:

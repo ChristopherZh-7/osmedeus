@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
 	"go.uber.org/zap"
 )
 

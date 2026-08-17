@@ -1,6 +1,6 @@
 package functions
 
-import "github.com/j3ssie/osmedeus/v5/internal/database"
+import "github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
 
 // mergeString returns incoming if non-empty, otherwise existing.
 func mergeString(existing, incoming string) string {

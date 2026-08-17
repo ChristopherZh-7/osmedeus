@@ -1,58 +1,58 @@
 ---
-# Osmedeus Single-Host Deployment Playbook
+# Golish Single-Host Deployment Playbook
 # ==========================================
-# Deploys Osmedeus on Ubuntu/Debian using the official install script.
+# Deploys Golish on Ubuntu/Debian using the official install script.
 #
 # Usage:
 #   ansible-playbook -i inventory.ini deploy.yaml
 #
 #   # With custom variables:
 #   ansible-playbook -i inventory.ini deploy.yaml \
-#     -e osm_admin_password=MySecurePass123 \
-#     -e osm_server_port=9090
+#     -e golish_admin_password=MySecurePass123 \
+#     -e golish_server_port=9090
 #
 #   # Dry run:
 #   ansible-playbook -i inventory.ini deploy.yaml --check
 
-- name: Deploy Osmedeus
-  hosts: osmedeus
+- name: Deploy Golish
+  hosts: golish
   become: true
 
   vars:
     # --- Installation ---
-    osm_user: root
-    osm_install_dir: /root/.osmedeus/binaries
-    osm_base_dir: /root/osmedeus-base
-    osm_workspaces_dir: /root/workspaces-osmedeus
+    golish_user: root
+    golish_install_dir: /root/.golish/binaries
+    golish_base_dir: /root/golish-base
+    golish_workspaces_dir: /root/workspaces-golish
 
     # --- Server ---
-    osm_server_host: "0.0.0.0"
-    osm_server_port: 8002
-    osm_admin_user: admin
-    osm_admin_password: "CHANGE_ME_ADMIN_PASSWORD"
-    osm_jwt_secret: "CHANGE_ME_JWT_SECRET_MIN_32_CHARS"
-    osm_jwt_expiration_minutes: 1440
+    golish_server_host: "0.0.0.0"
+    golish_server_port: 8002
+    golish_admin_user: admin
+    golish_admin_password: "CHANGE_ME_ADMIN_PASSWORD"
+    golish_jwt_secret: "CHANGE_ME_JWT_SECRET_MIN_32_CHARS"
+    golish_jwt_expiration_minutes: 1440
 
     # --- Scan Threads ---
-    osm_threads_aggressive: 50
-    osm_threads_default: 20
-    osm_threads_gently: 5
+    golish_threads_aggressive: 50
+    golish_threads_default: 20
+    golish_threads_gently: 5
 
     # --- Systemd ---
-    osm_enable_service: true
+    golish_enable_service: true
 
     # --- Notifications (optional) ---
-    osm_telegram_enabled: false
-    osm_telegram_bot_token: ""
-    osm_telegram_chat_id: ""
+    golish_telegram_enabled: false
+    golish_telegram_bot_token: ""
+    golish_telegram_chat_id: ""
 
     # --- Global Variables (optional) ---
     # Example:
-    #   osm_global_variables:
+    #   golish_global_variables:
     #     - name: GITHUB_API_KEY
     #       value: "ghp_xxxx"
     #       as_env: true
-    osm_global_variables: []
+    golish_global_variables: []
 
   tasks:
     # =========================================================================
@@ -76,23 +76,23 @@
         state: present
 
     # =========================================================================
-    # 2. Install Osmedeus
+    # 2. Install Golish
     # =========================================================================
-    - name: Check if osmedeus is already installed
+    - name: Check if golish is already installed
       ansible.builtin.stat:
-        path: "{{ osm_install_dir }}/osmedeus"
-      register: osm_binary
+        path: "{{ golish_install_dir }}/golish"
+      register: golish_binary
 
-    - name: Install osmedeus via official install script
+    - name: Install golish via official install script
       ansible.builtin.shell: |
-        curl -fsSL https://www.osmedeus.org/install.sh | bash
+        curl -fsSL https://raw.githubusercontent.com/ChristopherZh-7/golish-registry/main/install.sh | bash
       args:
-        creates: "{{ osm_install_dir }}/osmedeus"
-      when: not osm_binary.stat.exists
+        creates: "{{ golish_install_dir }}/golish"
+      when: not golish_binary.stat.exists
 
-    - name: Ensure osmedeus binary is in PATH
+    - name: Ensure golish binary is in PATH
       ansible.builtin.shell: |
-        osmedeus install env
+        golish install env
       changed_when: false
 
     # =========================================================================
@@ -100,24 +100,24 @@
     # =========================================================================
     - name: Create workspaces directory
       ansible.builtin.file:
-        path: "{{ osm_workspaces_dir }}"
+        path: "{{ golish_workspaces_dir }}"
         state: directory
-        owner: "{{ osm_user }}"
+        owner: "{{ golish_user }}"
         mode: "0755"
 
-    - name: Deploy osm-settings.yaml
+    - name: Deploy golish-settings.yaml
       ansible.builtin.template:
-        src: templates/osm-settings.yaml.j2
-        dest: "{{ osm_base_dir }}/osm-settings.yaml"
-        owner: "{{ osm_user }}"
+        src: templates/golish-settings.yaml.j2
+        dest: "{{ golish_base_dir }}/golish-settings.yaml"
+        owner: "{{ golish_user }}"
         mode: "0600"
-      notify: restart osmedeus
+      notify: restart golish
 
     # =========================================================================
     # 4. Verify Installation
     # =========================================================================
-    - name: Run osmedeus health check
-      ansible.builtin.command: "{{ osm_install_dir }}/osmedeus health"
+    - name: Run golish health check
+      ansible.builtin.command: "{{ golish_install_dir }}/golish health"
       register: health_result
       changed_when: false
 
@@ -130,24 +130,24 @@
     # =========================================================================
     - name: Deploy systemd service
       ansible.builtin.template:
-        src: templates/osmedeus.service.j2
-        dest: /etc/systemd/system/osmedeus.service
+        src: templates/golish.service.j2
+        dest: /etc/systemd/system/golish.service
         mode: "0644"
-      when: osm_enable_service
-      notify: restart osmedeus
+      when: golish_enable_service
+      notify: restart golish
 
-    - name: Enable and start osmedeus service
+    - name: Enable and start golish service
       ansible.builtin.systemd:
-        name: osmedeus
+        name: golish
         enabled: true
         state: started
         daemon_reload: true
-      when: osm_enable_service
+      when: golish_enable_service
 
   handlers:
-    - name: restart osmedeus
+    - name: restart golish
       ansible.builtin.systemd:
-        name: osmedeus
+        name: golish
         state: restarted
         daemon_reload: true
-      when: osm_enable_service
+      when: golish_enable_service

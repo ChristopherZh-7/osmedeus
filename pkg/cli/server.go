@@ -8,11 +8,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/distributed"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
-	"github.com/j3ssie/osmedeus/v5/pkg/server"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/distributed"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/pkg/server"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -33,7 +33,7 @@ var (
 var serveCmd = &cobra.Command{
 	Use:     "serve",
 	Aliases: []string{"server"},
-	Short:   "Start the Osmedeus web server",
+	Short:   "Start the Golish web server",
 	Long:    UsageServe(),
 	RunE:    runServer,
 }
@@ -108,7 +108,7 @@ func runServer(cmd *cobra.Command, args []string) error {
 		}
 
 		if !cfg.IsRedisConfigured() {
-			return fmt.Errorf("redis not configured. Add redis section to osm-settings.yaml or use --redis-url")
+			return fmt.Errorf("redis not configured. Add redis section to golish-settings.yaml or use --redis-url")
 		}
 
 		var err error

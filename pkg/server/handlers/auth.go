@@ -3,9 +3,9 @@ package handlers
 import (
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/pkg/server/middleware"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/pkg/server/middleware"
 )
 
 // Login handles user authentication
@@ -18,7 +18,7 @@ import (
 // @Success 200 {object} map[string]string "JWT token"
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Failure 401 {object} map[string]interface{} "Invalid credentials"
-// @Router /osm/api/login [post]
+// @Router /golish/api/login [post]
 func Login(cfg *config.Config, noAuth bool) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req LoginRequest
@@ -46,7 +46,7 @@ func Login(cfg *config.Config, noAuth bool) fiber.Handler {
 
 			// Set session cookie for browser clients
 			c.Cookie(&fiber.Cookie{
-				Name:     "osmedeus_session",
+				Name:     "golish_session",
 				Value:    token,
 				Expires:  time.Now().Add(time.Duration(cfg.Server.JWT.ExpirationMinutes) * time.Minute),
 				HTTPOnly: false, // Allow JS to read for UI state
@@ -80,7 +80,7 @@ func Login(cfg *config.Config, noAuth bool) fiber.Handler {
 
 		// Set session cookie for browser clients
 		c.Cookie(&fiber.Cookie{
-			Name:     "osmedeus_session",
+			Name:     "golish_session",
 			Value:    token,
 			Expires:  time.Now().Add(time.Duration(cfg.Server.JWT.ExpirationMinutes) * time.Minute),
 			HTTPOnly: false, // Allow JS to read for UI state
@@ -101,12 +101,12 @@ func Login(cfg *config.Config, noAuth bool) fiber.Handler {
 // @Tags Auth
 // @Produce json
 // @Success 200 {object} map[string]string "Logout message"
-// @Router /osm/api/logout [post]
+// @Router /golish/api/logout [post]
 func Logout() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Clear the session cookie by setting it to expire in the past
 		c.Cookie(&fiber.Cookie{
-			Name:     "osmedeus_session",
+			Name:     "golish_session",
 			Value:    "",
 			Expires:  time.Now().Add(-time.Hour),
 			HTTPOnly: false,

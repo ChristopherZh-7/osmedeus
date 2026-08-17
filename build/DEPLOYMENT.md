@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This guide covers building, deploying, and running Osmedeus in various environments.
+This guide covers building, deploying, and running Golish in various environments.
 
 ## Prerequisites
 
@@ -13,11 +13,11 @@ This guide covers building, deploying, and running Osmedeus in various environme
 ```bash
 # Local build and run
 make build
-./build/bin/osmedeus serve
+./build/bin/golish serve
 
 # Docker single container
-docker build -t osmedeus:latest -f build/docker/Dockerfile .
-docker run -p 8001:8001 osmedeus:latest
+docker build -t golish:latest -f build/docker/Dockerfile .
+docker run -p 8001:8001 golish:latest
 
 # Distributed mode with Docker Compose
 docker-compose -f build/docker/docker-compose.yml up -d
@@ -38,19 +38,19 @@ make build-darwin    # macOS amd64 + arm64
 make build-windows   # Windows amd64
 
 # Output location
-./build/bin/osmedeus
+./build/bin/golish
 ```
 
 ### Docker Build
 
 ```bash
-docker build -t osmedeus:latest -f build/docker/Dockerfile .
+docker build -t golish:latest -f build/docker/Dockerfile .
 
 # Development image (with hot-reload)
-docker build -t osmedeus:dev -f build/docker/Dockerfile.dev .
+docker build -t golish:dev -f build/docker/Dockerfile.dev .
 
 # With custom version
-docker build --build-arg VERSION=5.1.0 -t osmedeus:5.1.0 -f build/docker/Dockerfile .
+docker build --build-arg VERSION=5.1.0 -t golish:5.1.0 -f build/docker/Dockerfile .
 ```
 
 ## Deployment Modes
@@ -61,13 +61,13 @@ docker build --build-arg VERSION=5.1.0 -t osmedeus:5.1.0 -f build/docker/Dockerf
 
 ```bash
 # Run server
-./build/bin/osmedeus serve --port 8001
+./build/bin/golish serve --port 8001
 
 # Run with authentication disabled (development only)
-./build/bin/osmedeus serve -A
+./build/bin/golish serve -A
 
 # Run a scan
-./build/bin/osmedeus scan -f general -t example.com
+./build/bin/golish scan -f general -t example.com
 ```
 
 #### Docker Container
@@ -75,19 +75,19 @@ docker build --build-arg VERSION=5.1.0 -t osmedeus:5.1.0 -f build/docker/Dockerf
 ```bash
 # Basic server
 docker run -d \
-  --name osmedeus \
+  --name golish \
   -p 8001:8001 \
-  -v osmedeus-data:/root/osmedeus-base \
-  -v workspaces:/root/workspaces-osmedeus \
-  osmedeus:latest
+  -v golish-data:/root/golish-base \
+  -v workspaces:/root/workspaces-golish \
+  golish:latest
 
 # With custom workflows
 docker run -d \
-  --name osmedeus \
+  --name golish \
   -p 8001:8001 \
-  -v /path/to/workflows:/root/osmedeus-base/workflows \
-  -v /path/to/workspaces:/root/workspaces-osmedeus \
-  osmedeus:latest
+  -v /path/to/workflows:/root/golish-base/workflows \
+  -v /path/to/workspaces:/root/workspaces-golish \
+  golish:latest
 ```
 
 ### Distributed Mode (Master/Worker)
@@ -145,38 +145,38 @@ If not using Docker Compose:
 docker run -d --name redis -p 6379:6379 redis:7-alpine
 
 # 2. Start Master
-./build/bin/osmedeus serve --master --port 8001
+./build/bin/golish serve --master --port 8001
 
 # 3. Start Workers (on same or different machines)
-./build/bin/osmedeus worker join --redis-url redis://localhost:6379
+./build/bin/golish worker join --redis-url redis://localhost:6379
 ```
 
 #### Submitting Distributed Scans
 
 ```bash
 # Submit scan to distributed queue
-./build/bin/osmedeus scan -f general -t example.com -D
+./build/bin/golish scan -f general -t example.com -D
 
 # With custom Redis URL
-./build/bin/osmedeus scan -f general -t example.com -D --redis-url redis://redis-host:6379
+./build/bin/golish scan -f general -t example.com -D --redis-url redis://redis-host:6379
 
 # Check worker status
-./build/bin/osmedeus worker status
+./build/bin/golish worker status
 ```
 
 ## Configuration
 
 ### Configuration File
 
-Default location: `~/osmedeus-base/osm-settings.yaml`
+Default location: `~/golish-base/golish-settings.yaml`
 
 ```yaml
-base_folder: ~/osmedeus-base
+base_folder: ~/golish-base
 
 environments:
   binaries_path: "{{base_folder}}/binaries"
   data: "{{base_folder}}/data"
-  workspaces: ~/workspaces-osmedeus
+  workspaces: ~/workspaces-golish
   workflows: "{{base_folder}}/workflows"
 
 server:
@@ -192,7 +192,7 @@ redis:
 
 database:
   db_engine: sqlite    # or postgresql
-  db_path: "{{base_folder}}/osm-data.db"
+  db_path: "{{base_folder}}/golish-data.db"
 
 client:
   username: admin
@@ -213,19 +213,19 @@ scan_tactic:
 |----------|-------------|---------|
 | `REDIS_HOST` | Redis hostname | localhost |
 | `REDIS_PORT` | Redis port | 6379 |
-| `OSM_BASE_FOLDER` | Base folder path | ~/osmedeus-base |
+| `GOLISH_BASE_FOLDER` | Base folder path | ~/golish-base |
 
 ### Command Line Overrides
 
 ```bash
 # Override base folder
-osmedeus -b /custom/path scan -f general -t example.com
+golish -b /custom/path scan -f general -t example.com
 
 # Override workflow folder
-osmedeus -F /custom/workflows workflow list
+golish -F /custom/workflows workflow list
 
 # Override Redis URL (distributed mode)
-osmedeus scan -f general -t example.com -D --redis-url redis://user:pass@host:6379/0
+golish scan -f general -t example.com -D --redis-url redis://user:pass@host:6379/0
 ```
 
 ## Docker Compose Reference
@@ -245,7 +245,7 @@ The included `build/docker/docker-compose.yml` provides a complete distributed s
 | Volume | Purpose |
 |--------|---------|
 | `redis-data` | Redis persistence |
-| `osmedeus-data` | Workflows and configuration |
+| `golish-data` | Workflows and configuration |
 | `workspaces` | Scan output data |
 
 ### Scaling
@@ -308,13 +308,13 @@ curl http://localhost:8001/health/ready
 
 ```bash
 # View master logs
-docker logs osmedeus-master -f
+docker logs golish-master -f
 
 # View all worker logs
 docker-compose -f build/docker/docker-compose.yml logs -f worker
 
 # Log levels are controlled by --verbose/-v flag
-./build/bin/osmedeus -v serve
+./build/bin/golish -v serve
 ```
 
 ### Database Options
@@ -326,8 +326,8 @@ database:
   db_engine: postgresql
   db_host: postgres-host
   db_port: 5432
-  db_name: osmedeus
-  db_user: osmedeus
+  db_name: golish
+  db_user: golish
   db_password: secure-password
 ```
 
@@ -336,9 +336,9 @@ database:
 ```bash
 # Backup volumes
 docker run --rm \
-  -v osmedeus-data:/data \
+  -v golish-data:/data \
   -v $(pwd):/backup \
-  alpine tar czf /backup/osmedeus-backup.tar.gz /data
+  alpine tar czf /backup/golish-backup.tar.gz /data
 
 # Backup workspaces
 docker run --rm \
@@ -349,7 +349,7 @@ docker run --rm \
 
 ## Ansible Deployment
 
-Deploy Osmedeus on Ubuntu/Debian servers using Ansible. Uses the official install script, SQLite storage, and no Redis — designed for simple single-host setups.
+Deploy Golish on Ubuntu/Debian servers using Ansible. Uses the official install script, SQLite storage, and no Redis — designed for simple single-host setups.
 
 ### Prerequisites
 
@@ -368,8 +368,8 @@ cp inventory.example.ini inventory.ini
 
 # 2. Deploy with secure credentials
 ansible-playbook -i inventory.ini deploy.yaml \
-  -e osm_admin_password=YourSecurePassword \
-  -e osm_jwt_secret=$(openssl rand -base64 32)
+  -e golish_admin_password=YourSecurePassword \
+  -e golish_jwt_secret=$(openssl rand -base64 32)
 
 # 3. Dry run (preview changes without applying)
 ansible-playbook -i inventory.ini deploy.yaml --check
@@ -378,9 +378,9 @@ ansible-playbook -i inventory.ini deploy.yaml --check
 ### What It Does
 
 1. Installs system dependencies (curl, tmux, git, chromium, etc.)
-2. Installs Osmedeus via `curl -fsSL https://www.osmedeus.org/install.sh | bash`
-3. Deploys `osm-settings.yaml` configured with SQLite (no Redis)
-4. Runs `osmedeus health` to verify the installation
+2. Installs Golish via `curl -fsSL https://raw.githubusercontent.com/ChristopherZh-7/golish-registry/main/install.sh | bash`
+3. Deploys `golish-settings.yaml` configured with SQLite (no Redis)
+4. Runs `golish health` to verify the installation
 5. Sets up a systemd service for auto-start on boot
 
 ### Playbook Files
@@ -390,27 +390,27 @@ build/infra/
 ├── deploy.yaml                 # Main playbook
 ├── inventory.example.ini       # Example inventory
 └── templates/
-    ├── osm-settings.yaml.j2   # Settings config template
-    └── osmedeus.service.j2    # Systemd unit template
+    ├── golish-settings.yaml.j2   # Settings config template
+    └── golish.service.j2    # Systemd unit template
 ```
 
 ### Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `osm_server_port` | `8002` | API server port |
-| `osm_admin_user` | `admin` | Admin username |
-| `osm_admin_password` | `CHANGE_ME_ADMIN_PASSWORD` | Admin password |
-| `osm_jwt_secret` | `CHANGE_ME_JWT_SECRET_MIN_32_CHARS` | JWT signing secret |
-| `osm_jwt_expiration_minutes` | `1440` | Token expiry (24h) |
-| `osm_threads_aggressive` | `50` | Aggressive scan threads |
-| `osm_threads_default` | `20` | Default scan threads |
-| `osm_threads_gently` | `5` | Gentle scan threads |
-| `osm_enable_service` | `true` | Install systemd service |
-| `osm_telegram_enabled` | `false` | Enable Telegram notifications |
-| `osm_telegram_bot_token` | `""` | Telegram bot token |
-| `osm_telegram_chat_id` | `""` | Telegram chat ID |
-| `osm_global_variables` | `[]` | Extra env vars for workflows |
+| `golish_server_port` | `8002` | API server port |
+| `golish_admin_user` | `admin` | Admin username |
+| `golish_admin_password` | `CHANGE_ME_ADMIN_PASSWORD` | Admin password |
+| `golish_jwt_secret` | `CHANGE_ME_JWT_SECRET_MIN_32_CHARS` | JWT signing secret |
+| `golish_jwt_expiration_minutes` | `1440` | Token expiry (24h) |
+| `golish_threads_aggressive` | `50` | Aggressive scan threads |
+| `golish_threads_default` | `20` | Default scan threads |
+| `golish_threads_gently` | `5` | Gentle scan threads |
+| `golish_enable_service` | `true` | Install systemd service |
+| `golish_telegram_enabled` | `false` | Enable Telegram notifications |
+| `golish_telegram_bot_token` | `""` | Telegram bot token |
+| `golish_telegram_chat_id` | `""` | Telegram chat ID |
+| `golish_global_variables` | `[]` | Extra env vars for workflows |
 
 ### Customization
 
@@ -419,31 +419,31 @@ Override any variable at deploy time with `-e`:
 ```bash
 # Custom port and thread settings
 ansible-playbook -i inventory.ini deploy.yaml \
-  -e osm_server_port=9090 \
-  -e osm_threads_default=30
+  -e golish_server_port=9090 \
+  -e golish_threads_default=30
 
 # With Telegram notifications
 ansible-playbook -i inventory.ini deploy.yaml \
-  -e osm_telegram_enabled=true \
-  -e osm_telegram_bot_token=your_bot_token \
-  -e osm_telegram_chat_id=your_chat_id
+  -e golish_telegram_enabled=true \
+  -e golish_telegram_bot_token=your_bot_token \
+  -e golish_telegram_chat_id=your_chat_id
 
 # Skip systemd service setup
 ansible-playbook -i inventory.ini deploy.yaml \
-  -e osm_enable_service=false
+  -e golish_enable_service=false
 ```
 
 ### Post-Deployment
 
 ```bash
 # Check service status
-ssh root@YOUR_SERVER systemctl status osmedeus
+ssh root@YOUR_SERVER systemctl status golish
 
 # Run a scan
-ssh root@YOUR_SERVER osmedeus run -f general -t example.com
+ssh root@YOUR_SERVER golish run -f general -t example.com
 
 # View logs
-ssh root@YOUR_SERVER journalctl -u osmedeus -f
+ssh root@YOUR_SERVER journalctl -u golish -f
 ```
 
 ## Troubleshooting
@@ -453,7 +453,7 @@ ssh root@YOUR_SERVER journalctl -u osmedeus -f
 **Workers not connecting:**
 ```bash
 # Check Redis connectivity
-docker exec osmedeus-redis redis-cli ping
+docker exec golish-redis redis-cli ping
 
 # Check worker logs
 docker-compose logs worker
@@ -462,27 +462,27 @@ docker-compose logs worker
 **Scans not executing:**
 ```bash
 # Verify workflow exists
-./build/bin/osmedeus workflow list
+./build/bin/golish workflow list
 
 # Check master logs
-docker logs osmedeus-master
+docker logs golish-master
 ```
 
 **Port conflicts:**
 ```bash
 # Use different ports
-docker run -p 8080:8001 osmedeus:latest
+docker run -p 8080:8001 golish:latest
 ```
 
 ### Useful Commands
 
 ```bash
 # Environment health check
-./build/bin/osmedeus health
+./build/bin/golish health
 
 # Validate workflows
-./build/bin/osmedeus workflow validate <workflow-name>
+./build/bin/golish workflow validate <workflow-name>
 
 # Test workflow (dry-run)
-./build/bin/osmedeus scan -f general -t example.com --dry-run
+./build/bin/golish scan -f general -t example.com --dry-run
 ```

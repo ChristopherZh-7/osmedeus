@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/cloud"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/cloud"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
 	"go.uber.org/zap"
 )
 
@@ -30,12 +30,12 @@ func loadCloudConfigFromCfg(cfg *config.Config) (*config.CloudConfigs, error) {
 
 // CreateCloudInstancesRequest represents a request to provision cloud infrastructure
 type CreateCloudInstancesRequest struct {
-	Provider      string            `json:"provider"`                  // required: aws, gcp, digitalocean, linode, azure, hetzner
-	InstanceCount int               `json:"instance_count"`            // required: number of instances (>= 1)
-	InstanceType  string            `json:"instance_type,omitempty"`   // override default instance size
-	Region        string            `json:"region,omitempty"`          // override default region
-	UseSpot       bool              `json:"use_spot,omitempty"`        // use spot/preemptible instances
-	Tags          map[string]string `json:"tags,omitempty"`            // resource tags
+	Provider      string            `json:"provider"`                // required: aws, gcp, digitalocean, linode, azure, hetzner
+	InstanceCount int               `json:"instance_count"`          // required: number of instances (>= 1)
+	InstanceType  string            `json:"instance_type,omitempty"` // override default instance size
+	Region        string            `json:"region,omitempty"`        // override default region
+	UseSpot       bool              `json:"use_spot,omitempty"`      // use spot/preemptible instances
+	Tags          map[string]string `json:"tags,omitempty"`          // resource tags
 }
 
 // EstimateCloudCostRequest represents a cost estimation request
@@ -54,7 +54,7 @@ type EstimateCloudCostRequest struct {
 // @Success 200 {object} map[string]interface{} "List of providers"
 // @Failure 400 {object} map[string]interface{} "Cloud not enabled"
 // @Security BearerAuth
-// @Router /osm/api/cloud/providers [get]
+// @Router /golish/api/cloud/providers [get]
 func ListCloudProviders(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		cloudCfg, err := loadCloudConfigFromCfg(cfg)
@@ -111,7 +111,7 @@ func ListCloudProviders(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "Validation result"
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Security BearerAuth
-// @Router /osm/api/cloud/providers/{name}/validate [post]
+// @Router /golish/api/cloud/providers/{name}/validate [post]
 func ValidateCloudProvider(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		providerName := c.Params("name")
@@ -138,17 +138,17 @@ func ValidateCloudProvider(cfg *config.Config) fiber.Handler {
 		provider, err := cloud.CreateProvider(cloudCfg, cloud.ProviderType(providerName))
 		if err != nil {
 			return c.JSON(fiber.Map{
-				"provider":  providerName,
-				"valid":     false,
-				"message":   err.Error(),
+				"provider": providerName,
+				"valid":    false,
+				"message":  err.Error(),
 			})
 		}
 
 		if err := provider.Validate(c.Context()); err != nil {
 			return c.JSON(fiber.Map{
-				"provider":  providerName,
-				"valid":     false,
-				"message":   err.Error(),
+				"provider": providerName,
+				"valid":    false,
+				"message":  err.Error(),
 			})
 		}
 
@@ -170,7 +170,7 @@ func ValidateCloudProvider(cfg *config.Config) fiber.Handler {
 // @Success 202 {object} map[string]interface{} "Provisioning started"
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Security BearerAuth
-// @Router /osm/api/cloud/instances [post]
+// @Router /golish/api/cloud/instances [post]
 func CreateCloudInstances(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req CreateCloudInstancesRequest
@@ -258,7 +258,7 @@ func CreateCloudInstances(cfg *config.Config) fiber.Handler {
 			"message":  "Infrastructure provisioning started",
 			"infra_id": infraID,
 			"status":   "provisioning",
-			"poll_url": fmt.Sprintf("/osm/api/cloud/instances/%s/status", infraID),
+			"poll_url": fmt.Sprintf("/golish/api/cloud/instances/%s/status", infraID),
 		})
 	}
 }
@@ -271,7 +271,7 @@ func CreateCloudInstances(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "List of infrastructure"
 // @Failure 400 {object} map[string]interface{} "Cloud not enabled"
 // @Security BearerAuth
-// @Router /osm/api/cloud/instances [get]
+// @Router /golish/api/cloud/instances [get]
 func ListCloudInstances(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		cloudCfg, err := loadCloudConfigFromCfg(cfg)
@@ -330,7 +330,7 @@ func ListCloudInstances(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "Infrastructure details"
 // @Failure 404 {object} map[string]interface{} "Infrastructure not found"
 // @Security BearerAuth
-// @Router /osm/api/cloud/instances/{id} [get]
+// @Router /golish/api/cloud/instances/{id} [get]
 func GetCloudInstance(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		infraID := c.Params("id")
@@ -387,7 +387,7 @@ func GetCloudInstance(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "Infrastructure status"
 // @Failure 404 {object} map[string]interface{} "Infrastructure not found"
 // @Security BearerAuth
-// @Router /osm/api/cloud/instances/{id}/status [get]
+// @Router /golish/api/cloud/instances/{id}/status [get]
 func GetCloudInstanceStatus(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		infraID := c.Params("id")
@@ -427,9 +427,9 @@ func GetCloudInstanceStatus(cfg *config.Config) fiber.Handler {
 		details := make([]fiber.Map, 0, len(status.Details))
 		for _, d := range status.Details {
 			details = append(details, fiber.Map{
-				"resource_id":      d.ResourceID,
-				"status":           d.Status,
-				"message":          d.Message,
+				"resource_id":       d.ResourceID,
+				"status":            d.Status,
+				"message":           d.Message,
 				"worker_registered": d.WorkerRegistered,
 			})
 		}
@@ -455,7 +455,7 @@ func GetCloudInstanceStatus(cfg *config.Config) fiber.Handler {
 // @Failure 404 {object} map[string]interface{} "Infrastructure not found"
 // @Failure 500 {object} map[string]interface{} "Destroy failed"
 // @Security BearerAuth
-// @Router /osm/api/cloud/instances/{id} [delete]
+// @Router /golish/api/cloud/instances/{id} [delete]
 func DestroyCloudInstance(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		infraID := c.Params("id")
@@ -509,7 +509,7 @@ func DestroyCloudInstance(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "Cost estimate"
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Security BearerAuth
-// @Router /osm/api/cloud/estimate [post]
+// @Router /golish/api/cloud/estimate [post]
 func EstimateCloudCost(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req EstimateCloudCostRequest

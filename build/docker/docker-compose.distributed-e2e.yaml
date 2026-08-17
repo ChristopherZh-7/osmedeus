@@ -7,7 +7,7 @@
 services:
   redis:
     image: redis:7-alpine
-    container_name: osm-e2e-redis
+    container_name: golish-e2e-redis
     ports:
       - "6399:6379"
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
@@ -17,18 +17,18 @@ services:
       timeout: 3s
       retries: 10
     networks:
-      - osm-e2e-network
+      - golish-e2e-network
 
   master:
     build:
       context: ../..
       dockerfile: build/docker/Dockerfile
-    image: osmedeus:e2e
-    container_name: osm-e2e-master
+    image: golish:e2e
+    container_name: golish-e2e-master
     ports:
       - "8002:8002"
     volumes:
-      - workspaces:/root/workspaces-osmedeus
+      - workspaces:/root/workspaces-golish
     depends_on:
       redis:
         condition: service_healthy
@@ -40,13 +40,13 @@ services:
       start_period: 10s
       retries: 5
     networks:
-      - osm-e2e-network
+      - golish-e2e-network
 
   worker:
-    image: osmedeus:e2e
-    container_name: osm-e2e-worker
+    image: golish:e2e
+    container_name: golish-e2e-worker
     volumes:
-      - workspaces:/root/workspaces-osmedeus
+      - workspaces:/root/workspaces-golish
     depends_on:
       redis:
         condition: service_healthy
@@ -54,12 +54,12 @@ services:
         condition: service_healthy
     command: ["worker", "join", "--redis-url", "redis://redis:6379"]
     networks:
-      - osm-e2e-network
+      - golish-e2e-network
 
 volumes:
   workspaces:
     driver: local
 
 networks:
-  osm-e2e-network:
+  golish-e2e-network:
     driver: bridge

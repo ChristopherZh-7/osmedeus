@@ -1,6 +1,6 @@
 # AWS Provider Guide
 
-Step-by-step guide for running osmedeus cloud on AWS EC2 instances.
+Step-by-step guide for running golish cloud on AWS EC2 instances.
 
 ## Prerequisites
 
@@ -46,27 +46,27 @@ export AWS_SECRET_ACCESS_KEY=<YOUR_AWS_SECRET_ACCESS_KEY>
 
 ```bash
 # Enable cloud feature
-osmedeus config set cloud.enabled true
+golish config set cloud.enabled true
 
 # Credentials
-osmedeus cloud config set providers.aws.access_key_id ${AWS_ACCESS_KEY_ID}
-osmedeus cloud config set providers.aws.secret_access_key ${AWS_SECRET_ACCESS_KEY}
-osmedeus cloud config set providers.aws.region ap-southeast-1
-osmedeus cloud config set defaults.provider aws
+golish cloud config set providers.aws.access_key_id ${AWS_ACCESS_KEY_ID}
+golish cloud config set providers.aws.secret_access_key ${AWS_SECRET_ACCESS_KEY}
+golish cloud config set providers.aws.region ap-southeast-1
+golish cloud config set defaults.provider aws
 
 # SSH
-osmedeus cloud config set ssh.private_key_path ~/.ssh/id_rsa
-osmedeus cloud config set ssh.public_key_path ~/.ssh/id_rsa.pub
-osmedeus cloud config set ssh.user ubuntu
+golish cloud config set ssh.private_key_path ~/.ssh/id_rsa
+golish cloud config set ssh.public_key_path ~/.ssh/id_rsa.pub
+golish cloud config set ssh.user ubuntu
 
 # Clean the setup scripts first
-osmedeus cloud config set setup.commands.clear ""
+golish cloud config set setup.commands.clear ""
 
 # Worker setup
-osmedeus cloud config set setup.commands.add "sudo apt-get update"
-osmedeus cloud config set setup.commands.add "sudo apt-get install -y -qq curl git tmux unzip jq rsync"
-osmedeus cloud config set setup.commands.add "curl -fsSL https://www.osmedeus.org/install.sh | bash"
-osmedeus cloud config set setup.commands.add "osmedeus health"
+golish cloud config set setup.commands.add "sudo apt-get update"
+golish cloud config set setup.commands.add "sudo apt-get install -y -qq curl git tmux unzip jq rsync"
+golish cloud config set setup.commands.add "curl -fsSL https://raw.githubusercontent.com/ChristopherZh-7/golish-registry/main/install.sh | bash"
+golish cloud config set setup.commands.add "golish health"
 ```
 
 ### Instance Types
@@ -80,7 +80,7 @@ osmedeus cloud config set setup.commands.add "osmedeus health"
 
 ```bash
 # Set instance type
-osmedeus cloud config set providers.aws.instance_type t3.large
+golish cloud config set providers.aws.instance_type t3.large
 ```
 
 ### Spot Instances
@@ -88,7 +88,7 @@ osmedeus cloud config set providers.aws.instance_type t3.large
 Spot instances cost 60-80% less than on-demand. They can be interrupted but are fine for security scanning (stateless, can retry).
 
 ```bash
-osmedeus cloud config set providers.aws.use_spot true
+golish cloud config set providers.aws.use_spot true
 ```
 
 ### Regions
@@ -107,7 +107,7 @@ Pick a region close to your targets or with the lowest pricing:
 | Asia Pacific (Sydney) | Australia | `ap-southeast-2` |
 
 ```bash
-osmedeus cloud config set providers.aws.region us-east-1
+golish cloud config set providers.aws.region us-east-1
 ```
 
 ### Custom AMI
@@ -119,15 +119,15 @@ Use a custom AMI with tools pre-installed for faster startup:
 # aws ec2 describe-images --owners 099720109477 --filters "Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-*-amd64-*" --query 'sort_by(Images, &CreationDate)[-1].ImageId'
 
 # Or use your own pre-built AMI
-osmedeus cloud config set providers.aws.ami ami-0123456789abcdef0
+golish cloud config set providers.aws.ami ami-0123456789abcdef0
 ```
 
 ### Cost Limits
 
 ```bash
-osmedeus cloud config set limits.max_hourly_spend 1.00
-osmedeus cloud config set limits.max_total_spend 10.00
-osmedeus cloud config set limits.max_instances 10
+golish cloud config set limits.max_hourly_spend 1.00
+golish cloud config set limits.max_total_spend 10.00
+golish cloud config set limits.max_instances 10
 ```
 
 ## Examples
@@ -135,7 +135,7 @@ osmedeus cloud config set limits.max_instances 10
 ### Quick Domain Recon
 
 ```bash
-osmedeus cloud run -f fast -t example.com --auto-destroy
+golish cloud run -f fast -t example.com --auto-destroy
 ```
 
 Cost: ~$0.04 (1 x t3.medium x 1 hour)
@@ -144,7 +144,7 @@ Cost: ~$0.04 (1 x t3.medium x 1 hour)
 
 ```bash
 # targets.txt: one domain per line
-osmedeus cloud run -f general -T targets.txt --instances 5 --sync-back --auto-destroy
+golish cloud run -f general -T targets.txt --instances 5 --sync-back --auto-destroy
 ```
 
 Cost: ~$0.42 (5 x t3.medium x 2 hours)
@@ -152,18 +152,18 @@ Cost: ~$0.42 (5 x t3.medium x 2 hours)
 ### Custom Nmap Scan
 
 ```bash
-osmedeus cloud run \
-  --custom-cmd "nmap -sV -sC {{Target}} -oA /tmp/osm-custom/nmap" \
-  --sync-path "/tmp/osm-custom/" \
+golish cloud run \
+  --custom-cmd "nmap -sV -sC {{Target}} -oA /tmp/golish-custom/nmap" \
+  --sync-path "/tmp/golish-custom/" \
   -t example.com --auto-destroy
 ```
 
 ### Distributed Nuclei Scanning
 
 ```bash
-osmedeus cloud run \
-  --custom-cmd "cat {{Target}} | nuclei -o /tmp/osm-custom/results.txt" \
-  --sync-path "/tmp/osm-custom/results.txt" \
+golish cloud run \
+  --custom-cmd "cat {{Target}} | nuclei -o /tmp/golish-custom/results.txt" \
+  --sync-path "/tmp/golish-custom/results.txt" \
   --sync-dest "./nuclei-aws" \
   -T urls.txt --instances 10 --auto-destroy
 ```
@@ -174,15 +174,15 @@ Cost: ~$0.42 (10 x t3.medium x 1 hour)
 
 ```bash
 # Configure spot
-osmedeus cloud config set providers.aws.use_spot true
-osmedeus cloud config set providers.aws.instance_type t3.large
+golish cloud config set providers.aws.use_spot true
+golish cloud config set providers.aws.instance_type t3.large
 
 # Run a heavy scan for cheap
-osmedeus cloud run \
-  --custom-cmd "subfinder -d {{Target}} -all -o /tmp/osm-custom/subs.txt" \
-  --custom-cmd "cat /tmp/osm-custom/subs.txt | httpx -td -o /tmp/osm-custom/live.txt" \
-  --custom-cmd "cat /tmp/osm-custom/live.txt | nuclei -o /tmp/osm-custom/nuclei.txt" \
-  --sync-path "/tmp/osm-custom/" \
+golish cloud run \
+  --custom-cmd "subfinder -d {{Target}} -all -o /tmp/golish-custom/subs.txt" \
+  --custom-cmd "cat /tmp/golish-custom/subs.txt | httpx -td -o /tmp/golish-custom/live.txt" \
+  --custom-cmd "cat /tmp/golish-custom/live.txt | nuclei -o /tmp/golish-custom/nuclei.txt" \
+  --sync-path "/tmp/golish-custom/" \
   -t example.com --auto-destroy
 ```
 
@@ -192,28 +192,28 @@ Cost: ~$0.025 (1 x t3.large spot x 1 hour)
 
 ```bash
 # Create instances once (saves setup time on subsequent runs)
-osmedeus cloud create --provider aws -n 3
+golish cloud create --provider aws -n 3
 
 # Run scans throughout the day
-osmedeus cloud run -f fast -t target1.com --reuse
-osmedeus cloud run -f fast -t target2.com --reuse
-osmedeus cloud run --custom-cmd "nuclei -u target3.com -o /tmp/osm-custom/nuclei.txt" \
-  --sync-path "/tmp/osm-custom/" -t target3.com --reuse
+golish cloud run -f fast -t target1.com --reuse
+golish cloud run -f fast -t target2.com --reuse
+golish cloud run --custom-cmd "nuclei -u target3.com -o /tmp/golish-custom/nuclei.txt" \
+  --sync-path "/tmp/golish-custom/" -t target3.com --reuse
 
 # Destroy at end of day
-osmedeus cloud destroy all --force
+golish cloud destroy all --force
 ```
 
 ### Multi-Region Scanning
 
 ```bash
 # Scan US targets from US region
-osmedeus cloud config set providers.aws.region us-east-1
-osmedeus cloud run -f fast -t us-company.com --auto-destroy
+golish cloud config set providers.aws.region us-east-1
+golish cloud run -f fast -t us-company.com --auto-destroy
 
 # Scan APAC targets from Singapore
-osmedeus cloud config set providers.aws.region ap-southeast-1
-osmedeus cloud run -f fast -t apac-company.com --auto-destroy
+golish cloud config set providers.aws.region ap-southeast-1
+golish cloud run -f fast -t apac-company.com --auto-destroy
 ```
 
 ## Troubleshooting
@@ -226,7 +226,7 @@ Your IAM user lacks required permissions. Attach `AmazonEC2FullAccess` policy or
 
 ```bash
 # Check with debug output
-osmedeus cloud run -f fast -t example.com --debug
+golish cloud run -f fast -t example.com --debug
 
 # Common causes:
 # - Region doesn't have the instance type available
@@ -239,7 +239,7 @@ osmedeus cloud run -f fast -t example.com --debug
 ```bash
 # Verify security group allows SSH (port 22)
 # Check with verbose setup
-osmedeus cloud run -f fast -t example.com --verbose-setup
+golish cloud run -f fast -t example.com --verbose-setup
 ```
 
 ### Spot Instance Interrupted
@@ -254,16 +254,16 @@ Spot instances can be reclaimed by AWS. The scan will fail for that worker. Miti
 
 ```bash
 # List all infrastructure
-osmedeus cloud list
+golish cloud list
 
 # Destroy specific
-osmedeus cloud destroy <infra-id>
+golish cloud destroy <infra-id>
 
 # Nuclear option
-osmedeus cloud destroy all --force
+golish cloud destroy all --force
 
-# If osmedeus state is out of sync, check AWS console directly:
-# EC2 Console > Instances > filter by tag "osmedeus"
+# If golish state is out of sync, check AWS console directly:
+# EC2 Console > Instances > filter by tag "golish"
 ```
 
 ## Cost Optimization

@@ -1,4 +1,4 @@
-module github.com/j3ssie/osmedeus/v5
+module github.com/ChristopherZh-7/golish-pentest-platform/v5
 
 go 1.26.0
 

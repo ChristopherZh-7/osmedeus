@@ -72,15 +72,15 @@ func (p *GCPProvider) EstimateCost(mode ExecutionMode, instanceCount int) (*Cost
 
 	// Default pricing for common machine types in us-central1 (USD per hour)
 	pricing := map[string]float64{
-		"e2-micro":       0.0084,
-		"e2-small":       0.0168,
-		"e2-medium":      0.0335,
-		"n1-standard-1":  0.0475,
-		"n1-standard-2":  0.0950,
-		"n1-standard-4":  0.1900,
-		"n2-standard-2":  0.0971,
-		"n2-standard-4":  0.1942,
-		"c2-standard-4":  0.2088,
+		"e2-micro":      0.0084,
+		"e2-small":      0.0168,
+		"e2-medium":     0.0335,
+		"n1-standard-1": 0.0475,
+		"n1-standard-2": 0.0950,
+		"n1-standard-4": 0.1900,
+		"n2-standard-2": 0.0971,
+		"n2-standard-4": 0.1942,
+		"c2-standard-4": 0.2088,
 	}
 
 	hourlyRate, ok := pricing[p.machineType]
@@ -125,7 +125,7 @@ func (p *GCPProvider) CreateInfrastructure(ctx context.Context, opts *CreateOpti
 		return nil, fmt.Errorf("failed to set GOOGLE_CREDENTIALS env var: %w", err)
 	}
 
-	pm, err := NewPulumiManager("osmedeus-cloud", infraID, statePath)
+	pm, err := NewPulumiManager("golish-cloud", infraID, statePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Pulumi manager: %w", err)
 	}
@@ -184,7 +184,7 @@ func (p *GCPProvider) DestroyInfrastructure(ctx context.Context, infra *Infrastr
 
 	statePath := infra.StatePath
 
-	pm, err := NewPulumiManager("osmedeus-cloud", infra.PulumiStackID, statePath)
+	pm, err := NewPulumiManager("golish-cloud", infra.PulumiStackID, statePath)
 	if err != nil {
 		return fmt.Errorf("failed to create Pulumi manager: %w", err)
 	}
@@ -244,7 +244,7 @@ func (p *GCPProvider) createInstanceProgram(infraID string, opts *CreateOptions)
 		userData := GenerateCloudInit(opts.RedisURL, opts.SSHPublicKey, opts.SetupCommands)
 
 		// Create firewall rule allowing SSH access
-		_, err := compute.NewFirewall(ctx, "osmedeus-allow-ssh", &compute.FirewallArgs{
+		_, err := compute.NewFirewall(ctx, "golish-allow-ssh", &compute.FirewallArgs{
 			Network: pulumi.String("default"),
 			Allows: compute.FirewallAllowArray{
 				&compute.FirewallAllowArgs{
@@ -258,7 +258,7 @@ func (p *GCPProvider) createInstanceProgram(infraID string, opts *CreateOptions)
 				pulumi.String("0.0.0.0/0"),
 			},
 			TargetTags: pulumi.StringArray{
-				pulumi.String("osmedeus-worker"),
+				pulumi.String("golish-worker"),
 			},
 		})
 		if err != nil {
@@ -273,7 +273,7 @@ func (p *GCPProvider) createInstanceProgram(infraID string, opts *CreateOptions)
 
 		// Create compute instances
 		for i := 0; i < opts.InstanceCount; i++ {
-			instanceName := fmt.Sprintf("osmw-%s-%d", suffix, i)
+			instanceName := fmt.Sprintf("glw-%s-%d", suffix, i)
 
 			instanceArgs := &compute.InstanceArgs{
 				MachineType: pulumi.String(p.machineType),
@@ -296,14 +296,14 @@ func (p *GCPProvider) createInstanceProgram(infraID string, opts *CreateOptions)
 					"ssh-keys":       pulumi.Sprintf("root:%s", opts.SSHPublicKey),
 				},
 				Tags: pulumi.StringArray{
-					pulumi.String("osmedeus-worker"),
+					pulumi.String("golish-worker"),
 				},
 			}
 
 			// Enable preemptible scheduling if requested
 			if p.usePreemptible {
 				instanceArgs.Scheduling = &compute.InstanceSchedulingArgs{
-					Preemptible:    pulumi.Bool(true),
+					Preemptible:      pulumi.Bool(true),
 					AutomaticRestart: pulumi.Bool(false),
 				}
 			}

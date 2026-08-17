@@ -39,7 +39,7 @@ steps:
     method: GET
     url: "https://httpbin.org/get?target={{target}}&foo=bar"
     headers:
-      User-Agent: "Osmedeus/1.0"
+      User-Agent: "Golish/1.0"
       Accept: "application/json"
     timeout: 30
     log: "Testing contains() with response body"
@@ -96,7 +96,7 @@ steps:
     method: GET
     url: "https://httpbin.org/get?scan={{target}}"
     headers:
-      User-Agent: "Osmedeus/1.0"
+      User-Agent: "Golish/1.0"
     timeout: 30
     log: "Testing combined status and body conditions"
     exports:
@@ -122,7 +122,7 @@ steps:
     url: "https://httpbin.org/post"
     headers:
       Content-Type: "application/json"
-      User-Agent: "Osmedeus/1.0"
+      User-Agent: "Golish/1.0"
     request_body: '{"target": "{{target}}", "action": "scan", "enabled": true}'
     timeout: 30
     log: "Testing POST with response body validation"

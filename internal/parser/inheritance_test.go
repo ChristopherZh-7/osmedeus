@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -428,7 +428,7 @@ kind: module
 name: parent-with-help
 help:
   example_targets: ['parent.com']
-  usage: osmedeus run -m parent -t <target>
+  usage: golish run -m parent -t <target>
 steps:
   - name: step1
     type: bash
@@ -444,7 +444,7 @@ name: child-with-help
 extends: parent-with-help
 help:
   example_targets: ['child.com', 'example.org']
-  usage: osmedeus run -m child -t <target>
+  usage: golish run -m child -t <target>
 `)
 		child, err := p.ParseContent(childContent)
 		require.NoError(t, err)
@@ -456,7 +456,7 @@ help:
 		require.NoError(t, err)
 
 		require.NotNil(t, merged.Help)
-		assert.Equal(t, "osmedeus run -m child -t <target>", merged.Help.Usage)
+		assert.Equal(t, "golish run -m child -t <target>", merged.Help.Usage)
 		assert.Equal(t, []string{"child.com", "example.org"}, merged.Help.ExampleTargets)
 	})
 
@@ -476,7 +476,7 @@ extends: parent-with-help
 
 		// Should inherit parent's help
 		require.NotNil(t, merged.Help)
-		assert.Equal(t, "osmedeus run -m parent -t <target>", merged.Help.Usage)
+		assert.Equal(t, "golish run -m parent -t <target>", merged.Help.Usage)
 		assert.Equal(t, []string{"parent.com"}, merged.Help.ExampleTargets)
 	})
 }

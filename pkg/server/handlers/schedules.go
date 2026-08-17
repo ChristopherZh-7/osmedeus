@@ -4,13 +4,13 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/executor"
+	oslogger "github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/parser"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/executor"
-	oslogger "github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/parser"
 	"go.uber.org/zap"
 )
 
@@ -24,7 +24,7 @@ import (
 // @Success 201 {object} map[string]interface{} "Schedule created"
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Security BearerAuth
-// @Router /osm/api/schedules [post]
+// @Router /golish/api/schedules [post]
 func CreateSchedule(cfg *config.Config, eventReceiver EventReceiverProvider) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		log := oslogger.Get()
@@ -148,7 +148,7 @@ func convertScheduleToTrigger(schedule *database.Schedule) *core.Trigger {
 // @Param limit query int false "Maximum number of records to return" default(20)
 // @Success 200 {object} map[string]interface{} "List of schedules"
 // @Security BearerAuth
-// @Router /osm/api/schedules [get]
+// @Router /golish/api/schedules [get]
 func ListSchedules(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		offset, _ := strconv.Atoi(c.Query("offset", "0"))
@@ -194,7 +194,7 @@ func ListSchedules(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "Schedule details"
 // @Failure 404 {object} map[string]interface{} "Schedule not found"
 // @Security BearerAuth
-// @Router /osm/api/schedules/{id} [get]
+// @Router /golish/api/schedules/{id} [get]
 func GetSchedule(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
@@ -223,7 +223,7 @@ func GetSchedule(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "Schedule updated"
 // @Failure 404 {object} map[string]interface{} "Schedule not found"
 // @Security BearerAuth
-// @Router /osm/api/schedules/{id} [put]
+// @Router /golish/api/schedules/{id} [put]
 func UpdateSchedule(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
@@ -268,7 +268,7 @@ func UpdateSchedule(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "Schedule deleted"
 // @Failure 404 {object} map[string]interface{} "Schedule not found"
 // @Security BearerAuth
-// @Router /osm/api/schedules/{id} [delete]
+// @Router /golish/api/schedules/{id} [delete]
 func DeleteSchedule(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
@@ -293,7 +293,7 @@ func DeleteSchedule(cfg *config.Config) fiber.Handler {
 // @Param id path string true "Schedule ID"
 // @Success 200 {object} map[string]interface{} "Schedule enabled"
 // @Security BearerAuth
-// @Router /osm/api/schedules/{id}/enable [post]
+// @Router /golish/api/schedules/{id}/enable [post]
 func EnableSchedule(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
@@ -320,7 +320,7 @@ func EnableSchedule(cfg *config.Config) fiber.Handler {
 // @Param id path string true "Schedule ID"
 // @Success 200 {object} map[string]interface{} "Schedule disabled"
 // @Security BearerAuth
-// @Router /osm/api/schedules/{id}/disable [post]
+// @Router /golish/api/schedules/{id}/disable [post]
 func DisableSchedule(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")
@@ -347,7 +347,7 @@ func DisableSchedule(cfg *config.Config) fiber.Handler {
 // @Param id path string true "Schedule ID"
 // @Success 202 {object} map[string]interface{} "Schedule triggered"
 // @Security BearerAuth
-// @Router /osm/api/schedules/{id}/trigger [post]
+// @Router /golish/api/schedules/{id}/trigger [post]
 func TriggerSchedule(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		id := c.Params("id")

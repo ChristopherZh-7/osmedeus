@@ -4,8 +4,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -48,7 +48,7 @@ func TestAPIKeyAuth(t *testing.T) {
 
 			req := httptest.NewRequest("GET", "/test", nil)
 			if tt.headerKey != "" {
-				req.Header.Set("x-osm-api-key", tt.headerKey)
+				req.Header.Set("x-golish-api-key", tt.headerKey)
 			}
 
 			resp, err := app.Test(req)
@@ -108,7 +108,7 @@ func TestAPIKeyAuth_ResponseBody(t *testing.T) {
 
 	// Test that invalid key returns proper error response
 	req := httptest.NewRequest("GET", "/test", nil)
-	req.Header.Set("x-osm-api-key", "wrong-key")
+	req.Header.Set("x-golish-api-key", "wrong-key")
 
 	resp, err := app.Test(req)
 	require.NoError(t, err)

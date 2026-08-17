@@ -1,0 +1,39 @@
+kind: flow
+name: web-recon
+description: Unified URL analysis with lite, standard, and extensive profiles
+tags: core, recon, web, url
+help:
+  example_targets: ['https://example.com', 'example.com']
+  usage: |
+    golish run -f web-recon -t https://example.com
+    golish run -f web-recon -t https://example.com -p 'profile=extensive'
+
+params:
+  - name: profile
+    type: string
+    default: standard
+
+dependencies:
+  variables:
+    - name: Target
+      type: url,domain
+      required: true
+
+modules:
+  - name: recon-http-fp
+    path: fragments/do-recon-http-fp.yaml
+
+  - name: recon-spider
+    path: fragments/do-recon-spider.yaml
+    depends_on: [recon-http-fp]
+    condition: profile !== 'lite'
+
+  - name: scan-vuln
+    path: fragments/do-scan-vuln.yaml
+    depends_on: [recon-http-fp]
+    condition: profile !== 'lite'
+
+  - name: scan-vuln-thorough
+    path: fragments/do-scan-vuln-thorough.yaml
+    depends_on: [recon-http-fp]
+    condition: profile === 'extensive'

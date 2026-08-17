@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
 	"github.com/uptrace/bun"
 )
 

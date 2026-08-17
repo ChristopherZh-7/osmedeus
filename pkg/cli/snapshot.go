@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/snapshot"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/snapshot"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/spf13/cobra"
 )
 
@@ -32,11 +32,11 @@ var snapshotExportCmd = &cobra.Command{
 	Long: `Export a workspace folder to a compressed zip archive.
 
 The archive is created with highest compression (level 9) and stored in
-the snapshot folder (default: ~/osmedeus-base/snapshot/).
+the snapshot folder (default: ~/golish-base/snapshot/).
 
 Examples:
-  osmedeus snapshot export example.com
-  osmedeus snapshot export example.com -o /tmp/backup.zip`,
+  golish snapshot export example.com
+  golish snapshot export example.com -o /tmp/backup.zip`,
 	Args: cobra.ExactArgs(1),
 	RunE: runSnapshotExport,
 }
@@ -51,9 +51,9 @@ The workspace will be extracted to the workspaces folder and
 optionally imported to the database with data_source="imported".
 
 Examples:
-  osmedeus snapshot import ~/snapshot/example.com_2026-02-13T18-20-34Z.zip
-  osmedeus snapshot import https://example.com/workspace.zip
-  osmedeus snapshot import ~/backup.zip --force`,
+  golish snapshot import ~/snapshot/example.com_2026-02-13T18-20-34Z.zip
+  golish snapshot import https://example.com/workspace.zip
+  golish snapshot import ~/backup.zip --force`,
 	Args: cobra.ExactArgs(1),
 	RunE: runSnapshotImport,
 }
@@ -270,8 +270,8 @@ Commands:
   list                List available snapshots
 
 Examples:
-  osmedeus snapshot export example.com
-  osmedeus snapshot import ~/backup.zip
-  osmedeus snapshot list
+  golish snapshot export example.com
+  golish snapshot import ~/backup.zip
+  golish snapshot list
 `
 }

@@ -15,10 +15,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	oslogger "github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/template"
 	acp "github.com/coder/acp-go-sdk"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	oslogger "github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/template"
 	"go.uber.org/zap"
 )
 

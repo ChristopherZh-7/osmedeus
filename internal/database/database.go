@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/dialect/sqlitedialect"

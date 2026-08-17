@@ -7,7 +7,7 @@ params:
   - name: target
     required: true
   - name: Output
-    default: /tmp/osm-docker-flow
+    default: /tmp/golish-docker-flow
   - name: mode
     default: "full"
   - name: threads

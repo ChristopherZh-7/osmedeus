@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/database/repository"
-	"github.com/j3ssie/osmedeus/v5/internal/json"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database/repository"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/json"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/spf13/cobra"
 )
 
@@ -65,7 +65,7 @@ func runWorkerWebhooks(cmd *cobra.Command, args []string) error {
 
 	if len(runs) == 0 {
 		p.Info("No webhook triggers registered")
-		p.Info("Use '%s' to register a webhook", terminal.Cyan("osmedeus run --as-webhook -m <module> -t <target>"))
+		p.Info("Use '%s' to register a webhook", terminal.Cyan("golish run --as-webhook -m <module> -t <target>"))
 		return nil
 	}
 
@@ -74,7 +74,7 @@ func runWorkerWebhooks(cmd *cobra.Command, args []string) error {
 	headers := []string{"ID", "Workflow", "Target", "Status", "Webhook URL", "Auth Key", "Created"}
 	var rows [][]string
 	for _, r := range runs {
-		webhookURL := fmt.Sprintf("/osm/api/webhook-runs/%s/trigger", r.WebhookUUID)
+		webhookURL := fmt.Sprintf("/golish/api/webhook-runs/%s/trigger", r.WebhookUUID)
 		authKey := ""
 		if r.WebhookAuthKey != "" {
 			authKey = r.WebhookAuthKey
@@ -95,7 +95,7 @@ func runWorkerWebhooks(cmd *cobra.Command, args []string) error {
 	p.Info("Total: %d webhook(s)", len(runs))
 
 	if !cfg.Server.EnableTriggerViaWebhook {
-		p.Warning("Webhook triggering is currently disabled. Set 'enable_trigger_via_webhook: true' in osm-settings.yaml")
+		p.Warning("Webhook triggering is currently disabled. Set 'enable_trigger_via_webhook: true' in golish-settings.yaml")
 	}
 
 	return nil

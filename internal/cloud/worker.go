@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/distributed"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/distributed"
 )
 
 // WaitForWorkers waits for the expected number of workers to register
@@ -40,7 +40,7 @@ func WaitForWorkers(ctx context.Context, client *distributed.Client, expectedCou
 				continue
 			}
 
-			// Filter cloud workers (those with cloud- prefix or wosm- prefix)
+			// Filter cloud workers (those with cloud- prefix or wgolish- prefix)
 			cloudWorkers := filterCloudWorkers(workers)
 
 			// Check if we have enough workers
@@ -59,10 +59,10 @@ func filterCloudWorkers(workers []*distributed.WorkerInfo) []string {
 	var cloudWorkers []string
 
 	for _, worker := range workers {
-		// Cloud workers typically have wosm- prefix (from --get-public-ip flag)
+		// Cloud workers typically have wgolish- prefix (from --get-public-ip flag)
 		// or cloud- alias prefix
-		if strings.HasPrefix(worker.ID, "wosm-") || strings.HasPrefix(worker.ID, "cloud-") ||
-			strings.HasPrefix(worker.Alias, "wosm-") || strings.HasPrefix(worker.Alias, "cloud-") {
+		if strings.HasPrefix(worker.ID, "wgolish-") || strings.HasPrefix(worker.ID, "cloud-") ||
+			strings.HasPrefix(worker.Alias, "wgolish-") || strings.HasPrefix(worker.Alias, "cloud-") {
 			cloudWorkers = append(cloudWorkers, worker.ID)
 		}
 	}

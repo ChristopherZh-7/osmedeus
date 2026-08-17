@@ -269,7 +269,7 @@ notification:
 `, telegramURL)
 	}
 
-	settingsFile := filepath.Join(basePath, "osm-settings.yaml")
+	settingsFile := filepath.Join(basePath, "golish-settings.yaml")
 	require.NoError(t, os.WriteFile(settingsFile, []byte(settingsContent), 0644))
 
 	cleanup = func() {
@@ -290,7 +290,7 @@ func runCLIWithBase(t *testing.T, log *TestLogger, basePath string, args ...stri
 	log.Command(args...)
 
 	cmd := exec.Command(binary, args...)
-	cmd.Env = append(os.Environ(), "OSM_SKIP_PATH_SETUP=1")
+	cmd.Env = append(os.Environ(), "GOLISH_SKIP_PATH_SETUP=1")
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout = &stdoutBuf
 	cmd.Stderr = &stderrBuf

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 )
 
 // MaxOutputSize limits the combined output size to prevent memory issues
@@ -140,7 +140,7 @@ type Runner interface {
 }
 
 // NewRunner creates a runner based on workflow configuration. binaryPath is
-// the osmedeus executable copied to remote runners, while binariesPath is the
+// the golish executable copied to remote runners, while binariesPath is the
 // local directory containing workflow tools.
 func NewRunner(workflow *core.Workflow, binaryPath, binariesPath string) (Runner, error) {
 	runnerType := workflow.Runner

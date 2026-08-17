@@ -120,7 +120,7 @@ func (p *HetznerProvider) CreateInfrastructure(ctx context.Context, opts *Create
 	infraID := fmt.Sprintf("cloud-hetzner-%d", time.Now().Unix())
 	statePath := opts.StatePath
 
-	pm, err := NewPulumiManager("osmedeus-cloud", infraID, statePath)
+	pm, err := NewPulumiManager("golish-cloud", infraID, statePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Pulumi manager: %w", err)
 	}
@@ -163,7 +163,7 @@ func (p *HetznerProvider) CreateInfrastructure(ctx context.Context, opts *Create
 func (p *HetznerProvider) DestroyInfrastructure(ctx context.Context, infra *Infrastructure) error {
 	statePath := infra.StatePath
 
-	pm, err := NewPulumiManager("osmedeus-cloud", infra.PulumiStackID, statePath)
+	pm, err := NewPulumiManager("golish-cloud", infra.PulumiStackID, statePath)
 	if err != nil {
 		return fmt.Errorf("failed to create Pulumi manager: %w", err)
 	}
@@ -251,8 +251,8 @@ func (p *HetznerProvider) createServerProgram(parentCtx context.Context, infraID
 		if keyExists {
 			sshKeyName = pulumi.String(existingKeyName)
 		} else {
-			sshKey, err := pulumiHcloud.NewSshKey(ctx, "osmedeus-ssh-key", &pulumiHcloud.SshKeyArgs{
-				Name:      pulumi.String(fmt.Sprintf("osmedeus-key-%s", suffix)),
+			sshKey, err := pulumiHcloud.NewSshKey(ctx, "golish-ssh-key", &pulumiHcloud.SshKeyArgs{
+				Name:      pulumi.String(fmt.Sprintf("golish-key-%s", suffix)),
 				PublicKey: pulumi.String(opts.SSHPublicKey),
 			})
 			if err != nil {
@@ -262,8 +262,8 @@ func (p *HetznerProvider) createServerProgram(parentCtx context.Context, infraID
 		}
 
 		// Create firewall allowing SSH
-		fw, err := pulumiHcloud.NewFirewall(ctx, "osmedeus-firewall", &pulumiHcloud.FirewallArgs{
-			Name: pulumi.String(fmt.Sprintf("osmedeus-fw-%s", suffix)),
+		fw, err := pulumiHcloud.NewFirewall(ctx, "golish-firewall", &pulumiHcloud.FirewallArgs{
+			Name: pulumi.String(fmt.Sprintf("golish-fw-%s", suffix)),
 			Rules: pulumiHcloud.FirewallRuleArray{
 				&pulumiHcloud.FirewallRuleArgs{
 					Direction: pulumi.String("in"),
@@ -288,7 +288,7 @@ func (p *HetznerProvider) createServerProgram(parentCtx context.Context, infraID
 
 		// Create servers
 		for i := 0; i < opts.InstanceCount; i++ {
-			serverName := fmt.Sprintf("osmw-%s-%d", suffix, i)
+			serverName := fmt.Sprintf("glw-%s-%d", suffix, i)
 
 			server, err := pulumiHcloud.NewServer(ctx, serverName, &pulumiHcloud.ServerArgs{
 				Name:       pulumi.String(serverName),
@@ -305,7 +305,7 @@ func (p *HetznerProvider) createServerProgram(parentCtx context.Context, infraID
 					}).(pulumi.IntOutput),
 				},
 				Labels: pulumi.StringMap{
-					"osmedeus": pulumi.String("true"),
+					"golish": pulumi.String("true"),
 				},
 			})
 			if err != nil {

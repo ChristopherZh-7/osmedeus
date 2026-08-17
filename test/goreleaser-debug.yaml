@@ -2,16 +2,16 @@
 # Debug config for quick builds - only macOS and Linux ARM64
 version: 2
 
-project_name: osmedeus
+project_name: golish
 
 before:
   hooks:
     - go mod tidy
 
 builds:
-  - id: osmedeus
-    main: ./cmd/osmedeus
-    binary: osmedeus
+  - id: golish
+    main: ./cmd/golish
+    binary: golish
     env:
       - CGO_ENABLED=0
     goos:

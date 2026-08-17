@@ -1,14 +1,14 @@
 package cli
 
 import (
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 )
 
 // UsageRoot returns the Long description for the root command
 func UsageRoot() string {
 	return terminal.BoldCyan("◆ Description") + `
-  Osmedeus is a powerful workflow engine for executing automated
+  Golish is a powerful workflow engine for executing automated
   reconnaissance and security assessment workflows.
 
   It supports both module (single execution units) and flow (multi-module
@@ -22,19 +22,19 @@ func UsageRoot() string {
 
 ` + terminal.BoldCyan("▷ Quick Start") + `
   ` + terminal.Green("# Run a module workflow") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` simple-module ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("-m") + ` simple-module ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Run a flow workflow") + `
-  osmedeus run ` + terminal.Yellow("-f") + ` recon-workflow ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("-f") + ` recon-workflow ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Evaluate a utility function") + `
-  osmedeus func e 'log_info("Hello {{target}}")' ` + terminal.Yellow("-t") + ` example.com
+  golish func e 'log_info("Hello {{target}}")' ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# List available workflows") + `
-  osmedeus workflow list
+  golish workflow list
 
   ` + terminal.Green("# Show all usage examples") + `
-  osmedeus ` + terminal.Yellow("--usage-example") + `
+  golish ` + terminal.Yellow("--usage-example") + `
 
 ` + docsFooter()
 }
@@ -46,101 +46,101 @@ func UsageRun() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Run against a single target") + `
-  osmedeus run ` + terminal.Yellow("-f") + ` recon-workflow ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("-f") + ` recon-workflow ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Run against multiple targets") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` simple-module ` + terminal.Yellow("-t") + ` target1.com ` + terminal.Yellow("-t") + ` target2.com
+  golish run ` + terminal.Yellow("-m") + ` simple-module ` + terminal.Yellow("-t") + ` target1.com ` + terminal.Yellow("-t") + ` target2.com
 
   ` + terminal.Green("# Run with stdin input with concurrency") + `
-  cat list-of-urls.txt | osmedeus run ` + terminal.Yellow("-m") + ` simple-module ` + terminal.Yellow("--concurrency") + ` 10
+  cat list-of-urls.txt | golish run ` + terminal.Yellow("-m") + ` simple-module ` + terminal.Yellow("--concurrency") + ` 10
 
   ` + terminal.Green("# Combine multiple input methods") + `
-  echo "extra.com" | osmedeus run ` + terminal.Yellow("-m") + ` simple-module ` + terminal.Yellow("-t") + ` main.com ` + terminal.Yellow("-T") + ` more-targets.txt
+  echo "extra.com" | golish run ` + terminal.Yellow("-m") + ` simple-module ` + terminal.Yellow("-t") + ` main.com ` + terminal.Yellow("-T") + ` more-targets.txt
 
   ` + terminal.Green("# Run with custom parameters") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` simple-module ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--params") + ` 'threads=20'
+  golish run ` + terminal.Yellow("-m") + ` simple-module ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--params") + ` 'threads=20'
 
   ` + terminal.Green("# Run with custom base folder") + `
-  osmedeus run ` + terminal.Yellow("--base-folder") + ` /opt/osmedeus-base ` + terminal.Yellow("-f") + ` recon-workflow ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("--base-folder") + ` /opt/golish-base ` + terminal.Yellow("-f") + ` recon-workflow ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Run with timeout (cancel if exceeds)") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--timeout") + ` 2h
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--timeout") + ` 2h
 
   ` + terminal.Green("# Repeat run every hour continuously") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--repeat") + ` ` + terminal.Yellow("--repeat-wait-time") + ` 1h
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--repeat") + ` ` + terminal.Yellow("--repeat-wait-time") + ` 1h
 
   ` + terminal.Green("# Run multiple modules in sequence") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` subdomain ` + terminal.Yellow("-m") + ` portscan ` + terminal.Yellow("-m") + ` vulnscan ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("-m") + ` subdomain ` + terminal.Yellow("-m") + ` portscan ` + terminal.Yellow("-m") + ` vulnscan ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Combine timeout with repeat mode") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--timeout") + ` 3h ` + terminal.Yellow("--repeat") + ` ` + terminal.Yellow("--repeat-wait-time") + ` 30m
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--timeout") + ` 3h ` + terminal.Yellow("--repeat") + ` ` + terminal.Yellow("--repeat-wait-time") + ` 30m
 
   ` + terminal.Green("# Dry-run mode (preview without executing)") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--dry-run") + `
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--dry-run") + `
 
   ` + terminal.Green("# Run module from stdin (pipe YAML)") + `
-  cat module.yaml | osmedeus run ` + terminal.Yellow("--std-module") + ` ` + terminal.Yellow("-t") + ` example.com
+  cat module.yaml | golish run ` + terminal.Yellow("--std-module") + ` ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Run module from URL") + `
-  osmedeus run ` + terminal.Yellow("--module-url") + ` https://example.com/module.yaml ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("--module-url") + ` https://example.com/module.yaml ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Run module from GitHub (public)") + `
-  osmedeus run ` + terminal.Yellow("--module-url") + ` https://raw.githubusercontent.com/user/repo/main/module.yaml ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("--module-url") + ` https://raw.githubusercontent.com/user/repo/main/module.yaml ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Run module from private GitHub repo (requires GH_TOKEN or GITHUB_API_KEY)") + `
-  osmedeus run ` + terminal.Yellow("--module-url") + ` https://github.com/user/private-repo/blob/main/module.yaml ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("--module-url") + ` https://github.com/user/private-repo/blob/main/module.yaml ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Load parameters from YAML/JSON file") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--params-file") + ` params.yaml
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--params-file") + ` params.yaml
 
   ` + terminal.Green("# Custom workspace path") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--workspace") + ` /custom/workspace
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--workspace") + ` /custom/workspace
 
   ` + terminal.Green("# Skip heuristics checks") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--heuristics-check") + ` none
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--heuristics-check") + ` none
 
   ` + terminal.Green("# Concurrent targets from file") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--concurrency") + ` 5
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--concurrency") + ` 5
 
   ` + terminal.Green("# View chunk info for target file") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-size") + ` 100
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-size") + ` 100
 
   ` + terminal.Green("# Run specific chunk (0-indexed)") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-size") + ` 100 ` + terminal.Yellow("--chunk-part") + ` 2
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-size") + ` 100 ` + terminal.Yellow("--chunk-part") + ` 2
 
   ` + terminal.Green("# Split into 4 equal chunks and run chunk 0") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-count") + ` 4 ` + terminal.Yellow("--chunk-part") + ` 0
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-count") + ` 4 ` + terminal.Yellow("--chunk-part") + ` 0
 
   ` + terminal.Green("# Manual target splitting across machines") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-size") + ` 250 ` + terminal.Yellow("--chunk-part") + ` 0  ` + terminal.Gray("# Machine 1") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-size") + ` 250 ` + terminal.Yellow("--chunk-part") + ` 1  ` + terminal.Gray("# Machine 2") + `
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-size") + ` 250 ` + terminal.Yellow("--chunk-part") + ` 0  ` + terminal.Gray("# Machine 1") + `
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-size") + ` 250 ` + terminal.Yellow("--chunk-part") + ` 1  ` + terminal.Gray("# Machine 2") + `
 
   ` + terminal.Green("# Queue a run for later processing") + `
-  osmedeus run ` + terminal.Yellow("--queue") + ` ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("--queue") + ` ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Queue with file target") + `
-  osmedeus run ` + terminal.Yellow("--queue") + ` ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt
+  golish run ` + terminal.Yellow("--queue") + ` ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt
 
-  ` + terminal.Green("# Process queued tasks (alias for 'osmedeus worker queue run')") + `
-  osmedeus run ` + terminal.Yellow("--queue-run") + `
+  ` + terminal.Green("# Process queued tasks (alias for 'golish worker queue run')") + `
+  golish run ` + terminal.Yellow("--queue-run") + `
 
   ` + terminal.Green("# Process queued tasks with concurrency") + `
-  osmedeus run ` + terminal.Yellow("--queue-run") + ` ` + terminal.Yellow("--concurrency") + ` 3
+  golish run ` + terminal.Yellow("--queue-run") + ` ` + terminal.Yellow("--concurrency") + ` 3
 
   ` + terminal.Green("# Register a webhook trigger (no execution)") + `
-  osmedeus run ` + terminal.Yellow("--as-webhook") + ` ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("--as-webhook") + ` ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Register a webhook with auth key") + `
-  osmedeus run ` + terminal.Yellow("--as-webhook") + ` ` + terminal.Yellow("--webhook-auth-key") + ` mykey ` + terminal.Yellow("-f") + ` general ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("--as-webhook") + ` ` + terminal.Yellow("--webhook-auth-key") + ` mykey ` + terminal.Yellow("-f") + ` general ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Create a cron schedule (daily at 2am)") + `
-  osmedeus run ` + terminal.Yellow("--as-cron") + ` '0 2 * * *' ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("--as-cron") + ` '0 2 * * *' ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Create a cron schedule (every 6 hours) for a flow") + `
-  osmedeus run ` + terminal.Yellow("--as-cron") + ` '0 */6 * * *' ` + terminal.Yellow("-f") + ` general ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("--as-cron") + ` '0 */6 * * *' ` + terminal.Yellow("-f") + ` general ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Create cron schedules for multiple targets") + `
-  osmedeus run ` + terminal.Yellow("--as-cron") + ` '0 0 * * 1' ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt
+  golish run ` + terminal.Yellow("--as-cron") + ` '0 0 * * 1' ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt
 
 ` + docsFooter()
 }
@@ -148,7 +148,7 @@ func UsageRun() string {
 // UsageServe returns the Long description for the serve command
 func UsageServe() string {
 	return terminal.BoldCyan("◆ Description") + `
-  Start the Osmedeus web server that provides REST API endpoints.
+  Start the Golish web server that provides REST API endpoints.
 
 ` + terminal.BoldCyan("▶ Features") + `
   • REST API for managing runs
@@ -161,22 +161,22 @@ func UsageServe() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Start server with default settings") + `
-  osmedeus serve
+  golish serve
 
   ` + terminal.Green("# Start server on custom port") + `
-  osmedeus serve ` + terminal.Yellow("--port") + ` 8080
+  golish serve ` + terminal.Yellow("--port") + ` 8080
 
   ` + terminal.Green("# Start server without authentication (development only)") + `
-  osmedeus serve ` + terminal.Yellow("-A") + `
+  golish serve ` + terminal.Yellow("-A") + `
 
   ` + terminal.Green("# Start server on specific host without auth") + `
-  osmedeus serve ` + terminal.Yellow("--host") + ` 127.0.0.1 ` + terminal.Yellow("--port") + ` 8811 ` + terminal.Yellow("-A") + `
+  golish serve ` + terminal.Yellow("--host") + ` 127.0.0.1 ` + terminal.Yellow("--port") + ` 8811 ` + terminal.Yellow("-A") + `
 
   ` + terminal.Green("# Start as distributed master node") + `
-  osmedeus serve ` + terminal.Yellow("--master") + `
+  golish serve ` + terminal.Yellow("--master") + `
 
   ` + terminal.Green("# Start server without queue polling") + `
-  osmedeus serve ` + terminal.Yellow("--no-queue-polling") + `
+  golish serve ` + terminal.Yellow("--no-queue-polling") + `
 
 ` + docsFooter()
 }
@@ -218,45 +218,45 @@ func UsageFunction() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# List all available functions") + `
-  osmedeus func list
+  golish func list
 
   ` + terminal.Green("# Evaluate a simple function") + `
-  osmedeus func eval 'trim("  hello  ")'
+  golish func eval 'trim("  hello  ")'
 
   ` + terminal.Green("# Short alias for eval") + `
-  osmedeus func e 'log_info("Hello World")'
+  golish func e 'log_info("Hello World")'
 
   ` + terminal.Green("# Use with target variable") + `
-  osmedeus func e 'file_exists("{{target}}")' ` + terminal.Yellow("-t") + ` /tmp/test.txt
+  golish func e 'file_exists("{{target}}")' ` + terminal.Yellow("-t") + ` /tmp/test.txt
 
   ` + terminal.Green("# Print markdown file with syntax highlighting") + `
-  osmedeus func e 'print_markdown_from_file("README.md")'
+  golish func e 'print_markdown_from_file("README.md")'
 
   ` + terminal.Green("# Multi-line script with variable") + `
-  osmedeus func e 'var x = trim("  test  "); log_info(x); x'
+  golish func e 'var x = trim("  test  "); log_info(x); x'
 
   ` + terminal.Green("# Make HTTP request") + `
-  osmedeus func e 'http_request("https://api.example.com", "GET", {}, "")'
+  golish func e 'http_request("https://api.example.com", "GET", {}, "")'
 
   ` + terminal.Green("# With custom params") + `
-  osmedeus func e 'log_info("{{host}}:{{port}}")' ` + terminal.Yellow("--params") + ` 'host=localhost' ` + terminal.Yellow("--params") + ` 'port=8080'
+  golish func e 'log_info("{{host}}:{{port}}")' ` + terminal.Yellow("--params") + ` 'host=localhost' ` + terminal.Yellow("--params") + ` 'port=8080'
 
   ` + terminal.Green("# Use -f flag for shell path autocompletion on file arguments") + `
-  osmedeus func e ` + terminal.Yellow("-f") + ` trim "  hello world  "
-  osmedeus func e ` + terminal.Yellow("-f") + ` file_exists /tmp
-  osmedeus func e ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("-f") + ` log_info "Processing {{target}}"
+  golish func e ` + terminal.Yellow("-f") + ` trim "  hello world  "
+  golish func e ` + terminal.Yellow("-f") + ` file_exists /tmp
+  golish func e ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("-f") + ` log_info "Processing {{target}}"
 
   ` + terminal.Green("# Query database with SQL") + `
-  osmedeus func e 'db_select("SELECT severity, COUNT(*) FROM vulnerabilities GROUP BY severity", "markdown")'
+  golish func e 'db_select("SELECT severity, COUNT(*) FROM vulnerabilities GROUP BY severity", "markdown")'
 
   ` + terminal.Green("# Query filtered assets from database") + `
-  osmedeus func e 'db_select_assets_filtered("example.com", 200, "subdomain", "jsonl")'
+  golish func e 'db_select_assets_filtered("example.com", 200, "subdomain", "jsonl")'
 
   ` + terminal.Green("# Read script from stdin") + `
-  echo 'log_info("hello")' | osmedeus func e ` + terminal.Yellow("--stdin") + `
+  echo 'log_info("hello")' | golish func e ` + terminal.Yellow("--stdin") + `
 
   ` + terminal.Green("# Alternative stdin syntax") + `
-  echo 'trim("  test  ")' | osmedeus func e -
+  echo 'trim("  test  ")' | golish func e -
 
 ` + docsFooter()
 }
@@ -272,59 +272,59 @@ func UsageFunctionEval() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Print markdown file with syntax highlighting") + `
-  osmedeus func e 'print_markdown_from_file("README.md")'
+  golish func e 'print_markdown_from_file("README.md")'
 
   ` + terminal.Green("# Log a message with INFO prefix") + `
-  osmedeus func e 'log_info("Scan completed for {{target}}")' ` + terminal.Yellow("-t") + ` example.com
+  golish func e 'log_info("Scan completed for {{target}}")' ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Save content to file") + `
-  osmedeus func e 'save_content(render_markdown_from_file("README.md"), "/tmp/output.txt")'
+  golish func e 'save_content(render_markdown_from_file("README.md"), "/tmp/output.txt")'
 
   ` + terminal.Green("# Use with variable") + `
-  osmedeus func e 'var content = "sample"; save_content(content, "/tmp/output.txt")'
+  golish func e 'var content = "sample"; save_content(content, "/tmp/output.txt")'
 
 
   ` + terminal.Green("# Sort a file using Unix sort") + `
-  osmedeus func e 'sort_unix("/tmp/input.txt", "/tmp/sorted.txt")'
+  golish func e 'sort_unix("/tmp/input.txt", "/tmp/sorted.txt")'
 
   ` + terminal.Green("# Make HTTP request") + `
-  osmedeus func e 'http_request("https://api.example.com", "GET", {}, "")'
+  golish func e 'http_request("https://api.example.com", "GET", {}, "")'
 
   ` + terminal.Green("# With custom params") + `
-  osmedeus func e 'log_info("{{host}}:{{port}}")' ` + terminal.Yellow("--params") + ` 'host=localhost' ` + terminal.Yellow("--params") + ` 'port=8080'
+  golish func e 'log_info("{{host}}:{{port}}")' ` + terminal.Yellow("--params") + ` 'host=localhost' ` + terminal.Yellow("--params") + ` 'port=8080'
 
   ` + terminal.Green("# Use -f flag for shell path autocompletion on file arguments") + `
-  osmedeus func e ` + terminal.Yellow("-f") + ` trim "  hello world  "
-  osmedeus func e ` + terminal.Yellow("-f") + ` file_exists /tmp
-  osmedeus func e ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("-f") + ` log_info "Processing {{target}}"
+  golish func e ` + terminal.Yellow("-f") + ` trim "  hello world  "
+  golish func e ` + terminal.Yellow("-f") + ` file_exists /tmp
+  golish func e ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("-f") + ` log_info "Processing {{target}}"
 
   ` + terminal.Green("# Query database - get vulnerability counts by severity") + `
-  osmedeus func e 'db_select("SELECT severity, COUNT(*) as count FROM vulnerabilities GROUP BY severity", "markdown")'
+  golish func e 'db_select("SELECT severity, COUNT(*) as count FROM vulnerabilities GROUP BY severity", "markdown")'
 
   ` + terminal.Green("# Query database - get filtered assets as JSONL") + `
-  osmedeus func e 'db_select_assets_filtered("example.com", 200, "subdomain", "jsonl")'
+  golish func e 'db_select_assets_filtered("example.com", 200, "subdomain", "jsonl")'
 
   ` + terminal.Green("# Query database - get all vulnerabilities for a workspace") + `
-  osmedeus func e 'db_select_vulnerabilities("example.com", "markdown")'
+  golish func e 'db_select_vulnerabilities("example.com", "markdown")'
 
   ` + terminal.Green("# Read script from stdin") + `
-  echo 'print_markdown_from_file("README.md")' | osmedeus func e --stdin
+  echo 'print_markdown_from_file("README.md")' | golish func e --stdin
 
   ` + terminal.Green("# Alternative stdin syntax") + `
-  echo 'log_info("hello")' | osmedeus func e -
+  echo 'log_info("hello")' | golish func e -
 
 ` + terminal.BoldCyan("▷ Bulk Processing") + `
   ` + terminal.Green("# Process multiple targets from file") + `
-  osmedeus func e 'log_info("Processing: " + target)' ` + terminal.Yellow("-T") + ` targets.txt
+  golish func e 'log_info("Processing: " + target)' ` + terminal.Yellow("-T") + ` targets.txt
 
   ` + terminal.Green("# Function from file with targets") + `
-  osmedeus func e ` + terminal.Yellow("--function-file") + ` check.js ` + terminal.Yellow("-T") + ` targets.txt
+  golish func e ` + terminal.Yellow("--function-file") + ` check.js ` + terminal.Yellow("-T") + ` targets.txt
 
   ` + terminal.Green("# With concurrency") + `
-  osmedeus func e 'http_get("https://" + target)' ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("-c") + ` 10
+  golish func e 'http_get("https://" + target)' ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("-c") + ` 10
 
   ` + terminal.Green("# Combined with params") + `
-  osmedeus func e 'log_info(prefix + target)' ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--params") + ` 'prefix=test_' ` + terminal.Yellow("-c") + ` 5
+  golish func e 'log_info(prefix + target)' ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--params") + ` 'prefix=test_' ` + terminal.Yellow("-c") + ` 5
 
 ` + docsFooter()
 }
@@ -332,17 +332,17 @@ func UsageFunctionEval() string {
 // UsageHealth returns the Long description for the health command
 func UsageHealth() string {
 	return terminal.BoldCyan("◆ Description") + `
-  Check the Osmedeus environment for issues and fix them.
-  ` + terminal.Gray("This command is an alias for 'osmedeus install validate'.") + `
+  Check the Golish environment for issues and fix them.
+  ` + terminal.Gray("This command is an alias for 'golish install validate'.") + `
 
 ` + terminal.BoldCyan("✔ Checks Performed") + `
   • Base folder, workspaces, workflows folders exist (creates if missing)
-  • Configuration file is valid (osm-settings.yaml)
+  • Configuration file is valid (golish-settings.yaml)
   • All workflows are valid
 
 ` + terminal.BoldCyan("▷ Examples") + `
-  osmedeus health                 # using alias
-  osmedeus install validate       # primary command
+  golish health                 # using alias
+  golish install validate       # primary command
 
 ` + docsFooter()
 }
@@ -371,14 +371,14 @@ func UsageWorkerJoin() string {
   Tasks are executed using the local workflow engine.
 
 ` + terminal.BoldCyan("▷ Examples") + `
-  ` + terminal.Green("# Join using settings from osm-settings.yaml") + `
-  osmedeus worker join
+  ` + terminal.Green("# Join using settings from golish-settings.yaml") + `
+  golish worker join
 
   ` + terminal.Green("# Join using a specific Redis URL") + `
-  osmedeus worker join ` + terminal.Yellow("--redis-url") + ` redis://user:pass@localhost:6379/0
+  golish worker join ` + terminal.Yellow("--redis-url") + ` redis://user:pass@localhost:6379/0
 
   ` + terminal.Green("# Join and auto-detect public IP") + `
-  osmedeus worker join ` + terminal.Yellow("--get-public-ip") + `
+  golish worker join ` + terminal.Yellow("--get-public-ip") + `
 
 ` + docsFooter()
 }
@@ -392,10 +392,10 @@ func UsageWorkerStatus() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Show worker status as a table") + `
-  osmedeus worker status
+  golish worker status
 
   ` + terminal.Green("# Output worker info as JSON") + `
-  osmedeus worker status ` + terminal.Yellow("--json") + `
+  golish worker status ` + terminal.Yellow("--json") + `
 
 ` + docsFooter()
 }
@@ -412,16 +412,16 @@ func UsageWorkerEval() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Simple function eval with distributed hooks") + `
-  osmedeus worker eval 'log_info("hello from worker eval")' ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379
+  golish worker eval 'log_info("hello from worker eval")' ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379
 
   ` + terminal.Green("# Route a call to the master node") + `
-  osmedeus worker eval 'run_on_master("func", "log_info(\"routed via redis\")")' ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379
+  golish worker eval 'run_on_master("func", "log_info(\"routed via redis\")")' ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379
 
   ` + terminal.Green("# With target variable") + `
-  osmedeus worker eval 'log_info("hello")' ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379
+  golish worker eval 'log_info("hello")' ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379
 
   ` + terminal.Green("# Read script from stdin") + `
-  echo 'run_on_master("func", "db_import_sarif(\"ws\", \"/path/f.sarif\")")' | osmedeus worker eval ` + terminal.Yellow("--stdin") + ` ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379
+  echo 'run_on_master("func", "db_import_sarif(\"ws\", \"/path/f.sarif\")")' | golish worker eval ` + terminal.Yellow("--stdin") + ` ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379
 
 ` + docsFooter()
 }
@@ -440,16 +440,16 @@ func UsageWorkerSet() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Set an alias for a worker") + `
-  osmedeus worker set <worker-id> alias scanner-1
+  golish worker set <worker-id> alias scanner-1
 
   ` + terminal.Green("# Set public IP") + `
-  osmedeus worker set scanner-1 public-ip 203.0.113.10
+  golish worker set scanner-1 public-ip 203.0.113.10
 
   ` + terminal.Green("# Enable SSH") + `
-  osmedeus worker set scanner-1 ssh-enabled true
+  golish worker set scanner-1 ssh-enabled true
 
   ` + terminal.Green("# With custom Redis URL") + `
-  osmedeus worker set <worker-id> alias prod-1 ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379
+  golish worker set <worker-id> alias prod-1 ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379
 
 ` + docsFooter()
 }
@@ -458,7 +458,7 @@ func UsageWorkerSet() string {
 func UsageWorkerQueue() string {
 	return terminal.BoldCyan("◆ Description") + `
   Manage and process queued tasks. Tasks can be queued via the ` + terminal.Yellow("--queue") + ` flag
-  on ` + terminal.Yellow("osmedeus run") + ` or via ` + terminal.Yellow("osmedeus worker queue new") + `.
+  on ` + terminal.Yellow("golish run") + ` or via ` + terminal.Yellow("golish worker queue new") + `.
 
 ` + terminal.BoldCyan("▶ Subcommands") + `
   • ` + terminal.Yellow("list") + `  - List all queued tasks (alias: ls)
@@ -475,10 +475,10 @@ func UsageWorkerQueueList() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# List all queued tasks") + `
-  osmedeus worker queue list
+  golish worker queue list
 
   ` + terminal.Green("# Output as JSON") + `
-  osmedeus worker queue list ` + terminal.Yellow("--json") + `
+  golish worker queue list ` + terminal.Yellow("--json") + `
 
 ` + docsFooter()
 }
@@ -491,13 +491,13 @@ func UsageWorkerQueueNew() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Queue a module run") + `
-  osmedeus worker queue new ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com
+  golish worker queue new ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Queue a flow run with targets from file") + `
-  osmedeus worker queue new ` + terminal.Yellow("-f") + ` general ` + terminal.Yellow("-T") + ` targets.txt
+  golish worker queue new ` + terminal.Yellow("-f") + ` general ` + terminal.Yellow("-T") + ` targets.txt
 
   ` + terminal.Green("# Queue with parameters") + `
-  osmedeus worker queue new ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("-p") + ` 'threads=20'
+  golish worker queue new ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("-p") + ` 'threads=20'
 
 ` + docsFooter()
 }
@@ -510,13 +510,13 @@ func UsageWorkerQueueRun() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Process queued tasks with default concurrency") + `
-  osmedeus worker queue run
+  golish worker queue run
 
   ` + terminal.Green("# Process with higher concurrency") + `
-  osmedeus worker queue run ` + terminal.Yellow("--concurrency") + ` 3
+  golish worker queue run ` + terminal.Yellow("--concurrency") + ` 3
 
   ` + terminal.Green("# Process with custom Redis URL") + `
-  osmedeus worker queue run ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379
+  golish worker queue run ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379
 
 ` + docsFooter()
 }
@@ -524,7 +524,7 @@ func UsageWorkerQueueRun() string {
 // UsageConfig returns the Long description for the config command
 func UsageConfig() string {
 	return terminal.BoldCyan("◆ Description") + `
-  Manage osmedeus configuration settings.
+  Manage golish configuration settings.
 
 ` + terminal.BoldCyan("▶ Subcommands") + `
   • ` + terminal.Yellow("clean") + `  - Reset configuration to defaults
@@ -539,10 +539,10 @@ func UsageConfig() string {
 func UsageConfigClean() string {
 	return terminal.BoldCyan("◆ Description") + `
   Reset the configuration file to default values.
-  Backs up the existing config to osm-settings.yaml.backup before overwriting.
+  Backs up the existing config to golish-settings.yaml.backup before overwriting.
 
 ` + terminal.BoldCyan("▷ Example") + `
-  ` + terminal.Green("osmedeus config clean") + `
+  ` + terminal.Green("golish config clean") + `
 
 ` + docsFooter()
 }
@@ -553,30 +553,30 @@ func UsageConfigSet() string {
   Set a configuration value using dot notation.
 
 ` + terminal.BoldCyan("▷ Syntax") + `
-  osmedeus config set <key> <value>
-  osmedeus config set ` + terminal.Yellow("--from-file") + ` <path>
-  cat config.txt | osmedeus config set ` + terminal.Yellow("--from-file") + ` -
+  golish config set <key> <value>
+  golish config set ` + terminal.Yellow("--from-file") + ` <path>
+  cat config.txt | golish config set ` + terminal.Yellow("--from-file") + ` -
 
 ` + terminal.BoldCyan("▷ Examples") + `
-  ` + terminal.Green("osmedeus config set server.port 9000") + `
-  ` + terminal.Green("osmedeus config set server.username admin") + `
-  ` + terminal.Green("osmedeus config set server.password \"d8506b99a052e797f73d1dab\"") + `
-  ` + terminal.Green("osmedeus config set server.jwt.secret_signing_key \"d8506b99a052e797f73d1dab\"") + `
-  ` + terminal.Green("osmedeus config set scan_tactic.default 20") + `
-  ` + terminal.Green("osmedeus config set global_vars.github_token ghp_xxx") + `
-  ` + terminal.Green("osmedeus config set notification.enabled true") + `
+  ` + terminal.Green("golish config set server.port 9000") + `
+  ` + terminal.Green("golish config set server.username admin") + `
+  ` + terminal.Green("golish config set server.password \"d8506b99a052e797f73d1dab\"") + `
+  ` + terminal.Green("golish config set server.jwt.secret_signing_key \"d8506b99a052e797f73d1dab\"") + `
+  ` + terminal.Green("golish config set scan_tactic.default 20") + `
+  ` + terminal.Green("golish config set global_vars.github_token ghp_xxx") + `
+  ` + terminal.Green("golish config set notification.enabled true") + `
 
   ` + terminal.Green("# Batch set from a file") + `
-  osmedeus config set ` + terminal.Yellow("--from-file") + ` my-settings.txt
+  golish config set ` + terminal.Yellow("--from-file") + ` my-settings.txt
 
   ` + terminal.Green("# Pipe from stdin") + `
-  cat my-settings.txt | osmedeus config set ` + terminal.Yellow("--from-file") + ` -
+  cat my-settings.txt | golish config set ` + terminal.Yellow("--from-file") + ` -
 
 ` + terminal.BoldCyan("▷ File Format") + `
   Lines can use any of these formats:
     server.port 9000
     server.port = 9000
-    osmedeus config set server.port 9000
+    golish config set server.port 9000
   Lines starting with # are ignored.
 
 ` + terminal.BoldCyan("▷ Available Keys") + `
@@ -590,7 +590,7 @@ func UsageConfigSet() string {
   ` + terminal.Yellow("server.jwt.expiration_minutes") + `    JWT expiration time in minutes
   ` + terminal.Yellow("server.ui_path") + `                 UI static files path
   ` + terminal.Yellow("server.enabled_auth_api") + `        Enable API key auth (true/false)
-  ` + terminal.Yellow("server.auth_api_key") + `            API key for x-osm-api-key header
+  ` + terminal.Yellow("server.auth_api_key") + `            API key for x-golish-api-key header
   ` + terminal.Yellow("database.db_engine") + `             sqlite or postgresql
   ` + terminal.Yellow("database.host") + `                  Database host
   ` + terminal.Yellow("database.port") + `                  Database port
@@ -620,22 +620,22 @@ func UsageConfigView() string {
   Supports wildcard patterns with --force flag.
 
 ` + terminal.BoldCyan("▷ Syntax") + `
-  osmedeus config view <key>
-  osmedeus config view '<pattern>' --force
+  golish config view <key>
+  golish config view '<pattern>' --force
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Exact key lookup") + `
-  ` + terminal.Green("osmedeus config view server.port") + `
-  ` + terminal.Green("osmedeus config view server.username") + `
-  ` + terminal.Green("osmedeus config view server.password") + `
-  ` + terminal.Green("osmedeus config view server.jwt.secret_signing_key") + `
-  ` + terminal.Green("osmedeus config view server.jwt.secret_signing_key --redact") + `
+  ` + terminal.Green("golish config view server.port") + `
+  ` + terminal.Green("golish config view server.username") + `
+  ` + terminal.Green("golish config view server.password") + `
+  ` + terminal.Green("golish config view server.jwt.secret_signing_key") + `
+  ` + terminal.Green("golish config view server.jwt.secret_signing_key --redact") + `
 
   ` + terminal.Green("# Wildcard pattern search (requires --force)") + `
-  ` + terminal.Green("osmedeus config view 'server.*' --force") + `
-  ` + terminal.Green("osmedeus config view 'database.*' --force") + `
-  ` + terminal.Green("osmedeus config view '*password*' --force") + `
-  ` + terminal.Green("osmedeus config view 'server.*' --force --redact") + `
+  ` + terminal.Green("golish config view 'server.*' --force") + `
+  ` + terminal.Green("golish config view 'database.*' --force") + `
+  ` + terminal.Green("golish config view '*password*' --force") + `
+  ` + terminal.Green("golish config view 'server.*' --force --redact") + `
 
 ` + docsFooter()
 }
@@ -645,11 +645,11 @@ func UsageConfigList() string {
   List configuration values in dot notation.
 
 ` + terminal.BoldCyan("▷ Syntax") + `
-  osmedeus config list
+  golish config list
 
 ` + terminal.BoldCyan("▷ Examples") + `
-  ` + terminal.Green("osmedeus config list") + `
-  ` + terminal.Green("osmedeus config list --show-secrets") + `
+  ` + terminal.Green("golish config list") + `
+  ` + terminal.Green("golish config list --show-secrets") + `
 
 ` + docsFooter()
 }
@@ -682,7 +682,7 @@ func UsageDBSeed() string {
   • Schedules (daily recon, weekly vuln scan)
 
 ` + terminal.BoldCyan("▷ Example") + `
-  ` + terminal.Green("osmedeus db seed") + `
+  ` + terminal.Green("golish db seed") + `
 
 ` + docsFooter()
 }
@@ -691,14 +691,14 @@ func UsageDBSeed() string {
 func UsageDBClean() string {
 	return terminal.BoldCyan("◆ Description") + `
   Remove all data from all database tables.
-  Use --clean-ws to also remove workspace data (e.g. ~/workspaces-osmedeus).
+  Use --clean-ws to also remove workspace data (e.g. ~/workspaces-golish).
 
   ` + terminal.Yellow("WARNING:") + ` This is a destructive operation that cannot be undone.
   Use the --force flag to skip the confirmation prompt.
 
 ` + terminal.BoldCyan("▷ Examples") + `
-  ` + terminal.Green("osmedeus db clean --force") + `
-  ` + terminal.Green("osmedeus db clean --force --clean-ws") + `
+  ` + terminal.Green("golish db clean --force") + `
+  ` + terminal.Green("golish db clean --force --clean-ws") + `
 
 ` + docsFooter()
 }
@@ -712,7 +712,7 @@ func UsageDBMigrate() string {
   Safe to run multiple times (uses IF NOT EXISTS).
 
 ` + terminal.BoldCyan("▷ Example") + `
-  ` + terminal.Green("osmedeus db migrate") + `
+  ` + terminal.Green("golish db migrate") + `
 
 ` + docsFooter()
 }
@@ -735,22 +735,22 @@ func UsageDBList() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# List all tables with row counts") + `
-  osmedeus db list
+  golish db list
 
   ` + terminal.Green("# List records from runs table") + `
-  osmedeus db list ` + terminal.Yellow("-t") + ` runs
+  golish db list ` + terminal.Yellow("-t") + ` runs
 
   ` + terminal.Green("# List available columns for assets table") + `
-  osmedeus db list ` + terminal.Yellow("-t") + ` assets ` + terminal.Yellow("--list-columns") + `
+  golish db list ` + terminal.Yellow("-t") + ` assets ` + terminal.Yellow("--list-columns") + `
 
   ` + terminal.Green("# List assets excluding specific columns") + `
-  osmedeus db list ` + terminal.Yellow("-t") + ` assets ` + terminal.Yellow("--exclude-columns") + ` id,created_at,updated_at
+  golish db list ` + terminal.Yellow("-t") + ` assets ` + terminal.Yellow("--exclude-columns") + ` id,created_at,updated_at
 
   ` + terminal.Green("# List assets with pagination") + `
-  osmedeus db list ` + terminal.Yellow("-t") + ` assets ` + terminal.Yellow("--offset") + ` 0 ` + terminal.Yellow("--limit") + ` 10
+  golish db list ` + terminal.Yellow("-t") + ` assets ` + terminal.Yellow("--offset") + ` 0 ` + terminal.Yellow("--limit") + ` 10
 
   ` + terminal.Green("# Get next page of results") + `
-  osmedeus db list ` + terminal.Yellow("-t") + ` assets ` + terminal.Yellow("--offset") + ` 10 ` + terminal.Yellow("--limit") + ` 10
+  golish db list ` + terminal.Yellow("-t") + ` assets ` + terminal.Yellow("--offset") + ` 10 ` + terminal.Yellow("--limit") + ` 10
 
 ` + docsFooter()
 }
@@ -766,45 +766,45 @@ func UsageInstall() string {
   • ` + terminal.Yellow("binary") + `    - Install binaries from registry
   • ` + terminal.Yellow("env") + `       - Add binaries path to shell configuration
   • ` + terminal.Yellow("validate") + `  - Check and fix environment health
-  • ` + terminal.Yellow("skills") + `    - Install coding-agent skills (alias for 'osmedeus skills install')
+  • ` + terminal.Yellow("skills") + `    - Install coding-agent skills (alias for 'golish skills install')
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# List available binaries (direct-fetch mode)") + `
-  osmedeus install binary ` + terminal.Yellow("--list-registry-direct-fetch") + `
+  golish install binary ` + terminal.Yellow("--list-registry-direct-fetch") + `
 
   ` + terminal.Green("# List available binaries (nix-build mode)") + `
-  osmedeus install binary ` + terminal.Yellow("--list-registry-nix-build") + `
+  golish install binary ` + terminal.Yellow("--list-registry-nix-build") + `
 
   ` + terminal.Green("# Install specific binaries") + `
-  osmedeus install binary ` + terminal.Yellow("--name") + ` nuclei ` + terminal.Yellow("--name") + ` httpx
+  golish install binary ` + terminal.Yellow("--name") + ` nuclei ` + terminal.Yellow("--name") + ` httpx
 
   ` + terminal.Green("# Install all required binaries") + `
-  osmedeus install binary ` + terminal.Yellow("--all") + `
+  golish install binary ` + terminal.Yellow("--all") + `
 
   ` + terminal.Green("# Install all binaries including optional ones") + `
-  osmedeus install binary ` + terminal.Yellow("--all") + ` ` + terminal.Yellow("--install-optional") + `
+  golish install binary ` + terminal.Yellow("--all") + ` ` + terminal.Yellow("--install-optional") + `
 
   ` + terminal.Green("# Check if binaries are installed") + `
-  osmedeus install binary ` + terminal.Yellow("--all") + ` ` + terminal.Yellow("--check") + `
+  golish install binary ` + terminal.Yellow("--all") + ` ` + terminal.Yellow("--check") + `
 
   ` + terminal.Green("# Install Nix package manager") + `
-  osmedeus install binary ` + terminal.Yellow("--nix-installation") + `
+  golish install binary ` + terminal.Yellow("--nix-installation") + `
 
   ` + terminal.Green("# Install binary via Nix") + `
-  osmedeus install binary ` + terminal.Yellow("--name") + ` nuclei ` + terminal.Yellow("--nix-build-install") + `
+  golish install binary ` + terminal.Yellow("--name") + ` nuclei ` + terminal.Yellow("--nix-build-install") + `
 
   ` + terminal.Green("# Install all binaries via Nix") + `
-  osmedeus install binary ` + terminal.Yellow("--all") + ` ` + terminal.Yellow("--nix-build-install") + `
+  golish install binary ` + terminal.Yellow("--all") + ` ` + terminal.Yellow("--nix-build-install") + `
 
   ` + terminal.Green("# Install workflows from git or from a zip URL or from a local zip file") + `
-  osmedeus install workflow https://github.com/user/osmedeus-workflows.git
-  osmedeus install workflow http://<custom-host>/workflow-osmedeus.zip
-  osmedeus install workflow local-file-workflow-osmedeus.zip
+  golish install workflow https://github.com/user/golish-workflows.git
+  golish install workflow http://<custom-host>/workflow-golish.zip
+  golish install workflow local-file-workflow-golish.zip
 
   ` + terminal.Green("# Install base folder from git") + `
-  osmedeus install base https://github.com/user/osmedeus-base.git
-  osmedeus install base http://<custom-host>/osmedeus-base.zip
-  osmedeus install base local-file-osmedeus-base.zip
+  golish install base https://github.com/user/golish-base.git
+  golish install base http://<custom-host>/golish-base.zip
+  golish install base local-file-golish-base.zip
 
 ` + docsFooter()
 }
@@ -815,7 +815,7 @@ func UsageOrg() string {
   Group multiple workspaces under one org so assets, findings and runs can be
   queried across all of them at once.
 
-  Osmedeus derives a workspace from each target, which usually means one apex
+  Golish derives a workspace from each target, which usually means one apex
   domain per workspace. An org sits above that: a company with many root domains
   gets one org covering every workspace, and ` + terminal.Yellow("--org") + ` scopes any query to it.
 
@@ -833,39 +833,39 @@ func UsageOrg() string {
   • ` + terminal.Yellow("delete") + `   - Delete an org, reassigning or purging its data
 
 ` + terminal.BoldCyan("▶ Org selection") + `
-  Every command accepts ` + terminal.Yellow("--org <name|uuid>") + `. When it is not given, osmedeus falls
+  Every command accepts ` + terminal.Yellow("--org <name|uuid>") + `. When it is not given, golish falls
   back in this order:
 
     1. ` + terminal.Yellow("--org") + ` flag
-    2. ` + terminal.Yellow("$OSMEDEUS_ORG_UUID") + `
-    3. ` + terminal.Yellow("$OSMEDEUS_ORG") + `
-    4. the active org set by ` + terminal.Yellow("osmedeus org use") + `
+    2. ` + terminal.Yellow("$GOLISH_ORG_UUID") + `
+    3. ` + terminal.Yellow("$GOLISH_ORG") + `
+    4. the active org set by ` + terminal.Yellow("golish org use") + `
     5. no filter - data from every org is shown
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Create an org and group existing workspaces into it") + `
-  osmedeus org create acme ` + terminal.Yellow("--description") + ` "ACME Corp"
-  osmedeus org assign acme ` + terminal.Yellow("-w") + ` acme.com ` + terminal.Yellow("-w") + ` acme.io
+  golish org create acme ` + terminal.Yellow("--description") + ` "ACME Corp"
+  golish org assign acme ` + terminal.Yellow("-w") + ` acme.com ` + terminal.Yellow("-w") + ` acme.io
 
   ` + terminal.Green("# Query across every workspace in the org") + `
-  osmedeus assets ` + terminal.Yellow("--org") + ` acme
-  osmedeus assets ` + terminal.Yellow("--org") + ` acme ` + terminal.Yellow("--type") + ` web
+  golish assets ` + terminal.Yellow("--org") + ` acme
+  golish assets ` + terminal.Yellow("--org") + ` acme ` + terminal.Yellow("--type") + ` web
 
   ` + terminal.Green("# Scan into an org") + `
-  osmedeus run ` + terminal.Yellow("-f") + ` general ` + terminal.Yellow("-t") + ` acme.com ` + terminal.Yellow("--org") + ` acme
+  golish run ` + terminal.Yellow("-f") + ` general ` + terminal.Yellow("-t") + ` acme.com ` + terminal.Yellow("--org") + ` acme
 
   ` + terminal.Green("# Pin an org so later commands do not need --org") + `
-  eval $(osmedeus org use acme)
-  osmedeus org use ` + terminal.Yellow("--clear") + `
+  eval $(golish org use acme)
+  golish org use ` + terminal.Yellow("--clear") + `
 
   ` + terminal.Green("# Inspect one org") + `
-  osmedeus org show acme
+  golish org show acme
 
   ` + terminal.Green("# Delete an org but keep its data (moves to the default org)") + `
-  osmedeus org delete acme
+  golish org delete acme
 
   ` + terminal.Green("# Delete an org and everything in it") + `
-  osmedeus org delete acme ` + terminal.Yellow("--purge") + `
+  golish org delete acme ` + terminal.Yellow("--purge") + `
 
 ` + docsFooter()
 }
@@ -876,9 +876,9 @@ func UsageSkills() string {
   List, read, and install the coding-agent skill bundles embedded in this binary.
 
   A skill teaches an AI coding agent (Claude Code, Codex, or any agent that reads
-  a skills directory) how to write osmedeus workflows and drive the CLI. Because
+  a skills directory) how to write golish workflows and drive the CLI. Because
   the content ships inside the binary, an installed skill always matches the
-  version of osmedeus you are running.
+  version of golish you are running.
 
 ` + terminal.BoldCyan("▶ Subcommands") + `
   • ` + terminal.Yellow("list") + `     - List bundled skills (default when no subcommand is given)
@@ -891,28 +891,28 @@ func UsageSkills() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# List what is bundled") + `
-  osmedeus skills list
+  golish skills list
 
   ` + terminal.Green("# Install the default skill into ./.claude/skills/") + `
-  osmedeus skills install
+  golish skills install
 
   ` + terminal.Green("# Install globally so every project sees it") + `
-  osmedeus skills install ` + terminal.Yellow("--scope") + ` global
+  golish skills install ` + terminal.Yellow("--scope") + ` global
 
   ` + terminal.Green("# Install for an agent that reads .agents/skills/") + `
-  osmedeus skills install ` + terminal.Yellow("--agent") + ` codex
+  golish skills install ` + terminal.Yellow("--agent") + ` codex
 
   ` + terminal.Green("# Install every bundle, overwriting existing copies") + `
-  osmedeus skills install ` + terminal.Yellow("--all") + ` ` + terminal.Yellow("--force") + `
+  golish skills install ` + terminal.Yellow("--all") + ` ` + terminal.Yellow("--force") + `
 
   ` + terminal.Green("# Install to an explicit directory") + `
-  osmedeus skills install ` + terminal.Yellow("--dir") + ` ~/my-agent/skills
+  golish skills install ` + terminal.Yellow("--dir") + ` ~/my-agent/skills
 
   ` + terminal.Green("# Read a skill, including its reference files") + `
-  osmedeus skills get osmedeus-expert ` + terminal.Yellow("--full") + `
+  golish skills get golish-expert ` + terminal.Yellow("--full") + `
 
   ` + terminal.Green("# Same thing, from the install command tree") + `
-  osmedeus install skills
+  golish install skills
 
 ` + docsFooter()
 }
@@ -921,166 +921,166 @@ func UsageSkills() string {
 func UsageAllExamples() string {
 	return terminal.BoldCyan("▶ Run Examples") + `
   ` + terminal.Green("# Basic module run") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Flow workflow run") + `
-  osmedeus run ` + terminal.Yellow("-f") + ` general ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("-f") + ` general ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Multiple targets") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` target1.com ` + terminal.Yellow("-t") + ` target2.com
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` target1.com ` + terminal.Yellow("-t") + ` target2.com
 
   ` + terminal.Green("# Stdin input") + `
-  cat urls.txt | osmedeus run ` + terminal.Yellow("-m") + ` recon
+  cat urls.txt | golish run ` + terminal.Yellow("-m") + ` recon
 
   ` + terminal.Green("# Run with stdin input with concurrency") + `
-  cat list-of-urls.txt | osmedeus run ` + terminal.Yellow("-m") + ` simple-module ` + terminal.Yellow("--concurrency") + ` 10
+  cat list-of-urls.txt | golish run ` + terminal.Yellow("-m") + ` simple-module ` + terminal.Yellow("--concurrency") + ` 10
 
   ` + terminal.Green("# With custom parameters") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--params") + ` 'threads=50'
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--params") + ` 'threads=50'
 
   ` + terminal.Green("# Parameters from YAML file") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--params-file") + ` params.yaml
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--params-file") + ` params.yaml
 
   ` + terminal.Green("# Dry-run mode") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--dry-run") + `
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--dry-run") + `
 
   ` + terminal.Green("# Run module from stdin YAML") + `
-  cat module.yaml | osmedeus run ` + terminal.Yellow("--std-module") + ` ` + terminal.Yellow("-t") + ` example.com
+  cat module.yaml | golish run ` + terminal.Yellow("--std-module") + ` ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Run module from URL") + `
-  osmedeus run ` + terminal.Yellow("--module-url") + ` https://example.com/module.yaml ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("--module-url") + ` https://example.com/module.yaml ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Run module from private GitHub repo") + `
-  osmedeus run ` + terminal.Yellow("--module-url") + ` https://github.com/user/private/blob/main/module.yaml ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("--module-url") + ` https://github.com/user/private/blob/main/module.yaml ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Custom workspace") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--workspace") + ` /path/to/workspace
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--workspace") + ` /path/to/workspace
 
   ` + terminal.Green("# With timeout") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--timeout") + ` 2h
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--timeout") + ` 2h
 
   ` + terminal.Green("# Repeat run continuously") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--repeat") + ` ` + terminal.Yellow("--repeat-wait-time") + ` 1h
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--repeat") + ` ` + terminal.Yellow("--repeat-wait-time") + ` 1h
 
   ` + terminal.Green("# Run multiple modules in sequence") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` subdomain ` + terminal.Yellow("-m") + ` portscan ` + terminal.Yellow("-m") + ` vuln ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("-m") + ` subdomain ` + terminal.Yellow("-m") + ` portscan ` + terminal.Yellow("-m") + ` vuln ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Skip heuristics checks") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--heuristics-check") + ` none
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com ` + terminal.Yellow("--heuristics-check") + ` none
 
   ` + terminal.Green("# Concurrent targets") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--concurrency") + ` 5
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--concurrency") + ` 5
 
   ` + terminal.Green("# View chunk info") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-size") + ` 100
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-size") + ` 100
 
   ` + terminal.Green("# Run specific chunk") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-size") + ` 100 ` + terminal.Yellow("--chunk-part") + ` 2
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-size") + ` 100 ` + terminal.Yellow("--chunk-part") + ` 2
 
   ` + terminal.Green("# Split into 4 equal chunks and run chunk 0") + `
-  osmedeus run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-count") + ` 4 ` + terminal.Yellow("--chunk-part") + ` 0
+  golish run ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-T") + ` targets.txt ` + terminal.Yellow("--chunk-count") + ` 4 ` + terminal.Yellow("--chunk-part") + ` 0
 
   ` + terminal.Green("# Register a webhook trigger") + `
-  osmedeus run ` + terminal.Yellow("--as-webhook") + ` ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("--as-webhook") + ` ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Create a cron schedule (daily at 2am)") + `
-  osmedeus run ` + terminal.Yellow("--as-cron") + ` '0 2 * * *' ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com
+  golish run ` + terminal.Yellow("--as-cron") + ` '0 2 * * *' ` + terminal.Yellow("-m") + ` recon ` + terminal.Yellow("-t") + ` example.com
 
 ` + terminal.BoldYellow("★ Function Eval (Powerful Scripting)") + `
   ` + terminal.Green("# Print markdown file") + `
-  osmedeus func e 'print_markdown_from_file("README.md")'
+  golish func e 'print_markdown_from_file("README.md")'
 
   ` + terminal.Green("# Log with variable substitution") + `
-  osmedeus func e 'log_info("Scanning {{target}}")' ` + terminal.Yellow("-t") + ` example.com
+  golish func e 'log_info("Scanning {{target}}")' ` + terminal.Yellow("-t") + ` example.com
 
   ` + terminal.Green("# Save content to file") + `
-  osmedeus func e 'save_content("data", "/tmp/out.txt")'
+  golish func e 'save_content("data", "/tmp/out.txt")'
 
   ` + terminal.Green("# Make HTTP request") + `
-  osmedeus func e 'http_request("https://api.example.com", "GET", {}, "")'
+  golish func e 'http_request("https://api.example.com", "GET", {}, "")'
 
   ` + terminal.Green("# Sort file using Unix sort") + `
-  osmedeus func e 'sort_unix("/tmp/input.txt", "/tmp/sorted.txt")'
+  golish func e 'sort_unix("/tmp/input.txt", "/tmp/sorted.txt")'
 
   ` + terminal.Green("# Read from stdin") + `
-  echo 'log_info("hello")' | osmedeus func e -
+  echo 'log_info("hello")' | golish func e -
 
 ` + terminal.BoldCyan("▶ Server Examples") + `
   ` + terminal.Green("# Start server") + `
-  osmedeus serve
+  golish serve
 
   ` + terminal.Green("# Custom port") + `
-  osmedeus serve ` + terminal.Yellow("--port") + ` 8080
+  golish serve ` + terminal.Yellow("--port") + ` 8080
 
   ` + terminal.Green("# No authentication (dev mode)") + `
-  osmedeus serve ` + terminal.Yellow("-A") + `
+  golish serve ` + terminal.Yellow("-A") + `
 
   ` + terminal.Green("# Distributed master mode") + `
-  osmedeus serve ` + terminal.Yellow("--master") + `
+  golish serve ` + terminal.Yellow("--master") + `
 
 ` + terminal.BoldCyan("▶ Workflow Examples") + `
   ` + terminal.Green("# List all workflows") + `
-  osmedeus workflow list
+  golish workflow list
 
   ` + terminal.Green("# Search workflows by name or description") + `
-  osmedeus workflow ls recon
-  osmedeus workflow ls --search subdomain
+  golish workflow ls recon
+  golish workflow ls --search subdomain
 
   ` + terminal.Green("# Show workflow details") + `
-  osmedeus workflow show recon
+  golish workflow show recon
 
   ` + terminal.Green("# Validate a workflow") + `
-  osmedeus workflow validate my-workflow
+  golish workflow validate my-workflow
 
 ` + terminal.BoldCyan("▶ Worker Examples (Distributed Mode)") + `
   ` + terminal.Green("# Join worker pool") + `
-  osmedeus worker join
+  golish worker join
 
   ` + terminal.Green("# With custom Redis URL") + `
-  osmedeus worker join ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379/0
+  golish worker join ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379/0
 
   ` + terminal.Green("# Check worker status") + `
-  osmedeus worker status
+  golish worker status
 
   ` + terminal.Green("# Evaluate function with distributed hooks (one-shot)") + `
-  osmedeus worker eval 'run_on_master("func", "log_info(\"hello\")")' ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379
+  golish worker eval 'run_on_master("func", "log_info(\"hello\")")' ` + terminal.Yellow("--redis-url") + ` redis://localhost:6379
 
 ` + terminal.BoldCyan("▶ Install Examples") + `
   ` + terminal.Green("# Install binary") + `
-  osmedeus install binary ` + terminal.Yellow("--name") + ` nuclei
+  golish install binary ` + terminal.Yellow("--name") + ` nuclei
 
   ` + terminal.Green("# Install multiple binaries") + `
-  osmedeus install binary ` + terminal.Yellow("--name") + ` nuclei ` + terminal.Yellow("--name") + ` httpx
+  golish install binary ` + terminal.Yellow("--name") + ` nuclei ` + terminal.Yellow("--name") + ` httpx
 
   ` + terminal.Green("# Install all binaries") + `
-  osmedeus install binary ` + terminal.Yellow("--all") + `
+  golish install binary ` + terminal.Yellow("--all") + `
 
   ` + terminal.Green("# Install Nix package manager") + `
-  osmedeus install binary ` + terminal.Yellow("--nix-installation") + `
+  golish install binary ` + terminal.Yellow("--nix-installation") + `
 
   ` + terminal.Green("# Install binary via Nix") + `
-  osmedeus install binary ` + terminal.Yellow("--name") + ` nuclei ` + terminal.Yellow("--nix-build-install") + `
+  golish install binary ` + terminal.Yellow("--name") + ` nuclei ` + terminal.Yellow("--nix-build-install") + `
 
   ` + terminal.Green("# Install all binaries via Nix") + `
-  osmedeus install binary ` + terminal.Yellow("--all") + ` ` + terminal.Yellow("--nix-build-install") + `
+  golish install binary ` + terminal.Yellow("--all") + ` ` + terminal.Yellow("--nix-build-install") + `
 
   ` + terminal.Green("# Install workflows from git") + `
-  osmedeus install workflow https://github.com/user/workflows.git
+  golish install workflow https://github.com/user/workflows.git
 
 ` + terminal.BoldCyan("▶ Utility Examples") + `
   ` + terminal.Green("# Health check") + `
-  osmedeus health
+  golish health
 
   ` + terminal.Green("# Reset config") + `
-  osmedeus config clean
+  golish config clean
 
   ` + terminal.Green("# Set config value") + `
-  osmedeus config set server.port 9000
+  golish config set server.port 9000
 
   ` + terminal.Green("# Database commands") + `
-  osmedeus db list
-  osmedeus db seed
-  osmedeus db clean ` + terminal.Yellow("--force") + `
+  golish db list
+  golish db seed
+  golish db clean ` + terminal.Yellow("--force") + `
 
 ` + docsFooter()
 }
@@ -1088,19 +1088,19 @@ func UsageAllExamples() string {
 // UsageFullExample returns comprehensive usage with all flags for pager display
 func UsageFullExample() string {
 	return terminal.BoldCyan("═══════════════════════════════════════════════════════════════════") + `
-` + terminal.BoldCyan("                     OSMEDEUS FULL USAGE REFERENCE") + `
+` + terminal.BoldCyan("                     GOLISH FULL USAGE REFERENCE") + `
 ` + terminal.BoldCyan("═══════════════════════════════════════════════════════════════════") + `
 
 ` + terminal.BoldYellow("GLOBAL FLAGS") + ` (available for all commands)
 ` + terminal.Gray("───────────────────────────────────────────────────────────────────") + `
-  ` + terminal.Yellow("--settings-file") + `        Path to settings file (default: $HOME/osmedeus-base/osm-settings.yaml)
+  ` + terminal.Yellow("--settings-file") + `        Path to settings file (default: $HOME/golish-base/golish-settings.yaml)
   ` + terminal.Yellow("-b, --base-folder") + `      Base folder containing workflows and settings
   ` + terminal.Yellow("-F, --workflow-folder") + `  Custom workflow folder path
   ` + terminal.Yellow("-v, --verbose") + `          Enable verbose output
   ` + terminal.Yellow("--debug") + `                Enable debug mode (verbose + debug logging)
   ` + terminal.Yellow("-q, --silent") + `           Silent mode - suppress all output except errors
   ` + terminal.Yellow("--log-file") + `             Path to log file (logs to both console and file)
-  ` + terminal.Yellow("--log-file-tmp") + `         Create temporary log file osmedeus-log-<timestamp>.log
+  ` + terminal.Yellow("--log-file-tmp") + `         Create temporary log file golish-log-<timestamp>.log
   ` + terminal.Yellow("-H, --usage-example") + `    Show comprehensive usage examples
   ` + terminal.Yellow("--full-usage-example") + `   Show this full usage reference (pager mode)
   ` + terminal.Yellow("--spinner") + `              Show spinner animations during execution
@@ -1112,7 +1112,7 @@ func UsageFullExample() string {
 
 ` + terminal.BoldYellow("RUN COMMAND") + ` - Execute workflows
 ` + terminal.Gray("───────────────────────────────────────────────────────────────────") + `
-  osmedeus run [flags]
+  golish run [flags]
 
 ` + terminal.Cyan("  Workflow Selection:") + `
   ` + terminal.Yellow("-f, --flow") + `             Flow workflow name to execute
@@ -1165,7 +1165,7 @@ func UsageFullExample() string {
 
 ` + terminal.BoldYellow("SERVE COMMAND") + ` - Start REST API server
 ` + terminal.Gray("───────────────────────────────────────────────────────────────────") + `
-  osmedeus serve [flags]
+  golish serve [flags]
 
   ` + terminal.Yellow("--host") + `                 Host to bind the server to (default: from config)
   ` + terminal.Yellow("--port") + `                 Port number for the API server
@@ -1175,10 +1175,10 @@ func UsageFullExample() string {
 
 ` + terminal.BoldYellow("WORKFLOW COMMAND") + ` - Manage workflows
 ` + terminal.Gray("───────────────────────────────────────────────────────────────────") + `
-  osmedeus workflow list              List available workflows (alias: ls)
-  osmedeus workflow ls <search>       Search workflows by name or description
-  osmedeus workflow show <name>       Show workflow details (alias: view)
-  osmedeus workflow validate <name>   Validate a workflow (alias: val)
+  golish workflow list              List available workflows (alias: ls)
+  golish workflow ls <search>       Search workflows by name or description
+  golish workflow show <name>       Show workflow details (alias: view)
+  golish workflow validate <name>   Validate a workflow (alias: val)
 
 ` + terminal.Cyan("  List Flags:") + `
   ` + terminal.Yellow("--tags") + `                 Filter workflows by tags (comma-separated)
@@ -1190,8 +1190,8 @@ func UsageFullExample() string {
 
 ` + terminal.BoldYellow("FUNCTION COMMAND") + ` - Execute utility functions
 ` + terminal.Gray("───────────────────────────────────────────────────────────────────") + `
-  osmedeus func list                  List all available functions (alias: ls)
-  osmedeus func eval <script>         Evaluate a script (alias: e)
+  golish func list                  List all available functions (alias: ls)
+  golish func eval <script>         Evaluate a script (alias: e)
 
 ` + terminal.Cyan("  Eval Flags:") + `
   ` + terminal.Yellow("-e, --eval") + `             Script to evaluate
@@ -1204,9 +1204,9 @@ func UsageFullExample() string {
 
 ` + terminal.BoldYellow("WORKER COMMAND") + ` - Distributed worker management
 ` + terminal.Gray("───────────────────────────────────────────────────────────────────") + `
-  osmedeus worker join                Join the distributed worker pool
-  osmedeus worker status              Show worker pool status
-  osmedeus worker eval <script>       Evaluate function with distributed hooks
+  golish worker join                Join the distributed worker pool
+  golish worker status              Show worker pool status
+  golish worker eval <script>       Evaluate function with distributed hooks
 
 ` + terminal.Cyan("  Join Flags:") + `
   ` + terminal.Yellow("--redis-url") + `            Redis connection URL
@@ -1224,12 +1224,12 @@ func UsageFullExample() string {
 
 ` + terminal.BoldYellow("DATABASE COMMAND") + ` - Database management
 ` + terminal.Gray("───────────────────────────────────────────────────────────────────") + `
-  osmedeus db list                    List tables with row counts (alias: ls)
-  osmedeus db list -t <table>         List records from a table
-  osmedeus db seed                    Seed database with sample data
-  osmedeus db clean --force           Remove all data from database
-  osmedeus db migrate                 Run database migrations
-  osmedeus db index workflow          Index workflows from filesystem to database
+  golish db list                    List tables with row counts (alias: ls)
+  golish db list -t <table>         List records from a table
+  golish db seed                    Seed database with sample data
+  golish db clean --force           Remove all data from database
+  golish db migrate                 Run database migrations
+  golish db index workflow          Index workflows from filesystem to database
 
 ` + terminal.Cyan("  List Flags:") + `
   ` + terminal.Yellow("-t, --table") + `            Table name to list records from
@@ -1251,18 +1251,18 @@ func UsageFullExample() string {
 
 ` + terminal.BoldYellow("CONFIG COMMAND") + ` - Configuration management
 ` + terminal.Gray("───────────────────────────────────────────────────────────────────") + `
-  osmedeus config clean               Reset configuration to defaults
-  osmedeus config set <key> <value>   Set a configuration value
-  osmedeus config view <key>          View a configuration value
-  osmedeus config list                List configuration values
+  golish config clean               Reset configuration to defaults
+  golish config set <key> <value>   Set a configuration value
+  golish config view <key>          View a configuration value
+  golish config list                List configuration values
 
 ` + terminal.BoldYellow("INSTALL COMMAND") + ` - Install components
 ` + terminal.Gray("───────────────────────────────────────────────────────────────────") + `
-  osmedeus install workflow <source>  Install workflows from git/zip
-  osmedeus install base <source>      Install base folder
-  osmedeus install binary             Install binaries from registry
-  osmedeus install validate           Check and fix environment health (alias: val)
-  osmedeus install env                Display environment paths
+  golish install workflow <source>  Install workflows from git/zip
+  golish install base <source>      Install base folder
+  golish install binary             Install binaries from registry
+  golish install validate           Check and fix environment health (alias: val)
+  golish install env                Display environment paths
 
 ` + terminal.Cyan("  Binary Flags:") + `
   ` + terminal.Yellow("-n, --name") + `             Binary name(s) to install (can be repeated)
@@ -1275,7 +1275,7 @@ func UsageFullExample() string {
 
 ` + terminal.BoldYellow("HEALTH COMMAND") + ` - Environment health check
 ` + terminal.Gray("───────────────────────────────────────────────────────────────────") + `
-  osmedeus health                     Check environment for issues
+  golish health                     Check environment for issues
 
 ` + terminal.BoldCyan("═══════════════════════════════════════════════════════════════════") + `
 ` + docsFooter()
@@ -1284,11 +1284,11 @@ func UsageFullExample() string {
 // UsageClient returns the Long description for the client command
 func UsageClient() string {
 	return terminal.BoldCyan("◆ Description") + `
-  Interact with a remote osmedeus server via REST API.
+  Interact with a remote golish server via REST API.
 
 ` + terminal.BoldCyan("▶ Environment Variables") + `
-  ` + terminal.Yellow("OSM_REMOTE_URL") + `      Remote server URL (e.g., http://localhost:8002)
-  ` + terminal.Yellow("OSM_REMOTE_AUTH_KEY") + ` API authentication key for x-osm-api-key header
+  ` + terminal.Yellow("GOLISH_REMOTE_URL") + `      Remote server URL (e.g., http://localhost:8002)
+  ` + terminal.Yellow("GOLISH_REMOTE_AUTH_KEY") + ` API authentication key for x-golish-api-key header
 
 ` + terminal.BoldCyan("▶ Subcommands") + `
   • ` + terminal.Yellow("fetch") + `  - Fetch data from server (runs, assets, vulns, etc.)
@@ -1297,22 +1297,22 @@ func UsageClient() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Configure via environment") + `
-  export OSM_REMOTE_URL="http://localhost:8002"
-  export OSM_REMOTE_AUTH_KEY="your-api-key"
+  export GOLISH_REMOTE_URL="http://localhost:8002"
+  export GOLISH_REMOTE_AUTH_KEY="your-api-key"
 
   ` + terminal.Green("# Fetch data from different tables") + `
-  osmedeus client fetch ` + terminal.Yellow("--table") + ` assets
-  osmedeus client fetch ` + terminal.Yellow("-t") + ` runs
-  osmedeus client fetch ` + terminal.Yellow("-t") + ` vulnerabilities ` + terminal.Yellow("--severity") + ` critical
+  golish client fetch ` + terminal.Yellow("--table") + ` assets
+  golish client fetch ` + terminal.Yellow("-t") + ` runs
+  golish client fetch ` + terminal.Yellow("-t") + ` vulnerabilities ` + terminal.Yellow("--severity") + ` critical
 
   ` + terminal.Green("# Create a run") + `
-  osmedeus client run ` + terminal.Yellow("-f") + ` basic-recon ` + terminal.Yellow("-T") + ` example.com
+  golish client run ` + terminal.Yellow("-f") + ` basic-recon ` + terminal.Yellow("-T") + ` example.com
 
   ` + terminal.Green("# Cancel a run") + `
-  osmedeus client run ` + terminal.Yellow("--cancel") + ` abc123-run-uuid
+  golish client run ` + terminal.Yellow("--cancel") + ` abc123-run-uuid
 
   ` + terminal.Green("# Execute a function") + `
-  osmedeus client exec 'log_info("Hello from remote")'
+  golish client exec 'log_info("Hello from remote")'
 
 ` + docsFooter()
 }
@@ -1320,7 +1320,7 @@ func UsageClient() string {
 // UsageClientFetch returns the Long description for the client fetch command
 func UsageClientFetch() string {
 	return terminal.BoldCyan("◆ Description") + `
-  Fetch data from the remote osmedeus server.
+  Fetch data from the remote golish server.
 
 ` + terminal.BoldCyan("▶ Supported Tables") + `
   • ` + terminal.Yellow("runs") + `             - Workflow execution runs
@@ -1336,24 +1336,24 @@ func UsageClientFetch() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Fetch assets (default)") + `
-  osmedeus client fetch
-  osmedeus client fetch ` + terminal.Yellow("-t") + ` assets ` + terminal.Yellow("-w") + ` example.com
+  golish client fetch
+  golish client fetch ` + terminal.Yellow("-t") + ` assets ` + terminal.Yellow("-w") + ` example.com
 
   ` + terminal.Green("# Fetch runs") + `
-  osmedeus client fetch ` + terminal.Yellow("--table") + ` runs
-  osmedeus client fetch ` + terminal.Yellow("-t") + ` runs ` + terminal.Yellow("--status") + ` running
+  golish client fetch ` + terminal.Yellow("--table") + ` runs
+  golish client fetch ` + terminal.Yellow("-t") + ` runs ` + terminal.Yellow("--status") + ` running
 
   ` + terminal.Green("# Fetch vulnerabilities with severity filter") + `
-  osmedeus client fetch ` + terminal.Yellow("-t") + ` vulnerabilities ` + terminal.Yellow("--severity") + ` critical
+  golish client fetch ` + terminal.Yellow("-t") + ` vulnerabilities ` + terminal.Yellow("--severity") + ` critical
 
   ` + terminal.Green("# Fetch step results") + `
-  osmedeus client fetch ` + terminal.Yellow("-t") + ` step_results
+  golish client fetch ` + terminal.Yellow("-t") + ` step_results
 
   ` + terminal.Green("# Pagination") + `
-  osmedeus client fetch ` + terminal.Yellow("-t") + ` assets ` + terminal.Yellow("--limit") + ` 50 ` + terminal.Yellow("--offset") + ` 100
+  golish client fetch ` + terminal.Yellow("-t") + ` assets ` + terminal.Yellow("--limit") + ` 50 ` + terminal.Yellow("--offset") + ` 100
 
   ` + terminal.Green("# JSON output") + `
-  osmedeus client ` + terminal.Yellow("--json") + ` fetch ` + terminal.Yellow("-t") + ` runs
+  golish client ` + terminal.Yellow("--json") + ` fetch ` + terminal.Yellow("-t") + ` runs
 
 ` + docsFooter()
 }
@@ -1374,16 +1374,16 @@ func UsageClientRun() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Create a flow run") + `
-  osmedeus client run ` + terminal.Yellow("-f") + ` basic-recon ` + terminal.Yellow("-T") + ` example.com
+  golish client run ` + terminal.Yellow("-f") + ` basic-recon ` + terminal.Yellow("-T") + ` example.com
 
   ` + terminal.Green("# Create a module run") + `
-  osmedeus client run ` + terminal.Yellow("-m") + ` subdomain ` + terminal.Yellow("-T") + ` example.com
+  golish client run ` + terminal.Yellow("-m") + ` subdomain ` + terminal.Yellow("-T") + ` example.com
 
   ` + terminal.Green("# Cancel a run by ID") + `
-  osmedeus client run ` + terminal.Yellow("--cancel") + ` abc123-run-uuid
+  golish client run ` + terminal.Yellow("--cancel") + ` abc123-run-uuid
 
   ` + terminal.Green("# JSON output") + `
-  osmedeus client ` + terminal.Yellow("--json") + ` run ` + terminal.Yellow("-f") + ` recon ` + terminal.Yellow("-T") + ` example.com
+  golish client ` + terminal.Yellow("--json") + ` run ` + terminal.Yellow("-f") + ` recon ` + terminal.Yellow("-T") + ` example.com
 
 ` + docsFooter()
 }
@@ -1395,16 +1395,16 @@ func UsageClientExec() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Execute a simple function") + `
-  osmedeus client exec 'log_info("Hello from remote")'
+  golish client exec 'log_info("Hello from remote")'
 
   ` + terminal.Green("# With target variable") + `
-  osmedeus client exec ` + terminal.Yellow("-t") + ` example.com 'file_exists("{{target}}/output.txt")'
+  golish client exec ` + terminal.Yellow("-t") + ` example.com 'file_exists("{{target}}/output.txt")'
 
   ` + terminal.Green("# Using --script flag") + `
-  osmedeus client exec ` + terminal.Yellow("-s") + ` 'trim("  hello  ")'
+  golish client exec ` + terminal.Yellow("-s") + ` 'trim("  hello  ")'
 
   ` + terminal.Green("# JSON output") + `
-  osmedeus client ` + terminal.Yellow("--json") + ` exec 'trim("  test  ")'
+  golish client ` + terminal.Yellow("--json") + ` exec 'trim("  test  ")'
 
 ` + docsFooter()
 }
@@ -1412,28 +1412,28 @@ func UsageClientExec() string {
 // UsageUninstall returns the Long description for the uninstall command
 func UsageUninstall() string {
 	return terminal.BoldCyan("◆ Description") + `
-  Remove Osmedeus installation including base folder, configuration,
+  Remove Golish installation including base folder, configuration,
   and optionally workspace data.
 
   ` + terminal.BoldRed("WARNING: This is a destructive and irreversible operation!") + `
 
 ` + terminal.BoldCyan("▶ What Gets Removed") + `
-  • ` + terminal.Yellow("~/osmedeus-base") + `         - Settings, workflows, binaries, data
-  • ` + terminal.Yellow("~/.osmedeus") + `             - Initialization marker
-  • ` + terminal.Yellow("osmedeus binary") + `         - Removed from PATH (up to 3 locations)
+  • ` + terminal.Yellow("~/golish-base") + `         - Settings, workflows, binaries, data
+  • ` + terminal.Yellow("~/.golish") + `             - Initialization marker
+  • ` + terminal.Yellow("golish binary") + `         - Removed from PATH (up to 3 locations)
 
   With ` + terminal.Yellow("--clean") + `:
-  • ` + terminal.Yellow("~/workspaces-osmedeus") + `   - All scan results and workspace data
+  • ` + terminal.Yellow("~/workspaces-golish") + `   - All scan results and workspace data
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Preview what will be removed (no --force = confirmation prompt)") + `
-  osmedeus uninstall
+  golish uninstall
 
   ` + terminal.Green("# Uninstall without workspaces (keeps scan results)") + `
-  osmedeus uninstall ` + terminal.Yellow("--force") + `
+  golish uninstall ` + terminal.Yellow("--force") + `
 
   ` + terminal.Green("# Full uninstall including all scan data") + `
-  osmedeus uninstall ` + terminal.Yellow("--force") + ` ` + terminal.Yellow("--clean") + `
+  golish uninstall ` + terminal.Yellow("--force") + ` ` + terminal.Yellow("--clean") + `
 
 ` + docsFooter()
 }
@@ -1442,53 +1442,53 @@ func UsageUninstall() string {
 func UsageAssets() string {
 	return terminal.BoldCyan("◆ Description") + `
   Query and list discovered assets from the database.
-  A shortcut for ` + terminal.Yellow("osmedeus db ls -t assets") + ` with first-class support
+  A shortcut for ` + terminal.Yellow("golish db ls -t assets") + ` with first-class support
   for fuzzy search, source/type filtering, and asset statistics.
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# List all assets (default columns)") + `
-  osmedeus assets
+  golish assets
 
   ` + terminal.Green("# Fuzzy search across asset fields") + `
-  osmedeus assets example.com
+  golish assets example.com
 
   ` + terminal.Green("# Filter by workspace") + `
-  osmedeus assets ` + terminal.Yellow("-w") + ` myworkspace
+  golish assets ` + terminal.Yellow("-w") + ` myworkspace
 
   ` + terminal.Green("# Filter by source (fuzzy match)") + `
-  osmedeus assets ` + terminal.Yellow("--source") + ` httpx
+  golish assets ` + terminal.Yellow("--source") + ` httpx
 
   ` + terminal.Green("# Filter by asset type (fuzzy match)") + `
-  osmedeus assets ` + terminal.Yellow("--type") + ` web
+  golish assets ` + terminal.Yellow("--type") + ` web
 
   ` + terminal.Green("# Filter by asset value (fuzzy match)") + `
-  osmedeus assets ` + terminal.Yellow("--value") + ` api.example.com
+  golish assets ` + terminal.Yellow("--value") + ` api.example.com
 
   ` + terminal.Green("# Filter by any column (fuzzy match, repeatable)") + `
-  osmedeus assets ` + terminal.Yellow("--where") + ` status_code=200
-  osmedeus assets ` + terminal.Yellow("--where") + ` title=nginx ` + terminal.Yellow("--where") + ` source=httpx
+  golish assets ` + terminal.Yellow("--where") + ` status_code=200
+  golish assets ` + terminal.Yellow("--where") + ` title=nginx ` + terminal.Yellow("--where") + ` source=httpx
 
   ` + terminal.Green("# Full-text search across all columns") + `
-  osmedeus assets ` + terminal.Yellow("--search") + ` example.com
+  golish assets ` + terminal.Yellow("--search") + ` example.com
 
   ` + terminal.Green("# Combined filters") + `
-  osmedeus assets ` + terminal.Yellow("--source") + ` httpx ` + terminal.Yellow("--type") + ` web
-  osmedeus assets ` + terminal.Yellow("-w") + ` myworkspace ` + terminal.Yellow("--where") + ` status_code=200 ` + terminal.Yellow("--json") + `
+  golish assets ` + terminal.Yellow("--source") + ` httpx ` + terminal.Yellow("--type") + ` web
+  golish assets ` + terminal.Yellow("-w") + ` myworkspace ` + terminal.Yellow("--where") + ` status_code=200 ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# Show asset statistics") + `
-  osmedeus assets ` + terminal.Yellow("--stats") + `
+  golish assets ` + terminal.Yellow("--stats") + `
 
   ` + terminal.Green("# Stats filtered by workspace") + `
-  osmedeus assets ` + terminal.Yellow("--stats") + ` ` + terminal.Yellow("-w") + ` myworkspace
+  golish assets ` + terminal.Yellow("--stats") + ` ` + terminal.Yellow("-w") + ` myworkspace
 
   ` + terminal.Green("# With pagination") + `
-  osmedeus assets example.com ` + terminal.Yellow("--limit") + ` 100
+  golish assets example.com ` + terminal.Yellow("--limit") + ` 100
 
   ` + terminal.Green("# JSON output") + `
-  osmedeus assets example.com ` + terminal.Yellow("--json") + `
+  golish assets example.com ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# Custom columns") + `
-  osmedeus assets ` + terminal.Yellow("--columns") + ` "asset_value,url,status_code"
+  golish assets ` + terminal.Yellow("--columns") + ` "asset_value,url,status_code"
 
 ` + docsFooter()
 }
@@ -1502,22 +1502,22 @@ func UsageAgent() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Run with a message") + `
-  osmedeus agent "Summarize the code in this directory"
+  golish agent "Summarize the code in this directory"
 
   ` + terminal.Green("# Use a specific agent") + `
-  osmedeus agent ` + terminal.Yellow("--agent") + ` codex "Explain this project"
+  golish agent ` + terminal.Yellow("--agent") + ` codex "Explain this project"
 
   ` + terminal.Green("# Read message from stdin") + `
-  echo "Analyze this" | osmedeus agent ` + terminal.Yellow("--stdin") + `
+  echo "Analyze this" | golish agent ` + terminal.Yellow("--stdin") + `
 
   ` + terminal.Green("# Pipe with -") + `
-  echo "Hello" | osmedeus agent -
+  echo "Hello" | golish agent -
 
   ` + terminal.Green("# Set working directory and timeout") + `
-  osmedeus agent ` + terminal.Yellow("--cwd") + ` /path/to/project ` + terminal.Yellow("--timeout") + ` 1h "Review the code"
+  golish agent ` + terminal.Yellow("--cwd") + ` /path/to/project ` + terminal.Yellow("--timeout") + ` 1h "Review the code"
 
   ` + terminal.Green("# List available agents") + `
-  osmedeus agent ` + terminal.Yellow("--list") + `
+  golish agent ` + terminal.Yellow("--list") + `
 
 ` + docsFooter()
 }
@@ -1543,19 +1543,19 @@ func UsageQuery() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# List vulnerabilities as JSON") + `
-  osmedeus query vulns ` + terminal.Yellow("--json") + `
+  golish query vulns ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# Filter by any column") + `
-  osmedeus query vulns ` + terminal.Yellow("--where") + ` source=nuclei ` + terminal.Yellow("--json") + `
+  golish query vulns ` + terminal.Yellow("--where") + ` source=nuclei ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# List running workflows") + `
-  osmedeus query runs ` + terminal.Yellow("--status") + ` running ` + terminal.Yellow("--json") + `
+  golish query runs ` + terminal.Yellow("--status") + ` running ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# Full-text search across columns") + `
-  osmedeus query runs ` + terminal.Yellow("--search") + ` example.com ` + terminal.Yellow("--json") + `
+  golish query runs ` + terminal.Yellow("--search") + ` example.com ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# List steps for a run") + `
-  osmedeus query steps ` + terminal.Yellow("-r") + ` <run-uuid> ` + terminal.Yellow("--json") + `
+  golish query steps ` + terminal.Yellow("-r") + ` <run-uuid> ` + terminal.Yellow("--json") + `
 
 ` + docsFooter()
 }
@@ -1568,29 +1568,29 @@ func UsageQueryVulns() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# List all vulnerabilities") + `
-  osmedeus query vulns
+  golish query vulns
 
   ` + terminal.Green("# JSON output") + `
-  osmedeus query vulns ` + terminal.Yellow("--json") + `
+  golish query vulns ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# Filter by workspace and severity") + `
-  osmedeus query vulns ` + terminal.Yellow("-w") + ` example.com ` + terminal.Yellow("--severity") + ` critical
+  golish query vulns ` + terminal.Yellow("-w") + ` example.com ` + terminal.Yellow("--severity") + ` critical
 
   ` + terminal.Green("# Filter by confidence") + `
-  osmedeus query vulns ` + terminal.Yellow("--confidence") + ` confirmed ` + terminal.Yellow("--json") + `
+  golish query vulns ` + terminal.Yellow("--confidence") + ` confirmed ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# Filter by asset") + `
-  osmedeus query vulns ` + terminal.Yellow("--asset") + ` api.example.com ` + terminal.Yellow("--json") + `
+  golish query vulns ` + terminal.Yellow("--asset") + ` api.example.com ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# Filter by any column with --where") + `
-  osmedeus query vulns ` + terminal.Yellow("--where") + ` source=nuclei ` + terminal.Yellow("--json") + `
-  osmedeus query vulns ` + terminal.Yellow("--where") + ` asset_type=web ` + terminal.Yellow("--where") + ` severity=high
+  golish query vulns ` + terminal.Yellow("--where") + ` source=nuclei ` + terminal.Yellow("--json") + `
+  golish query vulns ` + terminal.Yellow("--where") + ` asset_type=web ` + terminal.Yellow("--where") + ` severity=high
 
   ` + terminal.Green("# Full-text search") + `
-  osmedeus query vulns ` + terminal.Yellow("--search") + ` sql-injection ` + terminal.Yellow("--json") + `
+  golish query vulns ` + terminal.Yellow("--search") + ` sql-injection ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# With pagination") + `
-  osmedeus query vulns ` + terminal.Yellow("--limit") + ` 100 ` + terminal.Yellow("--offset") + ` 50
+  golish query vulns ` + terminal.Yellow("--limit") + ` 100 ` + terminal.Yellow("--offset") + ` 50
 
 ` + docsFooter()
 }
@@ -1603,29 +1603,29 @@ func UsageQueryRuns() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# List all runs") + `
-  osmedeus query runs
+  golish query runs
 
   ` + terminal.Green("# JSON output") + `
-  osmedeus query runs ` + terminal.Yellow("--json") + `
+  golish query runs ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# Filter by status") + `
-  osmedeus query runs ` + terminal.Yellow("--status") + ` running ` + terminal.Yellow("--json") + `
+  golish query runs ` + terminal.Yellow("--status") + ` running ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# Filter by workflow name") + `
-  osmedeus query runs ` + terminal.Yellow("--workflow") + ` basic-recon
+  golish query runs ` + terminal.Yellow("--workflow") + ` basic-recon
 
   ` + terminal.Green("# Filter by target") + `
-  osmedeus query runs ` + terminal.Yellow("--target") + ` example.com ` + terminal.Yellow("--json") + `
+  golish query runs ` + terminal.Yellow("--target") + ` example.com ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# Filter by any column with --where") + `
-  osmedeus query runs ` + terminal.Yellow("--where") + ` trigger_type=cron ` + terminal.Yellow("--json") + `
-  osmedeus query runs ` + terminal.Yellow("--where") + ` workflow_kind=flow ` + terminal.Yellow("--where") + ` status=completed
+  golish query runs ` + terminal.Yellow("--where") + ` trigger_type=cron ` + terminal.Yellow("--json") + `
+  golish query runs ` + terminal.Yellow("--where") + ` workflow_kind=flow ` + terminal.Yellow("--where") + ` status=completed
 
   ` + terminal.Green("# Full-text search") + `
-  osmedeus query runs ` + terminal.Yellow("--search") + ` example.com ` + terminal.Yellow("--json") + `
+  golish query runs ` + terminal.Yellow("--search") + ` example.com ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# Filter by workspace") + `
-  osmedeus query runs ` + terminal.Yellow("-w") + ` myworkspace
+  golish query runs ` + terminal.Yellow("-w") + ` myworkspace
 
 ` + docsFooter()
 }
@@ -1638,19 +1638,19 @@ func UsageQuerySteps() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# List steps for a run") + `
-  osmedeus query steps ` + terminal.Yellow("-r") + ` <run-uuid>
+  golish query steps ` + terminal.Yellow("-r") + ` <run-uuid>
 
   ` + terminal.Green("# JSON output") + `
-  osmedeus query steps ` + terminal.Yellow("-r") + ` <run-uuid> ` + terminal.Yellow("--json") + `
+  golish query steps ` + terminal.Yellow("-r") + ` <run-uuid> ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# Filter steps by status") + `
-  osmedeus query steps ` + terminal.Yellow("-r") + ` <run-uuid> ` + terminal.Yellow("--where") + ` status=failed ` + terminal.Yellow("--json") + `
+  golish query steps ` + terminal.Yellow("-r") + ` <run-uuid> ` + terminal.Yellow("--where") + ` status=failed ` + terminal.Yellow("--json") + `
 
   ` + terminal.Green("# Filter by step type") + `
-  osmedeus query steps ` + terminal.Yellow("-r") + ` <run-uuid> ` + terminal.Yellow("--where") + ` step_type=bash
+  golish query steps ` + terminal.Yellow("-r") + ` <run-uuid> ` + terminal.Yellow("--where") + ` step_type=bash
 
   ` + terminal.Green("# Custom columns") + `
-  osmedeus query steps ` + terminal.Yellow("-r") + ` <run-uuid> ` + terminal.Yellow("--columns") + ` step_name,status,duration_ms
+  golish query steps ` + terminal.Yellow("-r") + ` <run-uuid> ` + terminal.Yellow("--columns") + ` step_name,status,duration_ms
 
 ` + docsFooter()
 }
@@ -1662,10 +1662,10 @@ func UsageRunStatus() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Show run status") + `
-  osmedeus run status <run-uuid>
+  golish run status <run-uuid>
 
   ` + terminal.Green("# JSON output") + `
-  osmedeus run status <run-uuid> ` + terminal.Yellow("--json") + `
+  golish run status <run-uuid> ` + terminal.Yellow("--json") + `
 
 ` + docsFooter()
 }
@@ -1678,10 +1678,10 @@ func UsageRunCancel() string {
 
 ` + terminal.BoldCyan("▷ Examples") + `
   ` + terminal.Green("# Cancel a run") + `
-  osmedeus run cancel <run-uuid>
+  golish run cancel <run-uuid>
 
   ` + terminal.Green("# Cancel with JSON output") + `
-  osmedeus run cancel <run-uuid> ` + terminal.Yellow("--json") + `
+  golish run cancel <run-uuid> ` + terminal.Yellow("--json") + `
 
 ` + docsFooter()
 }

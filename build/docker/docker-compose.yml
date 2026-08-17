@@ -1,6 +1,6 @@
 version: '3.8'
 
-# Osmedeus Master-Worker Architecture with Redis
+# Golish Master-Worker Architecture with Redis
 # Usage:
 #   docker-compose -f build/docker/docker-compose.yml up -d
 #   docker-compose -f build/docker/docker-compose.yml up -d --scale worker=5
@@ -9,7 +9,7 @@ services:
   # Redis - Message queue for distributed task processing
   redis:
     image: redis:7-alpine
-    container_name: osmedeus-redis
+    container_name: golish-redis
     restart: unless-stopped
     ports:
       - "6379:6379"
@@ -22,15 +22,15 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - osmedeus-network
+      - golish-network
 
   # Master Node - Coordinates tasks and exposes API
   master:
     build:
       context: ../..
       dockerfile: build/docker/Dockerfile
-    image: osmedeus:latest
-    container_name: osmedeus-master
+    image: golish:latest
+    container_name: golish-master
     restart: unless-stopped
     ports:
       - "8002:8002"
@@ -38,8 +38,8 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     volumes:
-      - osmedeus-data:/root/osmedeus-base
-      - workspaces:/root/workspaces-osmedeus
+      - golish-data:/root/golish-base
+      - workspaces:/root/workspaces-golish
     depends_on:
       redis:
         condition: service_healthy
@@ -51,21 +51,21 @@ services:
       start_period: 10s
       retries: 3
     networks:
-      - osmedeus-network
+      - golish-network
 
   # Worker Nodes - Execute distributed tasks
   worker:
     build:
       context: ../..
       dockerfile: build/docker/Dockerfile
-    image: osmedeus:latest
+    image: golish:latest
     restart: unless-stopped
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     volumes:
-      - osmedeus-data:/root/osmedeus-base
-      - workspaces:/root/workspaces-osmedeus
+      - golish-data:/root/golish-base
+      - workspaces:/root/workspaces-golish
     depends_on:
       redis:
         condition: service_healthy
@@ -82,16 +82,16 @@ services:
           cpus: '0.5'
           memory: 512M
     networks:
-      - osmedeus-network
+      - golish-network
 
 volumes:
   redis-data:
     driver: local
-  osmedeus-data:
+  golish-data:
     driver: local
   workspaces:
     driver: local
 
 networks:
-  osmedeus-network:
+  golish-network:
     driver: bridge

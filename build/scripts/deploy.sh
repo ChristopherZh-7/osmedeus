@@ -5,12 +5,12 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo_dir="$(cd "${script_dir}/../.." && pwd)"
 compose_file="${repo_dir}/build/docker/docker-compose.production.yaml"
-settings_template="${repo_dir}/build/docker/osm-settings.production.yaml"
-state_dir="${OSM_DEPLOY_STATE_DIR:-${repo_dir}/.osmedeus-deploy}"
+settings_template="${repo_dir}/build/docker/golish-settings.production.yaml"
+state_dir="${GOLISH_DEPLOY_STATE_DIR:-${repo_dir}/.golish-deploy}"
 env_file="${state_dir}/.env"
 config_dir="${state_dir}/config"
-settings_file="${config_dir}/osm-settings.yaml"
-legacy_settings_file="${state_dir}/osm-settings.yaml"
+settings_file="${config_dir}/golish-settings.yaml"
+legacy_settings_file="${state_dir}/golish-settings.yaml"
 action="${1:-up}"
 
 die() {
@@ -30,9 +30,9 @@ env_value() {
 
 load_state_values() {
   POSTGRES_PASSWORD="$(env_value POSTGRES_PASSWORD)" || die "POSTGRES_PASSWORD is missing from ${env_file}"
-  OSM_ADMIN_PASSWORD="$(env_value OSM_ADMIN_PASSWORD)" || die "OSM_ADMIN_PASSWORD is missing from ${env_file}"
-  OSM_JWT_SECRET="$(env_value OSM_JWT_SECRET)" || die "OSM_JWT_SECRET is missing from ${env_file}"
-  OSM_API_KEY="$(env_value OSM_API_KEY)" || die "OSM_API_KEY is missing from ${env_file}"
+  GOLISH_ADMIN_PASSWORD="$(env_value GOLISH_ADMIN_PASSWORD)" || die "GOLISH_ADMIN_PASSWORD is missing from ${env_file}"
+  GOLISH_JWT_SECRET="$(env_value GOLISH_JWT_SECRET)" || die "GOLISH_JWT_SECRET is missing from ${env_file}"
+  GOLISH_API_KEY="$(env_value GOLISH_API_KEY)" || die "GOLISH_API_KEY is missing from ${env_file}"
   WORKSPACE_PREFIX_KEY="$(env_value WORKSPACE_PREFIX_KEY)" || die "WORKSPACE_PREFIX_KEY is missing from ${env_file}"
   export POSTGRES_PASSWORD
 }
@@ -93,17 +93,17 @@ initialize_state() {
     workspace_prefix="$(random_hex 8)"
 
     printf '%s\n' \
-      'POSTGRES_USER=osmedeus' \
+      'POSTGRES_USER=golish' \
       "POSTGRES_PASSWORD=${postgres_password}" \
-      'POSTGRES_DB=osmedeus' \
-      'OSM_SERVER_PORT=8002' \
+      'POSTGRES_DB=golish' \
+      'GOLISH_SERVER_PORT=8002' \
       'TZ=Asia/Shanghai' \
       'WORKER_REPLICAS=2' \
       'DSH_PERMISSION_MODE=workspace-write' \
       'DEEPSEEK_API_KEY=' \
-      "OSM_ADMIN_PASSWORD=${admin_password}" \
-      "OSM_JWT_SECRET=${jwt_secret}" \
-      "OSM_API_KEY=${api_key}" \
+      "GOLISH_ADMIN_PASSWORD=${admin_password}" \
+      "GOLISH_JWT_SECRET=${jwt_secret}" \
+      "GOLISH_API_KEY=${api_key}" \
       "WORKSPACE_PREFIX_KEY=${workspace_prefix}" >"${env_file}"
     chmod 600 "${env_file}"
   fi
@@ -112,12 +112,12 @@ initialize_state() {
 
   if [[ ! -f "${settings_file}" ]]; then
     local tmp_settings
-    tmp_settings="$(mktemp "${state_dir}/osm-settings.XXXXXX")"
+    tmp_settings="$(mktemp "${state_dir}/golish-settings.XXXXXX")"
     sed \
       -e "s|__POSTGRES_PASSWORD__|${POSTGRES_PASSWORD}|g" \
-      -e "s|__OSM_ADMIN_PASSWORD__|${OSM_ADMIN_PASSWORD}|g" \
-      -e "s|__OSM_JWT_SECRET__|${OSM_JWT_SECRET}|g" \
-      -e "s|__OSM_API_KEY__|${OSM_API_KEY}|g" \
+      -e "s|__GOLISH_ADMIN_PASSWORD__|${GOLISH_ADMIN_PASSWORD}|g" \
+      -e "s|__GOLISH_JWT_SECRET__|${GOLISH_JWT_SECRET}|g" \
+      -e "s|__GOLISH_API_KEY__|${GOLISH_API_KEY}|g" \
       -e "s|__WORKSPACE_PREFIX_KEY__|${WORKSPACE_PREFIX_KEY}|g" \
       "${settings_template}" >"${tmp_settings}"
     mv "${tmp_settings}" "${settings_file}"
@@ -126,7 +126,7 @@ initialize_state() {
 }
 
 compose() {
-  OSM_SETTINGS_DIR="${config_dir}" docker compose \
+  GOLISH_SETTINGS_DIR="${config_dir}" docker compose \
     --env-file "${env_file}" \
     -f "${compose_file}" \
     "$@"
@@ -135,11 +135,11 @@ compose() {
 print_credentials() {
   local server_port deepseek_key
   load_state_values
-  server_port="$(env_value OSM_SERVER_PORT)" || server_port=8002
+  server_port="$(env_value GOLISH_SERVER_PORT)" || server_port=8002
   deepseek_key="$(env_value DEEPSEEK_API_KEY)" || deepseek_key=""
-  printf 'Osmedeus URL: http://127.0.0.1:%s\n' "${server_port}"
+  printf 'Golish URL: http://127.0.0.1:%s\n' "${server_port}"
   printf 'Username: admin\n'
-  printf 'Password: %s\n' "${OSM_ADMIN_PASSWORD}"
+  printf 'Password: %s\n' "${GOLISH_ADMIN_PASSWORD}"
   if [[ -z "${deepseek_key}" && -z "${DEEPSEEK_API_KEY:-}" ]]; then
     printf 'DeepSeek API key: not configured (edit %s)\n' "${env_file}"
   else

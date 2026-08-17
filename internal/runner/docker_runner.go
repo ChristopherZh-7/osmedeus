@@ -10,7 +10,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 )
 
 // DockerRunner executes commands inside a Docker container
@@ -32,7 +32,7 @@ func NewDockerRunner(config *core.RunnerConfig, binaryPath string) (*DockerRunne
 	return &DockerRunner{
 		config:     config,
 		binaryPath: binaryPath,
-		remoteDir:  "/root/.osmedeus-remote",
+		remoteDir:  "/root/.golish-remote",
 	}, nil
 }
 
@@ -107,7 +107,7 @@ func (r *DockerRunner) startPersistentContainer(ctx context.Context) error {
 	return nil
 }
 
-// copyBinaryToContainer copies the osmedeus binary to the container
+// copyBinaryToContainer copies the golish binary to the container
 func (r *DockerRunner) copyBinaryToContainer(ctx context.Context) error {
 	if r.containerID == "" {
 		return fmt.Errorf("no container running")
@@ -120,7 +120,7 @@ func (r *DockerRunner) copyBinaryToContainer(ctx context.Context) error {
 	}
 
 	// Copy binary
-	destPath := filepath.Join(r.remoteDir, "osmedeus")
+	destPath := filepath.Join(r.remoteDir, "golish")
 	copyCmd := exec.CommandContext(ctx, "docker", "cp", r.binaryPath, fmt.Sprintf("%s:%s", r.containerID, destPath))
 	if err := copyCmd.Run(); err != nil {
 		return fmt.Errorf("failed to copy binary: %w", err)

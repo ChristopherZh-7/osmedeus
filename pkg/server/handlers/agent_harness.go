@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
 )
 
 const (
@@ -18,7 +18,7 @@ const (
 	agentHarnessProbeMaxBody = 1 << 20
 )
 
-// AgentHarnessStatusData describes the connection between Osmedeus and the
+// AgentHarnessStatusData describes the connection between Golish and the
 // external interactive agent runtime.
 type AgentHarnessStatusData struct {
 	Enabled    bool   `json:"enabled"`
@@ -39,7 +39,7 @@ type AgentHarnessStatusData struct {
 // @Tags Agent Harness
 // @Produce json
 // @Success 200 {object} AgentHarnessStatusData
-// @Router /osm/api/agent-harness/status [get]
+// @Router /golish/api/agent-harness/status [get]
 func AgentHarnessStatus(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		status := AgentHarnessStatusData{

@@ -8,12 +8,12 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/linter"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/parser"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/charmbracelet/glamour"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/linter"
-	"github.com/j3ssie/osmedeus/v5/internal/parser"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
 	"github.com/mattn/go-runewidth"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
@@ -459,7 +459,7 @@ var workflowListCmd = &cobra.Command{
 				terminal.Gray("<key=value>"))
 
 			fmt.Println()
-			fmt.Printf("%s Tip: %s %s\n", terminal.Gray(terminal.SymbolLightning), terminal.Cyan("osmedeus run --help"), terminal.Gray("for more usage and options"))
+			fmt.Printf("%s Tip: %s %s\n", terminal.Gray(terminal.SymbolLightning), terminal.Cyan("golish run --help"), terminal.Gray("for more usage and options"))
 			fmt.Println()
 
 			// Show workflow errors if verbose mode
@@ -1296,10 +1296,10 @@ var workflowShowCmd = &cobra.Command{
 		if showVerbose {
 			// Verbose: show full aligned markdown table with default values and descriptions
 			// Get actual default values from config where possible
-			baseFolder := "~/osmedeus-base"
-			binariesPath := "~/osmedeus-base/external-binaries"
-			dataPath := "~/osmedeus-base/data"
-			workspacesPath := "~/workspaces-osmedeus"
+			baseFolder := "~/golish-base"
+			binariesPath := "~/golish-base/external-binaries"
+			dataPath := "~/golish-base/data"
+			workspacesPath := "~/workspaces-golish"
 			workflowsPath := cfg.WorkflowsPath
 			if cfg.BaseFolder != "" {
 				baseFolder = cfg.BaseFolder
@@ -1370,7 +1370,7 @@ var workflowShowCmd = &cobra.Command{
 				{terminal.Cyan("{{baseThreads}}"), "Base thread count", terminal.Yellow("10")},
 
 				// Metadata variables
-				{terminal.Cyan("{{Version}}"), "Osmedeus version", terminal.Gray("<osmedeus version>")},
+				{terminal.Cyan("{{Version}}"), "Golish version", terminal.Gray("<golish version>")},
 				{terminal.Cyan("{{RunUUID}}"), "Unique run identifier (UUID)", terminal.Yellow("<generated>")},
 				{terminal.Cyan("{{TaskDate}}"), "Task date (YYYY-MM-DD)", terminal.Yellow("<current date>")},
 				{terminal.Cyan("{{Today}}"), "Current date (YYYY-MM-DD)", terminal.Yellow("<current date>")},
@@ -1408,7 +1408,7 @@ var workflowShowCmd = &cobra.Command{
 var workflowInstallCmd = &cobra.Command{
 	Use:   "install [source]",
 	Short: "Install workflows from git URL, zip URL, local zip file, or local folder",
-	Long:  `Install workflows from various sources. This is an alias for 'osmedeus install workflow'.`,
+	Long:  `Install workflows from various sources. This is an alias for 'golish install workflow'.`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if workflowPreset {
 			if len(args) != 0 {
@@ -1443,13 +1443,13 @@ The linter checks for:
   - Duplicate step names
 
 Examples:
-  osmedeus workflow validate test-echo
-  osmedeus workflow lint ./my-workflow.yaml
-  osmedeus workflow validate /path/to/workflows/
-  osmedeus workflow validate . --fail-fast
-  osmedeus workflow lint my-workflow.yaml --check --format json
-  osmedeus workflow validate . --disable unused-variable
-  osmedeus workflow lint my-workflow.yaml --severity error`,
+  golish workflow validate test-echo
+  golish workflow lint ./my-workflow.yaml
+  golish workflow validate /path/to/workflows/
+  golish workflow validate . --fail-fast
+  golish workflow lint my-workflow.yaml --check --format json
+  golish workflow validate . --disable unused-variable
+  golish workflow lint my-workflow.yaml --severity error`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cfg := config.Get()
@@ -1502,7 +1502,7 @@ func init() {
 	workflowValidateCmd.Flags().StringVar(&lintFormat, "format", "pretty", "output format: pretty, json, github")
 	workflowValidateCmd.Flags().StringSliceVar(&lintDisable, "disable", []string{}, "disable specific rules (comma-separated)")
 	workflowValidateCmd.Flags().StringVar(&lintSeverity, "severity", "info", "minimum severity level: info, warning, error")
-	workflowInstallCmd.Flags().BoolVar(&workflowPreset, "preset", false, "install from OSM_WORKFLOW_URL environment variable (default: DEFAULT_WORKFLOW_REPO)")
+	workflowInstallCmd.Flags().BoolVar(&workflowPreset, "preset", false, "install from GOLISH_WORKFLOW_URL environment variable (default: DEFAULT_WORKFLOW_REPO)")
 	workflowCmd.AddCommand(workflowListCmd)
 	workflowCmd.AddCommand(workflowShowCmd)
 	workflowCmd.AddCommand(workflowValidateCmd)

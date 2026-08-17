@@ -258,7 +258,7 @@ func (p *Printer) WorkflowInfo(name, description string, tags []string, runnerTy
 		_, _ = fmt.Fprintf(os.Stdout, "  %s %s\n", Gray("Params:"), strings.Join(parts, ", "))
 	}
 
-	_, _ = fmt.Fprintf(os.Stdout, "  %s %s\n\n", Gray("Tip:"), Cyan("osmedeus workflow view "+name))
+	_, _ = fmt.Fprintf(os.Stdout, "  %s %s\n\n", Gray("Tip:"), Cyan("golish workflow view "+name))
 }
 
 // DisabledTogglesTip prints a tip about disabled toggle params that could generate more results.

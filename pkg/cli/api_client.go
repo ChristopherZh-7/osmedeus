@@ -9,11 +9,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 )
 
-// ScheduleClient handles schedule registration with the osmedeus server
+// ScheduleClient handles schedule registration with the golish server
 type ScheduleClient struct {
 	baseURL string
 	apiKey  string
@@ -36,7 +36,7 @@ func (c *ScheduleClient) SetBaseURL(url string) {
 	c.baseURL = url
 }
 
-// IsServerAvailable checks if the server is reachable via GET /osm/server-info
+// IsServerAvailable checks if the server is reachable via GET /server-info.
 func (c *ScheduleClient) IsServerAvailable() bool {
 	if c.baseURL == "" {
 		return false
@@ -45,7 +45,7 @@ func (c *ScheduleClient) IsServerAvailable() bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/osm/server-info", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/server-info", nil)
 	if err != nil {
 		return false
 	}
@@ -70,7 +70,7 @@ type scheduleRequest struct {
 	Enabled      bool              `json:"enabled"`
 }
 
-// RegisterCronTrigger POSTs to /osm/api/schedules to register a cron trigger
+// RegisterCronTrigger POSTs to /golish/api/schedules to register a cron trigger
 // Returns nil on 201 Created or 409 Conflict (schedule already exists)
 func (c *ScheduleClient) RegisterCronTrigger(ctx context.Context, workflow *core.Workflow, trigger *core.Trigger, target string, params map[string]string) error {
 	if c.baseURL == "" {
@@ -95,14 +95,14 @@ func (c *ScheduleClient) RegisterCronTrigger(ctx context.Context, workflow *core
 		return fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/osm/api/schedules", bytes.NewReader(jsonBody))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/golish/api/schedules", bytes.NewReader(jsonBody))
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 	if c.apiKey != "" {
-		req.Header.Set("x-osm-api-key", c.apiKey)
+		req.Header.Set("x-golish-api-key", c.apiKey)
 	}
 
 	resp, err := c.client.Do(req)
@@ -150,7 +150,7 @@ type CreateRunResponse struct {
 	RunUUID     string `json:"run_uuid,omitempty"`
 }
 
-// RunClient handles run submission to the osmedeus server
+// RunClient handles run submission to the golish server
 type RunClient struct {
 	baseURL string
 	apiKey  string
@@ -196,7 +196,7 @@ func (c *RunClient) IsServerAvailable() bool {
 	return resp.StatusCode == http.StatusOK
 }
 
-// CreateRun POSTs to /osm/api/runs to create a new run
+// CreateRun POSTs to /golish/api/runs to create a new run
 func (c *RunClient) CreateRun(ctx context.Context, req *CreateRunRequest) (*CreateRunResponse, error) {
 	if c.baseURL == "" {
 		return nil, fmt.Errorf("server URL not configured")
@@ -207,14 +207,14 @@ func (c *RunClient) CreateRun(ctx context.Context, req *CreateRunRequest) (*Crea
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/osm/api/runs", bytes.NewReader(jsonBody))
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/golish/api/runs", bytes.NewReader(jsonBody))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
 	httpReq.Header.Set("Content-Type", "application/json")
 	if c.apiKey != "" {
-		httpReq.Header.Set("x-osm-api-key", c.apiKey)
+		httpReq.Header.Set("x-golish-api-key", c.apiKey)
 	}
 
 	resp, err := c.client.Do(httpReq)

@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	nixTestContainer = "osm-test-nix"
+	nixTestContainer = "golish-test-nix"
 )
 
 // getNixDockerComposePath returns the path to the Nix test docker-compose file
@@ -78,12 +78,12 @@ func waitForNixContainer(t *testing.T, log *TestLogger, timeout time.Duration) {
 	t.Fatalf("Nix container not ready after %v", timeout)
 }
 
-// runCLIInNixContainer executes the osmedeus CLI inside the Nix container
+// runCLIInNixContainer executes the golish CLI inside the Nix container
 func runCLIInNixContainer(t *testing.T, log *TestLogger, args ...string) (stdout, stderr string, err error) {
 	t.Helper()
 
 	// Build the full command
-	dockerArgs := []string{"exec", nixTestContainer, "/app/bin/osmedeus"}
+	dockerArgs := []string{"exec", nixTestContainer, "/app/bin/golish"}
 	dockerArgs = append(dockerArgs, args...)
 
 	log.Command(args...)
@@ -208,11 +208,11 @@ func TestNix_InstallBinary_Docker(t *testing.T) {
 	require.NoError(t, err, "Nix should be available in container: %s", output)
 	assert.Contains(t, string(output), "nix")
 
-	// Step 2: Verify osmedeus binary is accessible
-	log.Step("Step 2: Verifying osmedeus binary is accessible")
+	// Step 2: Verify golish binary is accessible
+	log.Step("Step 2: Verifying golish binary is accessible")
 	stdout, stderr, err := runCLIInNixContainer(t, log, "--version")
-	require.NoError(t, err, "osmedeus should be accessible: %s", stderr)
-	assert.Contains(t, stdout, "osmedeus")
+	require.NoError(t, err, "golish should be accessible: %s", stderr)
+	assert.Contains(t, stdout, "golish")
 
 	// Step 3: Test list-binary-nix in container
 	log.Step("Step 3: Testing --list-binary-nix in container")

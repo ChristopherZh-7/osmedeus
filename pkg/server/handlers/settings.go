@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/public"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/public"
 	"gopkg.in/yaml.v3"
 )
 
@@ -100,7 +100,7 @@ func loadSettingsConfig(cfg *config.Config) (*config.Config, string, error) {
 	if cfg == nil || strings.TrimSpace(cfg.BaseFolder) == "" {
 		return nil, "", fmt.Errorf("configuration is unavailable")
 	}
-	settingsPath := filepath.Join(os.ExpandEnv(cfg.BaseFolder), "osm-settings.yaml")
+	settingsPath := filepath.Join(os.ExpandEnv(cfg.BaseFolder), "golish-settings.yaml")
 	if resolved, err := filepath.EvalSymlinks(settingsPath); err == nil {
 		settingsPath = resolved
 	}
@@ -276,7 +276,7 @@ func writeConfigAtomically(settingsPath string, cfg *config.Config) (string, err
 		return "", fmt.Errorf("write backup: %w", err)
 	}
 
-	tmp, err := os.CreateTemp(filepath.Dir(settingsPath), ".osm-settings-*.tmp")
+	tmp, err := os.CreateTemp(filepath.Dir(settingsPath), ".golish-settings-*.tmp")
 	if err != nil {
 		return "", err
 	}
@@ -469,11 +469,11 @@ func ListSettingsSkills(cfg *config.Config) fiber.Handler {
 // @Success 200 {string} string "YAML configuration content"
 // @Failure 500 {object} map[string]interface{} "Internal server error"
 // @Security BearerAuth
-// @Router /osm/api/settings/yaml [get]
+// @Router /golish/api/settings/yaml [get]
 func GetSettingsYAML(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Read the config file
-		settingsPath := filepath.Join(cfg.BaseFolder, "osm-settings.yaml")
+		settingsPath := filepath.Join(cfg.BaseFolder, "golish-settings.yaml")
 		content, err := os.ReadFile(settingsPath)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -586,12 +586,12 @@ func redactSensitiveFields(content string) string {
 // // @Failure 400 {object} map[string]interface{} "Invalid YAML"
 // // @Failure 500 {object} map[string]interface{} "Internal server error"
 // // @Security BearerAuth
-// // @Router /osm/api/settings/yaml [put]
+// // @Router /golish/api/settings/yaml [put]
 // func UpdateSettingsYAML(cfg *config.Config) fiber.Handler {
 // 	return func(c *fiber.Ctx) error {
 // 		return c.Status(fiber.StatusMethodNotAllowed).JSON(fiber.Map{
 // 			"error":   true,
-// 			"message": "Updating osm-settings.yaml via API is disabled",
+// 			"message": "Updating golish-settings.yaml via API is disabled",
 // 		})
 // 	}
 // }
@@ -605,7 +605,7 @@ func redactSensitiveFields(content string) string {
 // @Failure 400 {object} map[string]interface{} "Hot reload not enabled"
 // @Failure 500 {object} map[string]interface{} "Failed to reload configuration"
 // @Security BearerAuth
-// @Router /osm/api/settings/reload [post]
+// @Router /golish/api/settings/reload [post]
 func ReloadConfig(hotConfig *config.HotReloadableConfig) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		if hotConfig == nil {
@@ -638,7 +638,7 @@ func ReloadConfig(hotConfig *config.HotReloadableConfig) fiber.Handler {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "Configuration status"
 // @Security BearerAuth
-// @Router /osm/api/settings/status [get]
+// @Router /golish/api/settings/status [get]
 func GetConfigStatus(hotConfig *config.HotReloadableConfig) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		if hotConfig == nil {

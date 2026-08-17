@@ -10,7 +10,7 @@ triggers:
       topic: "*"
     input:
       # New exports-style syntax: variable_name: expression
-      # osmedeus eval 'generate_event("hackerone.com", "test.asset.vars", "cli", "subdomain", "docs.hackerone.com")'
+      # golish eval 'generate_event("hackerone.com", "test.asset.vars", "cli", "subdomain", "docs.hackerone.com")'
       Target: event_data.value
       asset_type: event.type
       source: event.source

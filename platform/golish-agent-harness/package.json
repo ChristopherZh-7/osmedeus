@@ -1,0 +1,22 @@
+{
+  "name": "@golish/agent-harness-sidecar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Versioned DeepSeek Harness sidecar for the Golish pentest platform",
+  "type": "module",
+  "scripts": {
+    "start": "node ./scripts/start.mjs",
+    "test": "node --test ./plugins/dsh-pentagi-orchestrator/lib/*.test.js ./scripts/*.test.mjs",
+    "check": "node ./scripts/check.mjs",
+    "verify:install": "node ./scripts/verify-install.mjs",
+    "upgrade:dsh": "node ./scripts/upgrade.mjs"
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh": "0.1.0-rc.6",
+    "@golish/dsh-plugin": "file:plugins/dsh-golish-plugin",
+    "@golish/dsh-pentagi-orchestrator": "file:plugins/dsh-pentagi-orchestrator"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  }
+}

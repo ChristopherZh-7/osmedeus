@@ -1,10 +1,10 @@
 package handlers
 
 import (
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/functions"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/template"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/functions"
-	"github.com/j3ssie/osmedeus/v5/internal/template"
 )
 
 // FunctionEval executes a utility function script
@@ -17,7 +17,7 @@ import (
 // @Success 200 {object} map[string]interface{} "Evaluation result"
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Security BearerAuth
-// @Router /osm/api/functions/eval [post]
+// @Router /golish/api/functions/eval [post]
 func FunctionEval(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req FunctionEvalRequest
@@ -78,7 +78,7 @@ func FunctionEval(cfg *config.Config) fiber.Handler {
 // @Produce json
 // @Success 200 {object} map[string]interface{} "List of functions with total count"
 // @Security BearerAuth
-// @Router /osm/api/functions/list [get]
+// @Router /golish/api/functions/list [get]
 func FunctionList(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Get function registry from constants (single source of truth)

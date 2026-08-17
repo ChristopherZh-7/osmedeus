@@ -1,5 +1,5 @@
 {
-  description = "Osmedeus security tools - all binaries for security automation workflows";
+  description = "Golish security tools - all binaries for security automation workflows";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -89,11 +89,11 @@
       in {
         # Development shell with all tools
         devShells.default = pkgs.mkShell {
-          name = "osmedeus-tools";
+          name = "golish-tools";
           buildInputs = allTools;
 
           shellHook = ''
-            echo "🔒 Osmedeus Security Tools Environment"
+            echo "🔒 Golish Security Tools Environment"
             echo "======================================="
             echo ""
             echo "Subdomain Discovery:"
@@ -126,38 +126,38 @@
         # Packages for individual installation
         packages = {
           default = pkgs.symlinkJoin {
-            name = "osmedeus-tools";
+            name = "golish-tools";
             paths = allTools;
           };
 
           # Individual tool groups
           subdomain = pkgs.symlinkJoin {
-            name = "osmedeus-subdomain-tools";
+            name = "golish-subdomain-tools";
             paths = subdomainTools;
           };
 
           http = pkgs.symlinkJoin {
-            name = "osmedeus-http-tools";
+            name = "golish-http-tools";
             paths = httpTools;
           };
 
           portscan = pkgs.symlinkJoin {
-            name = "osmedeus-portscan-tools";
+            name = "golish-portscan-tools";
             paths = portScanTools;
           };
 
           dns = pkgs.symlinkJoin {
-            name = "osmedeus-dns-tools";
+            name = "golish-dns-tools";
             paths = dnsTools;
           };
 
           vuln = pkgs.symlinkJoin {
-            name = "osmedeus-vuln-tools";
+            name = "golish-vuln-tools";
             paths = vulnTools;
           };
 
           utils = pkgs.symlinkJoin {
-            name = "osmedeus-utility-tools";
+            name = "golish-utility-tools";
             paths = utilityTools;
           };
         };

@@ -129,7 +129,7 @@ func (p *AzureProvider) CreateInfrastructure(ctx context.Context, opts *CreateOp
 	_ = os.Setenv("ARM_CLIENT_ID", p.clientID)
 	_ = os.Setenv("ARM_CLIENT_SECRET", p.clientSecret)
 
-	pm, err := NewPulumiManager("osmedeus-cloud", infraID, statePath)
+	pm, err := NewPulumiManager("golish-cloud", infraID, statePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Pulumi manager: %w", err)
 	}
@@ -178,7 +178,7 @@ func (p *AzureProvider) DestroyInfrastructure(ctx context.Context, infra *Infras
 	_ = os.Setenv("ARM_CLIENT_ID", p.clientID)
 	_ = os.Setenv("ARM_CLIENT_SECRET", p.clientSecret)
 
-	pm, err := NewPulumiManager("osmedeus-cloud", infra.PulumiStackID, statePath)
+	pm, err := NewPulumiManager("golish-cloud", infra.PulumiStackID, statePath)
 	if err != nil {
 		return fmt.Errorf("failed to create Pulumi manager: %w", err)
 	}
@@ -251,8 +251,8 @@ func (p *AzureProvider) createVMProgram(infraID string, opts *CreateOptions) pul
 		publisher, offer, sku, version := parseImageReference(p.imageReference)
 
 		// Create resource group
-		rg, err := resources.NewResourceGroup(ctx, "osmedeus-rg", &resources.ResourceGroupArgs{
-			ResourceGroupName: pulumi.Sprintf("osmedeus-rg-%d", time.Now().Unix()),
+		rg, err := resources.NewResourceGroup(ctx, "golish-rg", &resources.ResourceGroupArgs{
+			ResourceGroupName: pulumi.Sprintf("golish-rg-%d", time.Now().Unix()),
 			Location:          pulumi.String(p.location),
 		})
 		if err != nil {
@@ -260,9 +260,9 @@ func (p *AzureProvider) createVMProgram(infraID string, opts *CreateOptions) pul
 		}
 
 		// Create virtual network
-		vnet, err := network.NewVirtualNetwork(ctx, "osmedeus-vnet", &network.VirtualNetworkArgs{
+		vnet, err := network.NewVirtualNetwork(ctx, "golish-vnet", &network.VirtualNetworkArgs{
 			ResourceGroupName:  rg.Name,
-			VirtualNetworkName: pulumi.String("osmedeus-vnet"),
+			VirtualNetworkName: pulumi.String("golish-vnet"),
 			Location:           pulumi.String(p.location),
 			AddressSpace: &network.AddressSpaceArgs{
 				AddressPrefixes: pulumi.StringArray{
@@ -275,10 +275,10 @@ func (p *AzureProvider) createVMProgram(infraID string, opts *CreateOptions) pul
 		}
 
 		// Create subnet
-		subnet, err := network.NewSubnet(ctx, "osmedeus-subnet", &network.SubnetArgs{
+		subnet, err := network.NewSubnet(ctx, "golish-subnet", &network.SubnetArgs{
 			ResourceGroupName:  rg.Name,
 			VirtualNetworkName: vnet.Name,
-			SubnetName:         pulumi.String("osmedeus-subnet"),
+			SubnetName:         pulumi.String("golish-subnet"),
 			AddressPrefix:      pulumi.String("10.0.1.0/24"),
 		})
 		if err != nil {
@@ -286,9 +286,9 @@ func (p *AzureProvider) createVMProgram(infraID string, opts *CreateOptions) pul
 		}
 
 		// Create network security group allowing SSH inbound
-		nsg, err := network.NewNetworkSecurityGroup(ctx, "osmedeus-nsg", &network.NetworkSecurityGroupArgs{
+		nsg, err := network.NewNetworkSecurityGroup(ctx, "golish-nsg", &network.NetworkSecurityGroupArgs{
 			ResourceGroupName:        rg.Name,
-			NetworkSecurityGroupName: pulumi.String("osmedeus-nsg"),
+			NetworkSecurityGroupName: pulumi.String("golish-nsg"),
 			Location:                 pulumi.String(p.location),
 			SecurityRules: network.SecurityRuleTypeArray{
 				&network.SecurityRuleTypeArgs{
@@ -310,12 +310,12 @@ func (p *AzureProvider) createVMProgram(infraID string, opts *CreateOptions) pul
 
 		// Create VMs
 		for i := 0; i < opts.InstanceCount; i++ {
-			workerName := fmt.Sprintf("osmw-%s-%d", suffix, i)
+			workerName := fmt.Sprintf("glw-%s-%d", suffix, i)
 
 			// Create public IP address
-			publicIP, err := network.NewPublicIPAddress(ctx, fmt.Sprintf("osmedeus-pip-%d", i), &network.PublicIPAddressArgs{
+			publicIP, err := network.NewPublicIPAddress(ctx, fmt.Sprintf("golish-pip-%d", i), &network.PublicIPAddressArgs{
 				ResourceGroupName:        rg.Name,
-				PublicIpAddressName:      pulumi.Sprintf("osmedeus-pip-%d", i),
+				PublicIpAddressName:      pulumi.Sprintf("golish-pip-%d", i),
 				Location:                 pulumi.String(p.location),
 				PublicIPAllocationMethod: pulumi.String("Dynamic"),
 			})
@@ -324,9 +324,9 @@ func (p *AzureProvider) createVMProgram(infraID string, opts *CreateOptions) pul
 			}
 
 			// Create network interface
-			nic, err := network.NewNetworkInterface(ctx, fmt.Sprintf("osmedeus-nic-%d", i), &network.NetworkInterfaceArgs{
+			nic, err := network.NewNetworkInterface(ctx, fmt.Sprintf("golish-nic-%d", i), &network.NetworkInterfaceArgs{
 				ResourceGroupName:    rg.Name,
-				NetworkInterfaceName: pulumi.Sprintf("osmedeus-nic-%d", i),
+				NetworkInterfaceName: pulumi.Sprintf("golish-nic-%d", i),
 				Location:             pulumi.String(p.location),
 				IpConfigurations: network.NetworkInterfaceIPConfigurationArray{
 					&network.NetworkInterfaceIPConfigurationArgs{
@@ -375,9 +375,9 @@ func (p *AzureProvider) createVMProgram(infraID string, opts *CreateOptions) pul
 				StorageProfile: &compute.StorageProfileArgs{
 					ImageReference: &compute.ImageReferenceArgs{
 						Publisher: pulumi.String(publisher),
-						Offer:    pulumi.String(offer),
-						Sku:      pulumi.String(sku),
-						Version:  pulumi.String(version),
+						Offer:     pulumi.String(offer),
+						Sku:       pulumi.String(sku),
+						Version:   pulumi.String(version),
 					},
 					OsDisk: &compute.OSDiskArgs{
 						CreateOption: pulumi.String("FromImage"),

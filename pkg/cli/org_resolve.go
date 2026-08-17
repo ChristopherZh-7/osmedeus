@@ -8,12 +8,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
 )
 
 // activeOrgFileName is the file under the base folder holding the org selected by
-// `osmedeus org use`.
+// `golish org use`.
 const activeOrgFileName = ".active-org"
 
 var (
@@ -36,7 +36,7 @@ func activeOrgFilePath() string {
 		if err != nil {
 			return ""
 		}
-		base = filepath.Join(home, "osmedeus-base")
+		base = filepath.Join(home, "golish-base")
 	}
 	return filepath.Join(base, activeOrgFileName)
 }
@@ -83,18 +83,18 @@ func clearActiveOrg() error {
 // source that has one, without touching the database. Resolution order:
 //
 //  1. --org flag
-//  2. $OSMEDEUS_ORG_UUID
-//  3. $OSMEDEUS_ORG
-//  4. the active-org file written by `osmedeus org use`
+//  2. $GOLISH_ORG_UUID
+//  3. $GOLISH_ORG
+//  4. the active-org file written by `golish org use`
 //  5. "" — meaning no org was selected
 func orgRef() string {
 	if v := strings.TrimSpace(globalOrg); v != "" {
 		return v
 	}
-	if v := strings.TrimSpace(os.Getenv("OSMEDEUS_ORG_UUID")); v != "" {
+	if v := strings.TrimSpace(os.Getenv("GOLISH_ORG_UUID")); v != "" {
 		return v
 	}
-	if v := strings.TrimSpace(os.Getenv("OSMEDEUS_ORG")); v != "" {
+	if v := strings.TrimSpace(os.Getenv("GOLISH_ORG")); v != "" {
 		return v
 	}
 	return readActiveOrg()

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	oslogger "github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	oslogger "github.com/j3ssie/osmedeus/v5/internal/logger"
 	"go.uber.org/zap"
 )
 
@@ -92,7 +92,7 @@ type EmitEventResponse struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} EventReceiverStatusResponse
-// @Router /osm/api/event-receiver/status [get]
+// @Router /golish/api/event-receiver/status [get]
 func GetEventReceiverStatus(provider EventReceiverProvider) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		if provider == nil {
@@ -123,7 +123,7 @@ func GetEventReceiverStatus(provider EventReceiverProvider) fiber.Handler {
 // @Accept json
 // @Produce json
 // @Success 200 {object} EventReceiverWorkflowsResponse
-// @Router /osm/api/event-receiver/workflows [get]
+// @Router /golish/api/event-receiver/workflows [get]
 func ListEventReceiverWorkflows(provider EventReceiverProvider) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		if provider == nil {
@@ -179,7 +179,7 @@ func ListEventReceiverWorkflows(provider EventReceiverProvider) fiber.Handler {
 // @Param request body EmitEventRequest true "Event to emit"
 // @Success 200 {object} EmitEventResponse
 // @Failure 400 {object} map[string]interface{}
-// @Router /osm/api/events/emit [post]
+// @Router /golish/api/events/emit [post]
 func EmitEvent(provider EventReceiverProvider) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		if provider == nil {

@@ -368,7 +368,7 @@ func TestSSHExec_RunCancelKillsRemoteProcess(t *testing.T) {
 		},
 	})
 
-	markerID := fmt.Sprintf("osm-sshexec-cancel-%d", time.Now().UnixNano())
+	markerID := fmt.Sprintf("golish-sshexec-cancel-%d", time.Now().UnixNano())
 	markerFile := fmt.Sprintf("/tmp/%s.heartbeat", markerID)
 
 	registry := NewRegistry()

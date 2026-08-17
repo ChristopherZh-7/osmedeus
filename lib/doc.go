@@ -1,5 +1,5 @@
 /*
-Package lib provides the Osmedeus SDK for programmatic workflow execution.
+Package lib provides the Golish SDK for programmatic workflow execution.
 
 This package exposes two main functionalities:
   - Run Workflow: Execute module workflows from YAML string content on a target
@@ -67,7 +67,7 @@ Evaluate conditions that return true/false:
 
 # Available Functions
 
-The Eval functions have access to all Osmedeus utility functions including:
+The Eval functions have access to all Golish utility functions including:
 
 File operations:
 

@@ -7,7 +7,7 @@ params:
   - name: target
     required: true
   - name: Output
-    default: /tmp/osm-docker-scan
+    default: /tmp/golish-docker-scan
   - name: threads
     default: "10"
   - name: severity

@@ -40,7 +40,7 @@ runner_config:
   # Format: host_path:container_path[:options]
   # Options: ro (read-only), rw (read-write)
   volumes:
-    - "/tmp/osmedeus:/data"
+    - "/tmp/golish:/data"
     - "{{Output}}:/output"
     - "/etc/hosts:/etc/hosts:ro"
 

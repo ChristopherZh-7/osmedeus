@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database/repository"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/executor"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/parser"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/database/repository"
-	"github.com/j3ssie/osmedeus/v5/internal/executor"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/parser"
 	"go.uber.org/zap"
 )
 
@@ -44,7 +44,7 @@ func ListWebhookRuns(cfg *config.Config) fiber.Handler {
 
 		var results []webhookRunResponse
 		for _, run := range runs {
-			webhookURL := fmt.Sprintf("/osm/api/webhook-runs/%s/trigger", run.WebhookUUID)
+			webhookURL := fmt.Sprintf("/golish/api/webhook-runs/%s/trigger", run.WebhookUUID)
 			results = append(results, webhookRunResponse{
 				Run:        run,
 				WebhookURL: webhookURL,

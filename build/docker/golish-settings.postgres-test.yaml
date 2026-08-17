@@ -1,0 +1,12 @@
+# Golish PostgreSQL Test Configuration
+# Used for testing database schema with Docker PostgreSQL
+
+database:
+  db_engine: postgresql
+  host: localhost
+  port: 5432
+  username: golish
+  password: test_password_123
+  db_name: golish
+  ssl_mode: disable
+  connection_timeout: 30

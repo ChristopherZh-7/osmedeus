@@ -3,10 +3,10 @@ package terminal
 import (
 	"strings"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 )
 
-// Banner returns a colored ASCII art banner for Osmedeus
+// Banner returns a colored ASCII art banner for Golish
 func Banner() string {
 	version := HiWhite(strings.Trim(core.VERSION, "-beta"))
 	author := Magenta(core.AUTHOR)
@@ -31,7 +31,7 @@ func Banner() string {
                                          ,:;::;;;;;;;;;;,
                                            .,::::::::,.
 `)
-	b += "\n" + Green("                            Osmedeus Next Generation ") + version + Green(" by ") + author
+	b += "\n" + Green("                            Golish Next Generation ") + version + Green(" by ") + author
 	b += "\n\n" + HiCyan("                            "+core.DESC) + "\n"
 	b += "\n" + HiWhite(`                                            ¯\_(ツ)_/¯`) + "\n\n"
 

@@ -9,14 +9,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 	"github.com/redis/rueidis"
 )
 
 // Redis key prefixes
 const (
-	KeyPrefix           = "osm:"
+	KeyPrefix           = "golish:"
 	KeyTasksPending     = KeyPrefix + "tasks:pending"
 	KeyTasksRunning     = KeyPrefix + "tasks:running"
 	KeyTasksCompleted   = KeyPrefix + "tasks:completed"
@@ -25,7 +25,7 @@ const (
 	KeyMasterLock       = KeyPrefix + "master:lock"
 
 	// Event broker keys (pub/sub channels)
-	KeyEventsPrefix = KeyPrefix + "events:" // osm:events:{topic}
+	KeyEventsPrefix = KeyPrefix + "events:" // golish:events:{topic}
 
 	// Data queue keys (for worker -> master data)
 	KeyDataRuns          = KeyPrefix + "data:runs"
@@ -33,7 +33,7 @@ const (
 	KeyDataEvents        = KeyPrefix + "data:events"
 	KeyDataArtifacts     = KeyPrefix + "data:artifacts"
 	KeyDataExecute       = KeyPrefix + "data:execute"
-	KeyDataExecuteWorker = KeyPrefix + "data:execute:worker:" // osm:data:execute:worker:{worker_id}
+	KeyDataExecuteWorker = KeyPrefix + "data:execute:worker:" // golish:data:execute:worker:{worker_id}
 )
 
 // KeyDataExecuteForWorker returns the per-worker execute queue key.

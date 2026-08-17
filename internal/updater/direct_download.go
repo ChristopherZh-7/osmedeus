@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/j3ssie/osmedeus/v5/internal/installer"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/installer"
 )
 
 // DirectDownloader provides fallback download functionality when go-selfupdate fails
@@ -28,7 +28,7 @@ func NewDirectDownloader(owner, repo string, verbose bool) *DirectDownloader {
 }
 
 // BuildAssetURL constructs the GitHub release asset URL based on goreleaser naming convention
-// Format: osmedeus_{version}_{os}_{arch}.tar.gz
+// Format: golish_{version}_{os}_{arch}.tar.gz
 func (d *DirectDownloader) BuildAssetURL(version string) string {
 	// Strip 'v' prefix for the filename
 	ver := strings.TrimPrefix(version, "v")
@@ -62,7 +62,7 @@ func (d *DirectDownloader) BuildAssetURL(version string) string {
 	}
 
 	// Build the asset filename
-	assetName := fmt.Sprintf("osmedeus_%s_%s_%s.%s", ver, osName, arch, ext)
+	assetName := fmt.Sprintf("golish_%s_%s_%s.%s", ver, osName, arch, ext)
 
 	// Build the full URL
 	return fmt.Sprintf("https://github.com/%s/%s/releases/download/v%s/%s",
@@ -78,7 +78,7 @@ func (d *DirectDownloader) UpdateBinary(ctx context.Context, release *Release) e
 	}
 
 	// Create a temp directory for the download
-	tempDir, err := os.MkdirTemp("", "osmedeus-update-*")
+	tempDir, err := os.MkdirTemp("", "golish-update-*")
 	if err != nil {
 		return fmt.Errorf("failed to create temp directory: %w", err)
 	}
@@ -97,7 +97,7 @@ func (d *DirectDownloader) UpdateBinary(ctx context.Context, release *Release) e
 	}
 
 	// Download the archive
-	archivePath := filepath.Join(tempDir, fmt.Sprintf("osmedeus.%s", ext))
+	archivePath := filepath.Join(tempDir, fmt.Sprintf("golish.%s", ext))
 	if d.verbose {
 		fmt.Printf("[debug] Downloading to: %s\n", archivePath)
 	}
@@ -119,9 +119,9 @@ func (d *DirectDownloader) UpdateBinary(ctx context.Context, release *Release) e
 	}
 
 	// Find the binary in the extracted directory
-	binaryName := "osmedeus"
+	binaryName := "golish"
 	if runtime.GOOS == "windows" {
-		binaryName = "osmedeus.exe"
+		binaryName = "golish.exe"
 	}
 
 	newBinary := filepath.Join(extractDir, binaryName)
@@ -159,7 +159,7 @@ func atomicReplace(src, dst string) error {
 
 	// Create a temp file in the same directory as destination (for atomic rename)
 	dstDir := filepath.Dir(dst)
-	tmpFile, err := os.CreateTemp(dstDir, ".osmedeus-update-*")
+	tmpFile, err := os.CreateTemp(dstDir, ".golish-update-*")
 	if err != nil {
 		return fmt.Errorf("failed to create temp file: %w", err)
 	}

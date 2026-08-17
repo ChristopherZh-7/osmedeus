@@ -8,17 +8,17 @@ import (
 
 // EnsureWorkspaceRuntime upserts a workspace and attributes it to an org.
 //
-// orgUUID is the org the caller explicitly selected (--org / $OSMEDEUS_ORG / the
+// orgUUID is the org the caller explicitly selected (--org / $GOLISH_ORG / the
 // active org). An empty orgUUID means "no org was named", which is treated very
 // differently on insert and update:
 //
 //   - New workspace: it lands in the default org.
 //   - Existing workspace: its org is left alone. Re-scanning a workspace that
-//     `osmedeus org assign` put into an org must not silently drag it back to the
+//     `golish org assign` put into an org must not silently drag it back to the
 //     default org just because this run did not pass --org.
 //
 // Naming an org explicitly does move the workspace, since that is the whole point
-// of `osmedeus run --org`.
+// of `golish run --org`.
 func EnsureWorkspaceRuntime(ctx context.Context, name, localPath, runWorkflow, stateExecutionLog, stateCompletedFile, stateWorkflowFile, stateWorkflowFolder, orgUUID string) error {
 	if db == nil {
 		return fmt.Errorf("database not connected")

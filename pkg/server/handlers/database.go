@@ -3,9 +3,9 @@ package handlers
 import (
 	"context"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
 )
 
 // ClearTableRequest represents a request to clear a database table
@@ -21,7 +21,7 @@ type ClearTableRequest struct {
 // @Success 200 {object} map[string]interface{} "List of tables with counts"
 // @Failure 500 {object} map[string]interface{} "Internal error"
 // @Security BearerAuth
-// @Router /osm/api/database/tables [get]
+// @Router /golish/api/database/tables [get]
 func ListDatabaseTables(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx := context.Background()
@@ -53,7 +53,7 @@ func ListDatabaseTables(cfg *config.Config) fiber.Handler {
 // @Failure 400 {object} map[string]interface{} "Invalid request or missing force confirmation"
 // @Failure 500 {object} map[string]interface{} "Failed to clear table"
 // @Security BearerAuth
-// @Router /osm/api/database/tables/{table}/clear [post]
+// @Router /golish/api/database/tables/{table}/clear [post]
 func ClearDatabaseTable(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		tableName := c.Params("table")

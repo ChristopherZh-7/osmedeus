@@ -10,13 +10,13 @@ description: "Manage scheduled workflow triggers"
 Get a paginated list of all scheduled workflows.
 
 ```bash
-curl http://localhost:8002/osm/api/schedules \
+curl http://localhost:8002/golish/api/schedules \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **With pagination:**
 ```bash
-curl "http://localhost:8002/osm/api/schedules?offset=0&limit=50" \
+curl "http://localhost:8002/golish/api/schedules?offset=0&limit=50" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -28,7 +28,7 @@ curl "http://localhost:8002/osm/api/schedules?offset=0&limit=50" \
       "id": "sch_1234567890",
       "name": "daily-scan",
       "workflow_name": "subdomain-enum",
-      "workflow_path": "/home/user/osmedeus-base/workflows/flows/subdomain-enum.yaml",
+      "workflow_path": "/home/user/golish-base/workflows/flows/subdomain-enum.yaml",
       "trigger_name": "daily-scan-trigger",
       "trigger_type": "cron",
       "schedule": "0 2 * * *",
@@ -49,7 +49,7 @@ curl "http://localhost:8002/osm/api/schedules?offset=0&limit=50" \
       "id": "sch_0987654321",
       "name": "weekly-full-recon",
       "workflow_name": "full-recon",
-      "workflow_path": "/home/user/osmedeus-base/workflows/flows/full-recon.yaml",
+      "workflow_path": "/home/user/golish-base/workflows/flows/full-recon.yaml",
       "trigger_name": "weekly-trigger",
       "trigger_type": "cron",
       "schedule": "0 0 * * 0",
@@ -83,7 +83,7 @@ curl "http://localhost:8002/osm/api/schedules?offset=0&limit=50" \
 Create a new scheduled workflow execution.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/schedules \
+curl -X POST http://localhost:8002/golish/api/schedules \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -98,7 +98,7 @@ curl -X POST http://localhost:8002/osm/api/schedules \
 
 **With additional parameters:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/schedules \
+curl -X POST http://localhost:8002/golish/api/schedules \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -136,7 +136,7 @@ curl -X POST http://localhost:8002/osm/api/schedules \
 Get details of a specific schedule.
 
 ```bash
-curl http://localhost:8002/osm/api/schedules/sch_1234567890 \
+curl http://localhost:8002/golish/api/schedules/sch_1234567890 \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -146,7 +146,7 @@ curl http://localhost:8002/osm/api/schedules/sch_1234567890 \
   "id": "sch_1234567890",
   "name": "daily-scan",
   "workflow_name": "subdomain-enum",
-  "workflow_path": "/home/user/osmedeus-base/workflows/flows/subdomain-enum.yaml",
+  "workflow_path": "/home/user/golish-base/workflows/flows/subdomain-enum.yaml",
   "trigger_name": "daily-scan-trigger",
   "trigger_type": "cron",
   "schedule": "0 2 * * *",
@@ -172,7 +172,7 @@ curl http://localhost:8002/osm/api/schedules/sch_1234567890 \
 Update an existing schedule.
 
 ```bash
-curl -X PUT http://localhost:8002/osm/api/schedules/sch_1234567890 \
+curl -X PUT http://localhost:8002/golish/api/schedules/sch_1234567890 \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -183,7 +183,7 @@ curl -X PUT http://localhost:8002/osm/api/schedules/sch_1234567890 \
 
 **Update only the schedule:**
 ```bash
-curl -X PUT http://localhost:8002/osm/api/schedules/sch_1234567890 \
+curl -X PUT http://localhost:8002/golish/api/schedules/sch_1234567890 \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -210,7 +210,7 @@ curl -X PUT http://localhost:8002/osm/api/schedules/sch_1234567890 \
 Delete a schedule.
 
 ```bash
-curl -X DELETE http://localhost:8002/osm/api/schedules/sch_1234567890 \
+curl -X DELETE http://localhost:8002/golish/api/schedules/sch_1234567890 \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -228,7 +228,7 @@ curl -X DELETE http://localhost:8002/osm/api/schedules/sch_1234567890 \
 Enable a disabled schedule.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/schedules/sch_1234567890/enable \
+curl -X POST http://localhost:8002/golish/api/schedules/sch_1234567890/enable \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -246,7 +246,7 @@ curl -X POST http://localhost:8002/osm/api/schedules/sch_1234567890/enable \
 Disable an enabled schedule.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/schedules/sch_1234567890/disable \
+curl -X POST http://localhost:8002/golish/api/schedules/sch_1234567890/disable \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -264,7 +264,7 @@ curl -X POST http://localhost:8002/osm/api/schedules/sch_1234567890/disable \
 Manually trigger a scheduled workflow execution.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/schedules/sch_1234567890/trigger \
+curl -X POST http://localhost:8002/golish/api/schedules/sch_1234567890/trigger \
   -H "Authorization: Bearer $TOKEN"
 ```
 

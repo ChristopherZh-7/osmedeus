@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
 )
 
 // GetAssetDiff returns the diff between two time points for assets
@@ -23,7 +23,7 @@ import (
 // @Failure 400 {object} map[string]interface{} "Invalid parameters"
 // @Failure 500 {object} map[string]interface{} "Failed to get asset diff"
 // @Security BearerAuth
-// @Router /osm/api/assets/diff [get]
+// @Router /golish/api/assets/diff [get]
 func GetAssetDiff(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		workspace := c.Query("workspace")
@@ -88,7 +88,7 @@ func GetAssetDiff(cfg *config.Config) fiber.Handler {
 // @Failure 400 {object} map[string]interface{} "Invalid parameters"
 // @Failure 500 {object} map[string]interface{} "Failed to get vulnerability diff"
 // @Security BearerAuth
-// @Router /osm/api/vulnerabilities/diff [get]
+// @Router /golish/api/vulnerabilities/diff [get]
 func GetVulnerabilityDiff(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		workspace := c.Query("workspace")
@@ -152,7 +152,7 @@ func GetVulnerabilityDiff(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "List of asset diff snapshots with pagination"
 // @Failure 500 {object} map[string]interface{} "Failed to fetch asset diff snapshots"
 // @Security BearerAuth
-// @Router /osm/api/assets/diffs [get]
+// @Router /golish/api/assets/diffs [get]
 func ListAssetDiffSnapshots(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		workspace := c.Query("workspace")
@@ -200,7 +200,7 @@ func ListAssetDiffSnapshots(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "List of vulnerability diff snapshots with pagination"
 // @Failure 500 {object} map[string]interface{} "Failed to fetch vulnerability diff snapshots"
 // @Security BearerAuth
-// @Router /osm/api/vulnerabilities/diffs [get]
+// @Router /golish/api/vulnerabilities/diffs [get]
 func ListVulnDiffSnapshots(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		workspace := c.Query("workspace")

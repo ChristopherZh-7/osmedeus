@@ -143,7 +143,7 @@ type Resource struct {
 	// SSHEnabled indicates if SSH access is available
 	SSHEnabled bool
 
-	// WorkerID is the Osmedeus worker ID after registration
+	// WorkerID is the Golish worker ID after registration
 	WorkerID string
 
 	// Status is the current resource status
@@ -239,7 +239,7 @@ func buildResourcesFromOutputs(infraID string, count int, outputs map[string]aut
 	for i := 0; i < count; i++ {
 		res := Resource{
 			Type:       "vm",
-			Name:       fmt.Sprintf("osmw-%s-%d", suffix, i),
+			Name:       fmt.Sprintf("glw-%s-%d", suffix, i),
 			SSHEnabled: true,
 			Status:     "active",
 			Metadata:   map[string]interface{}{},

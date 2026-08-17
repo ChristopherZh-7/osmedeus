@@ -31,7 +31,7 @@ const (
 	colorCyan    = "\033[36m"
 )
 
-// getBinaryPath returns the path to the osmedeus binary
+// getBinaryPath returns the path to the golish binary
 func getBinaryPath(t *testing.T) string {
 	t.Helper()
 	_, filename, _, ok := runtime.Caller(0)
@@ -39,15 +39,15 @@ func getBinaryPath(t *testing.T) string {
 		t.Fatal("Failed to get caller info")
 	}
 	projectRoot := filepath.Join(filepath.Dir(filename), "..", "..")
-	binary := filepath.Join(projectRoot, "build", "bin", "osmedeus")
+	binary := filepath.Join(projectRoot, "build", "bin", "golish")
 
 	buildBinaryOnce.Do(func() {
 		_ = os.MkdirAll(filepath.Dir(binary), 0755)
-		cmd := exec.Command("go", "build", "-o", binary, "./cmd/osmedeus")
+		cmd := exec.Command("go", "build", "-o", binary, "./cmd/golish")
 		cmd.Dir = projectRoot
 		output, err := cmd.CombinedOutput()
 		if err != nil {
-			buildBinaryErr = fmt.Errorf("failed to build osmedeus binary: %w\n%s", err, string(output))
+			buildBinaryErr = fmt.Errorf("failed to build golish binary: %w\n%s", err, string(output))
 			return
 		}
 		if _, err := os.Stat(binary); err != nil {
@@ -155,7 +155,7 @@ func (l *TestLogger) Step(stepName string) {
 // Command logs a CLI command being executed (in blue)
 func (l *TestLogger) Command(args ...string) {
 	l.t.Helper()
-	cmd := "osmedeus " + strings.Join(args, " ")
+	cmd := "golish " + strings.Join(args, " ")
 	l.t.Logf("%s %s %s", formatTimestamp(), formatLevel("DEBUG"),
 		colorBlue+colorBold+"$ "+cmd+colorReset)
 }
@@ -205,8 +205,8 @@ func runCLIWithLog(t *testing.T, log *TestLogger, args ...string) (stdout, stder
 	log.Command(args...)
 
 	cmd := exec.Command(binary, args...)
-	// Set OSM_WORKSPACES env var as alternative to -W flag
-	cmd.Env = append(os.Environ(), "OSM_SKIP_PATH_SETUP=1", "OSM_WORKSPACES="+workspacesDir)
+	// Set GOLISH_WORKSPACES env var as alternative to -W flag
+	cmd.Env = append(os.Environ(), "GOLISH_SKIP_PATH_SETUP=1", "GOLISH_WORKSPACES="+workspacesDir)
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout = &stdoutBuf
 	cmd.Stderr = &stderrBuf
@@ -236,8 +236,8 @@ func runCLIWithLogAndBase(t *testing.T, log *TestLogger, args ...string) (baseDi
 	log.Command(args...)
 
 	cmd := exec.Command(binary, args...)
-	// Set OSM_WORKSPACES env var as alternative to -W flag
-	cmd.Env = append(os.Environ(), "OSM_SKIP_PATH_SETUP=1", "OSM_WORKSPACES="+workspacesDir)
+	// Set GOLISH_WORKSPACES env var as alternative to -W flag
+	cmd.Env = append(os.Environ(), "GOLISH_SKIP_PATH_SETUP=1", "GOLISH_WORKSPACES="+workspacesDir)
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout = &stdoutBuf
 	cmd.Stderr = &stderrBuf
@@ -267,7 +267,7 @@ func runCLIInBase(t *testing.T, log *TestLogger, baseDir string, args ...string)
 	log.Command(args...)
 
 	cmd := exec.Command(binary, args...)
-	cmd.Env = append(os.Environ(), "OSM_SKIP_PATH_SETUP=1", "OSM_WORKSPACES="+workspacesDir)
+	cmd.Env = append(os.Environ(), "GOLISH_SKIP_PATH_SETUP=1", "GOLISH_WORKSPACES="+workspacesDir)
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout = &stdoutBuf
 	cmd.Stderr = &stderrBuf

@@ -10,19 +10,19 @@ description: "List and download output artifacts from workflow runs"
 Get a paginated list of all artifacts across workspaces.
 
 ```bash
-curl http://localhost:8002/osm/api/artifacts \
+curl http://localhost:8002/golish/api/artifacts \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **With pagination:**
 ```bash
-curl "http://localhost:8002/osm/api/artifacts?offset=0&limit=50" \
+curl "http://localhost:8002/golish/api/artifacts?offset=0&limit=50" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by workspace:**
 ```bash
-curl "http://localhost:8002/osm/api/artifacts?workspace=example.com" \
+curl "http://localhost:8002/golish/api/artifacts?workspace=example.com" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -80,7 +80,7 @@ curl "http://localhost:8002/osm/api/artifacts?workspace=example.com" \
 Download all artifacts from a workspace as a zip file.
 
 ```bash
-curl http://localhost:8002/osm/api/artifacts/example.com \
+curl http://localhost:8002/golish/api/artifacts/example.com \
   -H "Authorization: Bearer $TOKEN" \
   --output example.com_artifacts.zip
 ```

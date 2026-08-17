@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/distributed"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/distributed"
 )
 
 // LifecycleManager orchestrates the complete lifecycle of cloud infrastructure

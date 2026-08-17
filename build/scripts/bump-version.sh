@@ -4,8 +4,8 @@ set -euo pipefail
 # Bump the single source-of-truth version in internal/core/constants.go.
 #
 # That `VERSION` constant drives everything downstream: the Makefile's VERSION,
-# goreleaser builds, `osmedeus version`, the DefaultUA string, and the
-# @j3ssie/osmedeus npm package + its per-platform sub-packages. npm versions are
+# goreleaser builds, `golish version`, the DefaultUA string, and the
+# @christopherzh-7/golish npm package + its per-platform sub-packages. npm versions are
 # immutable, so every release needs a new, unique number here before
 # `make npm-publish`.
 #

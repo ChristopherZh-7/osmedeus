@@ -1,6 +1,6 @@
 # SSH Test Container
 
-Ubuntu 22.04 container with SSH server for testing osmedeus SSH runner.
+Ubuntu 22.04 container with SSH server for testing golish SSH runner.
 
 ## Quick Start
 

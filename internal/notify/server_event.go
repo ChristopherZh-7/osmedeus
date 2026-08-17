@@ -8,17 +8,17 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/broker"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database/repository"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/broker"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/database/repository"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
 	"go.uber.org/zap"
 )
 
-// ServerEventClient sends events to the Osmedeus server's event receiver endpoint.
+// ServerEventClient sends events to the Golish server's event receiver endpoint.
 // It supports authentication via API key or JWT token.
 type ServerEventClient struct {
 	serverURL  string
@@ -28,7 +28,7 @@ type ServerEventClient struct {
 	httpClient *http.Client
 }
 
-// ServerEventRequest represents the request body for the /osm/api/events/emit endpoint.
+// ServerEventRequest represents the request body for the /golish/api/events/emit endpoint.
 type ServerEventRequest struct {
 	Topic        string                 `json:"topic"`
 	Name         string                 `json:"name,omitempty"`
@@ -83,7 +83,7 @@ func NewServerEventClientFromConfig(cfg *config.Config) *ServerEventClient {
 	}
 }
 
-// SendEvent sends an event to the server's /osm/api/events/emit endpoint.
+// SendEvent sends an event to the server's /golish/api/events/emit endpoint.
 // Returns nil on success or an error if the request fails.
 func (c *ServerEventClient) SendEvent(workspace, topic, source, dataType, runID, workflowName, sourceType string, data interface{}) error {
 	if c == nil || c.serverURL == "" {
@@ -127,7 +127,7 @@ func (c *ServerEventClient) SendEvent(workspace, topic, source, dataType, runID,
 		return fmt.Errorf("failed to marshal event request: %w", err)
 	}
 
-	url := c.serverURL + "/osm/api/events/emit"
+	url := c.serverURL + "/golish/api/events/emit"
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
@@ -158,7 +158,7 @@ func (c *ServerEventClient) SendEvent(workspace, topic, source, dataType, runID,
 func (c *ServerEventClient) addAuth(req *http.Request) error {
 	// Prefer API key authentication
 	if c.apiKey != "" {
-		req.Header.Set("x-osm-api-key", c.apiKey)
+		req.Header.Set("x-golish-api-key", c.apiKey)
 		return nil
 	}
 

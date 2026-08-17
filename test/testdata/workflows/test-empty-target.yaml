@@ -3,7 +3,7 @@ kind: module
 description: Test workflow with empty_target preference enabled - should run without -t flag
 
 # This workflow demonstrates empty_target preference
-# Running: osmedeus run -m test-empty-target (no -t flag needed)
+# Running: golish run -m test-empty-target (no -t flag needed)
 preferences:
   empty_target: true    # Equivalent to --empty-target
 

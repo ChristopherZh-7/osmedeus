@@ -18,8 +18,8 @@ func withOrgEnv(t *testing.T) string {
 
 	prevFlag, prevBase := globalOrg, baseFolder
 	globalOrg, baseFolder = "", tmpDir
-	t.Setenv("OSMEDEUS_ORG_UUID", "")
-	t.Setenv("OSMEDEUS_ORG", "")
+	t.Setenv("GOLISH_ORG_UUID", "")
+	t.Setenv("GOLISH_ORG", "")
 
 	resetOrgResolution()
 	t.Cleanup(func() {
@@ -42,12 +42,12 @@ func TestOrgRefPrecedence(t *testing.T) {
 	require.NoError(t, os.WriteFile(filepath.Join(tmpDir, activeOrgFileName), []byte("from-file\n"), 0o644))
 	assert.Equal(t, "from-file", orgRef())
 
-	// 3. $OSMEDEUS_ORG beats the file.
-	t.Setenv("OSMEDEUS_ORG", "from-org-env")
+	// 3. $GOLISH_ORG beats the file.
+	t.Setenv("GOLISH_ORG", "from-org-env")
 	assert.Equal(t, "from-org-env", orgRef())
 
-	// 2. $OSMEDEUS_ORG_UUID beats $OSMEDEUS_ORG.
-	t.Setenv("OSMEDEUS_ORG_UUID", "from-uuid-env")
+	// 2. $GOLISH_ORG_UUID beats $GOLISH_ORG.
+	t.Setenv("GOLISH_ORG_UUID", "from-uuid-env")
 	assert.Equal(t, "from-uuid-env", orgRef())
 
 	// 1. the --org flag beats everything.

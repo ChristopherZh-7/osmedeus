@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/j3ssie/osmedeus/v5/public"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/public"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -31,16 +31,16 @@ func TestLoadBundledSkills(t *testing.T) {
 
 	assert.Equal(t, "skills/"+defaultInstallSkill, b.EmbedDir)
 	assert.NotEmpty(t, b.Description, "description should be parsed from SKILL.md frontmatter")
-	assert.NotEmpty(t, b.References, "osmedeus-expert ships reference files")
+	assert.NotEmpty(t, b.References, "golish-expert ships reference files")
 	for _, ref := range b.References {
 		assert.True(t, filepath.Ext(ref) == ".md", "unexpected reference file: %s", ref)
 	}
 }
 
 func TestFindBundleIsCaseInsensitive(t *testing.T) {
-	skills := []bundledSkill{{Name: "osmedeus-expert"}}
+	skills := []bundledSkill{{Name: "golish-expert"}}
 
-	_, ok := findBundle(skills, "OSMEDEUS-EXPERT")
+	_, ok := findBundle(skills, "GOLISH-EXPERT")
 	assert.True(t, ok)
 
 	_, ok = findBundle(skills, "nope")
@@ -93,12 +93,12 @@ func TestParseSkillDescription(t *testing.T) {
 }
 
 func TestResolveNamedTargetsUnknownName(t *testing.T) {
-	skills := []bundledSkill{{Name: "osmedeus-expert"}}
+	skills := []bundledSkill{{Name: "golish-expert"}}
 
-	_, err := resolveNamedTargets(skills, []string{"osmedeus-expert", "ghost"})
+	_, err := resolveNamedTargets(skills, []string{"golish-expert", "ghost"})
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), `unknown skill "ghost"`)
-	assert.Contains(t, err.Error(), "available: osmedeus-expert")
+	assert.Contains(t, err.Error(), "available: golish-expert")
 }
 
 func TestSkillsInstallBaseDir(t *testing.T) {

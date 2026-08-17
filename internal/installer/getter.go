@@ -12,13 +12,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
 	"github.com/hashicorp/go-getter/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
 	"go.uber.org/zap"
 )
 
-// GetterClient wraps go-getter with Osmedeus configuration
+// GetterClient wraps go-getter with Golish configuration
 type GetterClient struct {
 	customHeaders map[string]string
 	timeout       time.Duration
@@ -315,7 +315,7 @@ func InstallBinaryViaGoGetter(binaryName string, goPackage string, binariesFolde
 		zap.String("version", version))
 
 	// Create temp directory for clone
-	tempDir, err := os.MkdirTemp("", "osmedeus-go-getter-*")
+	tempDir, err := os.MkdirTemp("", "golish-go-getter-*")
 	if err != nil {
 		return fmt.Errorf("failed to create temp directory: %w", err)
 	}

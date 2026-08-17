@@ -13,9 +13,9 @@ import (
 
 	"golang.org/x/term"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/olekukonko/tablewriter"
 	"github.com/olekukonko/tablewriter/renderer"
 	"github.com/olekukonko/tablewriter/tw"
@@ -168,7 +168,7 @@ func init() {
 	dbCmd.PersistentFlags().BoolVar(&dbClear, "clear", false, "clear all records from the specified table (requires --table and --force)")
 	dbCmd.PersistentFlags().BoolVar(&dbIncludeHeavy, "include-heavy", false, "include large fields (raw_response, screenshot, blob_content) in output")
 
-	dbCleanCmd.Flags().BoolVar(&dbCleanWS, "clean-ws", false, "also remove workspace data directory (e.g. ~/workspaces-osmedeus)")
+	dbCleanCmd.Flags().BoolVar(&dbCleanWS, "clean-ws", false, "also remove workspace data directory (e.g. ~/workspaces-golish)")
 
 	dbIndexWorkflowCmd.Flags().BoolVar(&dbIndexForce, "force", false, "force re-index all workflows regardless of checksum")
 
@@ -652,7 +652,7 @@ func listTableRecordsOnce(ctx context.Context, cfg *config.Config, printer *term
 	)
 	if records.TotalCount > endRecord {
 		nextOffset := records.Offset + records.Limit
-		statsLine += fmt.Sprintf(" | Next: osmedeus db list -t %s --offset %s --limit %s",
+		statsLine += fmt.Sprintf(" | Next: golish db list -t %s --offset %s --limit %s",
 			dbTable,
 			terminal.HiCyan(fmt.Sprintf("%d", nextOffset)),
 			terminal.HiCyan(fmt.Sprintf("%d", dbLimit)),

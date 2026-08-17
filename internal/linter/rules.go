@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 )
 
 // Built-in variable names that are always available

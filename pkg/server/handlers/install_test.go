@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -26,9 +26,9 @@ func writeRegistryFile(t *testing.T, content string) string {
 func callRegistryInfo(t *testing.T, query string) (*http.Response, map[string]interface{}) {
 	t.Helper()
 	app := fiber.New()
-	app.Get("/osm/api/registry-info", GetRegistryInfo(&config.Config{}))
+	app.Get("/golish/api/registry-info", GetRegistryInfo(&config.Config{}))
 
-	resp, err := app.Test(httptest.NewRequest("GET", "/osm/api/registry-info"+query, nil), 10000)
+	resp, err := app.Test(httptest.NewRequest("GET", "/golish/api/registry-info"+query, nil), 10000)
 	require.NoError(t, err)
 
 	raw, err := io.ReadAll(resp.Body)

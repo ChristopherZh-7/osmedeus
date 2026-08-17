@@ -3,8 +3,8 @@ package handlers
 import (
 	"fmt"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
 )
 
 // ServerInfoData holds cached server info set once at startup

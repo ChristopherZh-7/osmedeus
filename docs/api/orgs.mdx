@@ -6,7 +6,7 @@ description: "Group workspaces under an org for cross-workspace queries"
 # Orgs
 
 An org groups multiple workspaces so assets, vulnerabilities and runs can be
-queried across all of them at once. Osmedeus derives a workspace per target —
+queried across all of them at once. Golish derives a workspace per target —
 usually one apex domain — so a company with many root domains gets one org
 covering every workspace.
 
@@ -27,7 +27,7 @@ cannot be deleted or renamed.
 Returns every org with its workspace, asset, vulnerability and run counts.
 
 ```bash
-curl http://localhost:8002/osm/api/orgs \
+curl http://localhost:8002/golish/api/orgs \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -63,21 +63,21 @@ curl http://localhost:8002/osm/api/orgs \
 Accepts either an org name or a UUID.
 
 ```bash
-curl http://localhost:8002/osm/api/orgs/acme \
+curl http://localhost:8002/golish/api/orgs/acme \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 ## Get Org Stats
 
 ```bash
-curl http://localhost:8002/osm/api/orgs/acme/stats \
+curl http://localhost:8002/golish/api/orgs/acme/stats \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 ## Create Org
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/orgs \
+curl -X POST http://localhost:8002/golish/api/orgs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -98,7 +98,7 @@ workspaces — this is how data that predates the org gets grouped without
 re-scanning.
 
 ```bash
-curl -X PUT http://localhost:8002/osm/api/orgs/acme \
+curl -X PUT http://localhost:8002/golish/api/orgs/acme \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -134,14 +134,14 @@ By default the org's workspaces, assets, vulnerabilities and runs are reassigned
 to the default org — nothing is lost, only the grouping.
 
 ```bash
-curl -X DELETE http://localhost:8002/osm/api/orgs/acme \
+curl -X DELETE http://localhost:8002/golish/api/orgs/acme \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 Pass `purge=true` to delete that data along with the org:
 
 ```bash
-curl -X DELETE "http://localhost:8002/osm/api/orgs/acme?purge=true" \
+curl -X DELETE "http://localhost:8002/golish/api/orgs/acme?purge=true" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -153,24 +153,24 @@ These endpoints accept `?org=<name|uuid>`:
 
 | Endpoint | Behavior |
 |----------|----------|
-| `GET /osm/api/assets` | Assets across every workspace in the org |
-| `GET /osm/api/vulnerabilities` | Vulnerabilities across the org |
-| `GET /osm/api/runs` | Runs across the org |
-| `GET /osm/api/workspaces` | Workspaces belonging to the org |
+| `GET /golish/api/assets` | Assets across every workspace in the org |
+| `GET /golish/api/vulnerabilities` | Vulnerabilities across the org |
+| `GET /golish/api/runs` | Runs across the org |
+| `GET /golish/api/workspaces` | Workspaces belonging to the org |
 
 ```bash
-curl "http://localhost:8002/osm/api/vulnerabilities?org=acme&severity=high" \
+curl "http://localhost:8002/golish/api/vulnerabilities?org=acme&severity=high" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 ## Attributing new scans to an org
 
-Runs created through `POST /osm/api/runs` inherit the org of the target's
+Runs created through `POST /golish/api/runs` inherit the org of the target's
 workspace automatically, so a scan into a workspace that already belongs to an
 org joins that org. To force a specific org, pass `org_uuid` in the run params.
 
 From the CLI, use the global `--org` flag:
 
 ```bash
-osmedeus run -f general -t acme.com --org acme
+golish run -f general -t acme.com --org acme
 ```

@@ -20,27 +20,27 @@ func TestParseRepoURL(t *testing.T) {
 	}{
 		{
 			name:      "full https URL",
-			url:       "https://github.com/j3ssie/osmedeus",
-			wantOwner: "j3ssie",
-			wantRepo:  "osmedeus",
+			url:       "https://github.com/ChristopherZh-7/golish-pentest-platform",
+			wantOwner: "ChristopherZh-7",
+			wantRepo:  "golish-pentest-platform",
 		},
 		{
 			name:      "URL with .git suffix",
-			url:       "https://github.com/j3ssie/osmedeus.git",
-			wantOwner: "j3ssie",
-			wantRepo:  "osmedeus",
+			url:       "https://github.com/ChristopherZh-7/golish-pentest-platform.git",
+			wantOwner: "ChristopherZh-7",
+			wantRepo:  "golish-pentest-platform",
 		},
 		{
 			name:      "URL without protocol",
-			url:       "github.com/j3ssie/osmedeus",
-			wantOwner: "j3ssie",
-			wantRepo:  "osmedeus",
+			url:       "github.com/ChristopherZh-7/golish-pentest-platform",
+			wantOwner: "ChristopherZh-7",
+			wantRepo:  "golish-pentest-platform",
 		},
 		{
 			name:      "URL with trailing slash",
-			url:       "https://github.com/j3ssie/osmedeus/",
-			wantOwner: "j3ssie",
-			wantRepo:  "osmedeus",
+			url:       "https://github.com/ChristopherZh-7/golish-pentest-platform/",
+			wantOwner: "ChristopherZh-7",
+			wantRepo:  "golish-pentest-platform",
 		},
 		{
 			name:      "http URL",
@@ -113,8 +113,8 @@ func TestCheckForUpdate_NewVersionAvailable(t *testing.T) {
 	mock.SetLatest("v5.1.0", "https://example.com/release.tar.gz", false)
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -133,8 +133,8 @@ func TestCheckForUpdate_AlreadyLatest(t *testing.T) {
 	mock.SetLatest("v5.0.0", "https://example.com/release.tar.gz", false)
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -152,8 +152,8 @@ func TestCheckForUpdate_NetworkError(t *testing.T) {
 	mock.SetError(errors.New("network timeout"))
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -168,8 +168,8 @@ func TestCheckForUpdate_NoReleases(t *testing.T) {
 	mock := NewMockSource() // No releases added
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -188,8 +188,8 @@ func TestCheckSpecificVersion_Found(t *testing.T) {
 	mock.AddRelease(&Release{Version: "v5.2.0", PublishedAt: time.Now()})
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -206,8 +206,8 @@ func TestCheckSpecificVersion_NotFound(t *testing.T) {
 	mock.AddRelease(&Release{Version: "v5.0.0", PublishedAt: time.Now()})
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -224,8 +224,8 @@ func TestCheckSpecificVersion_WithoutVPrefix(t *testing.T) {
 	mock.AddRelease(&Release{Version: "v5.1.0", PublishedAt: time.Now()})
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -242,8 +242,8 @@ func TestUpdate_Success(t *testing.T) {
 	mock.SetLatest("v5.1.0", "https://example.com/release.tar.gz", false)
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -263,8 +263,8 @@ func TestUpdate_AlreadyLatest_NoForce(t *testing.T) {
 	mock.SetLatest("v5.0.0", "https://example.com/release.tar.gz", false)
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -283,8 +283,8 @@ func TestUpdate_AlreadyLatest_WithForce(t *testing.T) {
 	mock.SetLatest("v5.0.0", "https://example.com/release.tar.gz", false)
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -302,8 +302,8 @@ func TestUpdate_UpdateError(t *testing.T) {
 	mock.SetUpdateError(errors.New("download failed"))
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -321,8 +321,8 @@ func TestUpdateToVersion_Success(t *testing.T) {
 	mock.AddRelease(&Release{Version: "v5.2.0", PublishedAt: time.Now()})
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -340,8 +340,8 @@ func TestUpdateToVersion_VersionNotFound(t *testing.T) {
 	mock.AddRelease(&Release{Version: "v5.0.0", PublishedAt: time.Now()})
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -357,8 +357,8 @@ func TestUpdateToVersion_SameVersion_NoForce(t *testing.T) {
 	mock.AddRelease(&Release{Version: "v5.0.0", PublishedAt: time.Now()})
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -375,8 +375,8 @@ func TestUpdateToVersion_SameVersion_WithForce(t *testing.T) {
 	mock.AddRelease(&Release{Version: "v5.0.0", PublishedAt: time.Now()})
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -408,8 +408,8 @@ func TestContextCancellation(t *testing.T) {
 	mock.SetLatest("v5.1.0", "https://example.com/release.tar.gz", false)
 
 	upd := NewUpdater(Options{
-		Owner:  "j3ssie",
-		Repo:   "osmedeus",
+		Owner:  "ChristopherZh-7",
+		Repo:   "golish-pentest-platform",
 		Source: mock,
 	})
 
@@ -426,15 +426,15 @@ func TestContextCancellation(t *testing.T) {
 
 func TestDefaultUpdater(t *testing.T) {
 	// Test that DefaultUpdater creates a valid updater
-	upd := DefaultUpdater("j3ssie", "osmedeus")
+	upd := DefaultUpdater("ChristopherZh-7", "golish-pentest-platform")
 	assert.NotNil(t, upd)
 }
 
 func TestNewUpdater_WithNilSource(t *testing.T) {
 	// When Source is nil, it should create a default GitHub source
 	upd := NewUpdater(Options{
-		Owner: "j3ssie",
-		Repo:  "osmedeus",
+		Owner: "ChristopherZh-7",
+		Repo:  "golish-pentest-platform",
 		// Source is nil
 	})
 
@@ -444,8 +444,8 @@ func TestNewUpdater_WithNilSource(t *testing.T) {
 func TestNewUpdater_WithVerbose(t *testing.T) {
 	// Test that verbose option is accepted
 	upd := NewUpdater(Options{
-		Owner:   "j3ssie",
-		Repo:    "osmedeus",
+		Owner:   "ChristopherZh-7",
+		Repo:    "golish-pentest-platform",
 		Verbose: true,
 	})
 
@@ -455,8 +455,8 @@ func TestNewUpdater_WithVerbose(t *testing.T) {
 func TestNewUpdater_WithAllOptions(t *testing.T) {
 	mock := NewMockSource()
 	upd := NewUpdater(Options{
-		Owner:           "j3ssie",
-		Repo:            "osmedeus",
+		Owner:           "ChristopherZh-7",
+		Repo:            "golish-pentest-platform",
 		AllowPrerelease: true,
 		Source:          mock,
 		Verbose:         true,

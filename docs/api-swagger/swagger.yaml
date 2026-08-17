@@ -558,7 +558,7 @@ paths:
       summary: Readiness check
       tags:
       - Health
-  /osm/api/artifacts:
+  /golish/api/artifacts:
     get:
       description: Get a paginated list of artifacts with optional filtering and existence
         checks
@@ -608,7 +608,7 @@ paths:
       summary: List artifacts
       tags:
       - Artifacts
-  /osm/api/artifacts/{workspace_name}:
+  /golish/api/artifacts/{workspace_name}:
     get:
       description: Download a single file under the given workspace by relative artifact
         path
@@ -655,7 +655,7 @@ paths:
       summary: Download workspace artifact
       tags:
       - Artifacts
-  /osm/api/asset-stats:
+  /golish/api/asset-stats:
     get:
       description: Get unique values for technologies, sources, remarks, and asset
         types across all assets or filtered by workspace
@@ -681,7 +681,7 @@ paths:
       summary: Get asset statistics
       tags:
       - Stats
-  /osm/api/assets:
+  /golish/api/assets:
     get:
       description: Get a paginated list of assets with optional filtering
       parameters:
@@ -725,7 +725,7 @@ paths:
       summary: List assets
       tags:
       - Assets
-  /osm/api/assets/diff:
+  /golish/api/assets/diff:
     get:
       description: Compare assets between two time points to find added, removed,
         and changed assets
@@ -767,7 +767,7 @@ paths:
       summary: Get asset diff
       tags:
       - Assets
-  /osm/api/assets/diffs:
+  /golish/api/assets/diffs:
     get:
       description: Get a paginated list of stored asset diff snapshots
       parameters:
@@ -803,7 +803,7 @@ paths:
       summary: List asset diff snapshots
       tags:
       - Assets
-  /osm/api/database/tables:
+  /golish/api/database/tables:
     get:
       description: Get list of all database tables with row counts
       produces:
@@ -824,7 +824,7 @@ paths:
       summary: List database tables
       tags:
       - Database
-  /osm/api/database/tables/{table}/clear:
+  /golish/api/database/tables/{table}/clear:
     post:
       consumes:
       - application/json
@@ -866,7 +866,7 @@ paths:
       summary: Clear database table
       tags:
       - Database
-  /osm/api/event-logs:
+  /golish/api/event-logs:
     get:
       description: Get a paginated list of event logs with optional filtering
       parameters:
@@ -926,7 +926,7 @@ paths:
       summary: List event logs
       tags:
       - EventLogs
-  /osm/api/event-receiver/status:
+  /golish/api/event-receiver/status:
     get:
       consumes:
       - application/json
@@ -942,7 +942,7 @@ paths:
       summary: Get event receiver status
       tags:
       - event-receiver
-  /osm/api/event-receiver/workflows:
+  /golish/api/event-receiver/workflows:
     get:
       consumes:
       - application/json
@@ -957,7 +957,7 @@ paths:
       summary: List event receiver workflows
       tags:
       - event-receiver
-  /osm/api/events/emit:
+  /golish/api/events/emit:
     post:
       consumes:
       - application/json
@@ -984,7 +984,7 @@ paths:
       summary: Emit an event
       tags:
       - event-receiver
-  /osm/api/functions/eval:
+  /golish/api/functions/eval:
     post:
       consumes:
       - application/json
@@ -1015,7 +1015,7 @@ paths:
       summary: Execute utility function
       tags:
       - Functions
-  /osm/api/functions/list:
+  /golish/api/functions/list:
     get:
       description: Get a flat list of all available utility functions with metadata
       produces:
@@ -1031,7 +1031,7 @@ paths:
       summary: List utility functions
       tags:
       - Functions
-  /osm/api/jobs/{id}:
+  /golish/api/jobs/{id}:
     get:
       description: Get the aggregated status of a job and its runs
       parameters:
@@ -1058,7 +1058,7 @@ paths:
       summary: Get job status
       tags:
       - Jobs
-  /osm/api/llm/v1/chat/completions:
+  /golish/api/llm/v1/chat/completions:
     post:
       consumes:
       - application/json
@@ -1092,7 +1092,7 @@ paths:
       summary: LLM Chat Completion
       tags:
       - LLM
-  /osm/api/llm/v1/embeddings:
+  /golish/api/llm/v1/embeddings:
     post:
       consumes:
       - application/json
@@ -1126,7 +1126,7 @@ paths:
       summary: Generate Embeddings
       tags:
       - LLM
-  /osm/api/login:
+  /golish/api/login:
     post:
       consumes:
       - application/json
@@ -1160,7 +1160,7 @@ paths:
       summary: User login
       tags:
       - Auth
-  /osm/api/logout:
+  /golish/api/logout:
     post:
       description: Clear the session cookie
       produces:
@@ -1175,7 +1175,7 @@ paths:
       summary: User logout
       tags:
       - Auth
-  /osm/api/registry-info:
+  /golish/api/registry-info:
     get:
       description: Get binary registry with mode support (direct-fetch or nix-build)
       parameters:
@@ -1208,7 +1208,7 @@ paths:
       summary: Get registry info
       tags:
       - Install
-  /osm/api/registry-install:
+  /golish/api/registry-install:
     post:
       consumes:
       - application/json
@@ -1244,7 +1244,7 @@ paths:
       summary: Install binaries or workflows
       tags:
       - Install
-  /osm/api/runs:
+  /golish/api/runs:
     get:
       description: Get a paginated list of workflow runs with optional filters
       parameters:
@@ -1324,7 +1324,7 @@ paths:
       summary: Create a new run
       tags:
       - Runs
-  /osm/api/runs/{id}:
+  /golish/api/runs/{id}:
     delete:
       description: Cancel a running workflow execution. This will terminate all running
         processes associated with the run.
@@ -1393,7 +1393,7 @@ paths:
       summary: Get run details
       tags:
       - Runs
-  /osm/api/runs/{id}/duplicate:
+  /golish/api/runs/{id}/duplicate:
     post:
       description: Create a copy of an existing run with pending status. The duplicate
         will have the same workflow, target, and parameters but a new UUID.
@@ -1421,7 +1421,7 @@ paths:
       summary: Duplicate a run
       tags:
       - Runs
-  /osm/api/runs/{id}/start:
+  /golish/api/runs/{id}/start:
     post:
       description: Start a run that is in pending status. This triggers the workflow
         execution.
@@ -1454,7 +1454,7 @@ paths:
       summary: Start a pending run
       tags:
       - Runs
-  /osm/api/schedules:
+  /golish/api/schedules:
     get:
       description: Get a paginated list of all scheduled workflows
       parameters:
@@ -1510,7 +1510,7 @@ paths:
       summary: Create a new schedule
       tags:
       - Schedules
-  /osm/api/schedules/{id}:
+  /golish/api/schedules/{id}:
     delete:
       description: Delete a schedule by ID
       parameters:
@@ -1597,7 +1597,7 @@ paths:
       summary: Update a schedule
       tags:
       - Schedules
-  /osm/api/schedules/{id}/disable:
+  /golish/api/schedules/{id}/disable:
     post:
       description: Disable an enabled schedule
       parameters:
@@ -1619,7 +1619,7 @@ paths:
       summary: Disable a schedule
       tags:
       - Schedules
-  /osm/api/schedules/{id}/enable:
+  /golish/api/schedules/{id}/enable:
     post:
       description: Enable a disabled schedule
       parameters:
@@ -1641,7 +1641,7 @@ paths:
       summary: Enable a schedule
       tags:
       - Schedules
-  /osm/api/schedules/{id}/trigger:
+  /golish/api/schedules/{id}/trigger:
     post:
       description: Manually trigger a scheduled workflow execution
       parameters:
@@ -1663,7 +1663,7 @@ paths:
       summary: Trigger a schedule
       tags:
       - Schedules
-  /osm/api/settings/reload:
+  /golish/api/settings/reload:
     post:
       description: Forces an immediate reload of the configuration file. Hot reload
         must be enabled.
@@ -1690,7 +1690,7 @@ paths:
       summary: Force config reload
       tags:
       - Settings
-  /osm/api/settings/status:
+  /golish/api/settings/status:
     get:
       description: Returns the current configuration version and hot reload status
       produces:
@@ -1706,7 +1706,7 @@ paths:
       summary: Get config status
       tags:
       - Settings
-  /osm/api/settings/yaml:
+  /golish/api/settings/yaml:
     get:
       description: Returns the entire configuration file with sensitive fields redacted
       produces:
@@ -1726,7 +1726,7 @@ paths:
       summary: Get YAML configuration
       tags:
       - Settings
-  /osm/api/snapshot-download/{workspace_name}:
+  /golish/api/snapshot-download/{workspace_name}:
     get:
       description: Compress a workspace folder into a zip file and download it
       parameters:
@@ -1757,7 +1757,7 @@ paths:
       summary: Download workspace snapshot
       tags:
       - Snapshots
-  /osm/api/snapshots:
+  /golish/api/snapshots:
     get:
       description: Get a list of available snapshot files in the snapshot directory
       produces:
@@ -1778,7 +1778,7 @@ paths:
       summary: List snapshots
       tags:
       - Snapshots
-  /osm/api/snapshots/{name}:
+  /golish/api/snapshots/{name}:
     delete:
       description: Delete a snapshot file by name
       parameters:
@@ -1815,7 +1815,7 @@ paths:
       summary: Delete snapshot
       tags:
       - Snapshots
-  /osm/api/snapshots/export:
+  /golish/api/snapshots/export:
     post:
       consumes:
       - application/json
@@ -1854,7 +1854,7 @@ paths:
       summary: Export workspace snapshot
       tags:
       - Snapshots
-  /osm/api/snapshots/import:
+  /golish/api/snapshots/import:
     post:
       consumes:
       - multipart/form-data
@@ -1899,7 +1899,7 @@ paths:
       summary: Import workspace snapshot
       tags:
       - Snapshots
-  /osm/api/stats:
+  /golish/api/stats:
     get:
       description: Get aggregated counts for workflows, runs, workspaces, assets,
         vulnerabilities, and schedules
@@ -1920,7 +1920,7 @@ paths:
       summary: Get system statistics
       tags:
       - Stats
-  /osm/api/step-results:
+  /golish/api/step-results:
     get:
       description: Get a paginated list of step results with optional filtering
       parameters:
@@ -1968,7 +1968,7 @@ paths:
       summary: List step results
       tags:
       - Steps
-  /osm/api/tasks:
+  /golish/api/tasks:
     get:
       description: Get a list of all running and completed tasks
       produces:
@@ -2023,7 +2023,7 @@ paths:
       summary: Submit a new task
       tags:
       - Distributed
-  /osm/api/tasks/{id}:
+  /golish/api/tasks/{id}:
     get:
       description: Get details for a specific task by ID
       parameters:
@@ -2050,7 +2050,7 @@ paths:
       summary: Get task details
       tags:
       - Distributed
-  /osm/api/upload-file:
+  /golish/api/upload-file:
     post:
       consumes:
       - multipart/form-data
@@ -2080,7 +2080,7 @@ paths:
       summary: Upload input file
       tags:
       - Files
-  /osm/api/vulnerabilities:
+  /golish/api/vulnerabilities:
     get:
       description: Get a paginated list of vulnerabilities with optional workspace,
         severity, and confidence filtering
@@ -2164,7 +2164,7 @@ paths:
       summary: Create vulnerability
       tags:
       - Vulnerabilities
-  /osm/api/vulnerabilities/{id}:
+  /golish/api/vulnerabilities/{id}:
     delete:
       description: Delete a vulnerability by ID
       parameters:
@@ -2237,7 +2237,7 @@ paths:
       summary: Get vulnerability by ID
       tags:
       - Vulnerabilities
-  /osm/api/vulnerabilities/diff:
+  /golish/api/vulnerabilities/diff:
     get:
       description: Compare vulnerabilities between two time points to find added,
         removed, and changed vulnerabilities
@@ -2279,7 +2279,7 @@ paths:
       summary: Get vulnerability diff
       tags:
       - Vulnerabilities
-  /osm/api/vulnerabilities/diffs:
+  /golish/api/vulnerabilities/diffs:
     get:
       description: Get a paginated list of stored vulnerability diff snapshots
       parameters:
@@ -2315,7 +2315,7 @@ paths:
       summary: List vulnerability diff snapshots
       tags:
       - Vulnerabilities
-  /osm/api/vulnerabilities/summary:
+  /golish/api/vulnerabilities/summary:
     get:
       description: Get a summary of vulnerabilities grouped by severity
       parameters:
@@ -2341,7 +2341,7 @@ paths:
       summary: Get vulnerability summary
       tags:
       - Vulnerabilities
-  /osm/api/workers:
+  /golish/api/workers:
     get:
       description: Get a list of all registered workers in the distributed pool
       produces:
@@ -2362,7 +2362,7 @@ paths:
       summary: List all workers
       tags:
       - Distributed
-  /osm/api/workers/{id}:
+  /golish/api/workers/{id}:
     get:
       description: Get details for a specific worker by ID
       parameters:
@@ -2394,7 +2394,7 @@ paths:
       summary: Get worker details
       tags:
       - Distributed
-  /osm/api/workflow-upload:
+  /golish/api/workflow-upload:
     post:
       consumes:
       - multipart/form-data
@@ -2423,7 +2423,7 @@ paths:
       summary: Upload workflow file
       tags:
       - Workflows
-  /osm/api/workflows:
+  /golish/api/workflows:
     get:
       description: Get a list of all available workflows with details
       produces:
@@ -2444,7 +2444,7 @@ paths:
       summary: List all workflows
       tags:
       - Workflows
-  /osm/api/workflows/{name}:
+  /golish/api/workflows/{name}:
     get:
       description: Get workflow content. Returns raw YAML by default. Use json=true
         to get JSON with parsed details.
@@ -2477,7 +2477,7 @@ paths:
       summary: Get workflow details
       tags:
       - Workflows
-  /osm/api/workflows/refresh:
+  /golish/api/workflows/refresh:
     post:
       consumes:
       - application/json
@@ -2505,7 +2505,7 @@ paths:
       summary: Refresh workflow index
       tags:
       - Workflows
-  /osm/api/workflows/tags:
+  /golish/api/workflows/tags:
     get:
       description: Get all unique tags from indexed workflows in database
       produces:
@@ -2526,7 +2526,7 @@ paths:
       summary: Get all workflow tags
       tags:
       - Workflows
-  /osm/api/workspace-names:
+  /golish/api/workspace-names:
     get:
       description: Get a sorted list of workspace names from the database
       produces:
@@ -2548,7 +2548,7 @@ paths:
       summary: List workspace names
       tags:
       - Workspaces
-  /osm/api/workspaces:
+  /golish/api/workspaces:
     get:
       description: Get a list of all run workspaces. By default returns full workspace
         records from database. Use filesystem=true to list workspaces derived from

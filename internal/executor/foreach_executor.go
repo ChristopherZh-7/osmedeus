@@ -9,10 +9,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/functions"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/template"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/functions"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/template"
 	"go.uber.org/zap"
 )
 
@@ -89,7 +89,7 @@ func (e *ForeachExecutor) Execute(ctx context.Context, step *core.Step, execCtx 
 		lineCount, countErr := countInputLines(step.Input)
 		if countErr == nil && lineCount > 1000 {
 			autoStreaming = true
-			tmpFile, tmpErr := os.CreateTemp("", "osmedeus-foreach-*.txt")
+			tmpFile, tmpErr := os.CreateTemp("", "golish-foreach-*.txt")
 			if tmpErr == nil {
 				autoStreamFile = tmpFile.Name()
 				streamingOutput = autoStreamFile

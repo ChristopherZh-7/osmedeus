@@ -358,8 +358,8 @@ func TestGetParentURLImpl(t *testing.T) {
 	}{
 		{
 			name:     "URL with file and query",
-			input:    "https://example.com/j3ssie/sample.php?query=123",
-			expected: "https://example.com/j3ssie/",
+			input:    "https://example.com/alice/sample.php?query=123",
+			expected: "https://example.com/alice/",
 		},
 		{
 			name:     "URL with trailing slash",

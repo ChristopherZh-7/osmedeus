@@ -9,7 +9,7 @@ import (
 )
 
 func TestCompanyReconFullWorkflowResolvesAndValidates(t *testing.T) {
-	workflowRoot := filepath.Join("..", "..", "platform", "osmedeus-workflow")
+	workflowRoot := filepath.Join("..", "..", "platform", "golish-workflow")
 	loader := NewLoader(workflowRoot)
 	workflow, err := loader.LoadWorkflowByPath(filepath.Join(workflowRoot, "company-recon-full.yaml"))
 	require.NoError(t, err)

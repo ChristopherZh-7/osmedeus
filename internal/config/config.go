@@ -12,22 +12,22 @@ import (
 )
 
 // exampleConfigYAML contains the default configuration template
-// Source of truth: public/presets/osm-settings.example.yaml
-var exampleConfigYAML = []byte(`# Osmedeus Configuration File
-# This file contains all available configuration options for osmedeus.
-# Copy this file to ~/osmedeus-base/osm-settings.yaml and customize as needed.
+// Source of truth: public/presets/golish-settings.example.yaml
+var exampleConfigYAML = []byte(`# Golish Configuration File
+# This file contains all available configuration options for golish.
+# Copy this file to ~/golish-base/golish-settings.yaml and customize as needed.
 
 # =============================================================================
 # Base Folder
 # =============================================================================
-# Root directory for all osmedeus data (workflows, binaries, data, etc.)
+# Root directory for all golish data (workflows, binaries, data, etc.)
 # Environment variables like $HOME are automatically expanded
-base_folder: $HOME/osmedeus-base
+base_folder: $HOME/golish-base
 
 # =============================================================================
 # Environment Paths
 # =============================================================================
-# Directory paths for various osmedeus components
+# Directory paths for various golish components
 # Use {{base_folder}} to reference the base_folder value above
 environments:
   # Path to binary executables (tools like nmap, ffuf, etc.)
@@ -41,7 +41,7 @@ environments:
 
   # Output directory for scan workspaces
   # Each target gets its own subdirectory here
-  workspaces: "$HOME/workspaces-osmedeus"
+  workspaces: "$HOME/workspaces-golish"
 
   # Directory containing workflow YAML files
   # Subdirectories: flows/, modules/
@@ -66,22 +66,22 @@ environments:
 # =============================================================================
 # Database Configuration
 # =============================================================================
-# Osmedeus supports SQLite (default) and PostgreSQL
+# Golish supports SQLite (default) and PostgreSQL
 database:
   # Database engine: "sqlite" or "postgresql"
   db_engine: sqlite
 
   # SQLite: Path to the database file
   # Ignored when using PostgreSQL
-  db_path: "{{base_folder}}/database-osm.sqlite"
+  db_path: "{{base_folder}}/database-golish.sqlite"
 
   # PostgreSQL connection settings
   # Only used when db_engine is "postgresql"
   host: localhost
   port: 5432
-  username: osmedeus
-  password: osmedeus
-  db_name: osmedeus
+  username: golish
+  password: golish
+  db_name: golish
 
   # Connection timeout in seconds
   connection_timeout: 60
@@ -114,7 +114,7 @@ server:
   # Authentication credentials (map of username:password)
   # Supports multiple users (password auto-generated if empty)
   simple_user_map_key:
-    osmedeus: ""
+    golish: ""
 
   # JWT (JSON Web Token) settings
   jwt:
@@ -137,20 +137,20 @@ server:
   cors_allowed_origins: "reflect-origin"
 
   # API Key Authentication (alternative to JWT login flow)
-  # When enabled, all API requests must include header: x-osm-api-key: <your-key>
+  # When enabled, all API requests must include header: x-golish-api-key: <your-key>
   # This takes priority over JWT authentication when enabled
   enabled_auth_api: true
   auth_api_key: ""
 
   # Enable webhook trigger endpoints for runs
   # When enabled, runs registered with --as-webhook can be triggered via
-  # GET/POST /osm/api/webhook-runs/<uuid>/trigger without authentication
+  # GET/POST /golish/api/webhook-runs/<uuid>/trigger without authentication
   enable_trigger_via_webhook: false
 
 # =============================================================================
 # Agent Harness Configuration
 # =============================================================================
-# DeepSeek Harness runs as a separate, version-locked sidecar. Osmedeus owns
+# DeepSeek Harness runs as a separate, version-locked sidecar. Golish owns
 # target scope and durable findings; the Harness owns interactive agent sessions.
 agent_harness:
   # Enable the integration status API and future Agent Pentest UI.
@@ -159,12 +159,12 @@ agent_harness:
   # Harness implementation identifier.
   provider: deepseek-harness
 
-  # Internal URL reachable by the Osmedeus server.
+  # Internal URL reachable by the Golish server.
   # Docker deployments should use http://agent-harness:3080.
   base_url: http://127.0.0.1:3080
 
   # Browser-facing URL for the embedded Harness UI.
-  # Set false when operators use only Osmedeus' native Agent Pentest UI.
+  # Set false when operators use only Golish' native Agent Pentest UI.
   web_ui_enabled: true
   public_url: http://127.0.0.1:3080
 
@@ -191,7 +191,7 @@ agent_harness:
 # Lower values = slower but gentler on target systems
 scan_tactic:
   # Aggressive/fast mode - maximum parallelism
-  # Used with: osmedeus scan -t target --tactic aggressive
+  # Used with: golish scan -t target --tactic aggressive
   aggressive: 40
 
   # Default/normal mode - balanced approach
@@ -199,7 +199,7 @@ scan_tactic:
   default: 10
 
   # Gentle/thorough mode - minimal parallelism
-  # Used with: osmedeus scan -t target --tactic gently
+  # Used with: golish scan -t target --tactic gently
   gently: 5
 
 # =============================================================================
@@ -504,7 +504,7 @@ type ServerConfig struct {
 	JWT                     JWTConfig         `yaml:"jwt"`                            // JWT settings
 	License                 string            `yaml:"license"`                        // License type shown in ServerHeader and /server-info
 	EnabledAuthAPI          bool              `yaml:"enabled_auth_api"`               // Enable API key authentication (default: false)
-	AuthAPIKey              string            `yaml:"auth_api_key"`                   // API key for x-osm-api-key header authentication
+	AuthAPIKey              string            `yaml:"auth_api_key"`                   // API key for x-golish-api-key header authentication
 	EnableMetrics           *bool             `yaml:"enable_metrics,omitempty"`       // Enable Prometheus metrics endpoint (default: true)
 	CORSAllowedOrigins      string            `yaml:"cors_allowed_origins,omitempty"` // CORS allowed origins (default: "*")
 	EventReceiverURL        string            `yaml:"event_receiver_url,omitempty"`   // URL for event receiver (auto-resolved from host:port if empty)
@@ -513,7 +513,7 @@ type ServerConfig struct {
 
 // AgentHarnessConfig configures the external interactive agent runtime.
 // The Harness remains a separate process so it can be upgraded independently
-// from the Osmedeus workflow engine.
+// from the Golish workflow engine.
 type AgentHarnessConfig struct {
 	Enabled               bool   `yaml:"enabled"`
 	Provider              string `yaml:"provider"`
@@ -925,7 +925,7 @@ type CloudConfig struct {
 
 // Load loads configuration from the specified base folder
 func Load(baseFolder string) (*Config, error) {
-	settingsPath := filepath.Join(baseFolder, "osm-settings.yaml")
+	settingsPath := filepath.Join(baseFolder, "golish-settings.yaml")
 	cfg, err := LoadFromFile(settingsPath)
 	if err != nil {
 		return nil, err
@@ -1028,7 +1028,7 @@ func (c *Config) GetWorkspacesDir() string {
 // GetDBPath returns the resolved database file path for SQLite
 func (c *Config) GetDBPath() string {
 	if c.Database.DBPath == "" {
-		return filepath.Join(c.BaseFolder, "database-osm.sqlite")
+		return filepath.Join(c.BaseFolder, "database-golish.sqlite")
 	}
 	return c.resolvePath(c.Database.DBPath, c.BaseFolder)
 }
@@ -1220,10 +1220,10 @@ func (l *LLMConfig) GetCurrentProviderIndex() int {
 }
 
 // ResolveServerCredentials adds credentials from environment variables
-// OSM_USERNAME and OSM_PASSWORD are added to the user map if both are set
+// GOLISH_USERNAME and GOLISH_PASSWORD are added to the user map if both are set
 func (c *Config) ResolveServerCredentials() {
-	envUser := os.Getenv("OSM_USERNAME")
-	envPass := os.Getenv("OSM_PASSWORD")
+	envUser := os.Getenv("GOLISH_USERNAME")
+	envPass := os.Getenv("GOLISH_PASSWORD")
 	if envUser != "" && envPass != "" {
 		if c.Server.SimpleUserMapKey == nil {
 			c.Server.SimpleUserMapKey = make(map[string]string)
@@ -1271,7 +1271,7 @@ func Get() *Config {
 // DefaultConfig returns a default configuration
 func DefaultConfig() *Config {
 	homeDir, _ := os.UserHomeDir()
-	baseFolder := filepath.Join(homeDir, "osmedeus-base")
+	baseFolder := filepath.Join(homeDir, "golish-base")
 
 	return &Config{
 		BaseFolder: baseFolder,
@@ -1286,12 +1286,12 @@ func DefaultConfig() *Config {
 		},
 		Database: DatabaseConfig{
 			DBEngine:          "sqlite",
-			DBPath:            "{{base_folder}}/database-osm.sqlite",
+			DBPath:            "{{base_folder}}/database-golish.sqlite",
 			Host:              "localhost",
 			Port:              5432,
-			Username:          "osmedeus",
-			Password:          "osmedeus",
-			DBName:            "osmedeus",
+			Username:          "golish",
+			Password:          "golish",
+			DBName:            "golish",
 			ConnectionTimeout: 60,
 			SSLMode:           "disable",
 		},
@@ -1301,7 +1301,7 @@ func DefaultConfig() *Config {
 			UIPath:             "{{base_folder}}/ui/",
 			WorkspacePrefixKey: generateRandomString(16),
 			SimpleUserMapKey: map[string]string{
-				"osmedeus": generateRandomString(12),
+				"golish": generateRandomString(12),
 			},
 			JWT: JWTConfig{
 				SecretSigningKey:  generateRandomString(64),
@@ -1341,15 +1341,15 @@ func DefaultConfig() *Config {
 			"SHODAN_API_KEY":       {Value: ""},
 			"CENSYS_API_KEY":       {Value: ""},
 			"PASSIVETOTAL_API_KEY": {Value: ""},
-			"FOFA_EMAIL":            {Value: ""},
-			"FOFA_API_KEY":          {Value: ""},
-			"FOFA_BASE_URL":         {Value: "https://fofa.info/api/v1/search/all"},
-			"QUAKE_API_KEY":         {Value: ""},
-			"QUAKE_BASE_URL":        {Value: "https://quake.360.net/api/v3/search/quake_service"},
-			"HUNTER_API_KEY":        {Value: ""},
-			"HUNTER_BASE_URL":       {Value: "https://hunter.qianxin.com/openApi/search"},
-			"ZEROZONE_API_KEY":      {Value: ""},
-			"ZEROZONE_BASE_URL":     {Value: "https://0.zone/api/data/"},
+			"FOFA_EMAIL":           {Value: ""},
+			"FOFA_API_KEY":         {Value: ""},
+			"FOFA_BASE_URL":        {Value: "https://fofa.info/api/v1/search/all"},
+			"QUAKE_API_KEY":        {Value: ""},
+			"QUAKE_BASE_URL":       {Value: "https://quake.360.net/api/v3/search/quake_service"},
+			"HUNTER_API_KEY":       {Value: ""},
+			"HUNTER_BASE_URL":      {Value: "https://hunter.qianxin.com/openApi/search"},
+			"ZEROZONE_API_KEY":     {Value: ""},
+			"ZEROZONE_BASE_URL":    {Value: "https://0.zone/api/data/"},
 			// Add more default placeholders as needed
 		},
 		Notification: NotificationConfig{
@@ -1400,10 +1400,10 @@ func DefaultConfig() *Config {
 	}
 }
 
-// EnsureConfigExists creates osm-settings.yaml if it doesn't exist
+// EnsureConfigExists creates golish-settings.yaml if it doesn't exist
 // Uses the embedded example configuration file as template
 func EnsureConfigExists(baseFolder string) error {
-	settingsPath := filepath.Join(baseFolder, "osm-settings.yaml")
+	settingsPath := filepath.Join(baseFolder, "golish-settings.yaml")
 
 	// Check if file already exists
 	if _, err := os.Stat(settingsPath); err == nil {
@@ -1434,10 +1434,10 @@ func EnsureConfigExists(baseFolder string) error {
 		fmt.Sprintf("secret_signing_key: \"%s\"", generateRandomString(64)),
 		1)
 
-	// Generate random password for default osmedeus user (12 chars)
+	// Generate random password for default golish user (12 chars)
 	configContent = strings.Replace(configContent,
-		"osmedeus: \"\"",
-		fmt.Sprintf("osmedeus: \"%s\"", generateRandomString(12)),
+		"golish: \"\"",
+		fmt.Sprintf("golish: \"%s\"", generateRandomString(12)),
 		1)
 
 	// Write the config file with generated values

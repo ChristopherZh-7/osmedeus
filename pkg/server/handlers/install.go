@@ -4,10 +4,10 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/installer"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/public"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/installer"
-	"github.com/j3ssie/osmedeus/v5/public"
 )
 
 // GetRegistryInfo returns binary registry with installation status
@@ -20,7 +20,7 @@ import (
 // @Success 200 {object} map[string]interface{} "Registry data"
 // @Failure 500 {object} map[string]interface{} "Failed to load registry"
 // @Security BearerAuth
-// @Router /osm/api/registry-info [get]
+// @Router /golish/api/registry-info [get]
 func GetRegistryInfo(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		registryMode := c.Query("registry_mode", "direct-fetch")
@@ -195,7 +195,7 @@ func getNixBuildRegistry(c *fiber.Ctx) error {
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Failure 500 {object} map[string]interface{} "Installation failed"
 // @Security BearerAuth
-// @Router /osm/api/registry-install [post]
+// @Router /golish/api/registry-install [post]
 func RegistryInstall(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req InstallRequest

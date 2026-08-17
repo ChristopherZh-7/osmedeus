@@ -106,7 +106,7 @@ func (p *LinodeProvider) CreateInfrastructure(ctx context.Context, opts *CreateO
 	infraID := fmt.Sprintf("cloud-linode-%d", time.Now().Unix())
 	statePath := opts.StatePath
 
-	pm, err := NewPulumiManager("osmedeus-cloud", infraID, statePath)
+	pm, err := NewPulumiManager("golish-cloud", infraID, statePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Pulumi manager: %w", err)
 	}
@@ -149,7 +149,7 @@ func (p *LinodeProvider) CreateInfrastructure(ctx context.Context, opts *CreateO
 func (p *LinodeProvider) DestroyInfrastructure(ctx context.Context, infra *Infrastructure) error {
 	statePath := infra.StatePath
 
-	pm, err := NewPulumiManager("osmedeus-cloud", infra.PulumiStackID, statePath)
+	pm, err := NewPulumiManager("golish-cloud", infra.PulumiStackID, statePath)
 	if err != nil {
 		return fmt.Errorf("failed to create Pulumi manager: %w", err)
 	}
@@ -218,8 +218,8 @@ func (p *LinodeProvider) createInstanceProgram(infraID string, opts *CreateOptio
 		userDataB64 := base64.StdEncoding.EncodeToString([]byte(userData))
 
 		// Upload SSH key
-		sshKey, err := linode.NewSshKey(ctx, "osmedeus-ssh-key", &linode.SshKeyArgs{
-			Label:  pulumi.String(fmt.Sprintf("osmedeus-key-%s", suffix)),
+		sshKey, err := linode.NewSshKey(ctx, "golish-ssh-key", &linode.SshKeyArgs{
+			Label:  pulumi.String(fmt.Sprintf("golish-key-%s", suffix)),
 			SshKey: pulumi.String(opts.SSHPublicKey),
 		})
 		if err != nil {
@@ -227,8 +227,8 @@ func (p *LinodeProvider) createInstanceProgram(infraID string, opts *CreateOptio
 		}
 
 		// Create firewall allowing SSH inbound and all outbound
-		fw, err := linode.NewFirewall(ctx, "osmedeus-firewall", &linode.FirewallArgs{
-			Label:          pulumi.String(fmt.Sprintf("osmedeus-fw-%s", suffix)),
+		fw, err := linode.NewFirewall(ctx, "golish-firewall", &linode.FirewallArgs{
+			Label:          pulumi.String(fmt.Sprintf("golish-fw-%s", suffix)),
 			InboundPolicy:  pulumi.String("DROP"),
 			OutboundPolicy: pulumi.String("ACCEPT"),
 			Inbounds: linode.FirewallInboundArray{
@@ -264,7 +264,7 @@ func (p *LinodeProvider) createInstanceProgram(infraID string, opts *CreateOptio
 
 		// Create instances
 		for i := 0; i < opts.InstanceCount; i++ {
-			instanceName := fmt.Sprintf("osmw-%s-%d", suffix, i)
+			instanceName := fmt.Sprintf("glw-%s-%d", suffix, i)
 
 			instance, err := linode.NewInstance(ctx, instanceName, &linode.InstanceArgs{
 				Label:          pulumi.String(instanceName),
@@ -278,7 +278,7 @@ func (p *LinodeProvider) createInstanceProgram(infraID string, opts *CreateOptio
 					},
 				},
 				Tags: pulumi.StringArray{
-					pulumi.String("osmedeus"),
+					pulumi.String("golish"),
 					pulumi.String("worker"),
 				},
 			})

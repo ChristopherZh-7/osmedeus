@@ -15,7 +15,7 @@ kind: module
 name: test
 help:
   example_targets: ['example.com', 'httpbin.org']
-  usage: osmedeus run -m test -t <target>
+  usage: golish run -m test -t <target>
 steps:
   - name: s1
     type: bash
@@ -25,7 +25,7 @@ steps:
 		err := yaml.Unmarshal([]byte(data), &wf)
 		require.NoError(t, err)
 		require.NotNil(t, wf.Help)
-		assert.Equal(t, "osmedeus run -m test -t <target>", wf.Help.Usage)
+		assert.Equal(t, "golish run -m test -t <target>", wf.Help.Usage)
 		assert.Equal(t, []string{"example.com", "httpbin.org"}, wf.Help.ExampleTargets)
 	})
 
@@ -34,7 +34,7 @@ steps:
 kind: module
 name: test
 help:
-  usage: osmedeus run -m test -t <target>
+  usage: golish run -m test -t <target>
 steps:
   - name: s1
     type: bash
@@ -44,7 +44,7 @@ steps:
 		err := yaml.Unmarshal([]byte(data), &wf)
 		require.NoError(t, err)
 		require.NotNil(t, wf.Help)
-		assert.Equal(t, "osmedeus run -m test -t <target>", wf.Help.Usage)
+		assert.Equal(t, "golish run -m test -t <target>", wf.Help.Usage)
 		assert.Empty(t, wf.Help.ExampleTargets)
 	})
 
@@ -72,9 +72,9 @@ func TestWorkflowGetUsage(t *testing.T) {
 
 	t.Run("non-nil help", func(t *testing.T) {
 		wf := &Workflow{
-			Help: &WorkflowHelp{Usage: "osmedeus run -m test -t example.com"},
+			Help: &WorkflowHelp{Usage: "golish run -m test -t example.com"},
 		}
-		assert.Equal(t, "osmedeus run -m test -t example.com", wf.GetUsage())
+		assert.Equal(t, "golish run -m test -t example.com", wf.GetUsage())
 	})
 }
 
@@ -101,7 +101,7 @@ func TestWorkflowHelpClone(t *testing.T) {
 	t.Run("deep copy and mutation isolation", func(t *testing.T) {
 		original := &WorkflowHelp{
 			ExampleTargets: []string{"example.com", "httpbin.org"},
-			Usage:          "osmedeus run -m test -t <target>",
+			Usage:          "golish run -m test -t <target>",
 		}
 		cloned := original.Clone()
 
@@ -112,7 +112,7 @@ func TestWorkflowHelpClone(t *testing.T) {
 		// Mutate clone and verify original is unaffected
 		cloned.Usage = "changed"
 		cloned.ExampleTargets[0] = "changed.com"
-		assert.Equal(t, "osmedeus run -m test -t <target>", original.Usage)
+		assert.Equal(t, "golish run -m test -t <target>", original.Usage)
 		assert.Equal(t, "example.com", original.ExampleTargets[0])
 	})
 

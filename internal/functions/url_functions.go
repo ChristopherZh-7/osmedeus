@@ -13,9 +13,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/dop251/goja"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
 	"github.com/valyala/fastjson"
 	"go.uber.org/zap"
 )
@@ -333,7 +333,7 @@ func resolveToIP(hostname string) string {
 //
 // Examples:
 //
-//	get_parent_url("https://example.com/j3ssie/sample.php?query=123") -> "https://example.com/j3ssie/"
+//	get_parent_url("https://example.com/alice/sample.php?query=123") -> "https://example.com/alice/"
 //	get_parent_url("https://example.com/a/b/c/") -> "https://example.com/a/b/"
 //	get_parent_url("https://example.com/file.txt") -> "https://example.com/"
 //	get_parent_url("https://example.com/") -> "https://example.com/"

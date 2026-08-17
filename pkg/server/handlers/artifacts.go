@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
 )
 
 // DownloadWorkspaceArtifact handles downloading a file artifact from a workspace
@@ -25,7 +25,7 @@ import (
 // @Failure 404 {object} map[string]interface{} "Artifact not found"
 // @Failure 500 {object} map[string]interface{} "Failed to download artifact"
 // @Security BearerAuth
-// @Router /osm/api/artifacts/{workspace_name} [get]
+// @Router /golish/api/artifacts/{workspace_name} [get]
 func DownloadWorkspaceArtifact(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		workspaceName := c.Params("workspace_name")
@@ -109,7 +109,7 @@ func DownloadWorkspaceArtifact(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "List of artifacts with pagination"
 // @Failure 500 {object} map[string]interface{} "Failed to fetch artifacts"
 // @Security BearerAuth
-// @Router /osm/api/artifacts [get]
+// @Router /golish/api/artifacts [get]
 func ListArtifacts(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		workspace := c.Query("workspace")

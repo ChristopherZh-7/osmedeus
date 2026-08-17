@@ -1,12 +1,12 @@
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
 version: 2
 
-project_name: osmedeus
+project_name: golish
 
 builds:
-  - id: osmedeus
-    main: ./cmd/osmedeus
-    binary: osmedeus
+  - id: golish
+    main: ./cmd/golish
+    binary: golish
     env:
       - CGO_ENABLED=0
     flags:

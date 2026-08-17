@@ -54,8 +54,8 @@ func TestRedactSensitiveFieldsFailsClosed(t *testing.T) {
 }
 
 func TestParseSettingsSkill(t *testing.T) {
-	name, description := parseSettingsSkill([]byte("---\nname: osmedeus-expert\ndescription: Workflow guidance\n---\n# Body\n"))
-	if name != "osmedeus-expert" || description != "Workflow guidance" {
+	name, description := parseSettingsSkill([]byte("---\nname: golish-expert\ndescription: Workflow guidance\n---\n# Body\n"))
+	if name != "golish-expert" || description != "Workflow guidance" {
 		t.Fatalf("unexpected metadata: name=%q description=%q", name, description)
 	}
 }

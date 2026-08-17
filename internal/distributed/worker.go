@@ -11,16 +11,16 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/executor"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/functions"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/heuristics"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/json"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/parser"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/executor"
-	"github.com/j3ssie/osmedeus/v5/internal/functions"
-	"github.com/j3ssie/osmedeus/v5/internal/heuristics"
-	"github.com/j3ssie/osmedeus/v5/internal/json"
-	"github.com/j3ssie/osmedeus/v5/internal/parser"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
 )
 
 // WorkerOptions holds optional configuration for creating a new Worker.
@@ -68,7 +68,7 @@ func NewWorker(cfg *config.Config, opts *WorkerOptions) (*Worker, error) {
 	}
 
 	hostname, _ := os.Hostname()
-	workerID := fmt.Sprintf("wosm-%s", uuid.NewString()[:8])
+	workerID := fmt.Sprintf("wgolish-%s", uuid.NewString()[:8])
 
 	exec := executor.NewExecutor()
 	loader := parser.NewLoader(cfg.WorkflowsPath)
@@ -99,12 +99,12 @@ func NewWorker(cfg *config.Config, opts *WorkerOptions) (*Worker, error) {
 		}
 	}
 
-	// Default alias: wosm-<public-ip> or wosm-<ip-address>
+	// Default alias: wgolish-<public-ip> or wgolish-<ip-address>
 	if w.alias == "" {
 		if w.publicIP != "" {
-			w.alias = fmt.Sprintf("wosm-%s", w.publicIP)
+			w.alias = fmt.Sprintf("wgolish-%s", w.publicIP)
 		} else if w.ipAddress != "" {
-			w.alias = fmt.Sprintf("wosm-%s", w.ipAddress)
+			w.alias = fmt.Sprintf("wgolish-%s", w.ipAddress)
 		}
 	}
 

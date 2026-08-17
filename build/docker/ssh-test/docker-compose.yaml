@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: osmedeus-ssh-test
+    container_name: golish-ssh-test
     ports:
       - "2222:22"
     restart: unless-stopped

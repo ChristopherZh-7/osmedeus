@@ -6,20 +6,20 @@ package broker
 import (
 	"context"
 	"fmt"
-	"github.com/j3ssie/osmedeus/v5/internal/json"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/json"
 	"sync"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
 	"github.com/redis/rueidis"
 )
 
 // Redis key prefixes for events
 const (
-	KeyPrefix       = "osm:"
-	KeyEventsPrefix = KeyPrefix + "events:" // osm:events:{topic}
+	KeyPrefix       = "golish:"
+	KeyEventsPrefix = KeyPrefix + "events:" // golish:events:{topic}
 )
 
 // RedisEventBroker handles event publishing via Redis pub/sub

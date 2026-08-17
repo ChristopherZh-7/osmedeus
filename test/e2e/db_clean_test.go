@@ -68,7 +68,7 @@ func TestDBClean_CleanWS(t *testing.T) {
 
 	// Write a settings file with workspaces pointing to our temp dir
 	settingsContent := "environments:\n  workspaces: " + wsDir + "\n"
-	require.NoError(t, os.WriteFile(filepath.Join(baseDir, "osm-settings.yaml"), []byte(settingsContent), 0644))
+	require.NoError(t, os.WriteFile(filepath.Join(baseDir, "golish-settings.yaml"), []byte(settingsContent), 0644))
 
 	// Verify file exists before clean
 	_, err := os.Stat(filepath.Join(dummyWS, "scan.log"))
@@ -79,7 +79,7 @@ func TestDBClean_CleanWS(t *testing.T) {
 	log.Command(args...)
 
 	cmd := exec.Command(binary, args...)
-	cmd.Env = append(os.Environ(), "OSM_SKIP_PATH_SETUP=1")
+	cmd.Env = append(os.Environ(), "GOLISH_SKIP_PATH_SETUP=1")
 	var stdoutBuf, stderrBuf bytes.Buffer
 	cmd.Stdout = &stdoutBuf
 	cmd.Stderr = &stderrBuf

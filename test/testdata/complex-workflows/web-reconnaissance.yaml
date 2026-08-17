@@ -6,7 +6,7 @@ params:
   - name: target
     required: true
   - name: output_dir
-    default: /tmp/osm-web-recon
+    default: /tmp/golish-web-recon
   - name: threads
     default: "5"
   - name: subfinderThreads

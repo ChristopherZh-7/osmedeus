@@ -1,0 +1,59 @@
+# Golish Configuration (Ansible-managed)
+# ==========================================
+# WARNING: This file is managed by Ansible. Local changes will be overwritten.
+
+# Environment Paths
+environment:
+  binaries: "{{ '{{base_folder}}' }}/external-binaries"
+  external_data: "{{ '{{base_folder}}' }}/external-data"
+  external_configs: "{{ '{{base_folder}}' }}/external-configs"
+  workspaces: {{ golish_workspaces_dir }}
+  workflows: "{{ '{{base_folder}}' }}/workflows"
+  snapshot: "{{ '{{base_folder}}' }}/snapshot"
+
+# Database - SQLite
+database:
+  db_engine: sqlite
+  db_path: "{{ '{{base_folder}}' }}/database-golish.sqlite"
+  connection_timeout: 60
+
+# Server
+server:
+  host: "{{ golish_server_host }}"
+  port: {{ golish_server_port }}
+  ui_path: "{{ '{{base_folder}}' }}/ui/"
+  workspace_prefix_key: ""
+
+  simple_user_map_key:
+    {{ golish_admin_user }}: "{{ golish_admin_password }}"
+
+  jwt:
+    secret_signing_key: "{{ golish_jwt_secret }}"
+    expiration_minutes: {{ golish_jwt_expiration_minutes }}
+
+# Scan Tactic
+scan_tactic:
+  aggressive: {{ golish_threads_aggressive }}
+  default: {{ golish_threads_default }}
+  gently: {{ golish_threads_gently }}
+{% if golish_telegram_enabled %}
+
+# Notifications
+notification:
+  telegram:
+    enabled: true
+    bot_token: "{{ golish_telegram_bot_token }}"
+    chat_id: "{{ golish_telegram_chat_id }}"
+{% endif %}
+{% if golish_global_variables | length > 0 %}
+
+# Global Variables
+global_variables:
+{% for var in golish_global_variables %}
+  - name: "{{ var.name }}"
+    value: "{{ var.value }}"
+{% if var.as_env is defined %}
+    as_env: {{ var.as_env | lower }}
+{% endif %}
+{% endfor %}
+{% endif %}

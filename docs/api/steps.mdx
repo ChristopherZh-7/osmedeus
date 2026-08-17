@@ -11,43 +11,43 @@ Get a paginated list of step execution results with optional filtering.
 
 **List all step results:**
 ```bash
-curl http://localhost:8002/osm/api/step-results \
+curl http://localhost:8002/golish/api/step-results \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **With pagination:**
 ```bash
-curl "http://localhost:8002/osm/api/step-results?offset=0&limit=50" \
+curl "http://localhost:8002/golish/api/step-results?offset=0&limit=50" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by workspace:**
 ```bash
-curl "http://localhost:8002/osm/api/step-results?workspace=example_com" \
+curl "http://localhost:8002/golish/api/step-results?workspace=example_com" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by status:**
 ```bash
-curl "http://localhost:8002/osm/api/step-results?status=completed" \
+curl "http://localhost:8002/golish/api/step-results?status=completed" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by step type:**
 ```bash
-curl "http://localhost:8002/osm/api/step-results?step_type=bash" \
+curl "http://localhost:8002/golish/api/step-results?step_type=bash" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by run ID:**
 ```bash
-curl "http://localhost:8002/osm/api/step-results?run_id=123" \
+curl "http://localhost:8002/golish/api/step-results?run_id=123" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Multiple filters:**
 ```bash
-curl "http://localhost:8002/osm/api/step-results?workspace=example_com&status=completed&limit=100" \
+curl "http://localhost:8002/golish/api/step-results?workspace=example_com&status=completed&limit=100" \
   -H "Authorization: Bearer $TOKEN"
 ```
 

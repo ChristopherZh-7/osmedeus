@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/json"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
 	"github.com/dop251/goja"
-	"github.com/j3ssie/osmedeus/v5/internal/json"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
 	"go.uber.org/zap"
 )
 
@@ -365,7 +365,7 @@ func (vf *vmFunc) runNmap(call goja.FunctionCall) goja.Value {
 	}
 
 	// Create temp directory for XML output
-	tmpDir, err := os.MkdirTemp("", "osm-nmap-*")
+	tmpDir, err := os.MkdirTemp("", "golish-nmap-*")
 	if err != nil {
 		logger.Get().Warn("Failed to create temp directory", zap.Error(err))
 		return vf.vm.ToValue(false)

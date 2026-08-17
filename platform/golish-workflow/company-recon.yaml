@@ -1,0 +1,11 @@
+# The Runs API expands a confirmed company UUID into its approved root domains,
+# then executes domain-recon once per workspace under a shared job ID. Direct CLI
+# use remains useful for scanning one already-authorized company root domain.
+kind: flow
+name: company-recon
+description: Confirmed company reconnaissance across every operator-authorized root domain
+tags: core, recon, company, authorized
+extends: domain-recon
+help:
+  example_targets: ['authorized-example.com']
+  usage: golish run -f company-recon -t authorized-example.com -p 'profile=standard'

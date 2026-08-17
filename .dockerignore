@@ -6,8 +6,8 @@
 #
 # public/ui/ is the *built* dashboard and IS needed: it is go:embed'd.
 platform/*
-!platform/osmedeus-workflow/
-!platform/osmedeus-workflow/**
+!platform/golish-workflow/
+!platform/golish-workflow/**
 
 .git/
 .github/

@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/spf13/cobra"
 )
 
@@ -19,13 +19,13 @@ var (
 // uninstallCmd represents the uninstall command
 var uninstallCmd = &cobra.Command{
 	Use:   "uninstall",
-	Short: "Remove Osmedeus installation (base folder, workspaces, and binary)",
+	Short: "Remove Golish installation (base folder, workspaces, and binary)",
 	Long:  UsageUninstall(),
 	RunE:  runUninstall,
 }
 
 func init() {
-	uninstallCmd.Flags().BoolVar(&uninstallClean, "clean", false, "also remove workspaces data (~/workspaces-osmedeus)")
+	uninstallCmd.Flags().BoolVar(&uninstallClean, "clean", false, "also remove workspaces data (~/workspaces-golish)")
 }
 
 func runUninstall(cmd *cobra.Command, args []string) error {
@@ -37,9 +37,9 @@ func runUninstall(cmd *cobra.Command, args []string) error {
 	}
 
 	// Resolve folders to remove
-	baseFolderPath := filepath.Join(homeDir, "osmedeus-base")
-	dotOsmPath := filepath.Join(homeDir, ".osmedeus")
-	workspacesPath := filepath.Join(homeDir, "workspaces-osmedeus")
+	baseFolderPath := filepath.Join(homeDir, "golish-base")
+	dotGolishPath := filepath.Join(homeDir, ".golish")
+	workspacesPath := filepath.Join(homeDir, "workspaces-golish")
 
 	// If config is loaded, use its actual paths
 	cfg := config.Get()
@@ -52,13 +52,13 @@ func runUninstall(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// Find osmedeus binaries in PATH (up to 3)
-	binaries := findOsmedeusBinaries(3)
+	// Find golish binaries in PATH (up to 3)
+	binaries := findGolishBinaries(3)
 
 	// ── Print warning ──────────────────────────────────────────────
 	fmt.Println()
 	fmt.Println(terminal.BoldRed("╔════════════════════════════════════════════════════════════════╗"))
-	fmt.Println(terminal.BoldRed("║         WARNING: This will PERMANENTLY remove Osmedeus        ║"))
+	fmt.Println(terminal.BoldRed("║         WARNING: This will PERMANENTLY remove Golish        ║"))
 	fmt.Println(terminal.BoldRed("╚════════════════════════════════════════════════════════════════╝"))
 	fmt.Println()
 
@@ -66,17 +66,17 @@ func runUninstall(cmd *cobra.Command, args []string) error {
 	fmt.Println()
 
 	printFolderLine(printer, baseFolderPath, "base folder (settings, workflows, binaries)")
-	printFolderLine(printer, dotOsmPath, "initialization marker")
+	printFolderLine(printer, dotGolishPath, "initialization marker")
 	if uninstallClean {
 		printFolderLine(printer, workspacesPath, "workspaces data (scan results)")
 	}
 
 	if len(binaries) > 0 {
 		for _, bin := range binaries {
-			fmt.Printf("  %s %s  %s\n", terminal.Red("✘"), terminal.Yellow(bin), terminal.Gray("osmedeus binary"))
+			fmt.Printf("  %s %s  %s\n", terminal.Red("✘"), terminal.Yellow(bin), terminal.Gray("golish binary"))
 		}
 	} else {
-		fmt.Printf("  %s %s\n", terminal.Gray("○"), terminal.Gray("no osmedeus binary found in PATH"))
+		fmt.Printf("  %s %s\n", terminal.Gray("○"), terminal.Gray("no golish binary found in PATH"))
 	}
 	fmt.Println()
 
@@ -91,7 +91,7 @@ func runUninstall(cmd *cobra.Command, args []string) error {
 		printer.Warning("This operation is IRREVERSIBLE!")
 		printer.Warning("Use %s %s to confirm deletion", terminal.Cyan("--force"), terminal.Cyan("--clean"))
 		fmt.Println()
-		if !confirmPrompt(terminal.BoldRed("Are you sure you want to uninstall Osmedeus?")) {
+		if !confirmPrompt(terminal.BoldRed("Are you sure you want to uninstall Golish?")) {
 			printer.Info("Uninstall cancelled.")
 			return nil
 		}
@@ -100,7 +100,7 @@ func runUninstall(cmd *cobra.Command, args []string) error {
 
 	// ── Perform removal ────────────────────────────────────────────
 	removeFolderIfExists(printer, baseFolderPath, "base folder")
-	removeFolderIfExists(printer, dotOsmPath, ".osmedeus marker")
+	removeFolderIfExists(printer, dotGolishPath, ".golish marker")
 
 	if uninstallClean {
 		removeFolderIfExists(printer, workspacesPath, "workspaces")
@@ -119,7 +119,7 @@ func runUninstall(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println()
-	printer.Success("Osmedeus has been uninstalled.")
+	printer.Success("Golish has been uninstalled.")
 	if !uninstallClean {
 		printer.Info("Note: Workspaces folder was preserved at %s", terminal.Yellow(workspacesPath))
 		printer.Info("To remove it manually: %s", terminal.Cyan(fmt.Sprintf("rm -rf %s", workspacesPath)))
@@ -128,13 +128,13 @@ func runUninstall(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// findOsmedeusBinaries searches PATH for osmedeus binaries, returning up to maxCount unique paths.
-func findOsmedeusBinaries(maxCount int) []string {
+// findGolishBinaries searches PATH for golish binaries, returning up to maxCount unique paths.
+func findGolishBinaries(maxCount int) []string {
 	var results []string
 	seen := make(map[string]bool)
 
 	for i := 0; i < maxCount; i++ {
-		path, err := exec.LookPath("osmedeus")
+		path, err := exec.LookPath("golish")
 		if err != nil {
 			break
 		}

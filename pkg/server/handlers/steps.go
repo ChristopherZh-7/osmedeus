@@ -4,9 +4,9 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
 )
 
 // ListStepResults handles listing all step results with pagination and filtering
@@ -23,7 +23,7 @@ import (
 // @Success 200 {object} map[string]interface{} "List of step results with pagination"
 // @Failure 500 {object} map[string]interface{} "Failed to fetch step results"
 // @Security BearerAuth
-// @Router /osm/api/step-results [get]
+// @Router /golish/api/step-results [get]
 func ListStepResults(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Parse query parameters

@@ -12,8 +12,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/j3ssie/osmedeus/v5/internal/client"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/client"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/spf13/cobra"
 )
 
@@ -42,10 +42,10 @@ var (
 	clientExecTarget string
 )
 
-// clientCmd is the parent command for interacting with a remote osmedeus server
+// clientCmd is the parent command for interacting with a remote golish server
 var clientCmd = &cobra.Command{
 	Use:   "client",
-	Short: "Interact with a remote osmedeus server",
+	Short: "Interact with a remote golish server",
 	Long:  UsageClient(),
 }
 
@@ -76,8 +76,8 @@ var clientExecCmd = &cobra.Command{
 
 func init() {
 	// Add persistent flags for client connection (available to all subcommands)
-	clientCmd.PersistentFlags().StringVar(&clientRemoteURL, "remote-url", "", "Remote server URL (default: $OSM_REMOTE_URL)")
-	clientCmd.PersistentFlags().StringVar(&clientAuthKey, "auth-key", "", "API authentication key (default: $OSM_REMOTE_AUTH_KEY)")
+	clientCmd.PersistentFlags().StringVar(&clientRemoteURL, "remote-url", "", "Remote server URL (default: $GOLISH_REMOTE_URL)")
+	clientCmd.PersistentFlags().StringVar(&clientAuthKey, "auth-key", "", "API authentication key (default: $GOLISH_REMOTE_AUTH_KEY)")
 
 	// Fetch subcommand flags
 	clientFetchCmd.Flags().StringVarP(&clientFetchTable, "table", "t", "assets", "Table to fetch data from: runs, step_results, artifacts, assets, event_logs, schedules, workspaces, vulnerabilities, asset_diffs, vuln_diffs")

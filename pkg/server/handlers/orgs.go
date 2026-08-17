@@ -5,9 +5,9 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
 )
 
 // ResolveOrgQuery reads the ?org= query parameter and resolves it to an org UUID.
@@ -62,7 +62,7 @@ func orgError(c *fiber.Ctx, err error) error {
 // @Success 200 {object} map[string]interface{} "List of orgs"
 // @Failure 500 {object} map[string]interface{} "Failed to fetch orgs"
 // @Security BearerAuth
-// @Router /osm/api/orgs [get]
+// @Router /golish/api/orgs [get]
 func ListOrgs(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx := context.Background()
@@ -104,7 +104,7 @@ func ListOrgs(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "Org details"
 // @Failure 404 {object} map[string]interface{} "Org not found"
 // @Security BearerAuth
-// @Router /osm/api/orgs/{uuid} [get]
+// @Router /golish/api/orgs/{uuid} [get]
 func GetOrg(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx := context.Background()
@@ -126,7 +126,7 @@ func GetOrg(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "Org statistics"
 // @Failure 404 {object} map[string]interface{} "Org not found"
 // @Security BearerAuth
-// @Router /osm/api/orgs/{uuid}/stats [get]
+// @Router /golish/api/orgs/{uuid}/stats [get]
 func GetOrgStats(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx := context.Background()
@@ -144,7 +144,7 @@ func GetOrgStats(cfg *config.Config) fiber.Handler {
 	}
 }
 
-// createOrgRequest is the body for POST /osm/api/orgs
+// createOrgRequest is the body for POST /golish/api/orgs
 type createOrgRequest struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
@@ -162,7 +162,7 @@ type createOrgRequest struct {
 // @Success 201 {object} map[string]interface{} "Created org"
 // @Failure 400 {object} map[string]interface{} "Invalid request"
 // @Security BearerAuth
-// @Router /osm/api/orgs [post]
+// @Router /golish/api/orgs [post]
 func CreateOrg(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req createOrgRequest
@@ -192,7 +192,7 @@ func CreateOrg(cfg *config.Config) fiber.Handler {
 	}
 }
 
-// updateOrgRequest is the body for PUT /osm/api/orgs/:uuid
+// updateOrgRequest is the body for PUT /golish/api/orgs/:uuid
 type updateOrgRequest struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
@@ -214,7 +214,7 @@ type updateOrgRequest struct {
 // @Failure 403 {object} map[string]interface{} "Default org cannot be renamed"
 // @Failure 404 {object} map[string]interface{} "Org not found"
 // @Security BearerAuth
-// @Router /osm/api/orgs/{uuid} [put]
+// @Router /golish/api/orgs/{uuid} [put]
 func UpdateOrg(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		var req updateOrgRequest
@@ -262,7 +262,7 @@ func UpdateOrg(cfg *config.Config) fiber.Handler {
 // @Failure 403 {object} map[string]interface{} "Default org cannot be deleted"
 // @Failure 404 {object} map[string]interface{} "Org not found"
 // @Security BearerAuth
-// @Router /osm/api/orgs/{uuid} [delete]
+// @Router /golish/api/orgs/{uuid} [delete]
 func DeleteOrg(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx := context.Background()

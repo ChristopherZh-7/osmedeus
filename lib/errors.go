@@ -1,4 +1,4 @@
-// Package lib provides the Osmedeus SDK for programmatic workflow execution.
+// Package lib provides the Golish SDK for programmatic workflow execution.
 package lib
 
 import (

@@ -6,12 +6,12 @@
     "swagger": "2.0",
     "info": {
         "description": "Modern Orchestration Engine for Security - REST API for managing security automation workflows, scans, and distributed task execution.",
-        "title": "Osmedeus API",
-        "termsOfService": "https://docs.osmedeus.org/terms/",
+        "title": "Golish API",
+        "termsOfService": "https://github.com/ChristopherZh-7/golish-pentest-platform/tree/main/docs/terms/",
         "contact": {
-            "name": "Osmedeus Support",
-            "url": "https://github.com/j3ssie/osmedeus",
-            "email": "support@osmedeus.org"
+            "name": "Golish Support",
+            "url": "https://github.com/ChristopherZh-7/golish-pentest-platform",
+            "email": "support@golish.org"
         },
         "license": {
             "name": "MIT",
@@ -45,7 +45,7 @@
                 }
             }
         },
-        "/osm/api/login": {
+        "/golish/api/login": {
             "post": {
                 "description": "Authenticate user and get JWT token",
                 "consumes": [
@@ -96,7 +96,7 @@
                 }
             }
         },
-        "/osm/api/new-scan": {
+        "/golish/api/new-scan": {
             "post": {
                 "security": [
                     {
@@ -150,7 +150,7 @@
                 }
             }
         },
-        "/osm/api/tasks": {
+        "/golish/api/tasks": {
             "get": {
                 "security": [
                     {
@@ -235,7 +235,7 @@
                 }
             }
         },
-        "/osm/api/tasks/{id}": {
+        "/golish/api/tasks/{id}": {
             "get": {
                 "security": [
                     {
@@ -277,7 +277,7 @@
                 }
             }
         },
-        "/osm/api/workers": {
+        "/golish/api/workers": {
             "get": {
                 "security": [
                     {
@@ -310,7 +310,7 @@
                 }
             }
         },
-        "/osm/api/workers/{id}": {
+        "/golish/api/workers/{id}": {
             "get": {
                 "security": [
                     {
@@ -359,7 +359,7 @@
                 }
             }
         },
-        "/osm/api/workflows": {
+        "/golish/api/workflows": {
             "get": {
                 "security": [
                     {
@@ -392,7 +392,7 @@
                 }
             }
         },
-        "/osm/api/workflows/{name}": {
+        "/golish/api/workflows/{name}": {
             "get": {
                 "security": [
                     {
@@ -440,7 +440,7 @@
                 }
             }
         },
-        "/osm/api/workspaces": {
+        "/golish/api/workspaces": {
             "get": {
                 "security": [
                     {
@@ -473,7 +473,7 @@
                 }
             }
         },
-        "/osm/api/upload-file": {
+        "/golish/api/upload-file": {
             "post": {
                 "security": [
                     {
@@ -518,7 +518,7 @@
                 }
             }
         },
-        "/osm/api/workflow-upload": {
+        "/golish/api/workflow-upload": {
             "post": {
                 "security": [
                     {
@@ -563,7 +563,7 @@
                 }
             }
         },
-        "/osm/api/snapshot-download/{workspace_name}": {
+        "/golish/api/snapshot-download/{workspace_name}": {
             "get": {
                 "security": [
                     {

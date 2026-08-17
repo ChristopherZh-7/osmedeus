@@ -11,35 +11,35 @@ Get a paginated list of assets with optional workspace filtering.
 
 **List all assets:**
 ```bash
-curl http://localhost:8002/osm/api/assets \
+curl http://localhost:8002/golish/api/assets \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **List assets with pagination:**
 ```bash
-curl "http://localhost:8002/osm/api/assets?offset=0&limit=100" \
+curl "http://localhost:8002/golish/api/assets?offset=0&limit=100" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by workspace:**
 ```bash
-curl "http://localhost:8002/osm/api/assets?workspace=example.com" \
+curl "http://localhost:8002/golish/api/assets?workspace=example.com" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Combine workspace filter with pagination:**
 ```bash
-curl "http://localhost:8002/osm/api/assets?workspace=example.com&offset=50&limit=25" \
+curl "http://localhost:8002/golish/api/assets?workspace=example.com&offset=50&limit=25" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by org (spans every workspace in that org):**
 ```bash
-curl "http://localhost:8002/osm/api/assets?org=acme" \
+curl "http://localhost:8002/golish/api/assets?org=acme" \
   -H "Authorization: Bearer $TOKEN"
 
 # The org may be given by name or UUID
-curl "http://localhost:8002/osm/api/assets?org=f072a502-0a35-4e8f-aef0-79e048e082f7" \
+curl "http://localhost:8002/golish/api/assets?org=f072a502-0a35-4e8f-aef0-79e048e082f7" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -152,13 +152,13 @@ Get unique values for technologies, sources, remarks, and asset types across all
 
 **Get all asset stats:**
 ```bash
-curl http://localhost:8002/osm/api/asset-stats \
+curl http://localhost:8002/golish/api/asset-stats \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by workspace:**
 ```bash
-curl "http://localhost:8002/osm/api/asset-stats?workspace=example.com" \
+curl "http://localhost:8002/golish/api/asset-stats?workspace=example.com" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -197,25 +197,25 @@ Get a paginated list of stored asset diff snapshots. These snapshots capture cha
 
 **List all asset diff snapshots:**
 ```bash
-curl http://localhost:8002/osm/api/assets/diffs \
+curl http://localhost:8002/golish/api/assets/diffs \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **List with pagination:**
 ```bash
-curl "http://localhost:8002/osm/api/assets/diffs?offset=0&limit=50" \
+curl "http://localhost:8002/golish/api/assets/diffs?offset=0&limit=50" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Filter by workspace:**
 ```bash
-curl "http://localhost:8002/osm/api/assets/diffs?workspace=example.com" \
+curl "http://localhost:8002/golish/api/assets/diffs?workspace=example.com" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Combine workspace filter with pagination:**
 ```bash
-curl "http://localhost:8002/osm/api/assets/diffs?workspace=example.com&offset=0&limit=25" \
+curl "http://localhost:8002/golish/api/assets/diffs?workspace=example.com&offset=0&limit=25" \
   -H "Authorization: Bearer $TOKEN"
 ```
 

@@ -10,11 +10,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/distributed"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/distributed"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
 	"github.com/spf13/cobra"
 )
 
@@ -383,7 +383,7 @@ func runWorkerSet(cmd *cobra.Command, args []string) error {
 }
 
 var errConfigNotLoaded = &exitError{message: "configuration not loaded", code: 1}
-var errRedisNotConfigured = &exitError{message: "redis not configured. Add redis section to osm-settings.yaml or use --redis-url", code: 1}
+var errRedisNotConfigured = &exitError{message: "redis not configured. Add redis section to golish-settings.yaml or use --redis-url", code: 1}
 
 type exitError struct {
 	message string

@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Osmedeus CLI Installation Script
-# Downloads pre-compiled Osmedeus CLI binary from GitHub releases
+# Golish CLI Installation Script
+# Downloads pre-compiled Golish CLI binary from GitHub releases
 
 # Configuration
-OSM_HOME="${OSM_HOME:-$HOME/.osmedeus}"
+GOLISH_HOME="${GOLISH_HOME:-$HOME/.golish}"
 BIN_DIR="$HOME/.local/bin"
-GITHUB_REPO="j3ssie/osmedeus"
+GITHUB_REPO="ChristopherZh-7/golish"
 GITHUB_RELEASES="https://github.com/${GITHUB_REPO}/releases"
 FALLBACK_VERSION="v5.0.0-beta"
-OSM_URL_ENV_SET=0
-if [[ -n "${OSM_URL+x}" ]]; then
-	OSM_URL_ENV_SET=1
+GOLISH_URL_ENV_SET=0
+if [[ -n "${GOLISH_URL+x}" ]]; then
+	GOLISH_URL_ENV_SET=1
 fi
-OSM_URL="${OSM_URL:-}"
+GOLISH_URL="${GOLISH_URL:-}"
 
 # Colors for output
 RED='\033[0;31m'
@@ -27,7 +27,7 @@ NC='\033[0m' # No Color
 # Cleanup on interrupt
 cleanup() {
 	echo -e "\n${YELLOW}Installation interrupted...${NC}"
-	rm -f "$OSM_HOME/osm-install-"* 2>/dev/null || true
+	rm -f "$GOLISH_HOME/golish-install-"* 2>/dev/null || true
 	exit 1
 }
 
@@ -207,7 +207,7 @@ fetch_latest_version() {
 }
 
 fetch_latest_version_from_metadata() {
-	local metadata_url="${OSM_URL%/}/metadata.json"
+	local metadata_url="${GOLISH_URL%/}/metadata.json"
 	local version
 	local tmp_file
 
@@ -224,17 +224,17 @@ fetch_latest_version_from_metadata() {
 	echo "$version"
 }
 
-# Check for existing osmedeus installation
+# Check for existing golish installation
 check_existing_installation() {
-	local binary_path="$BIN_DIR/osmedeus"
+	local binary_path="$BIN_DIR/golish"
 	local existing_binary=""
 
 	# Check in BIN_DIR first
 	if [[ -x "$binary_path" ]]; then
 		existing_binary="$binary_path"
-	# Also check if osmedeus is in PATH (might be installed elsewhere)
-	elif command_exists osmedeus; then
-		existing_binary=$(command -v osmedeus)
+	# Also check if golish is in PATH (might be installed elsewhere)
+	elif command_exists golish; then
+		existing_binary=$(command -v golish)
 	fi
 
 	if [[ -n "$existing_binary" ]]; then
@@ -245,26 +245,26 @@ check_existing_installation() {
 		old_build=$("$existing_binary" version 2>/dev/null | grep 'Build:' || echo "")
 
 		if [[ -n "$old_version" && -n "$old_build" ]]; then
-			warn "Detected existing osmedeus installation at $existing_binary (${old_version} - ${old_build})"
+			warn "Detected existing golish installation at $existing_binary (${old_version} - ${old_build})"
 		else
-			warn "Detected existing osmedeus installation at $existing_binary"
+			warn "Detected existing golish installation at $existing_binary"
 		fi
 		log "Will replace with the new version..."
 	fi
 }
 
-# Install Osmedeus CLI binary
-install_osmedeus_binary() {
+# Install Golish CLI binary
+install_golish_binary() {
 	local platform="$1"
-	local binary_name="osmedeus"
+	local binary_name="golish"
 
 	# Check for existing installation before proceeding
 	check_existing_installation
 
 	local version
-	version="${OSM_VERSION:-}"
+	version="${GOLISH_VERSION:-}"
 	if [[ -z "$version" ]]; then
-		if [[ $OSM_URL_ENV_SET -eq 1 && -n "${OSM_URL}" ]]; then
+		if [[ $GOLISH_URL_ENV_SET -eq 1 && -n "${GOLISH_URL}" ]]; then
 			version=$(fetch_latest_version_from_metadata)
 		else
 			version=$(fetch_latest_version)
@@ -277,23 +277,23 @@ install_osmedeus_binary() {
 
 	# Strip 'v' prefix for tarball filename (e.g., v5.0.0 -> 5.0.0)
 	local version_no_v="${version#v}"
-	local tarball_name="osmedeus_${version_no_v}_${platform}.tar.gz"
+	local tarball_name="golish_${version_no_v}_${platform}.tar.gz"
 	local base_url
-	if [[ $OSM_URL_ENV_SET -eq 1 && -n "${OSM_URL}" ]]; then
-		base_url="${OSM_URL%/}"
+	if [[ $GOLISH_URL_ENV_SET -eq 1 && -n "${GOLISH_URL}" ]]; then
+		base_url="${GOLISH_URL%/}"
 	else
 		base_url="https://github.com/${GITHUB_REPO}/releases/download/${version}"
-		OSM_URL="$base_url"
+		GOLISH_URL="$base_url"
 	fi
 	local tarball_url="${base_url}/${tarball_name}"
 	local checksum_url="${base_url}/checksums.txt"
 
-	local tarball_path="$OSM_HOME/osm-install-tarball.tar.gz"
-	local checksum_path="$OSM_HOME/osm-install-checksums.txt"
-	local extract_dir="$OSM_HOME/osm-install-extract"
+	local tarball_path="$GOLISH_HOME/golish-install-tarball.tar.gz"
+	local checksum_path="$GOLISH_HOME/golish-install-checksums.txt"
+	local extract_dir="$GOLISH_HOME/golish-install-extract"
 
 	# Ensure directories exist
-	mkdir -p "$OSM_HOME"
+	mkdir -p "$GOLISH_HOME"
 	mkdir -p "$BIN_DIR"
 	mkdir -p "$extract_dir"
 
@@ -329,7 +329,7 @@ install_osmedeus_binary() {
 	rm -f "$tarball_path" "$checksum_path"
 	rm -rf "$extract_dir"
 
-	success "Osmedeus CLI binary installed to $binary_path"
+	success "Golish CLI binary installed to $binary_path"
 }
 
 # Update PATH in shell profile
@@ -388,7 +388,7 @@ update_shell_profile() {
 		# Add to PATH
 		{
 			echo ""
-			echo "# Osmedeus CLI"
+			echo "# Golish CLI"
 			echo "export PATH=\"$BIN_DIR:\$PATH\""
 		} >> "$shell_profile"
 
@@ -405,7 +405,7 @@ update_shell_profile() {
 
 # Main installation
 main() {
-	log "Starting Osmedeus CLI installation..."
+	log "Starting Golish CLI installation..."
 
 	# Check prerequisites
 	check_prereqs
@@ -416,16 +416,16 @@ main() {
 	log "Detected platform: $platform"
 
 	# Install binary
-	install_osmedeus_binary "$platform"
+	install_golish_binary "$platform"
 
 	# Update shell profile
 	update_shell_profile
 
 	echo ""
-	success "Osmedeus CLI installed successfully!"
-	log "Run ${LIGHT_GREEN}osmedeus health${NC} (after restarting your shell) to validate your setup and generate a sample config"
-	log "Visit ${LIGHT_GREEN}https://docs.osmedeus.org${NC} for documentation"
-	log "Run ${LIGHT_GREEN}osmedeus install base --preset${NC} to download the ready-to-use workflow and then start scanning"
+	success "Golish CLI installed successfully!"
+	log "Run ${LIGHT_GREEN}golish health${NC} (after restarting your shell) to validate your setup and generate a sample config"
+	log "Visit ${LIGHT_GREEN}https://github.com/ChristopherZh-7/golish-pentest-platform/tree/main/docs${NC} for documentation"
+	log "Run ${LIGHT_GREEN}golish install base --preset${NC} to download the ready-to-use workflow and then start scanning"
 }
 
 main "$@"

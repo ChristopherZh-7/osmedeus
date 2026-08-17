@@ -1,6 +1,6 @@
 package lib
 
-import "github.com/j3ssie/osmedeus/v5/internal/config"
+import "github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
 
 // RunOptions configures workflow execution
 type RunOptions struct {
@@ -27,11 +27,11 @@ type RunOptions struct {
 	Config *config.Config
 
 	// BaseFolder overrides the base folder path
-	// Default: ~/osmedeus-base
+	// Default: ~/golish-base
 	BaseFolder string
 
 	// WorkspacesPath overrides the output directory for workspaces
-	// Default: ~/workspaces-osmedeus (or from config)
+	// Default: ~/workspaces-golish (or from config)
 	WorkspacesPath string
 
 	// DisableWorkflowState disables writing workflow state files to output directory

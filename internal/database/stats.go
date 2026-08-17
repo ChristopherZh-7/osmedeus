@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/j3ssie/osmedeus/v5/internal/parser"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/parser"
 	"github.com/uptrace/bun"
 )
 

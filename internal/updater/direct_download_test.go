@@ -17,17 +17,17 @@ func TestBuildAssetURL(t *testing.T) {
 	}{
 		{
 			name:     "version with v prefix",
-			owner:    "j3ssie",
-			repo:     "osmedeus",
+			owner:    "ChristopherZh-7",
+			repo:     "golish-pentest-platform",
 			version:  "v5.1.0",
-			expected: buildExpectedURL("j3ssie", "osmedeus", "5.1.0"),
+			expected: buildExpectedURL("ChristopherZh-7", "golish-pentest-platform", "5.1.0"),
 		},
 		{
 			name:     "version without v prefix",
-			owner:    "j3ssie",
-			repo:     "osmedeus",
+			owner:    "ChristopherZh-7",
+			repo:     "golish-pentest-platform",
 			version:  "5.2.0",
-			expected: buildExpectedURL("j3ssie", "osmedeus", "5.2.0"),
+			expected: buildExpectedURL("ChristopherZh-7", "golish-pentest-platform", "5.2.0"),
 		},
 		{
 			name:     "different owner/repo",
@@ -38,10 +38,10 @@ func TestBuildAssetURL(t *testing.T) {
 		},
 		{
 			name:     "prerelease version",
-			owner:    "j3ssie",
-			repo:     "osmedeus",
+			owner:    "ChristopherZh-7",
+			repo:     "golish-pentest-platform",
 			version:  "v5.0.0-beta.1",
-			expected: buildExpectedURL("j3ssie", "osmedeus", "5.0.0-beta.1"),
+			expected: buildExpectedURL("ChristopherZh-7", "golish-pentest-platform", "5.0.0-beta.1"),
 		},
 	}
 
@@ -62,11 +62,11 @@ func buildExpectedURL(owner, repo, version string) string {
 	if osName == "windows" {
 		ext = "zip"
 	}
-	return "https://github.com/" + owner + "/" + repo + "/releases/download/v" + version + "/osmedeus_" + version + "_" + osName + "_" + arch + "." + ext
+	return "https://github.com/" + owner + "/" + repo + "/releases/download/v" + version + "/golish_" + version + "_" + osName + "_" + arch + "." + ext
 }
 
 func TestBuildAssetURL_PlatformSpecific(t *testing.T) {
-	d := NewDirectDownloader("j3ssie", "osmedeus", false)
+	d := NewDirectDownloader("ChristopherZh-7", "golish-pentest-platform", false)
 	url := d.BuildAssetURL("v5.1.0")
 
 	// Verify it contains the correct OS
@@ -74,9 +74,9 @@ func TestBuildAssetURL_PlatformSpecific(t *testing.T) {
 	// Verify it contains the correct arch
 	assert.Contains(t, url, runtime.GOARCH)
 	// Verify it contains the version without v prefix in filename
-	assert.Contains(t, url, "osmedeus_5.1.0_")
+	assert.Contains(t, url, "golish_5.1.0_")
 	// Verify it points to the correct repo
-	assert.Contains(t, url, "github.com/j3ssie/osmedeus/releases/download/v5.1.0/")
+	assert.Contains(t, url, "github.com/ChristopherZh-7/golish-pentest-platform/releases/download/v5.1.0/")
 }
 
 func TestNewDirectDownloader(t *testing.T) {

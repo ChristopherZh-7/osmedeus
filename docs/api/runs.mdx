@@ -11,7 +11,7 @@ Execute a workflow against a target.
 
 **Basic scan with flow workflow:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -22,7 +22,7 @@ curl -X POST http://localhost:8002/osm/api/runs \
 
 **Basic scan with module workflow:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -33,7 +33,7 @@ curl -X POST http://localhost:8002/osm/api/runs \
 
 **Scan with custom parameters:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -48,7 +48,7 @@ curl -X POST http://localhost:8002/osm/api/runs \
 
 **Scan with priority and timeout:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -61,20 +61,20 @@ curl -X POST http://localhost:8002/osm/api/runs \
 
 **Scan with Docker runner:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "flow": "subdomain-enum",
     "target": "example.com",
     "runner_type": "docker",
-    "docker_image": "osmedeus/osmedeus:latest"
+    "docker_image": "golish/golish:latest"
   }'
 ```
 
 **Scan with SSH runner:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -127,7 +127,7 @@ curl -X POST http://localhost:8002/osm/api/runs \
   "job_id": "a1b2c3d4",
   "run_uuid": "550e8400-e29b-41d4-a716-446655440000",
   "status": "queued",
-  "poll_url": "/osm/api/jobs/a1b2c3d4",
+  "poll_url": "/golish/api/jobs/a1b2c3d4",
   "runner_type": "docker",
   "timeout": 60
 }
@@ -140,7 +140,7 @@ curl -X POST http://localhost:8002/osm/api/runs \
 Scan multiple targets with concurrency control:
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -162,7 +162,7 @@ curl -X POST http://localhost:8002/osm/api/runs \
   "priority": "normal",
   "job_id": "b2c3d4e5",
   "status": "queued",
-  "poll_url": "/osm/api/jobs/b2c3d4e5"
+  "poll_url": "/golish/api/jobs/b2c3d4e5"
 }
 ```
 
@@ -170,20 +170,20 @@ curl -X POST http://localhost:8002/osm/api/runs \
 
 ## Scan from Uploaded Target File
 
-Use an uploaded target file (from `/osm/api/upload-file`) for running:
+Use an uploaded target file (from `/golish/api/upload-file`) for running:
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "module": "port-scan",
-    "target_file": "/home/user/osmedeus-base/data/uploads/targets.txt",
+    "target_file": "/home/user/golish-base/data/uploads/targets.txt",
     "concurrency": 5
   }'
 ```
 
-This is similar to CLI's `-T` flag: `osmedeus run -m port-scan -T targets.txt`
+This is similar to CLI's `-T` flag: `golish run -m port-scan -T targets.txt`
 
 ---
 
@@ -193,7 +193,7 @@ Submit scans to the distributed worker pool. Requires the server to be started w
 
 **Single target distributed scan:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -205,7 +205,7 @@ curl -X POST http://localhost:8002/osm/api/runs \
 
 **Multiple targets distributed across workers:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -230,7 +230,7 @@ Each target is submitted as a separate task to the distributed worker queue. Wor
   "run_mode": "distributed",
   "job_id": "c3d4e5f6",
   "status": "queued",
-  "poll_url": "/osm/api/jobs/c3d4e5f6"
+  "poll_url": "/golish/api/jobs/c3d4e5f6"
 }
 ```
 
@@ -246,11 +246,11 @@ Each target is submitted as a separate task to the distributed worker queue. Wor
 
 ## Cloud Mode
 
-Provision cloud infrastructure and execute scans on remote instances. Requires cloud features to be enabled in the configuration (`cloud.enabled: true` in `osm-settings.yaml`).
+Provision cloud infrastructure and execute scans on remote instances. Requires cloud features to be enabled in the configuration (`cloud.enabled: true` in `golish-settings.yaml`).
 
 **Basic cloud scan (uses default provider from config):**
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -262,7 +262,7 @@ curl -X POST http://localhost:8002/osm/api/runs \
 
 **Cloud scan with multiple instances:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -279,7 +279,7 @@ Targets are distributed round-robin across the provisioned instances. When `clou
 
 **Cloud scan with instance customization:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -298,7 +298,7 @@ curl -X POST http://localhost:8002/osm/api/runs \
 
 **Cloud scan reusing existing infrastructure:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs \
+curl -X POST http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -324,9 +324,9 @@ Skip provisioning and run on existing infrastructure by passing the `cloud_reuse
   "job_id": "d4e5f6a7",
   "run_uuid": "770e8400-e29b-41d4-a716-446655440000",
   "status": "queued",
-  "poll_url": "/osm/api/jobs/d4e5f6a7",
+  "poll_url": "/golish/api/jobs/d4e5f6a7",
   "infra_id": "d4e5f6a7",
-  "infra_status_url": "/osm/api/cloud/instances/d4e5f6a7/status",
+  "infra_status_url": "/golish/api/cloud/instances/d4e5f6a7/status",
   "cloud_provider": "aws",
   "cloud_instances": 2
 }
@@ -355,7 +355,7 @@ Skip provisioning and run on existing infrastructure by passing the `cloud_reuse
 Get a paginated list of all runs.
 
 ```bash
-curl http://localhost:8002/osm/api/runs \
+curl http://localhost:8002/golish/api/runs \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -410,7 +410,7 @@ curl http://localhost:8002/osm/api/runs \
 Get details of a specific run by ID.
 
 ```bash
-curl http://localhost:8002/osm/api/runs/run-abc123 \
+curl http://localhost:8002/golish/api/runs/run-abc123 \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -451,11 +451,11 @@ Cancel a running workflow execution. This will terminate all running processes a
 
 ```bash
 # Cancel by run_uuid
-curl -X DELETE http://localhost:8002/osm/api/runs/550e8400-e29b-41d4-a716-446655440000 \
+curl -X DELETE http://localhost:8002/golish/api/runs/550e8400-e29b-41d4-a716-446655440000 \
   -H "Authorization: Bearer $TOKEN"
 
 # Or cancel by numeric id
-curl -X DELETE http://localhost:8002/osm/api/runs/1 \
+curl -X DELETE http://localhost:8002/golish/api/runs/1 \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -510,7 +510,7 @@ Running or pending runs must be cancelled before deletion.
 
 ```bash
 curl -X DELETE \
-  http://localhost:8002/osm/api/runs/550e8400-e29b-41d4-a716-446655440000/record \
+  http://localhost:8002/golish/api/runs/550e8400-e29b-41d4-a716-446655440000/record \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -532,11 +532,11 @@ Get all step results for a specific run.
 
 ```bash
 # Using run_uuid
-curl http://localhost:8002/osm/api/runs/550e8400-e29b-41d4-a716-446655440000/steps \
+curl http://localhost:8002/golish/api/runs/550e8400-e29b-41d4-a716-446655440000/steps \
   -H "Authorization: Bearer $TOKEN"
 
 # Or using numeric id
-curl http://localhost:8002/osm/api/runs/1/steps \
+curl http://localhost:8002/golish/api/runs/1/steps \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -588,11 +588,11 @@ Get all output artifacts for a specific run.
 
 ```bash
 # Using run_uuid
-curl http://localhost:8002/osm/api/runs/550e8400-e29b-41d4-a716-446655440000/artifacts \
+curl http://localhost:8002/golish/api/runs/550e8400-e29b-41d4-a716-446655440000/artifacts \
   -H "Authorization: Bearer $TOKEN"
 
 # Or using numeric id
-curl http://localhost:8002/osm/api/runs/1/artifacts \
+curl http://localhost:8002/golish/api/runs/1/artifacts \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -659,7 +659,7 @@ curl http://localhost:8002/osm/api/runs/1/artifacts \
 Create a copy of an existing run with the same configuration.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs/550e8400-e29b-41d4-a716-446655440000/duplicate \
+curl -X POST http://localhost:8002/golish/api/runs/550e8400-e29b-41d4-a716-446655440000/duplicate \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -680,7 +680,7 @@ curl -X POST http://localhost:8002/osm/api/runs/550e8400-e29b-41d4-a716-44665544
 Start a pending run that was created but not yet started.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/runs/550e8400-e29b-41d4-a716-446655440000/start \
+curl -X POST http://localhost:8002/golish/api/runs/550e8400-e29b-41d4-a716-446655440000/start \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -700,7 +700,7 @@ curl -X POST http://localhost:8002/osm/api/runs/550e8400-e29b-41d4-a716-44665544
 Get the status of a job (a group of runs from the same request). This is useful for tracking multi-target scans.
 
 ```bash
-curl http://localhost:8002/osm/api/jobs/a1b2c3d4 \
+curl http://localhost:8002/golish/api/jobs/a1b2c3d4 \
   -H "Authorization: Bearer $TOKEN"
 ```
 

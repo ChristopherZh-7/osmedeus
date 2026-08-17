@@ -1,4 +1,4 @@
-# Osmedeus Canary Test Dockerfile
+# Golish Canary Test Dockerfile
 # Multi-stage build that compiles from source and layers onto the toolbox image,
 # ensuring canary tests exercise the CURRENT source code, not the last release.
 
@@ -10,7 +10,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 go build -o /osmedeus ./cmd/osmedeus
+RUN CGO_ENABLED=0 go build -o /golish ./cmd/golish
 
 # ── Stage 2: runtime (mirrors Dockerfile.toolbox) ───────────────────────────
 FROM ubuntu:24.04
@@ -41,31 +41,31 @@ RUN ln -sf /usr/bin/python3 /usr/bin/python
 ENV PATH="/root/go/bin:${PATH}"
 ENV GOPATH="/root/go"
 
-RUN mkdir -p /root/osmedeus-base /root/workspaces-osmedeus /root/go/bin
+RUN mkdir -p /root/golish-base /root/workspaces-golish /root/go/bin
 
 WORKDIR /root
 
 # Copy the source-built binary first so install commands can use it
-COPY --from=builder /osmedeus /root/.local/bin/osmedeus
-COPY --from=builder /osmedeus /root/go/bin/osmedeus
+COPY --from=builder /golish /root/.local/bin/golish
+COPY --from=builder /golish /root/go/bin/golish
 
-ENV PATH="/root/.local/bin:/root/go/bin:/root/osmedeus-base/external-binaries:${PATH}"
+ENV PATH="/root/.local/bin:/root/go/bin:/root/golish-base/external-binaries:${PATH}"
 
 # Install base workflows, tools, etc.
-RUN osmedeus install base --preset
+RUN golish install base --preset
 
 # This is for sast test
-RUN osmedeus install binary --name trivy --name semgrep --name kingfisher --name bearer
+RUN golish install binary --name trivy --name semgrep --name kingfisher --name bearer
 
 # This is for general test (probe-dns, recon-http-fp, scan-content)
-RUN osmedeus install binary --name dnsx --name httpx --name puredns --name massdns --name ffuf
+RUN golish install binary --name dnsx --name httpx --name puredns --name massdns --name ffuf
 
 # Copy the canary entrypoint
 COPY build/docker/canary-entrypoint.sh /usr/local/bin/canary-entrypoint.sh
 RUN chmod +x /usr/local/bin/canary-entrypoint.sh
 
 # Verify the source-built binary works
-RUN osmedeus health
+RUN golish health
 
 EXPOSE 8002
 

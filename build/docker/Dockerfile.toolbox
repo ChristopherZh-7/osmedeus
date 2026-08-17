@@ -1,4 +1,4 @@
-# Osmedeus Toolbox Dockerfile
+# Golish Toolbox Dockerfile
 # Full-featured image with all security tools pre-installed via direct-fetch
 # Based on Ubuntu 24.04 LTS with Python3
 
@@ -34,29 +34,29 @@ ENV PATH="/root/go/bin:${PATH}"
 ENV GOPATH="/root/go"
 
 # Create base directories
-RUN mkdir -p /root/osmedeus-base /root/workspaces-osmedeus /root/go/bin
+RUN mkdir -p /root/golish-base /root/workspaces-golish /root/go/bin
 
 WORKDIR /root
 
-# Install osmedeus via official install script
+# Install golish via official install script
 # Note: Using --insecure due to SSL certificate issues in Docker build environment
-RUN curl -fsSLk https://www.osmedeus.org/install.sh | bash
+RUN curl -fsSLk https://raw.githubusercontent.com/ChristopherZh-7/golish-registry/main/install.sh | bash
 
-# Set up PATH for osmedeus and external binaries
-ENV PATH="/root/.local/bin:/root/go/bin:/root/osmedeus-base/external-binaries:${PATH}"
+# Set up PATH for golish and external binaries
+ENV PATH="/root/.local/bin:/root/go/bin:/root/golish-base/external-binaries:${PATH}"
 
 
-# Run osmedeus health check to verify installation
-RUN osmedeus health
+# Run golish health check to verify installation
+RUN golish health
 
 # # Install binaries via direct-fetch (including optional ones)
-# RUN osmedeus install binary --all true
+# RUN golish install binary --all true
 
 # Expose default server port
 EXPOSE 8002
 
 # Default command shows help
-CMD ["osmedeus"]
+CMD ["golish"]
 
 # enable below for server mode
-# CMD ["osmedeus", "serve", "--debug", "--port", "8002", "--host", "0.0.0.0"]
+# CMD ["golish", "serve", "--debug", "--port", "8002", "--host", "0.0.0.0"]

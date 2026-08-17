@@ -11,25 +11,25 @@ Get a list of all run workspaces with full metadata.
 
 **List workspaces from database (default):**
 ```bash
-curl http://localhost:8002/osm/api/workspaces \
+curl http://localhost:8002/golish/api/workspaces \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **List workspaces with pagination:**
 ```bash
-curl "http://localhost:8002/osm/api/workspaces?offset=0&limit=50" \
+curl "http://localhost:8002/golish/api/workspaces?offset=0&limit=50" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **List workspaces from filesystem/assets:**
 ```bash
-curl "http://localhost:8002/osm/api/workspaces?filesystem=true" \
+curl "http://localhost:8002/golish/api/workspaces?filesystem=true" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Combine pagination with filesystem mode:**
 ```bash
-curl "http://localhost:8002/osm/api/workspaces?filesystem=true&offset=20&limit=10" \
+curl "http://localhost:8002/golish/api/workspaces?filesystem=true&offset=20&limit=10" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -40,7 +40,7 @@ curl "http://localhost:8002/osm/api/workspaces?filesystem=true&offset=20&limit=1
     {
       "id": 1,
       "name": "example.com",
-      "local_path": "/home/user/osmedeus-base/workspaces/example.com",
+      "local_path": "/home/user/golish-base/workspaces/example.com",
       "total_assets": 150,
       "total_subdomains": 120,
       "total_urls": 500,
@@ -60,7 +60,7 @@ curl "http://localhost:8002/osm/api/workspaces?filesystem=true&offset=20&limit=1
     {
       "id": 2,
       "name": "test.com",
-      "local_path": "/home/user/osmedeus-base/workspaces/test.com",
+      "local_path": "/home/user/golish-base/workspaces/test.com",
       "total_assets": 50,
       "total_subdomains": 35,
       "total_urls": 120,
@@ -123,14 +123,14 @@ Agent Pentest records. The local workspace directory is deleted by default.
 Schedule definitions are retained and may recreate the workspace on a later run.
 
 ```bash
-curl -X DELETE "http://localhost:8002/osm/api/workspaces/example.com" \
+curl -X DELETE "http://localhost:8002/golish/api/workspaces/example.com" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 Keep the local directory while deleting the database records:
 
 ```bash
-curl -X DELETE "http://localhost:8002/osm/api/workspaces/example.com?delete_files=false" \
+curl -X DELETE "http://localhost:8002/golish/api/workspaces/example.com?delete_files=false" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -144,7 +144,7 @@ scan or active Agent Pentest task. Stop that work before retrying the deletion.
 Get a lightweight list of workspace names only (without full metadata).
 
 ```bash
-curl http://localhost:8002/osm/api/workspace-names \
+curl http://localhost:8002/golish/api/workspace-names \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -168,19 +168,19 @@ Retrieve the content of a workspace state file. This endpoint provides access to
 
 **Get execution log:**
 ```bash
-curl "http://localhost:8002/osm/api/workspaces/example.com/state-file?state_file=execution_log" \
+curl "http://localhost:8002/golish/api/workspaces/example.com/state-file?state_file=execution_log" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Get completed file:**
 ```bash
-curl "http://localhost:8002/osm/api/workspaces/example.com/state-file?state_file=completed_file" \
+curl "http://localhost:8002/golish/api/workspaces/example.com/state-file?state_file=completed_file" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 **Get workflow file:**
 ```bash
-curl "http://localhost:8002/osm/api/workspaces/example.com/state-file?state_file=workflow_file" \
+curl "http://localhost:8002/golish/api/workspaces/example.com/state-file?state_file=workflow_file" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -189,7 +189,7 @@ curl "http://localhost:8002/osm/api/workspaces/example.com/state-file?state_file
 {
   "workspace": "example.com",
   "state_file": "execution_log",
-  "file_path": "/home/user/osmedeus-base/workspaces/example.com/log/execution.log",
+  "file_path": "/home/user/golish-base/workspaces/example.com/log/execution.log",
   "content": "2025-01-15 10:30:00 [INFO] Starting workflow...\n2025-01-15 10:30:05 [INFO] Step 1 completed...\n..."
 }
 ```

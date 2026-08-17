@@ -11,7 +11,7 @@
 #
 #   make sync-platform                       # write, review, commit yourself
 #   make sync-platform PLATFORM_COMMIT=1     # also commit and push
-#   make sync-platform PLATFORM=osmedeus-registry
+#   make sync-platform PLATFORM=golish-registry
 #   make sync-platform PLATFORM_DEST=/path/to/checkouts
 #
 set -euo pipefail
@@ -22,10 +22,10 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 # Default to the directory holding this repo, matching sync-skills' `../` default,
 # rather than hardcoding a developer-specific path.
 DEST_BASE="${PLATFORM_DEST:-$(cd "$REPO_ROOT/.." && pwd)}"
-GIT_ORG="${PLATFORM_GIT_ORG:-git@github.com:osmedeus}"
+GIT_ORG="${PLATFORM_GIT_ORG:-git@github.com:ChristopherZh-7}"
 DO_COMMIT="${PLATFORM_COMMIT:-}"
 
-ALL_PLATFORMS=(osmedeus-dashboard osmedeus-registry osmedeus-workflow)
+ALL_PLATFORMS=(golish-dashboard golish-registry golish-workflow)
 if [ -n "${PLATFORM:-}" ]; then
     PLATFORMS=("$PLATFORM")
 else
@@ -83,7 +83,7 @@ for name in "${PLATFORMS[@]}"; do
 
     if [ -n "$(git -C "$dest" status --porcelain)" ]; then
         git -C "$dest" add -A
-        git -C "$dest" commit -q -m "sync: update from osmedeus monorepo ($(date +%Y-%m-%d))"
+        git -C "$dest" commit -q -m "sync: update from golish monorepo ($(date +%Y-%m-%d))"
         git -C "$dest" push -q origin
         echo "    Committed and pushed $name"
     else

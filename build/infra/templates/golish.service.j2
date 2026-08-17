@@ -1,0 +1,21 @@
+[Unit]
+Description=Golish Security Automation Server
+After=network.target
+
+[Service]
+Type=simple
+User={{ golish_user }}
+Group={{ golish_user }}
+ExecStart={{ golish_install_dir }}/golish server --port {{ golish_server_port }}
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths={{ golish_base_dir }} {{ golish_workspaces_dir }}
+
+[Install]
+WantedBy=multi-user.target

@@ -12,12 +12,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/retry"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
 	"github.com/dop251/goja"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/retry"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
 	"go.uber.org/zap"
 )
 
@@ -44,19 +44,19 @@ func getLLMConfig() (*llmFuncConfig, error) {
 	}
 
 	// Environment overrides (highest priority)
-	if v := os.Getenv("OSM_LLM_BASE_URL"); v != "" {
+	if v := os.Getenv("GOLISH_LLM_BASE_URL"); v != "" {
 		result.BaseURL = v
 	}
-	if v := os.Getenv("OSM_LLM_AUTH_TOKEN"); v != "" {
+	if v := os.Getenv("GOLISH_LLM_AUTH_TOKEN"); v != "" {
 		result.AuthToken = v
 	}
-	if v := os.Getenv("OSM_LLM_MODEL"); v != "" {
+	if v := os.Getenv("GOLISH_LLM_MODEL"); v != "" {
 		result.Model = v
 	}
 
 	// Validate we have required configuration
 	if result.BaseURL == "" {
-		return nil, fmt.Errorf("LLM base URL not configured (set OSM_LLM_BASE_URL or configure llm_config in settings)")
+		return nil, fmt.Errorf("LLM base URL not configured (set GOLISH_LLM_BASE_URL or configure llm_config in settings)")
 	}
 
 	return result, nil

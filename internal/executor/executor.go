@@ -15,21 +15,21 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/console"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/functions"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/heuristics"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/metrics"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/notify"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/parser"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/runner"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/template"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/terminal"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/utils"
 	"github.com/google/uuid"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/console"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
-	"github.com/j3ssie/osmedeus/v5/internal/functions"
-	"github.com/j3ssie/osmedeus/v5/internal/heuristics"
-	"github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/metrics"
-	"github.com/j3ssie/osmedeus/v5/internal/notify"
-	"github.com/j3ssie/osmedeus/v5/internal/parser"
-	"github.com/j3ssie/osmedeus/v5/internal/runner"
-	"github.com/j3ssie/osmedeus/v5/internal/template"
-	"github.com/j3ssie/osmedeus/v5/internal/terminal"
-	"github.com/j3ssie/osmedeus/v5/internal/utils"
 	"go.uber.org/zap"
 )
 
@@ -102,10 +102,10 @@ func BuildBuiltinVariables(cfg *config.Config, params map[string]string) map[str
 	exec.injectBuiltinVariables(cfg, params, execCtx)
 
 	// Add temp directory for eval (cleanup is handled by the caller)
-	tempDir, err := os.MkdirTemp("", "osm-tmp-")
+	tempDir, err := os.MkdirTemp("", "golish-tmp-")
 	if err == nil {
 		execCtx.SetVariable("TempDir", tempDir)
-		execCtx.SetVariable("TempFile", filepath.Join(tempDir, "osm-tmp-file"))
+		execCtx.SetVariable("TempFile", filepath.Join(tempDir, "golish-tmp-file"))
 	}
 
 	return execCtx.GetVariables()
@@ -416,7 +416,7 @@ func (e *Executor) injectBuiltinVariables(cfg *config.Config, params map[string]
 // setupTempDirectory creates a temporary directory and file for workflow execution
 // Returns a cleanup function that removes the directory when called
 func (e *Executor) setupTempDirectory(execCtx *core.ExecutionContext) (cleanup func()) {
-	tempDir, err := os.MkdirTemp("", "osm-tmp-")
+	tempDir, err := os.MkdirTemp("", "golish-tmp-")
 	if err != nil {
 		e.logger.Warn("Failed to create temp directory", zap.Error(err))
 		return func() {} // no-op cleanup
@@ -425,7 +425,7 @@ func (e *Executor) setupTempDirectory(execCtx *core.ExecutionContext) (cleanup f
 	execCtx.SetVariable("TempDir", tempDir)
 
 	// Create temp file path within temp dir
-	tempFile := filepath.Join(tempDir, "osm-tmp-file")
+	tempFile := filepath.Join(tempDir, "golish-tmp-file")
 	execCtx.SetVariable("TempFile", tempFile)
 
 	return func() {

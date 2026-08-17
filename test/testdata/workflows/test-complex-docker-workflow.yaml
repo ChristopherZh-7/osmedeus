@@ -7,7 +7,7 @@ params:
   - name: target
     required: true
   - name: output_dir
-    default: /tmp/osm-complex-test
+    default: /tmp/golish-complex-test
   - name: threads
     default: "5"
 

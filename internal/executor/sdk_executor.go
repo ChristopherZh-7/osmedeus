@@ -6,13 +6,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/core"
+	oslogger "github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/logger"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/template"
 	agnostic "github.com/j3ssie/go-agent-agnostic"
 	"github.com/j3ssie/go-agent-agnostic/sdk/claude"
 	"github.com/j3ssie/go-agent-agnostic/sdk/codex"
 	"github.com/j3ssie/go-agent-agnostic/sdk/opencode"
-	"github.com/j3ssie/osmedeus/v5/internal/core"
-	oslogger "github.com/j3ssie/osmedeus/v5/internal/logger"
-	"github.com/j3ssie/osmedeus/v5/internal/template"
 	"go.uber.org/zap"
 )
 

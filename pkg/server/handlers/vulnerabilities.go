@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/config"
+	"github.com/ChristopherZh-7/golish-pentest-platform/v5/internal/database"
 	"github.com/gofiber/fiber/v2"
-	"github.com/j3ssie/osmedeus/v5/internal/config"
-	"github.com/j3ssie/osmedeus/v5/internal/database"
 )
 
 // ListVulnerabilities handles listing vulnerabilities with pagination and filtering
@@ -26,7 +26,7 @@ import (
 // @Failure 400 {object} map[string]interface{} "Unknown org"
 // @Failure 500 {object} map[string]interface{} "Failed to fetch vulnerabilities"
 // @Security BearerAuth
-// @Router /osm/api/vulnerabilities [get]
+// @Router /golish/api/vulnerabilities [get]
 func ListVulnerabilities(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Parse query parameters
@@ -100,7 +100,7 @@ func ListVulnerabilities(cfg *config.Config) fiber.Handler {
 // @Failure 404 {object} map[string]interface{} "Vulnerability not found"
 // @Failure 500 {object} map[string]interface{} "Failed to fetch vulnerability"
 // @Security BearerAuth
-// @Router /osm/api/vulnerabilities/{id} [get]
+// @Router /golish/api/vulnerabilities/{id} [get]
 func GetVulnerability(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Parse ID
@@ -157,7 +157,7 @@ type CreateVulnerabilityInput struct {
 // @Failure 400 {object} map[string]interface{} "Invalid input"
 // @Failure 500 {object} map[string]interface{} "Failed to create vulnerability"
 // @Security BearerAuth
-// @Router /osm/api/vulnerabilities [post]
+// @Router /golish/api/vulnerabilities [post]
 func CreateVulnerability(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Parse input
@@ -222,7 +222,7 @@ func CreateVulnerability(cfg *config.Config) fiber.Handler {
 // @Failure 404 {object} map[string]interface{} "Vulnerability not found"
 // @Failure 500 {object} map[string]interface{} "Failed to delete vulnerability"
 // @Security BearerAuth
-// @Router /osm/api/vulnerabilities/{id} [delete]
+// @Router /golish/api/vulnerabilities/{id} [delete]
 func DeleteVulnerability(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		// Parse ID
@@ -260,7 +260,7 @@ func DeleteVulnerability(cfg *config.Config) fiber.Handler {
 // @Success 200 {object} map[string]interface{} "Vulnerability summary by severity"
 // @Failure 500 {object} map[string]interface{} "Failed to get summary"
 // @Security BearerAuth
-// @Router /osm/api/vulnerabilities/summary [get]
+// @Router /golish/api/vulnerabilities/summary [get]
 func GetVulnerabilitySummary(cfg *config.Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		workspace := c.Query("workspace")

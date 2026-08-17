@@ -10,7 +10,7 @@ description: "Export and import workspace snapshots"
 Get a list of available snapshot files in the snapshot directory.
 
 ```bash
-curl http://localhost:8002/osm/api/snapshots \
+curl http://localhost:8002/golish/api/snapshots \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -20,19 +20,19 @@ curl http://localhost:8002/osm/api/snapshots \
   "data": [
     {
       "name": "example.com_1704067200.zip",
-      "path": "/home/user/osmedeus-base/snapshot/example.com_1704067200.zip",
+      "path": "/home/user/golish-base/snapshot/example.com_1704067200.zip",
       "size": 15728640,
       "created_at": "2025-01-01T12:00:00Z"
     },
     {
       "name": "test.com_1704153600.zip",
-      "path": "/home/user/osmedeus-base/snapshot/test.com_1704153600.zip",
+      "path": "/home/user/golish-base/snapshot/test.com_1704153600.zip",
       "size": 8388608,
       "created_at": "2025-01-02T12:00:00Z"
     }
   ],
   "count": 2,
-  "path": "/home/user/osmedeus-base/snapshot"
+  "path": "/home/user/golish-base/snapshot"
 }
 ```
 
@@ -43,7 +43,7 @@ curl http://localhost:8002/osm/api/snapshots \
 Export a workspace to a compressed zip archive and download it.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/snapshots/export \
+curl -X POST http://localhost:8002/golish/api/snapshots/export \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"workspace": "example.com"}' \
@@ -79,21 +79,21 @@ Import a workspace from an uploaded zip file or URL.
 
 **Import from file upload:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/snapshots/import \
+curl -X POST http://localhost:8002/golish/api/snapshots/import \
   -H "Authorization: Bearer $TOKEN" \
   -F "file=@example.com_1704067200.zip"
 ```
 
 **Import from URL:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/snapshots/import \
+curl -X POST http://localhost:8002/golish/api/snapshots/import \
   -H "Authorization: Bearer $TOKEN" \
   -F "url=https://example.com/snapshots/workspace.zip"
 ```
 
 **Import with force overwrite:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/snapshots/import \
+curl -X POST http://localhost:8002/golish/api/snapshots/import \
   -H "Authorization: Bearer $TOKEN" \
   -F "file=@example.com_snapshot.zip" \
   -F "force=true"
@@ -101,7 +101,7 @@ curl -X POST http://localhost:8002/osm/api/snapshots/import \
 
 **Import files only (skip database):**
 ```bash
-curl -X POST http://localhost:8002/osm/api/snapshots/import \
+curl -X POST http://localhost:8002/golish/api/snapshots/import \
   -H "Authorization: Bearer $TOKEN" \
   -F "file=@example.com_snapshot.zip" \
   -F "skip_db=true"
@@ -123,7 +123,7 @@ curl -X POST http://localhost:8002/osm/api/snapshots/import \
 {
   "message": "Workspace imported successfully",
   "workspace": "example.com",
-  "local_path": "/home/user/workspaces-osmedeus/example.com",
+  "local_path": "/home/user/workspaces-golish/example.com",
   "data_source": "imported",
   "files_count": 1523,
   "warning": "Imported workspace database state may be unstable. Only import from trusted sources."
@@ -142,7 +142,7 @@ curl -X POST http://localhost:8002/osm/api/snapshots/import \
 ```json
 {
   "error": true,
-  "message": "Failed to import snapshot: workspace already exists: /home/user/workspaces-osmedeus/example.com (use --force to overwrite)"
+  "message": "Failed to import snapshot: workspace already exists: /home/user/workspaces-golish/example.com (use --force to overwrite)"
 }
 ```
 
@@ -153,7 +153,7 @@ curl -X POST http://localhost:8002/osm/api/snapshots/import \
 Delete a snapshot file by name.
 
 ```bash
-curl -X DELETE http://localhost:8002/osm/api/snapshots/example.com_1704067200.zip \
+curl -X DELETE http://localhost:8002/golish/api/snapshots/example.com_1704067200.zip \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -180,7 +180,7 @@ curl -X DELETE http://localhost:8002/osm/api/snapshots/example.com_1704067200.zi
 The legacy snapshot download endpoint is still available for backward compatibility:
 
 ```bash
-curl http://localhost:8002/osm/api/snapshot-download/example.com \
+curl http://localhost:8002/golish/api/snapshot-download/example.com \
   -H "Authorization: Bearer $TOKEN" \
   --output snapshot.zip
 ```

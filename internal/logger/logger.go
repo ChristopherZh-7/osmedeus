@@ -235,11 +235,11 @@ func NewLogger(cfg Config) (*zap.Logger, error) {
 			}
 		}
 	} else if cfg.LogDir != "" {
-		// Fall back to LogDir/osmedeus.log
+		// Fall back to LogDir/golish.log
 		if err := os.MkdirAll(cfg.LogDir, 0755); err != nil {
 			return nil, err
 		}
-		logFilePath = filepath.Join(cfg.LogDir, "osmedeus.log")
+		logFilePath = filepath.Join(cfg.LogDir, "golish.log")
 	}
 
 	if logFilePath != "" {

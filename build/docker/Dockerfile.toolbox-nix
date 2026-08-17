@@ -1,4 +1,4 @@
-# Osmedeus Toolbox Dockerfile
+# Golish Toolbox Dockerfile
 # Full-featured image with all security tools pre-installed via Nix and direct-fetch
 # Based on Ubuntu 24.04 LTS with Python3 and Nix package manager
 
@@ -43,28 +43,28 @@ ENV NIX_PATH="/root/.nix-defexpr/channels"
 RUN echo '. /root/.nix-profile/etc/profile.d/nix.sh' >> /root/.bashrc
 
 # Create base directories
-RUN mkdir -p /root/osmedeus-base /root/workspaces-osmedeus
+RUN mkdir -p /root/golish-base /root/workspaces-golish
 
 WORKDIR /root
 
-# Install osmedeus via official install script
-RUN curl -sSL https://www.osmedeus.org/install.sh | bash
+# Install golish via official install script
+RUN curl -sSL https://raw.githubusercontent.com/ChristopherZh-7/golish-registry/main/install.sh | bash
 
-# Set up PATH for osmedeus and external binaries
-ENV PATH="/root/go/bin:/root/osmedeus-base/external-binaries:/root/.nix-profile/bin:/nix/var/nix/profiles/default/bin:${PATH}"
+# Set up PATH for golish and external binaries
+ENV PATH="/root/go/bin:/root/golish-base/external-binaries:/root/.nix-profile/bin:/nix/var/nix/profiles/default/bin:${PATH}"
 
 # Use bash shell for subsequent commands to source nix profile
 SHELL ["/bin/bash", "-lc"]
 
 # Install binaries via Nix (nix-build-install)
 RUN . /root/.nix-profile/etc/profile.d/nix.sh && \
-    osmedeus install binary --all --nix-build-install || true
+    golish install binary --all --nix-build-install || true
 
 # Install remaining binaries via direct-fetch (including optional ones)
-RUN osmedeus install binary --all --install-optional || true
+RUN golish install binary --all --install-optional || true
 
-# Run osmedeus health check to verify installation
-RUN osmedeus health || true
+# Run golish health check to verify installation
+RUN golish health || true
 
 # Expose default server port
 EXPOSE 8002
@@ -73,7 +73,7 @@ EXPOSE 8002
 SHELL ["/bin/bash", "-c"]
 
 # Default entrypoint
-ENTRYPOINT ["osmedeus"]
+ENTRYPOINT ["golish"]
 
 # Default command shows help
 CMD ["--help"]

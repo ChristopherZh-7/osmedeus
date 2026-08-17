@@ -1,6 +1,6 @@
-# Hacking on Osmedeus
+# Hacking on Golish
 
-This document describes the technical architecture and development practices for Osmedeus. It's intended for developers who want to understand, modify, or extend the codebase.
+This document describes the technical architecture and development practices for Golish. It's intended for developers who want to understand, modify, or extend the codebase.
 
 ## Table of Contents
 
@@ -35,8 +35,8 @@ This document describes the technical architecture and development practices for
 ## Project Structure
 
 ```
-osmedeus/
-├── cmd/osmedeus/           # Application entry point
+golish/
+├── cmd/golish/           # Application entry point
 ├── internal/               # Private packages
 │   ├── client/             # Remote API client
 │   ├── config/             # Configuration management
@@ -44,7 +44,7 @@ osmedeus/
 │   ├── core/               # Core types (Workflow, Step, Trigger, etc.)
 │   ├── database/           # SQLite/PostgreSQL via Bun ORM
 │   ├── cloud/              # Cloud infrastructure provisioning (DO, AWS, GCP, Linode, Azure)
-│   ├── distributed/        # Distributed execution (master/worker, worker ID: wosm-<uuid8>)
+│   ├── distributed/        # Distributed execution (master/worker, worker ID: wgolish-<uuid8>)
 │   ├── executor/           # Workflow execution engine
 │   ├── fileio/             # High-performance file I/O (mmap)
 │   ├── functions/          # Utility functions (Goja JS runtime)
@@ -78,7 +78,7 @@ osmedeus/
 
 ## Architecture Overview
 
-Osmedeus follows a layered architecture:
+Golish follows a layered architecture:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -326,8 +326,8 @@ All preset tools are defined in `PresetToolRegistry` (`internal/core/agent_tool_
 | `jq` | Query JSON data using jq syntax | `json_data`, `expression` |
 | `exec_python` | Run inline Python code | `code` |
 | `exec_python_file` | Run a Python file | `path` |
-| `run_module` | Run an osmedeus module | `module`, `target`, `params`? |
-| `run_flow` | Run an osmedeus flow | `flow`, `target`, `params`? |
+| `run_module` | Run an golish module | `module`, `target`, `params`? |
+| `run_flow` | Run an golish flow | `flow`, `target`, `params`? |
 
 ### Custom Tool Definition
 
@@ -498,20 +498,20 @@ output, stderr, err := executor.RunAgentACP(ctx, "your prompt", "claude-code", &
 ### Agent CLI Command
 
 ```bash
-osmedeus agent "your message"                    # Default agent (claude-code)
-osmedeus agent --agent codex "your message"     # Specific agent
-osmedeus agent --list                            # List available agents
-osmedeus agent --cwd /path "message"            # Set working directory
-osmedeus agent --timeout 1h "message"           # Custom timeout
-echo "message" | osmedeus agent --stdin          # Read from stdin
+golish agent "your message"                    # Default agent (claude-code)
+golish agent --agent codex "your message"     # Specific agent
+golish agent --list                            # List available agents
+golish agent --cwd /path "message"            # Set working directory
+golish agent --timeout 1h "message"           # Custom timeout
+echo "message" | golish agent --stdin          # Read from stdin
 ```
 
 ### API Endpoint
 
-`POST /osm/api/agent/chat/completions` provides an OpenAI-compatible interface:
+`POST /golish/api/agent/chat/completions` provides an OpenAI-compatible interface:
 
 ```bash
-curl -X POST http://localhost:8000/osm/api/agent/chat/completions \
+curl -X POST http://localhost:8000/golish/api/agent/chat/completions \
   -H "Content-Type: application/json" \
   -d '{"model":"claude-code","messages":[{"role":"user","content":"Hello"}]}'
 ```
@@ -780,8 +780,8 @@ The server supports two authentication methods:
 
 | Method | Header | Description |
 |--------|--------|-------------|
-| API Key | `x-osm-api-key` | Simple token-based auth |
-| JWT | `Authorization: Bearer <token>` | Token from `/osm/api/login` |
+| API Key | `x-golish-api-key` | Simple token-based auth |
+| JWT | `Authorization: Bearer <token>` | Token from `/golish/api/login` |
 
 ### Priority Logic
 
@@ -807,7 +807,7 @@ Priority order:
 
 func APIKeyAuth(cfg *config.Config) fiber.Handler {
     return func(c *fiber.Ctx) error {
-        apiKey := c.Get("x-osm-api-key")
+        apiKey := c.Get("x-golish-api-key")
         if !isValidAPIKey(apiKey, cfg.Server.AuthAPIKey) {
             return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
                 "error":   true,
@@ -921,7 +921,7 @@ _ = vm.Set("my_new_function", vf.myNewFunction)
 const FnMyNewFunction = "my_new_function"
 ```
 
-Notable utility functions include `exec_python(code)` and `exec_python_file(path)` for running Python code, `exec_ts(code)` and `exec_ts_file(path)` for running TypeScript via `bun`, and `run_module(module, target, params)` / `run_flow(flow, target, params)` for launching osmedeus workflows as subprocesses.
+Notable utility functions include `exec_python(code)` and `exec_python_file(path)` for running Python code, `exec_ts(code)` and `exec_ts_file(path)` for running TypeScript via `bun`, and `run_module(module, target, params)` / `run_flow(flow, target, params)` for launching golish workflows as subprocesses.
 
 The `skip(message?)` function aborts remaining steps in the current module. In a flow, execution continues to the next module. It raises `ErrSkipModule` (defined in `internal/functions/constants.go`).
 
@@ -985,8 +985,8 @@ steps:
 ```
 
 Event delivery uses a fallback chain:
-1. **Server API** - POST to `/osm/api/events/emit` if server configured
-2. **Redis Pub/Sub** - Publish to `osm:events:{topic}` in distributed mode
+1. **Server API** - POST to `/golish/api/events/emit` if server configured
+2. **Redis Pub/Sub** - Publish to `golish:events:{topic}` in distributed mode
 3. **Database Queue** - Store in `event_logs` table with `processed=false`
 4. **Webhooks** - Send to configured webhook endpoints
 
@@ -1185,28 +1185,28 @@ The workflow linter (`internal/linter/`) provides static analysis of workflow YA
 
 ```bash
 # Lint a single workflow
-osmedeus workflow lint my-workflow.yaml
+golish workflow lint my-workflow.yaml
 
 # Lint by workflow name (searches in workflows path)
-osmedeus workflow lint my-workflow
+golish workflow lint my-workflow
 
 # Lint all workflows in a directory
-osmedeus workflow lint /path/to/workflows/
+golish workflow lint /path/to/workflows/
 
 # Output formats
-osmedeus workflow lint my-workflow.yaml --format pretty   # Default, colored output
-osmedeus workflow lint my-workflow.yaml --format json     # Machine-readable JSON
-osmedeus workflow lint my-workflow.yaml --format github   # GitHub Actions annotations
+golish workflow lint my-workflow.yaml --format pretty   # Default, colored output
+golish workflow lint my-workflow.yaml --format json     # Machine-readable JSON
+golish workflow lint my-workflow.yaml --format github   # GitHub Actions annotations
 
 # Filter by severity
-osmedeus workflow lint my-workflow.yaml --severity warning  # Show warnings and above
-osmedeus workflow lint my-workflow.yaml --severity error    # Show only errors
+golish workflow lint my-workflow.yaml --severity warning  # Show warnings and above
+golish workflow lint my-workflow.yaml --severity error    # Show only errors
 
 # Disable specific rules
-osmedeus workflow lint my-workflow.yaml --disable unused-variable,empty-step
+golish workflow lint my-workflow.yaml --disable unused-variable,empty-step
 
 # CI mode (exit with error code if issues found)
-osmedeus workflow lint my-workflow.yaml --check
+golish workflow lint my-workflow.yaml --check
 ```
 
 ### Severity Levels
@@ -1545,7 +1545,7 @@ Topic patterns use glob syntax (`*` matches any characters, `?` matches single c
 
 ## SARIF Integration
 
-Osmedeus supports importing and analyzing results from SAST (Static Application Security Testing) tools that produce SARIF output.
+Golish supports importing and analyzing results from SAST (Static Application Security Testing) tools that produce SARIF output.
 
 ### Supported Tools
 
@@ -1566,7 +1566,7 @@ SARIF File → Parse runs/results/rules → Map severity → Upsert into databas
 
 The import function:
 1. Parses the SARIF JSON structure (runs → results → rules/locations)
-2. Maps SARIF severity levels to osmedeus severity (error→high, warning→medium, note→low)
+2. Maps SARIF severity levels to golish severity (error→high, warning→medium, note→low)
 3. Upserts findings into the database with deduplication
 4. Marks assets with `asset_type='repo'` for code-level analysis
 5. Returns stats: `{new, updated, unchanged, errors, total}`
@@ -1617,11 +1617,11 @@ The queue system enables delayed task execution with dual-source polling from da
 ### Architecture
 
 ```
-1. Queue task: osmedeus worker queue new -f <flow> -t <target>
+1. Queue task: golish worker queue new -f <flow> -t <target>
    └── Creates Run record with is_queued=true, status="queued"
    └── Optionally pushes to Redis queue
 
-2. Poll & Execute: osmedeus worker queue run
+2. Poll & Execute: golish worker queue run
    ├── DB poller: Checks every 5s for is_queued=true runs
    ├── Redis poller: BRPOP on task queue (optional)
    ├── Dedup: Track seen runUUIDs to avoid duplicates
@@ -1653,10 +1653,10 @@ type QueuedTask struct {
 ### CLI Commands
 
 ```bash
-osmedeus worker queue list                          # List queued tasks
-osmedeus worker queue new -f <flow> -t <target>    # Queue task for later
-osmedeus worker queue new -m <module> -T targets.txt -p key=value
-osmedeus worker queue run --concurrency 5           # Process queued tasks
+golish worker queue list                          # List queued tasks
+golish worker queue new -f <flow> -t <target>    # Queue task for later
+golish worker queue new -m <module> -T targets.txt -p key=value
+golish worker queue run --concurrency 5           # Process queued tasks
 ```
 
 ## Nmap Integration
@@ -1699,7 +1699,7 @@ Functions for managing long-running background processes via tmux:
 ```go
 // internal/functions/tmux_functions.go
 
-tmux_run(command, session_name?)  // Create detached session (auto-name: bosm-<random8>)
+tmux_run(command, session_name?)  // Create detached session (auto-name: glsh-<random8>)
 tmux_capture(session_name)        // Capture pane output ("all" for all sessions)
 tmux_send(session_name, command)  // Send keystrokes + Enter
 tmux_kill(session_name)           // Destroy session
@@ -1760,9 +1760,9 @@ API endpoints for triggering workflow runs via webhooks:
 ```go
 // pkg/server/handlers/webhook_runs.go
 
-GET  /osm/api/webhook-runs                    // List webhook-enabled runs (authenticated)
-GET  /osm/api/webhook-runs/{uuid}/trigger     // Trigger via GET (unauthenticated)
-POST /osm/api/webhook-runs/{uuid}/trigger     // Trigger with overrides (unauthenticated)
+GET  /golish/api/webhook-runs                    // List webhook-enabled runs (authenticated)
+GET  /golish/api/webhook-runs/{uuid}/trigger     // Trigger via GET (unauthenticated)
+POST /golish/api/webhook-runs/{uuid}/trigger     // Trigger with overrides (unauthenticated)
 ```
 
 Runs with `webhook_uuid` set serve as templates. The trigger endpoint is unauthenticated by default, with optional `?key=<auth_key>` protection. POST body can override `target`, `flow`, or `module`.
@@ -1885,7 +1885,7 @@ Canary tests are real-world integration tests that run actual security scans ins
 
 ```
 1. Build canary Docker image (multi-stage: Go 1.25 builder → Ubuntu 24.04 runtime)
-2. Compile osmedeus from current source (not released binaries)
+2. Compile golish from current source (not released binaries)
 3. Layer onto toolbox image with pre-installed SAST tools (Trivy, Semgrep, Kingfisher)
 4. Start API server in background on :8002
 5. Run scan workflows against real targets
@@ -1927,30 +1927,30 @@ Canary tests assert across three layers:
 
 ## Preset Installation
 
-Osmedeus supports installing base folders and workflows from curated preset repositories for reproducible deployments.
+Golish supports installing base folders and workflows from curated preset repositories for reproducible deployments.
 
 ### CLI Commands
 
 ```bash
 # Install base folder from preset repository
-osmedeus install base --preset
+golish install base --preset
 
-# Install base and restore previous osm-settings.yaml (API keys, Redis config, etc.)
-osmedeus install base --preset --keep-setting
+# Install base and restore previous golish-settings.yaml (API keys, Redis config, etc.)
+golish install base --preset --keep-setting
 
 # Install workflows from preset repository
-osmedeus install workflow --preset
+golish install workflow --preset
 
 # Validate and install ready-to-use base
-osmedeus install validate --preset
+golish install validate --preset
 ```
 
 ### Settings Backup
 
-When `install base` runs, the entire base folder (including `osm-settings.yaml`) is deleted and replaced. To prevent losing custom settings:
+When `install base` runs, the entire base folder (including `golish-settings.yaml`) is deleted and replaced. To prevent losing custom settings:
 
-- **Automatic backup**: `osm-settings.yaml` is always backed up to `~/osmedeus-base/backup-osm-settings.yaml` before removal
-- **`--keep-setting` flag**: Restores the previous `osm-settings.yaml` over the newly installed one after installation
+- **Automatic backup**: `golish-settings.yaml` is always backed up to `~/golish-base/backup-golish-settings.yaml` before removal
+- **`--keep-setting` flag**: Restores the previous `golish-settings.yaml` over the newly installed one after installation
 
 This is handled by the `Installer.KeepSetting` field in `internal/installer/installer.go`.
 
@@ -1958,9 +1958,9 @@ This is handled by the `Installer.KeepSetting` field in `internal/installer/inst
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `OSM_PRESET_URL` | Default base repo | Override base preset source |
-| `OSM_WORKFLOW_URL` | Default workflow repo | Override workflow preset source |
-| `OSM_IGNORE_REGISTRY` | (unset) | Skip auto binary installation and binary health check |
+| `GOLISH_PRESET_URL` | Default base repo | Override base preset source |
+| `GOLISH_WORKFLOW_URL` | Default workflow repo | Override workflow preset source |
+| `GOLISH_IGNORE_REGISTRY` | (unset) | Skip auto binary installation and binary health check |
 
 ### Go Install Fallback
 
@@ -2108,9 +2108,9 @@ func init() {
 
 ### Command Aliases
 
-- `osmedeus func` - alias for `osmedeus function`
-- `osmedeus func e` - alias for `osmedeus function eval`
-- `osmedeus db ls` - alias for `osmedeus db list`
+- `golish func` - alias for `golish function`
+- `golish func e` - alias for `golish function eval`
+- `golish db ls` - alias for `golish db list`
 
 ### Database CLI Commands
 
@@ -2118,32 +2118,32 @@ Query and manage database tables directly from the CLI:
 
 ```bash
 # List all tables with row counts
-osmedeus db list
+golish db list
 
 # Query specific table (default columns shown)
-osmedeus db list --table event_logs
+golish db list --table event_logs
 
 # List available columns for a table
-osmedeus db list --table event_logs --list-columns
+golish db list --table event_logs --list-columns
 
 # Filter by specific columns
-osmedeus db list --table event_logs --columns topic,source,data_type,data
+golish db list --table event_logs --columns topic,source,data_type,data
 
 # Show all columns including hidden ones (id, timestamps)
-osmedeus db list --table event_logs --all
+golish db list --table event_logs --all
 
 # Filter by field value
-osmedeus db list --table event_logs --where topic=assets.new
-osmedeus db list --table event_logs --where processed=false
+golish db list --table event_logs --where topic=assets.new
+golish db list --table event_logs --where processed=false
 
 # Search across all columns
-osmedeus db list --table event_logs --search "nuclei"
+golish db list --table event_logs --search "nuclei"
 
 # Output as JSON for scripting
-osmedeus db list --table event_logs --json
+golish db list --table event_logs --json
 
 # Pagination
-osmedeus db list --table event_logs --offset 50 --limit 100
+golish db list --table event_logs --offset 50 --limit 100
 ```
 
 Default columns per table:
@@ -2158,34 +2158,34 @@ Evaluate utility functions from the command line with bulk processing support:
 
 ```bash
 # Single expression evaluation
-osmedeus func eval 'log_info("hello")'
-osmedeus func eval -e 'fileLength("/path/to/file.txt")'
+golish func eval 'log_info("hello")'
+golish func eval -e 'fileLength("/path/to/file.txt")'
 
 # With target variable
-osmedeus func eval -e 'httpGet("https://" + target)' -t example.com
+golish func eval -e 'httpGet("https://" + target)' -t example.com
 
 # Bulk processing from file (target variable available in script)
-osmedeus func eval -e 'log_info("Processing: " + target)' -T targets.txt
+golish func eval -e 'log_info("Processing: " + target)' -T targets.txt
 
 # Bulk processing with concurrency
-osmedeus func eval -e 'httpGet("https://" + target)' -T targets.txt -c 10
+golish func eval -e 'httpGet("https://" + target)' -T targets.txt -c 10
 
 # Using function files for reusable logic
-osmedeus func eval --function-file check-host.js -T targets.txt -c 5
+golish func eval --function-file check-host.js -T targets.txt -c 5
 
 # Additional parameters
-osmedeus func eval -e 'log_info(target + " in " + ws)' -T targets.txt --params ws=production
+golish func eval -e 'log_info(target + " in " + ws)' -T targets.txt --params ws=production
 
 # Function name with arguments
-osmedeus func eval log_info "hello world"
-osmedeus func eval -f httpGet "https://example.com"
+golish func eval log_info "hello world"
+golish func eval -f httpGet "https://example.com"
 
 # Read script from stdin
-echo 'log_info("hello")' | osmedeus func eval --stdin
+echo 'log_info("hello")' | golish func eval --stdin
 
 # List available functions
-osmedeus func list
-osmedeus func list event  # Filter by category
+golish func list
+golish func list event  # Filter by category
 ```
 
 ### New Scan Flags
@@ -2202,17 +2202,17 @@ osmedeus func list event  # Filter by category
 
 ```bash
 # Worker status and management
-osmedeus worker status                              # Show registered workers
-osmedeus worker status --columns id,alias,ip,status # Custom columns
-osmedeus worker status -s "query"                   # Search/filter workers
-osmedeus worker eval -e '<expr>'                    # Evaluate with distributed hooks
-osmedeus worker set <id-or-alias> <field> <value>   # Update worker metadata
+golish worker status                              # Show registered workers
+golish worker status --columns id,alias,ip,status # Custom columns
+golish worker status -s "query"                   # Search/filter workers
+golish worker eval -e '<expr>'                    # Evaluate with distributed hooks
+golish worker set <id-or-alias> <field> <value>   # Update worker metadata
 
 # Queue system for delayed execution
-osmedeus worker queue list                          # List queued tasks
-osmedeus worker queue new -f <flow> -t <target>    # Queue a task
-osmedeus worker queue new -m <module> -T targets.txt -p key=value
-osmedeus worker queue run --concurrency 5           # Process queued tasks
+golish worker queue list                          # List queued tasks
+golish worker queue new -f <flow> -t <target>    # Queue a task
+golish worker queue new -m <module> -T targets.txt -p key=value
+golish worker queue run --concurrency 5           # Process queued tasks
 ```
 
 ### Query Commands
@@ -2221,17 +2221,17 @@ Agent-friendly database queries for vulnerabilities, runs, and steps:
 
 ```bash
 # Query vulnerabilities
-osmedeus query vulns
-osmedeus query vulns --severity high --workspace example.com
-osmedeus query vulns --confidence certain --asset "api.example.com"
+golish query vulns
+golish query vulns --severity high --workspace example.com
+golish query vulns --confidence certain --asset "api.example.com"
 
 # Query workflow runs
-osmedeus query runs
-osmedeus query runs --status running --workflow general
-osmedeus query runs --target example.com --workspace example.com
+golish query runs
+golish query runs --status running --workflow general
+golish query runs --target example.com --workspace example.com
 
 # Query execution steps for a specific run
-osmedeus query steps --run <run-uuid>
+golish query steps --run <run-uuid>
 
 # Common flags (all subcommands)
 --json                  # JSON output
@@ -2246,14 +2246,14 @@ Configure existing remote machines without provisioning:
 
 ```bash
 # Setup one or more existing machines via SSH
-osmedeus cloud setup 1.2.3.4
-osmedeus cloud setup 1.2.3.4 5.6.7.8 9.10.11.12
+golish cloud setup 1.2.3.4
+golish cloud setup 1.2.3.4 5.6.7.8 9.10.11.12
 
 # With Ansible playbooks instead of SSH commands
-osmedeus cloud setup 1.2.3.4 --ansible
+golish cloud setup 1.2.3.4 --ansible
 
 # Verbose output for debugging
-osmedeus cloud setup 1.2.3.4 --verbose-setup
+golish cloud setup 1.2.3.4 --verbose-setup
 ```
 
 Uses SSH credentials from `cloud-settings.yaml`. Runs `setup.commands` and `post-commands` with template variable expansion (`{{public_ip}}`, `{{worker_name}}`, etc.). Checks SSH port availability before starting setup.
@@ -2262,32 +2262,32 @@ Uses SSH credentials from `cloud-settings.yaml`. Runs `setup.commands` and `post
 
 ```bash
 # List assets (paginated table output)
-osmedeus assets
-osmedeus assets -w example.com                   # Filter by workspace
-osmedeus assets --source httpx                   # Filter by source
-osmedeus assets --type web                       # Filter by asset type
-osmedeus assets "api.example"                    # Search by keyword
+golish assets
+golish assets -w example.com                   # Filter by workspace
+golish assets --source httpx                   # Filter by source
+golish assets --type web                       # Filter by asset type
+golish assets "api.example"                    # Search by keyword
 
 # Customize output columns
-osmedeus assets --columns url,title,status_code
-osmedeus assets --exclude-columns raw_json_data,raw_response
-osmedeus assets --all                            # Show all columns including hidden ones
+golish assets --columns url,title,status_code
+golish assets --exclude-columns raw_json_data,raw_response
+golish assets --all                            # Show all columns including hidden ones
 
 # Pagination
-osmedeus assets --limit 100 --offset 50
+golish assets --limit 100 --offset 50
 
 # Asset statistics (unique technologies, sources, remarks, types)
-osmedeus assets --stats
-osmedeus assets --stats -w example.com           # Stats for specific workspace
+golish assets --stats
+golish assets --stats -w example.com           # Stats for specific workspace
 
 # JSON output (for scripting)
-osmedeus assets --json
-osmedeus assets --stats --json
+golish assets --json
+golish assets --stats --json
 ```
 
 ### Debugging Tips
 
-- Use `osmedeus --usage-example` to see comprehensive examples for all commands
+- Use `golish --usage-example` to see comprehensive examples for all commands
 - Use `--verbose` or `--debug` for detailed logging
 - Use `--dry-run` to preview scan execution without running commands
 - Use `--log-file-tmp` to create timestamped log files for debugging

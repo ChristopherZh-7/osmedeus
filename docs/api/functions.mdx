@@ -10,7 +10,7 @@ description: "Execute and list utility functions"
 Execute a utility function script with template rendering and JavaScript execution.
 
 ```bash
-curl -X POST http://localhost:8002/osm/api/functions/eval \
+curl -X POST http://localhost:8002/golish/api/functions/eval \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -20,7 +20,7 @@ curl -X POST http://localhost:8002/osm/api/functions/eval \
 
 **With target variable:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/functions/eval \
+curl -X POST http://localhost:8002/golish/api/functions/eval \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -31,7 +31,7 @@ curl -X POST http://localhost:8002/osm/api/functions/eval \
 
 **With custom parameters:**
 ```bash
-curl -X POST http://localhost:8002/osm/api/functions/eval \
+curl -X POST http://localhost:8002/golish/api/functions/eval \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -66,7 +66,7 @@ curl -X POST http://localhost:8002/osm/api/functions/eval \
 Get a categorized list of all available utility functions.
 
 ```bash
-curl http://localhost:8002/osm/api/functions/list \
+curl http://localhost:8002/golish/api/functions/list \
   -H "Authorization: Bearer $TOKEN"
 ```
 
