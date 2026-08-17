@@ -23,6 +23,28 @@ export type Crumb = {
 };
 
 function titleCase(input: string) {
+  const labels: Record<string, string> = {
+    dashboard: "控制台",
+    assets: "资产",
+    inventory: "资产中心",
+    orgs: "组织",
+    workspaces: "工作区",
+    artifacts: "产物",
+    vulnerabilities: "漏洞",
+    workflows: "工作流",
+    "workflows-editor": "工作流编辑器",
+    upload: "上传",
+    scans: "扫描任务",
+    new: "新建扫描",
+    schedules: "计划任务",
+    events: "事件日志",
+    utilities: "实用函数",
+    registry: "工具仓库",
+    settings: "设置",
+    llm: "大模型调试台",
+    "agent-pentest": "智能渗透",
+  };
+  if (labels[input]) return labels[input];
   return input
     .replace(/[-_]+/g, " ")
     .split(" ")
@@ -51,7 +73,7 @@ function segmentIcon(segment: string): ComponentType<{ className?: string }> | u
 export function getBreadcrumbs(pathname: string): Crumb[] {
   const path = pathname || "/";
   if (path === "/") {
-    return [{ label: "Dashboard", icon: BarChartBigIcon, isCurrent: true }];
+    return [{ label: "控制台", icon: BarChartBigIcon, isCurrent: true }];
   }
   const parts = path.replace(/^\/+/, "").split("/");
   if (path.startsWith("/inventory")) {

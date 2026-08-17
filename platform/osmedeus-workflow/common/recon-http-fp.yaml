@@ -37,6 +37,10 @@ params:
   - name: defaultUA
     default: "User-Agent: Mozilla/5.0 (compatible; Osmedeus/v5; +https://github.com/j3ssie/osmedeus)"
 
+  - name: enableStoreHTTPResponse
+    type: bool
+    default: false
+
 # -----------------------------------------------------------------------------
 # DEPENDENCIES SECTION
 # -----------------------------------------------------------------------------
@@ -56,7 +60,7 @@ reports:
     description: HTTP fingerprinting data
 
   - name: httpInterestingMarkdownFile
-    default: "{{Output}}/fingerprint/http-interesting-{{TargetSpace}}.md"
+    path: "{{httpInterestingMarkdownFile}}"
     type: markdown
     description: HTTP Fingerprinting Results with Interesting HTTP Responses
 

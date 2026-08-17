@@ -18,6 +18,21 @@ import (
 // functionCallPattern matches function call syntax like functionName(...)
 var functionCallPattern = regexp.MustCompile(`\w+\s*\(`)
 
+// directTemplateVariablePattern matches an export that is only a template
+// variable, for example {{agent_plan}}. These exports must preserve the value
+// produced by the step instead of rendering it to text and then heuristically
+// treating text such as Markdown containing parentheses as JavaScript.
+var directTemplateVariablePattern = regexp.MustCompile(`^\s*\{\{\s*([A-Za-z_][A-Za-z0-9_]*)\s*\}\}\s*$`)
+
+func resolveDirectExportValue(expr string, vars map[string]interface{}) (interface{}, bool) {
+	matches := directTemplateVariablePattern.FindStringSubmatch(expr)
+	if len(matches) != 2 {
+		return nil, false
+	}
+	value, ok := vars[matches[1]]
+	return value, ok
+}
+
 // StepDispatcher dispatches steps to appropriate executors
 type StepDispatcher struct {
 	registry         *PluginRegistry
@@ -203,6 +218,14 @@ func (d *StepDispatcher) Dispatch(ctx context.Context, step *core.Step, execCtx 
 		// Render template variables in export values first, then evaluate if needed
 		exports := make(map[string]interface{}, len(step.Exports))
 		for name, expr := range step.Exports {
+			// Direct aliases such as {{agent_plan}} may contain arbitrary text,
+			// including Markdown and function-like prose. Preserve the original
+			// value and avoid evaluating that content as JavaScript.
+			if value, ok := resolveDirectExportValue(expr, vars); ok {
+				exports[name] = value
+				continue
+			}
+
 			rendered, err := d.templateEngine.Render(expr, vars)
 			if err != nil {
 				log.Warn("Failed to render export value, using original",

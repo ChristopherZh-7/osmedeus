@@ -339,12 +339,12 @@ export function BaseNode({
               </p>
               {showDetails && structured && (
                 <span className="rounded border px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                  args
+                  参数
                 </span>
               )}
             </div>
           ) : data.module ? (
-            <p className="text-xs text-muted-foreground">module</p>
+            <p className="text-xs text-muted-foreground">模块</p>
           ) : null}
           {showDetails && commandSummary && (
             <p

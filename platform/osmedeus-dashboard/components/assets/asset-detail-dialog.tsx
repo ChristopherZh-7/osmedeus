@@ -41,7 +41,7 @@ export function AssetDetailDialog({
         <DrawerHeader>
           <DrawerTitle className="flex items-center gap-2">
             <GlobeIcon className="size-5" />
-            Asset Details
+            资产详情
           </DrawerTitle>
           <DrawerDescription className="font-mono text-xs break-all">
             {safeUrl || "-"}
@@ -53,27 +53,27 @@ export function AssetDetailDialog({
             <section className="space-y-3">
               <h3 className="text-sm font-semibold flex items-center gap-2">
                 <GlobeIcon className="size-4" />
-                Overview
+                概览
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
                 <div>
-                  <p className="text-muted-foreground">id</p>
+                  <p className="text-muted-foreground">ID</p>
                   <p className="font-mono text-xs">{asset.id}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">asset_value</p>
+                  <p className="text-muted-foreground">资产值</p>
                   <p className="font-mono">{asset.assetValue || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">workspace</p>
+                  <p className="text-muted-foreground">工作区</p>
                   <p>{asset.workspace || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">input</p>
+                  <p className="text-muted-foreground">输入</p>
                   <p className="font-mono text-xs">{asset.input || "-"}</p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-muted-foreground">url</p>
+                  <p className="text-muted-foreground">URL</p>
                   <a
                     href={safeUrl || "#"}
                     target="_blank"
@@ -90,51 +90,51 @@ export function AssetDetailDialog({
             <section className="space-y-3">
               <h3 className="text-sm font-semibold flex items-center gap-2">
                 <CodeIcon className="size-4" />
-                HTTP Request
+                HTTP 请求
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
                 <div>
-                  <p className="text-muted-foreground">method</p>
+                  <p className="text-muted-foreground">方法</p>
                   <Badge variant="outline">{asset.method}</Badge>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">scheme</p>
+                  <p className="text-muted-foreground">协议</p>
                   <p>{asset.scheme || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">path</p>
+                  <p className="text-muted-foreground">路径</p>
                   <p className="font-mono text-xs">{asset.path || "/"}</p>
                 </div>
               </div>
             </section>
 
             <section className="space-y-3">
-              <h3 className="text-sm font-semibold">HTTP Response</h3>
+              <h3 className="text-sm font-semibold">HTTP 响应</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
                 <div>
-                  <p className="text-muted-foreground">status_code</p>
+                  <p className="text-muted-foreground">状态码</p>
                   <Badge variant={getStatusBadgeVariant(asset.statusCode)}>
                     {asset.statusCode}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">content_type</p>
+                  <p className="text-muted-foreground">内容类型</p>
                   <p className="text-xs">{asset.contentType || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">content_length</p>
+                  <p className="text-muted-foreground">内容长度</p>
                   <p>{formatBytes(asset.contentLength)}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">title</p>
+                  <p className="text-muted-foreground">标题</p>
                   <p className="truncate">{asset.title || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">words</p>
+                  <p className="text-muted-foreground">字数</p>
                   <p>{asset.words.toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">lines</p>
+                  <p className="text-muted-foreground">行数</p>
                   <p>{asset.lines.toLocaleString()}</p>
                 </div>
               </div>
@@ -143,19 +143,19 @@ export function AssetDetailDialog({
             <section className="space-y-3">
               <h3 className="text-sm font-semibold flex items-center gap-2">
                 <ServerIcon className="size-4" />
-                Network
+                网络
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
                 <div>
-                  <p className="text-muted-foreground">host_ip</p>
+                  <p className="text-muted-foreground">主机 IP</p>
                   <p className="font-mono">{asset.hostIp || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">tls</p>
+                  <p className="text-muted-foreground">TLS</p>
                   <p>{asset.tls || "-"}</p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-muted-foreground">dns_records</p>
+                  <p className="text-muted-foreground">DNS 记录</p>
                   {asset.aRecords.length > 0 ? (
                     <div className="flex flex-wrap gap-1 mt-1">
                       {asset.aRecords.map((ip, i) => (
@@ -174,20 +174,20 @@ export function AssetDetailDialog({
             <section className="space-y-3">
               <h3 className="text-sm font-semibold flex items-center gap-2">
                 <ShieldIcon className="size-4" />
-                Detection
+                检测信息
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
                 <div>
-                  <p className="text-muted-foreground">asset_type</p>
+                  <p className="text-muted-foreground">资产类型</p>
                   <Badge variant="secondary">{asset.assetType}</Badge>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">source</p>
+                  <p className="text-muted-foreground">来源</p>
                   <p>{asset.source || "-"}</p>
                 </div>
                 {asset.technologies.length > 0 && (
                   <div className="col-span-2">
-                    <p className="text-muted-foreground">tech</p>
+                    <p className="text-muted-foreground">技术栈</p>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {asset.technologies.map((tech, i) => (
                         <Badge key={i} variant="outline">
@@ -203,15 +203,15 @@ export function AssetDetailDialog({
             <section className="space-y-3">
               <h3 className="text-sm font-semibold flex items-center gap-2">
                 <ClockIcon className="size-4" />
-                Meta
+                元数据
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
                 <div>
-                  <p className="text-muted-foreground">time</p>
+                  <p className="text-muted-foreground">响应时间</p>
                   <p>{asset.responseTime || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">remarks</p>
+                  <p className="text-muted-foreground">备注</p>
                   <p>
                     {Array.isArray(asset.remarks)
                       ? asset.remarks.join(", ") || "-"
@@ -219,15 +219,15 @@ export function AssetDetailDialog({
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">created_at</p>
+                  <p className="text-muted-foreground">创建时间</p>
                   <p className="text-xs">{asset.createdAt.toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">updated_at</p>
+                  <p className="text-muted-foreground">更新时间</p>
                   <p className="text-xs">{asset.updatedAt.toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">last_seen_at</p>
+                  <p className="text-muted-foreground">最近发现时间</p>
                   <p className="text-xs">
                     {asset.lastSeenAt?.toLocaleString?.() ?? "-"}
                   </p>

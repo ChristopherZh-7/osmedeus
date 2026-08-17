@@ -9,7 +9,7 @@ function Breadcrumb({
 }: React.HTMLAttributes<HTMLElement>) {
   return (
     <nav
-      aria-label="breadcrumb"
+      aria-label="面包屑导航"
       data-slot="breadcrumb"
       className={cn("flex items-center", className)}
       {...props}

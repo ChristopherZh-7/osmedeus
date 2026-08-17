@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     const target = emptyTarget ? "" : body.target || "example.com";
     const priority = body.priority || "normal";
     return NextResponse.json({
-      message: "Scan started",
+      message: "扫描已启动",
       workflow,
       kind,
       target,
@@ -23,6 +23,6 @@ export async function POST(request: Request) {
       repeat_wait_time: body.repeat_wait_time,
     });
   } catch {
-    return NextResponse.json({ error: true, message: "Invalid request" }, { status: 400 });
+    return NextResponse.json({ error: true, message: "请求无效" }, { status: 400 });
   }
 }

@@ -90,13 +90,13 @@ export default function OrgsPage() {
     setBusy(true);
     try {
       await createOrg({ name, description: newDescription.trim() || undefined });
-      toast.success(`Created org ${name}`);
+      toast.success(`已创建组织 ${name}`);
       setCreateOpen(false);
       setNewName("");
       setNewDescription("");
       await refresh();
     } catch (err) {
-      toast.error(cleanError(err, "Failed to create org"));
+      toast.error(cleanError(err, "创建组织失败"));
     } finally {
       setBusy(false);
     }
@@ -112,11 +112,11 @@ export default function OrgsPage() {
     setBusy(true);
     try {
       await updateOrg(renameTarget.uuid, { name });
-      toast.success(`Renamed to ${name}`);
+      toast.success(`已重命名为 ${name}`);
       setRenameTarget(null);
       await refresh();
     } catch (err) {
-      toast.error(cleanError(err, "Failed to rename org"));
+      toast.error(cleanError(err, "重命名组织失败"));
     } finally {
       setBusy(false);
     }
@@ -129,8 +129,8 @@ export default function OrgsPage() {
       await deleteOrg(deleteTarget.uuid, purge);
       toast.success(
         purge
-          ? `Deleted ${deleteTarget.name} and its data`
-          : `Deleted ${deleteTarget.name} — its data moved to the default org`
+          ? `已删除 ${deleteTarget.name} 及其数据`
+          : `已删除 ${deleteTarget.name}，其数据已移至默认组织`
       );
       if (activeOrg?.uuid === deleteTarget.uuid) {
         selectOrg(null);
@@ -140,7 +140,7 @@ export default function OrgsPage() {
       setPurge(false);
       await refresh();
     } catch (err) {
-      toast.error(cleanError(err, "Failed to delete org"));
+      toast.error(cleanError(err, "删除组织失败"));
     } finally {
       setBusy(false);
     }
@@ -159,22 +159,21 @@ export default function OrgsPage() {
           <div>
             <CardTitle className="flex items-center gap-2">
               <BuildingIcon className="size-5 text-primary" />
-              Orgs
+              组织
             </CardTitle>
             <CardDescription>
-              Group workspaces under one org to query assets, findings and scans across all of
-              them. Data with no org belongs to <span className="font-medium">default</span>, and
-              with no org selected the dashboard spans every org.
+              将多个工作区归入同一组织，以跨工作区查询资产、漏洞和扫描。未归属组织的数据属于
+              <span className="font-medium">默认组织</span>；未选择组织时，控制台将展示所有组织的数据。
             </CardDescription>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => void refresh()} disabled={isLoading}>
               <RefreshCcwIcon className="size-4" />
-              Refresh
+              刷新
             </Button>
             <Button size="sm" onClick={() => setCreateOpen(true)}>
               <PlusIcon className="size-4" />
-              New org
+              新建组织
             </Button>
           </div>
         </CardHeader>
@@ -182,7 +181,7 @@ export default function OrgsPage() {
         <CardContent>
           {error ? (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              Could not load orgs. This server may predate the org API.
+              无法加载组织。当前服务可能不支持组织 API。
             </p>
           ) : isLoading ? (
             <div className="flex flex-col gap-2">
@@ -191,16 +190,16 @@ export default function OrgsPage() {
               ))}
             </div>
           ) : orgs.length === 0 ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">No orgs yet.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">暂无组织。</p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="text-right">Workspaces</TableHead>
-                  <TableHead className="text-right">Assets</TableHead>
-                  <TableHead className="text-right">Vulns</TableHead>
-                  <TableHead className="text-right">Runs</TableHead>
+                  <TableHead>名称</TableHead>
+                  <TableHead className="text-right">工作区</TableHead>
+                  <TableHead className="text-right">资产</TableHead>
+                  <TableHead className="text-right">漏洞</TableHead>
+                  <TableHead className="text-right">运行记录</TableHead>
                   <TableHead className="w-10" />
                 </TableRow>
               </TableHeader>
@@ -215,7 +214,7 @@ export default function OrgsPage() {
                             type="button"
                             onClick={() => selectOrg(isActive ? null : { uuid: org.uuid, name: org.name })}
                             className="flex items-center gap-2 text-left hover:underline"
-                            title={isActive ? "Clear org scope" : `Scope dashboard to ${org.name}`}
+                            title={isActive ? "清除组织范围" : `将控制台范围切换到 ${org.name}`}
                           >
                             {isActive ? (
                               <CheckIcon className="size-4 text-primary" />
@@ -226,7 +225,7 @@ export default function OrgsPage() {
                           </button>
                           {org.is_default && (
                             <Badge variant="secondary" className="text-[10px]">
-                              default
+                              默认组织
                             </Badge>
                           )}
                           {org.tags.map((t) => (
@@ -261,7 +260,7 @@ export default function OrgsPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onSelect={() => setAssignTarget(org)}>
                               <FolderPlusIcon className="size-4" />
-                              Assign workspaces
+                              分配工作区
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               disabled={org.is_default}
@@ -271,7 +270,7 @@ export default function OrgsPage() {
                               }}
                             >
                               <PencilIcon className="size-4" />
-                              Rename
+                              重命名
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               disabled={org.is_default}
@@ -282,7 +281,7 @@ export default function OrgsPage() {
                               }}
                             >
                               <Trash2Icon className="size-4" />
-                              Delete
+                              删除
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -298,8 +297,8 @@ export default function OrgsPage() {
             <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
               <GlobeIcon className="size-3.5" />
               {activeOrg
-                ? `Scoped to ${activeOrg.name}. Click its name again to show all orgs.`
-                : "Showing all orgs. Click an org name to scope the dashboard to it."}
+                ? `当前范围为 ${activeOrg.name}。再次点击其名称可显示全部组织。`
+                : "当前显示全部组织。点击组织名称可将控制台限定到该组织。"}
             </p>
           )}
         </CardContent>
@@ -309,15 +308,14 @@ export default function OrgsPage() {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>New org</DialogTitle>
+            <DialogTitle>新建组织</DialogTitle>
             <DialogDescription>
-              Create an org, then assign workspaces to it. Existing scan data is grouped without
-              re-scanning.
+              创建组织并为其分配工作区。现有扫描数据会自动归组，无需重新扫描。
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="org-name">Name</Label>
+              <Label htmlFor="org-name">名称</Label>
               <Input
                 id="org-name"
                 value={newName}
@@ -327,21 +325,21 @@ export default function OrgsPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="org-description">Description</Label>
+              <Label htmlFor="org-description">描述</Label>
               <Input
                 id="org-description"
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
-                placeholder="ACME Corp"
+                placeholder="例如：艾克米公司"
               />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)} disabled={busy}>
-              Cancel
+              取消
             </Button>
             <Button onClick={() => void handleCreate()} disabled={busy || !newName.trim()}>
-              Create
+              创建
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -351,13 +349,13 @@ export default function OrgsPage() {
       <Dialog open={!!renameTarget} onOpenChange={(o) => !o && setRenameTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Rename org</DialogTitle>
+            <DialogTitle>重命名组织</DialogTitle>
             <DialogDescription>
-              Renaming does not move any data — workspaces stay assigned.
+              重命名不会移动任何数据，工作区仍保持当前归属。
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="org-rename">Name</Label>
+            <Label htmlFor="org-rename">名称</Label>
             <Input
               id="org-rename"
               value={renameValue}
@@ -367,10 +365,10 @@ export default function OrgsPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRenameTarget(null)} disabled={busy}>
-              Cancel
+              取消
             </Button>
             <Button onClick={() => void handleRename()} disabled={busy || !renameValue.trim()}>
-              Rename
+              重命名
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -388,10 +386,9 @@ export default function OrgsPage() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete {deleteTarget?.name}</DialogTitle>
+            <DialogTitle>删除 {deleteTarget?.name}</DialogTitle>
             <DialogDescription>
-              By default the org&apos;s workspaces, assets, vulnerabilities and runs move to the
-              default org — nothing is lost, only the grouping.
+              默认情况下，该组织的工作区、资产、漏洞和运行记录会移至默认组织；数据不会丢失，只会改变分组。
             </DialogDescription>
           </DialogHeader>
 
@@ -402,22 +399,22 @@ export default function OrgsPage() {
               className="mt-0.5"
             />
             <span className="text-sm">
-              <span className="font-medium text-destructive">Also delete its data</span>
+              <span className="font-medium text-destructive">同时删除其数据</span>
               <span className="block text-xs text-muted-foreground">
-                Permanently removes {deleteTarget?.stats?.total_workspaces ?? 0} workspaces,{" "}
-                {deleteTarget?.stats?.total_assets ?? 0} assets,{" "}
-                {deleteTarget?.stats?.total_vulns ?? 0} vulnerabilities and{" "}
-                {deleteTarget?.stats?.total_runs ?? 0} runs. This cannot be undone.
+                永久删除 {deleteTarget?.stats?.total_workspaces ?? 0} 工作区、{" "}
+                {deleteTarget?.stats?.total_assets ?? 0} 资产、{" "}
+                {deleteTarget?.stats?.total_vulns ?? 0} 漏洞和{" "}
+                {deleteTarget?.stats?.total_runs ?? 0} 运行记录。此操作无法撤销。
               </span>
             </span>
           </label>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={busy}>
-              Cancel
+              取消
             </Button>
             <Button variant="destructive" onClick={() => void handleDelete()} disabled={busy}>
-              {purge ? "Delete org and data" : "Delete org"}
+              {purge ? "删除组织及其数据" : "删除组织"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -9,6 +9,6 @@ export async function POST(request: Request) {
     const token = `mock-${Buffer.from(username).toString("base64")}`;
     return NextResponse.json({ token });
   } catch {
-    return NextResponse.json({ error: true, message: "Invalid request" }, { status: 400 });
+    return NextResponse.json({ error: true, message: "请求无效" }, { status: 400 });
   }
 }

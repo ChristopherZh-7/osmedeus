@@ -119,7 +119,7 @@ export function DataGrid<T>({
   loading = false,
   emptyState,
   loadingState = (
-    <div className="py-10 text-center text-sm text-muted-foreground">Loading...</div>
+    <div className="py-10 text-center text-sm text-muted-foreground">加载中……</div>
   ),
   onRowClick,
   className,
@@ -249,13 +249,13 @@ export function GridPagination({
   return (
     <div className="flex items-center justify-between border-t border-border px-2 pt-3">
       <p className="text-sm text-muted-foreground">
-        Showing{" "}
+        显示{" "}
         <span className="font-medium text-foreground">{(page - 1) * pageSize + 1}</span>{" "}
-        to{" "}
+        至{" "}
         <span className="font-medium text-foreground">
           {Math.min(page * pageSize, totalItems)}
         </span>{" "}
-        of{" "}
+        共{" "}
         <span className="font-medium text-foreground">{totalItems.toLocaleString()}</span>{" "}
         {noun}
       </p>
@@ -267,7 +267,7 @@ export function GridPagination({
           disabled={page <= 1}
         >
           <ChevronLeftIcon className="mr-1 size-4" />
-          Previous
+          上一页
         </Button>
         <div className="flex items-center gap-1">
           {Array.from({ length: windowSize }, (_, i) => {
@@ -291,7 +291,7 @@ export function GridPagination({
           onClick={() => onPageChange?.(page + 1)}
           disabled={page >= totalPages}
         >
-          Next
+          下一页
           <ChevronRightIcon className="ml-1 size-4" />
         </Button>
       </div>
@@ -305,7 +305,7 @@ export function GridRefreshOverlay() {
     <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/50">
       <div className="flex items-center gap-2 rounded-control border border-border bg-background px-3 py-2 text-sm text-muted-foreground">
         <div className="size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        Refreshing...
+        刷新中……
       </div>
     </div>
   );

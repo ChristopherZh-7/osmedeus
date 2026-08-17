@@ -4,18 +4,15 @@ import { http, getHttpBaseURL } from "./http";
 export interface ServerInfo {
   message: string;
   version: string;
-  repo: string;
-  author: string;
-  docs: string;
+  repo?: string;
+  author?: string;
+  docs?: string;
   license?: string;
 }
 
 const DEMO_SERVER_INFO: ServerInfo = {
-  message: "Demo mode",
+  message: "演示模式",
   version: "demo",
-  repo: "https://github.com/j3ssie/osmedeus",
-  author: "j3ssie",
-  docs: "https://docs.osmedeus.org",
   license: "open-source",
 };
 

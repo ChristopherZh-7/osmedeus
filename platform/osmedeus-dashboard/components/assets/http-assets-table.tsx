@@ -132,9 +132,9 @@ function AssetValueCell({ data }: { data: HttpAsset }) {
       event.stopPropagation();
       try {
         await navigator.clipboard.writeText(assetValue);
-        toast.success("Copied URL");
+        toast.success("URL 已复制");
       } catch {
-        toast.error("Failed to copy URL");
+        toast.error("复制 URL 失败");
       }
     },
     [assetValue]
@@ -177,7 +177,7 @@ function AssetValueCell({ data }: { data: HttpAsset }) {
                 <CopyIcon className="size-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="top">Copy URL</TooltipContent>
+            <TooltipContent side="top">复制 URL</TooltipContent>
           </Tooltip>
         )}
         {urlToOpen && (
@@ -194,7 +194,7 @@ function AssetValueCell({ data }: { data: HttpAsset }) {
                 </a>
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="top">Open URL</TooltipContent>
+            <TooltipContent side="top">打开 URL</TooltipContent>
           </Tooltip>
         )}
       </span>
@@ -308,14 +308,14 @@ export function HttpAssetsTable({
       {
         key: "workspace",
         field: "workspace",
-        headerName: "Workspace",
+        headerName: "工作区",
         minWidth: 140,
         cellRenderer: (p: { value?: string }) => <TextCell value={p.value} />,
       },
       {
         key: "assetValue",
         colId: "assetValue",
-        headerName: "Asset Value",
+        headerName: "资产值",
         // The widest column by design: it carries a full URL plus two row
         // actions, so it takes the largest flex share and floors well above the
         // point where the copy/open buttons start eating the value.
@@ -355,14 +355,14 @@ export function HttpAssetsTable({
       {
         key: "input",
         field: "input",
-        headerName: "Input",
+        headerName: "输入",
         minWidth: 160,
         cellRenderer: (p: { value?: string }) => <MonoCell value={p.value} />,
       },
       {
         key: "scheme",
         field: "scheme",
-        headerName: "Scheme",
+        headerName: "协议",
         minWidth: 90,
         flex: 0,
         width: 100,
@@ -371,7 +371,7 @@ export function HttpAssetsTable({
       {
         key: "method",
         field: "method",
-        headerName: "Method",
+        headerName: "方法",
         minWidth: 90,
         flex: 0,
         width: 100,
@@ -387,14 +387,14 @@ export function HttpAssetsTable({
       {
         key: "path",
         field: "path",
-        headerName: "Path",
+        headerName: "路径",
         minWidth: 150,
         cellRenderer: (p: { value?: string }) => <MonoCell value={p.value} />,
       },
       {
         key: "statusCode",
         field: "statusCode",
-        headerName: "Status",
+        headerName: "状态",
         minWidth: 90,
         flex: 0,
         width: 100,
@@ -405,14 +405,14 @@ export function HttpAssetsTable({
       {
         key: "contentType",
         field: "contentType",
-        headerName: "Content Type",
+        headerName: "内容类型",
         minWidth: 170,
         cellRenderer: (p: { value?: string }) => <TextCell value={p.value} />,
       },
       {
         key: "contentLength",
         field: "contentLength",
-        headerName: "Content Length",
+        headerName: "内容长度",
         minWidth: 120,
         flex: 0,
         width: 130,
@@ -423,14 +423,14 @@ export function HttpAssetsTable({
       {
         key: "title",
         field: "title",
-        headerName: "Title",
+        headerName: "标题",
         minWidth: 150,
         cellRenderer: (p: { value?: string }) => <TitleCell value={p.value} />,
       },
       {
         key: "words",
         field: "words",
-        headerName: "Words",
+        headerName: "字数",
         minWidth: 90,
         flex: 0,
         width: 100,
@@ -441,7 +441,7 @@ export function HttpAssetsTable({
       {
         key: "lines",
         field: "lines",
-        headerName: "Lines",
+        headerName: "行数",
         minWidth: 90,
         flex: 0,
         width: 100,
@@ -452,14 +452,14 @@ export function HttpAssetsTable({
       {
         key: "hostIp",
         field: "hostIp",
-        headerName: "Host IP",
+        headerName: "主机 IP",
         minWidth: 120,
         cellRenderer: (p: { value?: string }) => <MonoCell value={p.value} />,
       },
       {
         key: "dnsRecords",
         colId: "dnsRecords",
-        headerName: "DNS Records",
+        headerName: "DNS 记录",
         minWidth: 160,
         sortable: false,
         valueGetter: (p) => p.data?.aRecords ?? [],
@@ -484,7 +484,7 @@ export function HttpAssetsTable({
       {
         key: "assetType",
         field: "assetType",
-        headerName: "Asset Type",
+        headerName: "资产类型",
         minWidth: 110,
         cellRenderer: (p: { value?: string }) =>
           p.value ? (
@@ -498,7 +498,7 @@ export function HttpAssetsTable({
       {
         key: "remarks",
         colId: "remarks",
-        headerName: "Remarks",
+        headerName: "备注",
         minWidth: 160,
         sortable: false,
         cellRenderer: (p: { data: HttpAsset }) => {
@@ -522,7 +522,7 @@ export function HttpAssetsTable({
       {
         key: "technologies",
         colId: "technologies",
-        headerName: "Tech",
+        headerName: "技术栈",
         minWidth: 150,
         valueGetter: (p) => (p.data?.technologies ?? []).join(", "),
         cellRenderer: (p: { data: HttpAsset }) => {
@@ -533,7 +533,7 @@ export function HttpAssetsTable({
             <ChipListCell
               items={techs}
               render={TechChip}
-              overflowTitle={`${techs.length} technologies`}
+              overflowTitle={`${techs.length} 项技术`}
             />
           );
         },
@@ -541,7 +541,7 @@ export function HttpAssetsTable({
       {
         key: "responseTime",
         field: "responseTime",
-        headerName: "Time",
+        headerName: "时间",
         minWidth: 110,
         flex: 0,
         width: 120,
@@ -550,14 +550,14 @@ export function HttpAssetsTable({
       {
         key: "source",
         field: "source",
-        headerName: "Source",
+        headerName: "来源",
         minWidth: 110,
         cellRenderer: (p: { value?: string }) => <TextCell value={p.value} />,
       },
       {
         key: "createdAt",
         field: "createdAt",
-        headerName: "Created At",
+        headerName: "创建时间",
         minWidth: 150,
         cellClass: "text-xs",
         valueFormatter: (p) => p.value?.toLocaleString?.() ?? "-",
@@ -565,7 +565,7 @@ export function HttpAssetsTable({
       {
         key: "updatedAt",
         field: "updatedAt",
-        headerName: "Updated At",
+        headerName: "更新时间",
         minWidth: 150,
         cellClass: "text-xs",
         valueFormatter: (p) => p.value?.toLocaleString?.() ?? "-",
@@ -573,7 +573,7 @@ export function HttpAssetsTable({
       {
         key: "lastSeenAt",
         field: "lastSeenAt",
-        headerName: "Last Seen At",
+        headerName: "最近发现时间",
         minWidth: 150,
         cellClass: "text-xs",
         valueFormatter: (p) => p.value?.toLocaleString?.() ?? "-",
@@ -625,11 +625,11 @@ export function HttpAssetsTable({
             <div className="relative flex min-h-[360px] items-center justify-center">
               <EmptyState
                 icon={hasActiveFilters ? SearchXIcon : LinkIcon}
-                title={hasActiveFilters ? "No matching assets" : "No assets found"}
+                title={hasActiveFilters ? "没有匹配的资产" : "未找到资产"}
                 description={
                   hasActiveFilters
-                    ? "No HTTP assets match your current filters. Try adjusting your search criteria or clearing some filters."
-                    : "No HTTP assets have been discovered yet. Run a scan to start discovering assets."
+                    ? "没有 HTTP 资产符合当前筛选条件，请调整或清除部分筛选条件。"
+                    : "尚未发现 HTTP 资产，请运行扫描任务开始发现资产。"
                 }
               />
             </div>

@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   BarChartBigIcon,
@@ -15,7 +14,6 @@ import {
   SquareFunction as SquareFunctionIcon,
   Package as PackageIcon,
   ArchiveIcon,
-  HeartIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ShieldAlertIcon,
@@ -42,109 +40,108 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import logo from "@/osmedeus-logo.png";
 
 const navigationGroups = [
   {
-    label: "Overview",
+    label: "概览",
     items: [
       {
-        name: "Statistics",
+        name: "统计概览",
         href: "/",
         icon: BarChartBigIcon,
       },
     ],
   },
   {
-    label: "Scans",
+    label: "扫描任务",
     items: [
       {
-        name: "Scans",
+        name: "扫描任务",
         href: "/scans",
         icon: ScanSearchIcon,
       },
       {
-        name: "Schedules",
+        name: "计划任务",
         href: "/schedules",
         icon: ClipboardCheckIcon,
       },
     ],
   },
   {
-    label: "Workflows",
+    label: "工作流",
     items: [
       {
-        name: "Workflows",
+        name: "工作流",
         href: "/workflows",
         icon: WorkflowIcon,
       },
       {
-        name: "Events",
+        name: "事件日志",
         href: "/events",
         icon: ScrollTextIcon,
       },
     ],
   },
   {
-    label: "Inventory",
+    label: "资产中心",
     items: [
       {
-        name: "Orgs",
+        name: "组织",
         href: "/inventory/orgs",
         icon: BuildingIcon,
       },
       {
-        name: "Workspaces",
+        name: "工作区",
         href: "/inventory/workspaces",
         icon: FolderOpenIcon,
       },
       {
-        name: "Assets",
+        name: "资产",
         href: "/inventory/assets",
         icon: DatabaseIcon,
       },
       {
-        name: "Artifacts",
+        name: "产物",
         href: "/inventory/artifacts",
         icon: ArchiveIcon,
       },
       {
-        name: "Vulnerabilities",
+        name: "漏洞",
         href: "/vulnerabilities",
         icon: ShieldAlertIcon,
       },
     ],
   },
   {
-    label: "AI Pentest",
+    label: "AI 渗透测试",
     items: [
       {
-        name: "Agent Pentest",
+        name: "智能渗透",
         href: "/agent-pentest",
         icon: ShieldCheckIcon,
       },
     ],
   },
   {
-    label: "System",
+    label: "系统",
     items: [
       {
-        name: "Utilities Functions",
+        name: "实用函数",
         href: "/utilities",
         icon: SquareFunctionIcon,
       },
       {
-        name: "LLM Playground",
+        name: "大模型调试台",
         href: "/llm",
         icon: BrainIcon,
       },
       {
-        name: "Registry",
+        name: "工具仓库",
         href: "/registry",
         icon: PackageIcon,
       },
       {
-        name: "Settings",
+        name: "设置",
         href: "/settings",
         icon: SettingsIcon,
       },
@@ -171,25 +168,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <Link href="/">
                 <div className="flex aspect-square size-7 items-center justify-center">
-                  <Image
-                    src={logo}
-                    alt="Osmedeus"
-                    width={28}
-                    height={28}
-                    className="size-7 logo-shadow"
-                    priority
-                  />
+                  <ShieldCheckIcon className="size-6 text-sidebar-primary" aria-hidden="true" />
                 </div>
                 <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold">Osmedeus</span>
+                    <span className="text-sm font-semibold">安全测试平台</span>
                     {isDemoMode() && (
                       <Badge variant="warning" className="text-[10px] px-1.5 py-0">
-                        Demo
+                        演示
                       </Badge>
                     )}
                   </div>
-                  <span className="text-2xs uppercase tracking-label text-faint">Dashboard</span>
+                  <span className="text-2xs uppercase tracking-label text-faint">控制台</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -226,24 +216,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       <SidebarFooter className="items-center gap-0.5 py-1">
-        <div className="flex items-center gap-1 text-2xs text-muted-foreground group-data-[collapsible=icon]:hidden">
-          <span>Crafted with</span>
-          <HeartIcon className="size-2.5 text-destructive" aria-label="love" />
-          <span>by</span>
-          <Link
-            href="http://twitter.com/j3ssie"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:underline"
-          >
-            <code className="font-mono text-2xs text-sidebar-primary">@j3ssie</code>
-          </Link>
-        </div>
         <Button
           onClick={toggleSidebar}
           variant="ghost"
           size="icon-sm"
-          aria-label="Toggle Sidebar"
+          aria-label="切换侧边栏"
         >
           {open ? <ChevronLeftIcon className="size-3" /> : <ChevronRightIcon className="size-3" />}
         </Button>

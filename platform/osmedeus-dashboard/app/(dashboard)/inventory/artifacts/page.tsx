@@ -235,7 +235,7 @@ export default function InventoryArtifactsPage() {
         }
         setArtifactsResponse(res);
       } catch (e) {
-        toast.error("Failed to load artifacts", {
+        toast.error("加载产物失败", {
           description: e instanceof Error ? e.message : "",
         });
       } finally {
@@ -274,8 +274,8 @@ export default function InventoryArtifactsPage() {
       setContentText(text);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "";
-      setContentError(msg || "Failed to fetch artifact content");
-      toast.error("Failed to fetch artifact content", {
+      setContentError(msg || "获取产物内容失败");
+      toast.error("获取产物内容失败", {
         description: msg,
       });
     } finally {
@@ -297,9 +297,9 @@ export default function InventoryArtifactsPage() {
       artifactPath: a.artifactPath,
     });
     if (!url) {
-      toast.error("Workspace Prefix Key not set", {
+      toast.error("未设置工作区访问密钥", {
         description:
-          "Add it in Settings → API Configuration to open raw artifacts in a new tab.",
+          "请在“设置 → API 配置”中添加，以便在新标签页打开原始产物。",
       });
       return;
     }
@@ -487,17 +487,17 @@ export default function InventoryArtifactsPage() {
         <CardHeader className="border-b bg-muted/30 py-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <CardTitle className="text-base">Artifacts Inventory</CardTitle>
+              <CardTitle className="text-base">产物清单</CardTitle>
               <CardDescription>
                 {typeof totalItems === "number" ? (
                   <>
                     <span className="font-medium text-foreground">
                       {totalItems.toLocaleString()}
                     </span>{" "}
-                    artifacts found
+                    个产物
                     {selectedWorkspace !== "all" && (
                       <>
-                        {" "}in{" "}
+                        {"，工作区："}
                         <span className="font-medium text-foreground">
                           {selectedWorkspace}
                         </span>
@@ -505,7 +505,7 @@ export default function InventoryArtifactsPage() {
                     )}
                     {selectedArtifactType !== "all" && (
                       <>
-                        {" "}as{" "}
+                        {"，类型："}
                         <span className="font-medium text-foreground">
                           {selectedArtifactType}
                         </span>
@@ -513,7 +513,7 @@ export default function InventoryArtifactsPage() {
                     )}
                   </>
                 ) : (
-                  "Loading artifacts..."
+                  "正在加载产物……"
                 )}
               </CardDescription>
             </div>
@@ -537,7 +537,7 @@ export default function InventoryArtifactsPage() {
                   disabled={isLoading}
                 >
                   <BookCheckIcon className="size-4" />
-                  Show only Exist File
+                  仅显示存在的文件
                 </Button>
 
                 <Button
@@ -549,7 +549,7 @@ export default function InventoryArtifactsPage() {
                   <RefreshCcwIcon
                     className={`size-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
                   />
-                  Refresh
+                  刷新
                 </Button>
               </div>
 
@@ -559,7 +559,7 @@ export default function InventoryArtifactsPage() {
                   <Input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search artifacts..."
+                    placeholder="搜索产物……"
                     className="pl-9"
                   />
                 </div>
@@ -575,11 +575,11 @@ export default function InventoryArtifactsPage() {
                   <SelectTrigger className="w-full sm:w-56">
                     <div className="flex items-center gap-2 flex-1">
                       <FolderOpenIcon className="size-4 text-muted-foreground" />
-                      <SelectValue placeholder="Select workspace" />
+                      <SelectValue placeholder="选择工作区" />
                     </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Workspaces</SelectItem>
+                    <SelectItem value="all">全部工作区</SelectItem>
                     {workspaceOptions.map((ws) => (
                       <SelectItem key={ws} value={ws}>
                         {ws}
@@ -599,11 +599,11 @@ export default function InventoryArtifactsPage() {
                   <SelectTrigger className="w-48">
                     <div className="flex items-center gap-2 flex-1">
                       <TagIcon className="size-4 text-muted-foreground" />
-                      <SelectValue placeholder="Artifact type" />
+                      <SelectValue placeholder="产物类型" />
                     </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Artifact Type</SelectItem>
+                    <SelectItem value="all">全部产物类型</SelectItem>
                     {artifactTypes.map((t) => (
                       <SelectItem key={t} value={t}>
                         {t}
@@ -621,11 +621,11 @@ export default function InventoryArtifactsPage() {
                   <SelectTrigger className="w-48">
                     <div className="flex items-center gap-2 flex-1">
                       <FileTextIcon className="size-4 text-muted-foreground" />
-                      <SelectValue placeholder="Content type" />
+                      <SelectValue placeholder="内容类型" />
                     </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Content Types</SelectItem>
+                    <SelectItem value="all">全部内容类型</SelectItem>
                     {contentTypes.map((t) => (
                       <SelectItem key={t} value={t}>
                         {t}
@@ -655,19 +655,19 @@ export default function InventoryArtifactsPage() {
                     }}
                   >
                     <ChevronLeftIcon className="size-4" />
-                    Back
+                    返回
                   </Button>
                   <TabsList>
-                    <TabsTrigger value="details">Details</TabsTrigger>
-                    <TabsTrigger value="content">Content</TabsTrigger>
-                    <TabsTrigger value="render">Render Report</TabsTrigger>
+                    <TabsTrigger value="details">详情</TabsTrigger>
+                    <TabsTrigger value="content">内容</TabsTrigger>
+                    <TabsTrigger value="render">渲染报告</TabsTrigger>
                   </TabsList>
 
                   <div className="ml-auto flex items-center gap-3">
                     <div className="min-w-0 flex items-center gap-2">
                       <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
                         <ArchiveIcon className="size-4" />
-                        <span>Artifact</span>
+                        <span>产物</span>
                       </div>
                       <div className="text-sm font-medium truncate">{selectedArtifact.name}</div>
                       <Badge variant={artifactTypeVariant(selectedArtifact.artifactType)} className="font-mono">
@@ -686,7 +686,7 @@ export default function InventoryArtifactsPage() {
                         disabled={contentLoading}
                       >
                         <RefreshCcwIcon className={`mr-2 size-4 ${contentLoading ? "animate-spin" : ""}`} />
-                        Refresh Artifact Content
+                        刷新产物内容
                       </Button>
                       <Button
                         variant="outline"
@@ -694,15 +694,15 @@ export default function InventoryArtifactsPage() {
                         onClick={async () => {
                           try {
                             await navigator.clipboard.writeText(contentText);
-                            toast.success("Copied to clipboard");
+                            toast.success("已复制到剪贴板");
                           } catch {
-                            toast.error("Failed to copy");
+                            toast.error("复制失败");
                           }
                         }}
                         disabled={contentLoading || !contentText}
                       >
                         <ClipboardIcon className="mr-2 size-4" />
-                        Copy
+                        复制
                       </Button>
                       <Button
                         variant="outline"
@@ -710,7 +710,7 @@ export default function InventoryArtifactsPage() {
                         onClick={() => openArtifactInNewTab(selectedArtifact)}
                       >
                         <ExternalLinkIcon className="mr-2 size-4" />
-                        Open Raw in New Tab
+                        在新标签页打开原始内容
                       </Button>
                       <Button
                         variant="outline"
@@ -732,7 +732,7 @@ export default function InventoryArtifactsPage() {
                         disabled={contentLoading || !contentText}
                       >
                         <DownloadIcon className="mr-2 size-4" />
-                        Download
+                        下载
                       </Button>
                     </div>
                   </div>
@@ -743,44 +743,44 @@ export default function InventoryArtifactsPage() {
                     <div className="pt-2 space-y-3 text-sm">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <div className="text-muted-foreground">Workspace</div>
+                          <div className="text-muted-foreground">工作区</div>
                           <div className="font-mono break-all">{selectedArtifact.workspace}</div>
                         </div>
                         <div>
-                          <div className="text-muted-foreground">Run ID</div>
+                          <div className="text-muted-foreground">运行 ID</div>
                           <div className="font-mono break-all">{selectedArtifact.runId || "-"}</div>
                         </div>
                         <div>
-                          <div className="text-muted-foreground">Artifact Type</div>
+                          <div className="text-muted-foreground">产物类型</div>
                           <Badge variant={artifactTypeVariant(selectedArtifact.artifactType)} className="font-mono">
                             {selectedArtifact.artifactType || "unknown"}
                           </Badge>
                         </div>
                         <div>
-                          <div className="text-muted-foreground">Content Type</div>
+                          <div className="text-muted-foreground">内容类型</div>
                           <Badge variant={contentTypeVariant(selectedArtifact.contentType)} className="font-mono">
                             {selectedArtifact.contentType || "unknown"}
                           </Badge>
                         </div>
                         <div>
-                          <div className="text-muted-foreground">Size</div>
+                          <div className="text-muted-foreground">大小</div>
                           <div className="font-mono">{formatBytes(selectedArtifact.sizeBytes || 0)}</div>
                         </div>
                         <div>
-                          <div className="text-muted-foreground">Lines</div>
+                          <div className="text-muted-foreground">行数</div>
                           <div className="font-mono">{selectedArtifact.lineCount}</div>
                         </div>
                       </div>
 
                       {selectedArtifact.description ? (
                         <div>
-                          <div className="text-muted-foreground">Description</div>
+                          <div className="text-muted-foreground">描述</div>
                           <div>{selectedArtifact.description}</div>
                         </div>
                       ) : null}
 
                       <div>
-                        <div className="text-muted-foreground">Artifact Path</div>
+                        <div className="text-muted-foreground">产物路径</div>
                         <div className="font-mono text-xs break-all">{selectedArtifact.artifactPath}</div>
                       </div>
                     </div>
@@ -795,7 +795,7 @@ export default function InventoryArtifactsPage() {
                           {contentLoading ? (
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <LoaderIcon className="size-4 animate-spin" />
-                              Loading...
+                              加载中……
                             </div>
                           ) : contentError ? (
                             <div className="text-sm text-destructive whitespace-pre-wrap break-words">
@@ -823,7 +823,7 @@ export default function InventoryArtifactsPage() {
                             </CodeHighlighter>
                           ) : (
                             <div className="text-sm text-muted-foreground">
-                              Click Refresh Artifact Content to view artifact data.
+                              点击“刷新产物内容”查看产物数据。
                             </div>
                           )}
                         </div>
@@ -839,7 +839,7 @@ export default function InventoryArtifactsPage() {
                         contentLoading ? (
                           <div className="p-4 flex items-center gap-2 text-sm text-muted-foreground">
                             <LoaderIcon className="size-4 animate-spin" />
-                            Loading...
+                            加载中……
                           </div>
                         ) : contentError ? (
                           <div className="p-4 text-sm text-destructive whitespace-pre-wrap break-words">
@@ -847,7 +847,7 @@ export default function InventoryArtifactsPage() {
                           </div>
                         ) : !contentText ? (
                           <div className="p-4 text-sm text-muted-foreground">
-                            Click Refresh Artifact Content to render report.
+                            点击“刷新产物内容”渲染报告。
                           </div>
                         ) : (
                           <iframe
@@ -863,7 +863,7 @@ export default function InventoryArtifactsPage() {
                             {contentLoading ? (
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <LoaderIcon className="size-4 animate-spin" />
-                                Loading...
+                                加载中……
                               </div>
                             ) : contentError ? (
                               <div className="text-sm text-destructive whitespace-pre-wrap break-words">
@@ -871,7 +871,7 @@ export default function InventoryArtifactsPage() {
                               </div>
                             ) : !contentText ? (
                               <div className="text-sm text-muted-foreground">
-                                Click Refresh Artifact Content to render report.
+                                点击“刷新产物内容”渲染报告。
                               </div>
                             ) : (
                               <div className="space-y-3">
@@ -932,7 +932,7 @@ export default function InventoryArtifactsPage() {
                         </ScrollArea>
                       ) : (
                         <div className="p-4 text-sm text-muted-foreground">
-                          Render Report supports HTML or Markdown artifacts.
+                          报告渲染支持 HTML 或 Markdown 产物。
                         </div>
                       )}
                     </div>
@@ -948,11 +948,11 @@ export default function InventoryArtifactsPage() {
             <div className="min-h-[360px] flex items-center justify-center">
               <EmptyState
                 icon={hasActiveFilters ? SearchXIcon : ArchiveIcon}
-                title={hasActiveFilters ? "No matching artifacts" : "No artifacts found"}
+                title={hasActiveFilters ? "没有匹配的产物" : "未找到产物"}
                 description={
                   hasActiveFilters
-                    ? "No artifacts match your current filters. Try adjusting search, workspace, artifact type, or content type."
-                    : "Artifacts appear when scans produce outputs like reports, logs, or state files."
+                    ? "没有产物符合当前筛选条件，请调整搜索词、工作区、产物类型或内容类型。"
+                    : "扫描任务生成报告、日志或状态文件后，产物将显示在这里。"
                 }
               />
             </div>
@@ -962,7 +962,7 @@ export default function InventoryArtifactsPage() {
                   <div className="absolute inset-0 bg-background/50 z-20 flex items-center justify-center">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground bg-background px-3 py-2 rounded-md shadow-sm border">
                       <div className="size-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                      Refreshing...
+                      刷新中……
                     </div>
                   </div>
                 )}
@@ -977,7 +977,7 @@ export default function InventoryArtifactsPage() {
                           onSort={(f) => handleSort(f as ArtifactSortField)}
                           className="w-[220px]"
                         >
-                          Name
+                          名称
                         </SortableTableHead>
                         <SortableTableHead
                           field="workspace"
@@ -985,7 +985,7 @@ export default function InventoryArtifactsPage() {
                           onSort={(f) => handleSort(f as ArtifactSortField)}
                           className="w-[190px]"
                         >
-                          Workspace
+                          工作区
                         </SortableTableHead>
                         <SortableTableHead
                           field="artifactType"
@@ -993,7 +993,7 @@ export default function InventoryArtifactsPage() {
                           onSort={(f) => handleSort(f as ArtifactSortField)}
                           className="w-[160px]"
                         >
-                          Artifact Type
+                          产物类型
                         </SortableTableHead>
                         <SortableTableHead
                           field="contentType"
@@ -1001,7 +1001,7 @@ export default function InventoryArtifactsPage() {
                           onSort={(f) => handleSort(f as ArtifactSortField)}
                           className="w-[160px]"
                         >
-                          Content Type
+                          内容类型
                         </SortableTableHead>
                         <SortableTableHead
                           field="sizeBytes"
@@ -1009,7 +1009,7 @@ export default function InventoryArtifactsPage() {
                           onSort={(f) => handleSort(f as ArtifactSortField)}
                           className="w-[140px]"
                         >
-                          Size
+                          大小
                         </SortableTableHead>
                         <SortableTableHead
                           field="actions"
@@ -1017,7 +1017,7 @@ export default function InventoryArtifactsPage() {
                           onSort={(f) => handleSort(f as ArtifactSortField)}
                           className="w-[120px] text-center"
                         >
-                          Actions
+                          操作
                         </SortableTableHead>
                       </TableRow>
                     </TableHeader>
@@ -1044,7 +1044,7 @@ export default function InventoryArtifactsPage() {
                                     size="icon-sm"
                                     className="rounded-md"
                                     onClick={() => toggleWorkspaceCollapse(group.workspace)}
-                                    aria-label={`Toggle ${group.workspace}`}
+                                    aria-label={`切换 ${group.workspace}`}
                                   >
                                     {isCollapsed ? (
                                       <ChevronRightIcon className="size-3.5" />
@@ -1107,7 +1107,7 @@ export default function InventoryArtifactsPage() {
                                   e.stopPropagation();
                                   openContent(a);
                                 }}
-                                aria-label="Fetch content"
+                                aria-label="获取内容"
                               >
                                 <BookSearchIcon className="size-4" />
                               </Button>
@@ -1119,7 +1119,7 @@ export default function InventoryArtifactsPage() {
                                   e.stopPropagation();
                                   openArtifactInNewTab(a);
                                 }}
-                                aria-label="Open raw in new tab"
+                                aria-label="在新标签页打开原始内容"
                               >
                                 <ExternalLinkIcon className="size-4" />
                               </Button>
@@ -1137,15 +1137,15 @@ export default function InventoryArtifactsPage() {
                 {typeof totalPages === "number" && totalPages > 1 && (
                   <div className="flex items-center justify-between px-4 py-3 border-t">
                     <p className="text-sm text-muted-foreground">
-                      Showing{" "}
+                      显示{" "}
                       <span className="font-medium text-foreground">
                         {(page - 1) * pageSize + 1}
                       </span>{" "}
-                      to{" "}
+                      至{" "}
                       <span className="font-medium text-foreground">
                         {Math.min(page * pageSize, totalItems ?? page * pageSize)}
                       </span>{" "}
-                      of{" "}
+                      共{" "}
                       <span className="font-medium text-foreground">
                         {(totalItems ?? 0).toLocaleString()}
                       </span>
@@ -1161,10 +1161,10 @@ export default function InventoryArtifactsPage() {
                         disabled={page <= 1 || isLoading}
                       >
                         <ChevronLeftIcon className="size-4" />
-                        Prev
+                        上一页
                       </Button>
                       <div className="text-sm text-muted-foreground px-2">
-                        Page{" "}
+                        页{" "}
                         <span className="font-medium text-foreground">{page}</span> /{" "}
                         <span className="font-medium text-foreground">{totalPages}</span>
                       </div>
@@ -1177,7 +1177,7 @@ export default function InventoryArtifactsPage() {
                         }}
                         disabled={page >= totalPages || isLoading}
                       >
-                        Next
+                        下一页
                         <ChevronRightIcon className="size-4" />
                       </Button>
                     </div>

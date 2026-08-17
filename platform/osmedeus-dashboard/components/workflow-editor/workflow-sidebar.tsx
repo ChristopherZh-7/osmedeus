@@ -223,14 +223,14 @@ export function WorkflowSidebar({
                 onClick={async () => {
                   try {
                     await navigator.clipboard.writeText(copyAllText);
-                    toast.success("Copied to clipboard");
+                    toast.success("已复制到剪贴板");
                   } catch {
-                    toast.error("Failed to copy");
+                    toast.error("复制失败");
                   }
                 }}
               >
                 <ClipboardIcon className="size-4" />
-                <span className="sr-only">Copy all</span>
+                <span className="sr-only">复制全部</span>
               </Button>
             )}
           </div>
@@ -281,7 +281,7 @@ export function WorkflowSidebar({
     if (Array.isArray(decision) && decision.length > 0) {
       return (
         <div className="space-y-2">
-          <Label>Decision Rules</Label>
+          <Label>决策规则</Label>
           <div className="space-y-2">
             {decision.map((rule, i) => (
               <div key={i} className="rounded-md border p-2 text-xs font-mono overflow-hidden">
@@ -302,7 +302,7 @@ export function WorkflowSidebar({
 
       return (
         <div className="space-y-2">
-          <Label>Decision (switch)</Label>
+          <Label>决策（switch）</Label>
           <div className="rounded-md border bg-muted/30 p-2 font-mono text-xs whitespace-pre-wrap break-words">
             switch {(decision as any).switch}
           </div>
@@ -318,7 +318,7 @@ export function WorkflowSidebar({
             })}
             {hasDefault && (
               <div className="rounded-md border p-2 text-xs font-mono overflow-hidden">
-                <div className="text-muted-foreground whitespace-pre-wrap break-words">default</div>
+                <div className="text-muted-foreground whitespace-pre-wrap break-words">默认组织</div>
                 <div className="text-primary whitespace-pre-wrap break-words">→ {defaultGoto}</div>
               </div>
             )}
@@ -336,10 +336,10 @@ export function WorkflowSidebar({
         <div className="border-b px-4 py-2">
           <TabsList className="w-full">
             <TabsTrigger value="properties" className="flex-1">
-              Properties
+              属性
             </TabsTrigger>
             <TabsTrigger value="items" className="flex-1">
-              {workflowKind === "flow" ? "Modules" : "Steps"}
+              {workflowKind === "flow" ? "模块" : "步骤"}
             </TabsTrigger>
             <TabsTrigger value="yaml" className="flex-1">
               YAML
@@ -367,7 +367,7 @@ export function WorkflowSidebar({
                 {/* Basic Properties */}
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="stepName">Name</Label>
+                    <Label htmlFor="stepName">名称</Label>
                     <Input
                       id="stepName"
                       value={selectionName}
@@ -380,7 +380,7 @@ export function WorkflowSidebar({
 
                   {selectedTrigger && normalizedTriggerEntries.length > 0 && (
                     <div className="space-y-4">
-                      <Label>Triggers</Label>
+                      <Label>触发器</Label>
                       <div className="space-y-3">
                         {normalizedTriggerEntries.map((trigger, idx) => (
                           <div key={`${trigger.name || "trigger"}-${idx}`} className="rounded-md border p-3 space-y-3">
@@ -389,18 +389,18 @@ export function WorkflowSidebar({
                                 {trigger.on || "trigger"}
                               </Badge>
                               <span className="text-sm font-medium">
-                                {trigger.name || `Trigger ${idx + 1}`}
+                                {trigger.name || `触发器 ${idx + 1}`}
                               </span>
                               {typeof trigger.enabled === "boolean" && (
                                 <Badge variant={trigger.enabled ? "success" : "outline"}>
-                                  {trigger.enabled ? "enabled" : "disabled"}
+                                  {trigger.enabled ? "已启用" : "已停用"}
                                 </Badge>
                               )}
                             </div>
 
                             {trigger.schedule && (
                               <div className="space-y-2">
-                                <Label>Schedule</Label>
+                                <Label>计划</Label>
                                 <div className="rounded-md border bg-muted/30 p-2 font-mono text-xs whitespace-pre-wrap break-words">
                                   {trigger.schedule}
                                 </div>
@@ -409,7 +409,7 @@ export function WorkflowSidebar({
 
                             {trigger.path && (
                               <div className="space-y-2">
-                                <Label>Path</Label>
+                                <Label>路径</Label>
                                 <div className="rounded-md border bg-muted/30 p-2 font-mono text-xs whitespace-pre-wrap break-words">
                                   {trigger.path}
                                 </div>
@@ -418,7 +418,7 @@ export function WorkflowSidebar({
 
                             {trigger.event?.topic && (
                               <div className="space-y-2">
-                                <Label>Topic</Label>
+                                <Label>主题</Label>
                                 <div className="rounded-md border bg-muted/30 p-2 font-mono text-xs whitespace-pre-wrap break-words">
                                   {trigger.event.topic}
                                 </div>
@@ -426,13 +426,13 @@ export function WorkflowSidebar({
                             )}
 
                             {trigger.event?.filters && trigger.event.filters.length > 0 &&
-                              renderStringList("Filters", trigger.event.filters, {
+                              renderStringList("筛选条件", trigger.event.filters, {
                                 language: "javascript",
                                 copyAllText: trigger.event.filters.join("\n"),
                               })}
 
                             {trigger.event?.filterFunctions && trigger.event.filterFunctions.length > 0 &&
-                              renderStringList("Filter Functions", trigger.event.filterFunctions, {
+                              renderStringList("筛选函数", trigger.event.filterFunctions, {
                                 language: "javascript",
                                 copyAllText: trigger.event.filterFunctions.join("\n"),
                               })}
@@ -445,7 +445,7 @@ export function WorkflowSidebar({
                   {selectedOverride && selectedOverride.params && Object.keys(selectedOverride.params).length > 0 && (
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label>Override Params</Label>
+                        <Label>覆盖参数</Label>
                         <div className="rounded-md border bg-muted/30 p-2">
                           <CodeHighlighter
                             language="json"
@@ -475,7 +475,7 @@ export function WorkflowSidebar({
                     <div className="space-y-4">
                       {selectedModule.extends && (
                         <div className="space-y-2">
-                          <Label>Extends</Label>
+                          <Label>继承</Label>
                           <div className="rounded-md border bg-muted/30 p-2 font-mono text-xs whitespace-pre-wrap break-words">
                             {selectedModule.extends}
                           </div>
@@ -484,7 +484,7 @@ export function WorkflowSidebar({
 
                       {selectedModule.path && (
                         <div className="space-y-2">
-                          <Label>Path</Label>
+                          <Label>路径</Label>
                           <div className="rounded-md border bg-muted/30 p-2 font-mono text-xs whitespace-pre-wrap break-words">
                             {selectedModule.path}
                           </div>
@@ -493,14 +493,14 @@ export function WorkflowSidebar({
 
                       {Array.isArray(selectedModule.depends_on) && selectedModule.depends_on.length > 0 &&
                         renderStringList(
-                          "Depends On",
+                          "依赖模块",
                           selectedModule.depends_on.map((d) => String(d)),
                           { copyAllText: selectedModule.depends_on.join("\n") }
                         )}
 
                       {selectedModule.condition && (
                         <div className="space-y-2">
-                          <Label>Condition</Label>
+                          <Label>条件</Label>
                           <div className="rounded-md border bg-muted/30 p-2 font-mono text-xs whitespace-pre-wrap break-words">
                             {selectedModule.condition}
                           </div>
@@ -509,7 +509,7 @@ export function WorkflowSidebar({
 
                       {selectedModule.params && Object.keys(selectedModule.params).length > 0 && (
                         <div className="space-y-2">
-                          <Label>Params</Label>
+                          <Label>参数</Label>
                           <div className="rounded-md border bg-muted/30 p-2">
                             <CodeHighlighter
                               language="json"
@@ -538,7 +538,7 @@ export function WorkflowSidebar({
 
                       {Array.isArray(selectedModule.on_success) && selectedModule.on_success.length > 0 && (
                         <div className="space-y-2">
-                          <Label>On Success</Label>
+                          <Label>成功时</Label>
                           <div className="rounded-md border bg-muted/30 p-2">
                             <CodeHighlighter
                               language="json"
@@ -565,7 +565,7 @@ export function WorkflowSidebar({
 
                       {Array.isArray(selectedModule.on_error) && selectedModule.on_error.length > 0 && (
                         <div className="space-y-2">
-                          <Label>On Error</Label>
+                          <Label>出错时</Label>
                           <div className="rounded-md border bg-muted/30 p-2">
                             <CodeHighlighter
                               language="json"
@@ -595,7 +595,7 @@ export function WorkflowSidebar({
                   {selectedStep && (selectedStep.type === "bash" || selectedStep.type === "remote-bash" || selectedStep.type === "container") && selectedStep.command && (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between gap-2">
-                        <Label htmlFor="command">Command</Label>
+                        <Label htmlFor="command">命令</Label>
                         <Button
                           className="rounded-md"
                           variant="outline"
@@ -603,14 +603,14 @@ export function WorkflowSidebar({
                           onClick={async () => {
                             try {
                               await navigator.clipboard.writeText(selectedStep.command || "");
-                              toast.success("Copied to clipboard");
+                              toast.success("已复制到剪贴板");
                             } catch {
-                              toast.error("Failed to copy");
+                              toast.error("复制失败");
                             }
                           }}
                         >
                           <ClipboardIcon className="size-4" />
-                          <span className="sr-only">Copy command</span>
+                          <span className="sr-only">复制命令</span>
                         </Button>
                       </div>
                       <div className="rounded-md border bg-muted/30 p-2">
@@ -644,7 +644,7 @@ export function WorkflowSidebar({
                     selectedStep.output_args !== undefined
                   ) && (
                     <div className="space-y-2">
-                      <Label>Structured Args</Label>
+                      <Label>结构化参数</Label>
                       <div className="space-y-2">
                         <div className="rounded-md border p-2 text-xs font-mono overflow-hidden">
                           <div className="text-muted-foreground whitespace-pre-wrap break-words">speed_args</div>
@@ -666,7 +666,7 @@ export function WorkflowSidebar({
 
                       {bashResolvedCommand && (
                         <div className="space-y-2">
-                          <Label>Resolved Command</Label>
+                          <Label>解析后的命令</Label>
                           <div className="rounded-md border bg-muted/30 p-2">
                             <CodeHighlighter
                               language="bash"
@@ -695,21 +695,21 @@ export function WorkflowSidebar({
 
                   {selectedStep && (selectedStep.type === "bash" || selectedStep.type === "remote-bash" || selectedStep.type === "container") &&
                     Array.isArray(selectedStep.commands) && selectedStep.commands.length > 0 &&
-                    renderStringList("Commands", selectedStep.commands, {
+                    renderStringList("命令", selectedStep.commands, {
                       language: "bash",
                       copyAllText: selectedStep.commands.join("\n"),
                     })}
 
                   {selectedStep && (selectedStep.type === "bash" || selectedStep.type === "remote-bash" || selectedStep.type === "container") &&
                     Array.isArray(selectedStep.parallel_commands) && selectedStep.parallel_commands.length > 0 &&
-                    renderStringList("Parallel Commands", selectedStep.parallel_commands, {
+                    renderStringList("并行命令", selectedStep.parallel_commands, {
                       language: "bash",
                       copyAllText: selectedStep.parallel_commands.join("\n"),
                     })}
 
                   {selectedStep && selectedStep.type === "function" && selectedStep.function && (
                     <div className="space-y-2">
-                      <Label>Function</Label>
+                      <Label>函数</Label>
                       <div className="rounded-md border bg-muted/30 p-2">
                         <CodeHighlighter
                           language="javascript"
@@ -737,14 +737,14 @@ export function WorkflowSidebar({
 
                   {selectedStep && selectedStep.type === "function" &&
                     Array.isArray(selectedStep.functions) && selectedStep.functions.length > 0 &&
-                    renderStringList("Functions", selectedStep.functions, {
+                    renderStringList("函数", selectedStep.functions, {
                       language: "javascript",
                       copyAllText: selectedStep.functions.join("\n"),
                     })}
 
                   {selectedStep && selectedStep.type === "function" &&
                     Array.isArray(selectedStep.parallel_functions) && selectedStep.parallel_functions.length > 0 &&
-                    renderStringList("Parallel Functions", selectedStep.parallel_functions, {
+                    renderStringList("并行函数", selectedStep.parallel_functions, {
                       language: "javascript",
                       copyAllText: selectedStep.parallel_functions.join("\n"),
                     })}
@@ -762,7 +762,7 @@ export function WorkflowSidebar({
 
                       {selectedStep.method && (
                         <div className="space-y-2">
-                          <Label>Method</Label>
+                          <Label>方法</Label>
                           <div className="rounded-md border bg-muted/30 p-2 font-mono text-xs whitespace-pre-wrap break-words">
                             {selectedStep.method}
                           </div>
@@ -771,7 +771,7 @@ export function WorkflowSidebar({
 
                       {selectedStep.headers && Object.keys(selectedStep.headers).length > 0 && (
                         <div className="space-y-2">
-                          <Label>Headers</Label>
+                          <Label>请求头</Label>
                           <div className="rounded-md border bg-muted/30 p-2">
                             <CodeHighlighter
                               language="json"
@@ -798,7 +798,7 @@ export function WorkflowSidebar({
 
                       {selectedStep.request_body && (
                         <div className="space-y-2">
-                          <Label>Request Body</Label>
+                          <Label>请求体</Label>
                           <div className="rounded-md border bg-muted/30 p-2">
                             <CodeHighlighter
                               language="json"
@@ -829,7 +829,7 @@ export function WorkflowSidebar({
                     <div className="space-y-4">
                       {typeof selectedStep.is_embedding === "boolean" && (
                         <div className="space-y-2">
-                          <Label>Embedding</Label>
+                          <Label>嵌入向量</Label>
                           <div className="rounded-md border bg-muted/30 p-2 font-mono text-xs">
                             {String(selectedStep.is_embedding)}
                           </div>
@@ -838,28 +838,28 @@ export function WorkflowSidebar({
 
                       {Array.isArray(selectedStep.embedding_input) && selectedStep.embedding_input.length > 0 &&
                         renderStringList(
-                          "Embedding Input",
+                          "嵌入输入",
                           selectedStep.embedding_input.map((v) => String(v)),
                           { copyAllText: selectedStep.embedding_input.join("\n") }
                         )}
 
                       {Array.isArray(selectedStep.messages) && selectedStep.messages.length > 0 &&
                         renderStringList(
-                          "Messages",
+                          "消息",
                           selectedStep.messages.map((m) => JSON.stringify(m, null, 2)),
                           { language: "json", copyAllText: JSON.stringify(selectedStep.messages, null, 2) }
                         )}
 
                       {Array.isArray(selectedStep.tools) && selectedStep.tools.length > 0 &&
                         renderStringList(
-                          "Tools",
+                          "工具",
                           selectedStep.tools.map((t) => JSON.stringify(t, null, 2)),
                           { language: "json", copyAllText: JSON.stringify(selectedStep.tools, null, 2) }
                         )}
 
                       {selectedStep.tool_choice !== undefined && (
                         <div className="space-y-2">
-                          <Label>Tool Choice</Label>
+                          <Label>工具选择</Label>
                           <div className="rounded-md border bg-muted/30 p-2">
                             <CodeHighlighter
                               language="json"
@@ -886,7 +886,7 @@ export function WorkflowSidebar({
 
                       {selectedStep.llm_config && Object.keys(selectedStep.llm_config).length > 0 && (
                         <div className="space-y-2">
-                          <Label>LLM Config</Label>
+                          <Label>大模型配置</Label>
                           <div className="rounded-md border bg-muted/30 p-2">
                             <CodeHighlighter
                               language="json"
@@ -913,7 +913,7 @@ export function WorkflowSidebar({
 
                       {selectedStep.extra_llm_parameters && Object.keys(selectedStep.extra_llm_parameters).length > 0 && (
                         <div className="space-y-2">
-                          <Label>Extra LLM Parameters</Label>
+                          <Label>附加大模型参数</Label>
                           <div className="rounded-md border bg-muted/30 p-2">
                             <CodeHighlighter
                               language="json"
@@ -944,7 +944,7 @@ export function WorkflowSidebar({
                     <div className="space-y-4">
                       {selectedStep.step_runner && (
                         <div className="space-y-2">
-                          <Label>Runner</Label>
+                          <Label>运行器</Label>
                           <div className="rounded-md border bg-muted/30 p-2 font-mono text-xs whitespace-pre-wrap break-words">
                             {selectedStep.step_runner}
                           </div>
@@ -952,7 +952,7 @@ export function WorkflowSidebar({
                       )}
                       {selectedStep.step_runner_config && (
                         <div className="space-y-2">
-                          <Label>Runner Config</Label>
+                          <Label>运行器配置</Label>
                           <div className="rounded-md border bg-muted/30 p-2">
                             <CodeHighlighter
                               language="json"
@@ -981,7 +981,7 @@ export function WorkflowSidebar({
 
                   {selectedStep && (selectedStep.type === "parallel" || selectedStep.type === "parallel-steps") && Array.isArray(selectedStep.parallel_steps) && (
                     <div className="space-y-2">
-                      <Label>Parallel Steps ({selectedStep.parallel_steps.length})</Label>
+                      <Label>并行步骤（{selectedStep.parallel_steps.length})</Label>
                       <div className="space-y-2">
                         {selectedStep.parallel_steps.map((ps) => {
                           let psYaml = "";
@@ -1040,20 +1040,20 @@ export function WorkflowSidebar({
                   {selectedStep && selectedStep.type === "foreach" && (
                     <>
                       <div className="space-y-2">
-                        <Label>Input File</Label>
+                        <Label>输入文件</Label>
                         <div className="rounded-md bg-muted p-3 font-mono text-xs">
                           {selectedStep.input}
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label>Variable Name</Label>
+                        <Label>变量名</Label>
                         <div className="rounded-md bg-muted p-3 font-mono text-xs">
                           {selectedStep.variable}
                         </div>
                       </div>
                       {typeof selectedStep.threads === "number" && (
                         <div className="space-y-2">
-                          <Label>Threads</Label>
+                          <Label>线程数</Label>
                           <div className="rounded-md bg-muted p-3 font-mono text-xs">
                             {selectedStep.threads}
                           </div>
@@ -1063,7 +1063,7 @@ export function WorkflowSidebar({
                       {selectedStep.step && (
                         <div className="space-y-2">
                           <div className="flex items-center justify-between gap-2">
-                            <Label>Foreach Step</Label>
+                            <Label>遍历步骤</Label>
                             {foreachStepYaml && (
                               <Button
                                 className="rounded-md"
@@ -1072,14 +1072,14 @@ export function WorkflowSidebar({
                                 onClick={async () => {
                                   try {
                                     await navigator.clipboard.writeText(foreachStepYaml);
-                                    toast.success("Copied to clipboard");
+                                    toast.success("已复制到剪贴板");
                                   } catch {
-                                    toast.error("Failed to copy");
+                                    toast.error("复制失败");
                                   }
                                 }}
                               >
                                 <ClipboardIcon className="size-4" />
-                                <span className="sr-only">Copy foreach step YAML</span>
+                                <span className="sr-only">复制遍历步骤 YAML</span>
                               </Button>
                             )}
                           </div>
@@ -1130,7 +1130,7 @@ export function WorkflowSidebar({
                     <Separator />
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <ClockIcon className="size-4" />
-                      <span>Timeout: {selectedStep.timeout}s</span>
+                      <span>超时： {selectedStep.timeout}s</span>
                     </div>
                   </>
                 )}
@@ -1140,7 +1140,7 @@ export function WorkflowSidebar({
                   <>
                     <Separator />
                     <div className="space-y-2">
-                      <Label className="text-muted-foreground">Pre-condition</Label>
+                      <Label className="text-muted-foreground">前置条件</Label>
                       <div className="rounded-md bg-muted p-3 font-mono text-xs">
                         {selectedStep.pre_condition}
                       </div>
@@ -1153,7 +1153,7 @@ export function WorkflowSidebar({
                   <>
                     <Separator />
                     <div className="space-y-2">
-                      <Label>Exports</Label>
+                      <Label>导出变量</Label>
                       <div className="space-y-1">
                         {Object.entries(selectedStep.exports).map(([key, value]) => (
                           <div
@@ -1185,7 +1185,7 @@ export function WorkflowSidebar({
                   <>
                     <Separator />
                     <div className="space-y-2">
-                      <Label>Log</Label>
+                      <Label>日志</Label>
                       <div className="rounded-md border bg-muted/30 p-2 font-mono text-xs whitespace-pre-wrap break-words">
                         {selectedStep.log}
                       </div>
@@ -1196,7 +1196,7 @@ export function WorkflowSidebar({
             ) : (
               <div className="flex h-full items-center justify-center p-4">
                 <p className="text-sm text-muted-foreground text-center">
-                  Select a node to view its properties
+                  选择节点以查看其属性
                 </p>
               </div>
             )}
@@ -1210,7 +1210,7 @@ export function WorkflowSidebar({
                 <>
                   {allModules.length === 0 ? (
                     <div className="p-4 text-sm text-muted-foreground text-center">
-                      No modules
+                      暂无模块
                     </div>
                   ) : (
                     <div className="space-y-1">
@@ -1229,7 +1229,7 @@ export function WorkflowSidebar({
                             <div className="flex w-full items-center justify-between gap-3">
                               <span className="truncate font-mono text-xs">{m.name}</span>
                               <Badge variant="secondary" className="capitalize">
-                                module
+                                模块
                               </Badge>
                             </div>
                           </Button>
@@ -1242,7 +1242,7 @@ export function WorkflowSidebar({
                 <>
                   {allSteps.length === 0 ? (
                     <div className="p-4 text-sm text-muted-foreground text-center">
-                      No steps
+                      暂无步骤
                     </div>
                   ) : (
                     <div className="space-y-1">

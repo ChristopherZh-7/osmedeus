@@ -4,7 +4,7 @@ export const mockWorkflows: Workflow[] = [
   {
     name: "subdomain-enum",
     kind: "module",
-    description: "Enumerate subdomains using multiple tools and resolve alive hosts",
+    description: "使用多种工具枚举子域名并解析存活主机",
     tags: ["recon", "subdomain"],
     file_path: "/workflows/subdomain-enum.yaml",
     params: [
@@ -21,7 +21,7 @@ export const mockWorkflows: Workflow[] = [
   {
     name: "vulnerability-scan",
     kind: "module",
-    description: "Scan targets for common vulnerabilities using nuclei templates",
+    description: "使用 nuclei 模板扫描目标中的常见漏洞",
     tags: ["vuln", "security"],
     file_path: "/workflows/vulnerability-scan.yaml",
     params: [
@@ -37,7 +37,7 @@ export const mockWorkflows: Workflow[] = [
   {
     name: "http-probe",
     kind: "module",
-    description: "Probe HTTP/HTTPS endpoints and collect response data",
+    description: "探测 HTTP/HTTPS 端点并收集响应数据",
     tags: ["http", "probe"],
     file_path: "/workflows/http-probe.yaml",
     params: [
@@ -52,7 +52,7 @@ export const mockWorkflows: Workflow[] = [
   {
     name: "full-recon",
     kind: "flow",
-    description: "Complete reconnaissance workflow combining subdomain enum, HTTP probe, and vulnerability scan",
+    description: "整合子域名枚举、HTTP 探测和漏洞扫描的完整侦察工作流",
     tags: ["recon", "full", "flow"],
     file_path: "/workflows/full-recon.yaml",
     params: [
@@ -67,7 +67,7 @@ export const mockWorkflows: Workflow[] = [
   {
     name: "screenshot-capture",
     kind: "module",
-    description: "Capture screenshots of live web pages",
+    description: "截取可访问网页的屏幕截图",
     tags: ["screenshot", "visual"],
     file_path: "/workflows/screenshot-capture.yaml",
     params: [
@@ -82,7 +82,7 @@ export const mockWorkflows: Workflow[] = [
   {
     name: "tech-detection",
     kind: "module",
-    description: "Detect technologies and frameworks used by target applications",
+    description: "识别目标应用使用的技术与框架",
     tags: ["tech", "fingerprint"],
     file_path: "/workflows/tech-detection.yaml",
     params: [
@@ -97,7 +97,7 @@ export const mockWorkflows: Workflow[] = [
   {
     name: "mock-workflow",
     kind: "module",
-    description: "Demo mock workflow to preview React Flow editor",
+    description: "用于预览可视化工作流编辑器的演示工作流",
     tags: ["demo", "test"],
     file_path: "/workflows/mock-workflow.yaml",
     params: [],
@@ -112,7 +112,7 @@ export const mockWorkflows: Workflow[] = [
 // Sample YAML content for the workflow editor
 export const sampleWorkflowYaml = `name: subdomain-enum
 kind: module
-description: "Enumerate subdomains using multiple tools and resolve alive hosts"
+description: "使用多种工具枚举子域名并解析存活主机"
 
 params:
   - name: target

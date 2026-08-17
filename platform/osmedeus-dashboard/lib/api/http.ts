@@ -4,6 +4,7 @@ import { getActiveOrgUUID, isOrgScopedPath } from "./active-org";
 import { API_PREFIX } from "@/lib/api/prefix";
 
 const MOCK_API_PREFIX = "/api/mock/api";
+const LIVE_API_HEADER = "X-Osmedeus-Use-Live-API";
 
 function resolveBaseURL(): string {
   if (isDemoMode()) return "";
@@ -43,7 +44,10 @@ export const http: AxiosInstance = axios.create({
 });
 
 http.interceptors.request.use((config) => {
-  if (isDemoMode()) {
+  const forceLiveAPI = config.headers?.get?.(LIVE_API_HEADER) === "true";
+  if (forceLiveAPI) config.headers.delete(LIVE_API_HEADER);
+
+  if (isDemoMode() && !forceLiveAPI) {
     config.baseURL = "";
     if (typeof config.url === "string") {
       if (config.url === API_PREFIX) {
@@ -84,7 +88,7 @@ http.interceptors.response.use(
     const message =
       error?.response?.data?.message ||
       error?.message ||
-      "Request failed";
+      "请求失败";
     if (status === 401 && typeof window !== "undefined") {
       const msg = String(message).toLowerCase();
       if (msg.includes("api key")) {

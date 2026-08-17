@@ -499,6 +499,33 @@ curl -X DELETE http://localhost:8002/osm/api/runs/1 \
 
 ---
 
+## Delete Run Record
+
+Permanently delete a terminal run from the scan history. The run's step results,
+artifact metadata, agent sessions, and associated event logs are deleted in the
+same transaction. Workspace output files and imported assets or vulnerabilities
+are retained.
+
+Running or pending runs must be cancelled before deletion.
+
+```bash
+curl -X DELETE \
+  http://localhost:8002/osm/api/runs/550e8400-e29b-41d4-a716-446655440000/record \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+**Response:**
+
+```json
+{
+  "message": "Run deleted successfully",
+  "id": 1,
+  "run_uuid": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+---
+
 ## Get Run Steps
 
 Get all step results for a specific run.

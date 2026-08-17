@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { fetchWorkspacesList } from "@/lib/api/assets";
+import { deleteWorkspace, fetchWorkspacesList } from "@/lib/api/assets";
 import type { Workspace, WorkspaceSortState, WorkspaceSortField } from "@/lib/types/asset";
 import { WorkspacesTable } from "@/components/assets/workspaces-table";
 import { sortWorkspaces } from "@/lib/utils";
@@ -57,7 +57,7 @@ export default function InventoryWorkspacesPage() {
       setTotal(result.pagination.total);
       setMode(result.mode);
     } catch (err) {
-      toast.error("Failed to load workspaces", {
+      toast.error("加载工作区失败", {
         description: err instanceof Error ? err.message : "",
       });
     } finally {
@@ -76,6 +76,25 @@ export default function InventoryWorkspacesPage() {
         prev.field === field && prev.direction === "asc" ? "desc" : "asc",
     }));
   }, []);
+
+  const handleDelete = React.useCallback(async (workspace: Workspace): Promise<boolean> => {
+    try {
+      await deleteWorkspace(workspace.name, true);
+      toast.success(`已删除工作区 ${workspace.name}`);
+      if (workspaces.length === 1 && page > 1) {
+        setPage((current) => Math.max(1, current - 1));
+      } else {
+        await loadWorkspaces(true);
+      }
+      return true;
+    } catch (err) {
+      const raw = err instanceof Error ? err.message : "删除工作区失败";
+      toast.error("删除工作区失败", {
+        description: raw.replace(/^\d+:/, ""),
+      });
+      return false;
+    }
+  }, [loadWorkspaces, page, workspaces.length]);
 
   const availableTags = React.useMemo(() => {
     const s = new Set<string>();
@@ -114,14 +133,14 @@ export default function InventoryWorkspacesPage() {
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-              <CardTitle className="text-base">Workspaces Inventory</CardTitle>
+              <CardTitle className="text-base">工作区清单</CardTitle>
               <CardDescription>
                 {total !== undefined ? (
                   <>
                     <span className="font-medium text-foreground">
                       {total.toLocaleString()}
                     </span>{" "}
-                    workspaces found
+                    个工作区
                     {mode ? (
                       <>
                         {" "}
@@ -132,7 +151,7 @@ export default function InventoryWorkspacesPage() {
                     ) : null}
                   </>
                 ) : (
-                  "Loading workspaces..."
+                  "正在加载工作区……"
                 )}
               </CardDescription>
               </div>
@@ -148,7 +167,7 @@ export default function InventoryWorkspacesPage() {
                   disabled={isLoading && useFilesystem}
                 >
                   <FolderOpenIcon className="size-4 mr-2" />
-                  Filesystem
+                  文件系统
                 </Button>
 
                 <Button
@@ -161,7 +180,7 @@ export default function InventoryWorkspacesPage() {
                   disabled={isLoading && !useFilesystem}
                 >
                   <DatabaseIcon className="size-4 mr-2" />
-                  Database
+                  数据库
                 </Button>
 
                 <Button
@@ -173,7 +192,7 @@ export default function InventoryWorkspacesPage() {
                   <RefreshCcwIcon
                     className={`size-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
                   />
-                  Refresh
+                  刷新
                 </Button>
               </div>
             </div>
@@ -182,7 +201,7 @@ export default function InventoryWorkspacesPage() {
               <div className="relative flex-1 min-w-[200px] max-w-sm">
                 <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Search workspaces..."
+                  placeholder="搜索工作区……"
                   value={search}
                   onChange={(e) => {
                     setSearch(e.target.value);
@@ -202,11 +221,11 @@ export default function InventoryWorkspacesPage() {
                 <SelectTrigger className="w-[170px]">
                   <span className="flex items-center gap-2">
                     <TagIcon className="size-4 text-muted-foreground" />
-                    <SelectValue placeholder="Tag" />
+                    <SelectValue placeholder="标签" />
                   </span>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Tags</SelectItem>
+                  <SelectItem value="all">全部标签</SelectItem>
                   {availableTags.map((t) => (
                     <SelectItem key={t} value={t}>
                       {t}
@@ -228,7 +247,7 @@ export default function InventoryWorkspacesPage() {
                 ) : (
                   <FilterIcon className="size-4 mr-2" />
                 )}
-                {hideZeroAssets ? "Zero Assets: Hidden" : "Hide Zero Assets"}
+                {hideZeroAssets ? "已隐藏零资产工作区" : "隐藏零资产工作区"}
               </Button>
 
               <Select
@@ -241,14 +260,14 @@ export default function InventoryWorkspacesPage() {
                 <SelectTrigger className="w-[170px]">
                   <span className="flex items-center gap-2">
                     <DatabaseIcon className="size-4 text-muted-foreground" />
-                    <SelectValue placeholder="Data source" />
+                    <SelectValue placeholder="数据来源" />
                   </span>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Sources</SelectItem>
-                  <SelectItem value="local">Local</SelectItem>
-                  <SelectItem value="cloud">Cloud</SelectItem>
-                  <SelectItem value="imported">Imported</SelectItem>
+                  <SelectItem value="all">全部来源</SelectItem>
+                  <SelectItem value="local">本地</SelectItem>
+                  <SelectItem value="cloud">云端</SelectItem>
+                  <SelectItem value="imported">已导入</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -268,6 +287,7 @@ export default function InventoryWorkspacesPage() {
             sortState={sortState}
             onSort={handleSort}
             onPageChange={setPage}
+            onDelete={handleDelete}
             hasActiveFilters={hasActiveFilters}
           />
         </CardContent>

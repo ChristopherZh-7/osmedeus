@@ -23,7 +23,7 @@ export async function getRegistryMetadata(params?: {
             tools: [
               {
                 name: "amass",
-                desc: "In-depth attack surface mapping and asset discovery",
+                desc: "深度攻击面测绘与资产发现",
                 tags: ["recon", "subdomain"],
                 version: "4.2.0",
                 repo_link: "https://github.com/owasp-amass/amass",
@@ -32,7 +32,7 @@ export async function getRegistryMetadata(params?: {
               },
               {
                 name: "subfinder",
-                desc: "Fast passive subdomain enumeration tool",
+                desc: "快速的被动子域名枚举工具",
                 tags: ["recon", "subdomain"],
                 version: "2.6.0",
                 installed: false,
@@ -44,7 +44,7 @@ export async function getRegistryMetadata(params?: {
             tools: [
               {
                 name: "nuclei",
-                desc: "Fast, customizable vulnerability scanner",
+                desc: "快速且可自定义的漏洞扫描器",
                 tags: ["vuln", "scanner"],
                 version: "3.0.0",
                 installed: true,
@@ -63,7 +63,7 @@ export async function getRegistryMetadata(params?: {
         "https://raw.githubusercontent.com/osmedeus/osmedeus-base/main/registry-metadata.json",
       binaries: {
         nuclei: {
-          desc: "Vulnerability scanner",
+          desc: "漏洞扫描器",
           tags: ["vuln", "scanner"],
           version: "3.0.0",
           linux: {
@@ -79,7 +79,7 @@ export async function getRegistryMetadata(params?: {
           optional: false,
         },
         amass: {
-          desc: "In-depth attack surface mapping",
+          desc: "深度攻击面测绘",
           tags: ["recon", "subdomain"],
           version: "4.0.0",
           linux: {
@@ -112,7 +112,7 @@ export async function installBinaries(params: {
   if (isDemoMode()) {
     const names = Array.isArray(params.names) ? params.names : [];
     return {
-      message: "Binary installation completed",
+      message: "二进制工具安装完成",
       registry_mode: params.registry_mode ?? "direct-fetch",
       installed: names,
       installed_count: names.length,
@@ -146,7 +146,7 @@ export async function installBinaries(params: {
 export async function installWorkflow(source: string): Promise<WorkflowInstallResponse> {
   if (isDemoMode()) {
     return {
-      message: "Workflow installed successfully",
+      message: "工作流安装成功",
       source,
       workflow_folder: "/home/user/osmedeus-base/workflow",
     };

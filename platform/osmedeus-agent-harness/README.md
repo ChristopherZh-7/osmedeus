@@ -15,10 +15,15 @@ source code.
 - `plugins/dsh-osmedeus-plugin` is the upgrade-safe DSH profile boundary. It
   deep-links native Sessions and materializes the matching reconnaissance
   envelope below `DSH_HOME`.
-- `plugins/dsh-pentagi-orchestrator` adds the 15-role PentAGI-style task state
-  machine through public DSH plugin seams. It does not patch Harness packages.
+- `plugins/dsh-pentagi-orchestrator` makes the authorized root conversation the
+  operator-facing Primary and adds controlled named-role collaboration through
+  public DSH plugin seams. It also exposes the CyberStrike recursive index and
+  lazy loader through `pentagi_skill`. It does not patch Harness packages.
 - `skills/` is copied into DSH's official `$DSH_HOME/skills` discovery root;
   no Harness package is patched.
+- The optional full CyberStrike corpus stays outside that active catalog at
+  `$DSH_HOME/osmedeus/cyberstrike-skills`; the orchestrator indexes it
+  recursively and loads only a selected body.
 - Telemetry is disabled. The default `workspace-write` permission mode keeps
   DSH approval prompts while allowing evidence to be saved in its workspace.
 - The Web host listens on `127.0.0.1:3080` by default.
@@ -27,6 +32,7 @@ source code.
 
 ```bash
 make dsh-install
+make dsh-link-cyberstrike CYBERSTRIKE_SKILLS_DIR=/path/to/CyberStrike-main
 make dsh-start
 make dsh-check
 ```
@@ -51,6 +57,33 @@ Useful environment variables:
 | `OSM_DSH_WORKSPACE` | `$DSH_HOME/runtime-workspace` | Safe process working directory |
 | `OSM_DSH_PATCH` | empty | Optional future Osmedeus profile overlay |
 | `DSH_PERMISSION_MODE` | `workspace-write` | Harness filesystem permission preset |
+| `OSM_CYBERSTRIKE_SKILLS_DIR` | `$DSH_HOME/osmedeus/cyberstrike-skills` | Optional external CyberStrike `.cyberstrike/skill` corpus indexed by `pentagi_skill` |
+
+## CyberStrike indexed Skill library
+
+DSH's filesystem Skill provider deliberately discovers only one directory
+level and publishes every discovered name and description into the model
+catalog. The CyberStrike corpus is therefore not copied into `$DSH_HOME/skills`.
+The Osmedeus orchestrator instead recursively indexes the separate local
+corpus on first use and exposes bounded operations through `pentagi_skill`:
+
+- `search`/`list` return at most 50 summaries and support keyword, category,
+  CWE, tag, and technology filters;
+- `load` reads one exact Skill body and prepends the Osmedeus scope and
+  high-impact-action guardrail;
+- `chain` returns prerequisites and related attack-chain Skills;
+- `status` reports index availability and counts; `refresh` rebuilds it after
+  the corpus changes.
+
+The link target is user state rather than vendored repository content. This
+keeps CyberStrike's AGPL-licensed corpus separate from the MIT-licensed
+Osmedeus source while making the locally installed library available to both
+the root Primary and managed specialists. A direct directory can be used
+instead of a link:
+
+```bash
+OSM_CYBERSTRIKE_SKILLS_DIR=/path/to/CyberStrike-main/.cyberstrike/skill make dsh-start
+```
 
 ## Osmedeus Workspace adapter seam
 
@@ -78,21 +111,18 @@ The server-side adapter then:
    write coverage and pending findings back to assets in the frozen scope.
 9. Materializes the immutable root context under each child Session ID before
    its model step, so every specialist Skill resolves the same authorization.
-10. Persists generated tasks, revised subtasks, role runs, selected memory, and
-    final reports in Osmedeus while DSH keeps the full per-role transcript.
+10. Returns each collaboration result to Primary's current tool call while DSH
+    keeps the full specialist transcript for audit.
 
-The orchestrator exposes four root tools:
+The normal interactive model has one root tool for collaboration:
 
-- `osmedeus_start_pentest_task`
-- `osmedeus_get_pentest_task`
-- `osmedeus_resume_pentest_task`
-- `osmedeus_cancel_pentest_task`
+- `pentagi_delegate`
 
-Inside a managed role, `pentagi_delegate`, `pentagi_memory_search`, and
-`pentagi_memory_write` implement specialist delegation and cross-role memory.
-Generator and Refiner are deliberately read-only planners: they can inspect the
-Skill, canonical context, and memory, but cannot delegate or perform target-side
-actions. Primary is the only persistent task coordinator.
+In collaboration mode Primary can execute normal tools itself and call
+`pentagi_delegate` for a focused Pentester, Coder, Installer, Memorist,
+Searcher, or Adviser. In solo mode all delegation surfaces are denied. The
+legacy durable task/plan tools remain registered for stored-data compatibility
+but are denied in new interactive root turns.
 
 Memory search defaults to the current Pentest Session, so a later task can
 recall facts selected by an earlier task. `task`, `workspace`, and `org` scopes
@@ -105,9 +135,9 @@ without blocking the agent.
 
 No API credential or target-controlled path is sent to browser plugin code.
 The frozen asset snapshot is not submitted as an automatic model prompt, so
-session creation never triggers an unapproved model run. The
-`osmedeus-pentest` Skill loads the correct context using Harness-provided
-`DSH_SESSION_ID` when the operator starts the conversation.
+session creation never triggers an unapproved model run. The root Primary and
+every delegated role load the correct context using Harness-provided
+`DSH_SESSION_ID` when work begins.
 
 ## Upgrade policy
 

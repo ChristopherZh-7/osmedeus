@@ -12,6 +12,14 @@ import {
 } from "@/components/ui/tooltip";
 import { EmptyState } from "@/components/shared/empty-state";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   CellShell,
   DataGrid,
   GridPagination,
@@ -20,7 +28,14 @@ import {
 } from "@/components/ui/data-grid";
 import { formatNumber } from "@/lib/utils";
 import type { Workspace, WorkspaceSortState, WorkspaceSortField } from "@/lib/types/asset";
-import { ArchiveIcon, FolderOpenIcon, EyeIcon, SearchXIcon } from "lucide-react";
+import {
+  ArchiveIcon,
+  FolderOpenIcon,
+  EyeIcon,
+  LoaderCircleIcon,
+  SearchXIcon,
+  Trash2Icon,
+} from "lucide-react";
 
 interface WorkspacesTableProps {
   workspaces: Workspace[];
@@ -34,6 +49,7 @@ interface WorkspacesTableProps {
   sortState: WorkspaceSortState;
   onSort: (field: WorkspaceSortField) => void;
   onPageChange?: (page: number) => void;
+  onDelete?: (workspace: Workspace) => Promise<boolean>;
   hasActiveFilters?: boolean;
 }
 
@@ -147,13 +163,27 @@ export function WorkspacesTable({
   sortState,
   onSort,
   onPageChange,
+  onDelete,
   hasActiveFilters,
 }: WorkspacesTableProps) {
+  const [deleteTarget, setDeleteTarget] = React.useState<Workspace | null>(null);
+  const [deletingName, setDeletingName] = React.useState<string | null>(null);
+
+  const handleDelete = React.useCallback(async () => {
+    if (!deleteTarget || !onDelete) return;
+    setDeletingName(deleteTarget.name);
+    try {
+      if (await onDelete(deleteTarget)) setDeleteTarget(null);
+    } finally {
+      setDeletingName(null);
+    }
+  }, [deleteTarget, onDelete]);
+
   const columns = React.useMemo<GridColDef<Workspace>[]>(
     () => [
       {
         field: "name",
-        headerName: "Name",
+        headerName: "名称",
         minWidth: 180,
         flex: 2,
         cellRenderer: (p: { value: string }) => (
@@ -167,7 +197,7 @@ export function WorkspacesTable({
       },
       {
         colId: "tags",
-        headerName: "Tags",
+        headerName: "标签",
         minWidth: 180,
         flex: 2,
         sortable: false,
@@ -175,7 +205,7 @@ export function WorkspacesTable({
       },
       {
         field: "total_assets",
-        headerName: "Assets",
+        headerName: "资产",
         minWidth: 90,
         flex: 0,
         width: 100,
@@ -185,7 +215,7 @@ export function WorkspacesTable({
       },
       {
         field: "total_subdomains",
-        headerName: "Subdomains",
+        headerName: "子域名",
         minWidth: 110,
         flex: 0,
         width: 120,
@@ -195,7 +225,7 @@ export function WorkspacesTable({
       },
       {
         field: "total_urls",
-        headerName: "URLs",
+        headerName: "URL",
         minWidth: 90,
         flex: 0,
         width: 100,
@@ -205,7 +235,7 @@ export function WorkspacesTable({
       },
       {
         field: "total_vulns",
-        headerName: "Vulnerabilities",
+        headerName: "漏洞",
         minWidth: 170,
         cellRenderer: (p: { data: Workspace }) => {
           const ws = p.data;
@@ -228,7 +258,7 @@ export function WorkspacesTable({
       },
       {
         field: "risk_score",
-        headerName: "Risk",
+        headerName: "风险",
         minWidth: 90,
         flex: 0,
         width: 100,
@@ -243,10 +273,10 @@ export function WorkspacesTable({
       },
       {
         colId: "actions",
-        headerName: "Actions",
-        minWidth: 110,
+        headerName: "操作",
+        minWidth: 150,
         flex: 0,
-        width: 120,
+        width: 160,
         sortable: false,
         cellRenderer: (p: { data: Workspace }) => (
           <CellShell className="w-full justify-center gap-2">
@@ -263,7 +293,7 @@ export function WorkspacesTable({
                   </Link>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top">View assets</TooltipContent>
+              <TooltipContent side="top">查看资产</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -278,13 +308,34 @@ export function WorkspacesTable({
                   </Link>
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top">View artifacts</TooltipContent>
+              <TooltipContent side="top">查看产物</TooltipContent>
             </Tooltip>
+            {onDelete ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="size-7 border-destructive/40 text-destructive hover:bg-destructive-soft hover:text-destructive"
+                    onClick={() => setDeleteTarget(p.data)}
+                    disabled={deletingName === p.data.name}
+                    aria-label={`删除工作区 ${p.data.name}`}
+                  >
+                    {deletingName === p.data.name ? (
+                      <LoaderCircleIcon className="size-3.5 animate-spin" />
+                    ) : (
+                      <Trash2Icon className="size-3.5" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">删除工作区</TooltipContent>
+              </Tooltip>
+            ) : null}
           </CellShell>
         ),
       },
     ],
-    []
+    [deletingName, onDelete]
   );
 
   // Sorting is server-side, so the grid never reorders rows itself — it only
@@ -312,8 +363,9 @@ export function WorkspacesTable({
   );
 
   return (
-    <TooltipProvider>
-      <div className="relative space-y-4">
+    <>
+      <TooltipProvider>
+        <div className="relative space-y-4">
         {isLoading && workspaces.length > 0 && <GridRefreshOverlay />}
 
         <DataGrid<Workspace>
@@ -326,11 +378,11 @@ export function WorkspacesTable({
             <div className="relative flex min-h-[360px] items-center justify-center">
               <EmptyState
                 icon={hasActiveFilters ? SearchXIcon : FolderOpenIcon}
-                title={hasActiveFilters ? "No matching workspaces" : "No workspaces found"}
+                title={hasActiveFilters ? "没有匹配的工作区" : "未找到工作区"}
                 description={
                   hasActiveFilters
-                    ? "No workspaces match your current search. Try adjusting your search criteria."
-                    : "Workspaces are created when you run scans. Start a new scan to create a workspace."
+                    ? "没有工作区符合当前搜索条件，请调整筛选条件。"
+                    : "运行扫描任务时会自动创建工作区。请先启动扫描以创建工作区。"
                 }
               />
             </div>
@@ -341,10 +393,54 @@ export function WorkspacesTable({
           <GridPagination
             pagination={pagination}
             onPageChange={onPageChange}
-            noun="workspaces"
+            noun="工作区"
           />
         )}
-      </div>
-    </TooltipProvider>
+        </div>
+      </TooltipProvider>
+
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open && !deletingName) setDeleteTarget(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>删除工作区 {deleteTarget?.name}</DialogTitle>
+            <DialogDescription>
+              将永久删除该工作区的本地文件、资产、漏洞、扫描记录、产物和渗透测试记录。计划任务会保留，之后运行时可能重新创建该工作区。
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded-control border border-destructive/40 bg-destructive/5 p-3 text-sm">
+            <span className="font-medium text-destructive">此操作无法撤销</span>
+            <span className="mt-1 block text-xs text-muted-foreground">
+              当前包含 {formatNumber(deleteTarget?.total_assets ?? 0)} 个资产和 {formatNumber(deleteTarget?.total_vulns ?? 0)} 个漏洞。若仍有扫描或 Agent Pentest 任务运行，删除会被拒绝。
+            </span>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteTarget(null)}
+              disabled={!!deletingName}
+            >
+              取消
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => void handleDelete()}
+              disabled={!!deletingName}
+            >
+              {deletingName ? (
+                <LoaderCircleIcon className="size-4 animate-spin" />
+              ) : (
+                <Trash2Icon className="size-4" />
+              )}
+              {deletingName ? "正在删除……" : "确认删除"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

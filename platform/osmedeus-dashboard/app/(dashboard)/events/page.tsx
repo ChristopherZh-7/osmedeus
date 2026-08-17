@@ -83,7 +83,7 @@ export default function EventsPage() {
       setEvents(res.data);
       setPagination(res.pagination);
     } catch (e) {
-      toast.error("Failed to load events", { description: e instanceof Error ? e.message : "" });
+      toast.error("加载事件失败", { description: e instanceof Error ? e.message : "" });
     } finally {
       setLoading(false);
     }
@@ -103,7 +103,7 @@ export default function EventsPage() {
     try {
       setClearing(true);
       await clearEventLogTables();
-      toast.success("Event tables cleared");
+      toast.success("事件数据已清空");
       setClearOpen(false);
       if (page === 1) {
         await load();
@@ -111,7 +111,7 @@ export default function EventsPage() {
         setPage(1);
       }
     } catch (e) {
-      toast.error("Failed to clear tables", { description: e instanceof Error ? e.message : "" });
+      toast.error("清空事件数据失败", { description: e instanceof Error ? e.message : "" });
     } finally {
       setClearing(false);
     }
@@ -136,16 +136,16 @@ export default function EventsPage() {
     () => [
       {
         field: "topic",
-        headerName: "Topic",
+        headerName: "主题",
         minWidth: 150,
         cellRenderer: (p: { value: string }) => (
           <Badge variant={topicToVariant(p.value)}>{p.value}</Badge>
         ),
       },
-      { field: "name", headerName: "Name", minWidth: 180, flex: 2 },
+      { field: "name", headerName: "名称", minWidth: 180, flex: 2 },
       {
         field: "source",
-        headerName: "Source",
+        headerName: "来源",
         minWidth: 120,
         cellRenderer: (p: { value: string }) => (
           <Badge variant={sourceToVariant(p.value)}>{p.value}</Badge>
@@ -153,32 +153,32 @@ export default function EventsPage() {
       },
       {
         field: "workspace",
-        headerName: "Workspace",
+        headerName: "工作区",
         minWidth: 140,
         valueFormatter: (p) => p.value || "-",
       },
       {
         field: "workflowName",
         colId: "workflow",
-        headerName: "Workflow",
+        headerName: "工作流",
         minWidth: 140,
         valueFormatter: (p) => p.value || "-",
       },
       {
         field: "processed",
-        headerName: "Processed",
+        headerName: "已处理",
         minWidth: 130,
         flex: 0,
         width: 140,
         cellRenderer: (p: { value: boolean }) => (
           <Badge variant={processedToVariant(p.value)}>
-            {p.value ? "Processed" : "Unprocessed"}
+            {p.value ? "已处理" : "未处理"}
           </Badge>
         ),
       },
       {
         colId: "detail",
-        headerName: "Detail",
+        headerName: "详情",
         minWidth: 90,
         flex: 0,
         width: 90,
@@ -189,7 +189,7 @@ export default function EventsPage() {
               variant="outline"
               size="icon-sm"
               onClick={() => openDetail(p.data)}
-              aria-label="View detail"
+              aria-label="查看详情"
             >
               <EyeIcon className="size-4" />
             </Button>
@@ -210,13 +210,13 @@ export default function EventsPage() {
         <CardHeader>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <CardTitle>Event Logs</CardTitle>
-              <CardDescription>Filter by topic, workspace, or processed status</CardDescription>
+              <CardTitle>事件日志</CardTitle>
+              <CardDescription>按主题、工作区或处理状态筛选</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" onClick={() => setPage(1)}>
                 <RefreshCcwIcon className="mr-2 size-4" />
-                Apply
+                应用
               </Button>
               <Button
                 variant="outline"
@@ -227,7 +227,7 @@ export default function EventsPage() {
                   setPageSize(20);
                 }}
               >
-                Reset
+                重置
               </Button>
               <Button
                 variant="outline"
@@ -235,7 +235,7 @@ export default function EventsPage() {
                 className="gap-2 border-destructive/40 text-destructive hover:bg-destructive-soft hover:text-destructive hover:shadow-none"
               >
                 <Trash2Icon className="size-4" />
-                Empty Table
+                清空数据
               </Button>
             </div>
           </div>
@@ -243,13 +243,13 @@ export default function EventsPage() {
         <CardContent>
           <div className="flex flex-wrap gap-3 py-2">
             <Input
-              placeholder="Search"
+              placeholder="搜索"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="w-[360px] lg:w-[520px]"
             />
             <Input
-              placeholder="Topic"
+              placeholder="主题"
               value={filters.topic ?? ""}
               onChange={(e) => setFilters((f) => ({ ...f, topic: e.target.value }))}
               className="max-w-[200px]"
@@ -265,10 +265,10 @@ export default function EventsPage() {
               }}
             >
               <SelectTrigger className="max-w-[200px]">
-                <SelectValue placeholder="Workspace" />
+                <SelectValue placeholder="工作区" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Workspaces</SelectItem>
+                <SelectItem value="all">全部工作区</SelectItem>
                 {workspaceOptions.map((workspace) => (
                   <SelectItem key={workspace} value={workspace}>
                     {workspace}
@@ -291,12 +291,12 @@ export default function EventsPage() {
               }}
             >
               <SelectTrigger className="max-w-[180px]">
-                <SelectValue placeholder="Processed" />
+                <SelectValue placeholder="已处理" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="true">Processed</SelectItem>
-                <SelectItem value="false">Unprocessed</SelectItem>
+                <SelectItem value="all">全部</SelectItem>
+                <SelectItem value="true">已处理</SelectItem>
+                <SelectItem value="false">未处理</SelectItem>
               </SelectContent>
             </Select>
             <Select
@@ -308,7 +308,7 @@ export default function EventsPage() {
               }}
             >
               <SelectTrigger className="max-w-[140px]">
-                <SelectValue placeholder="Page Size" />
+                <SelectValue placeholder="每页数量" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="20">20</SelectItem>
@@ -324,7 +324,7 @@ export default function EventsPage() {
             loading={loading}
             emptyState={
               <div className="py-10 text-center text-sm text-muted-foreground">
-                {events.length === 0 ? "No events" : "No matching events"}
+                {events.length === 0 ? "暂无事件" : "没有匹配的事件"}
               </div>
             }
           />
@@ -338,18 +338,18 @@ export default function EventsPage() {
       <Dialog open={clearOpen} onOpenChange={setClearOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Empty event tables</DialogTitle>
+            <DialogTitle>清空事件表</DialogTitle>
             <DialogDescription>
-              This clears runs, step results, and event logs. This cannot be undone.
+              这将清空运行记录、步骤结果和事件日志，且无法撤销。
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setClearOpen(false)} disabled={clearing}>
-              Cancel
+              取消
             </Button>
             <Button variant="destructive" onClick={handleClearTables} disabled={clearing} className="gap-2">
               <Trash2Icon className="size-4" />
-              {clearing ? "Emptying..." : "Empty Table"}
+              {clearing ? "正在清空……" : "清空数据"}
             </Button>
           </div>
         </DialogContent>
@@ -358,23 +358,23 @@ export default function EventsPage() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Event Detail</DialogTitle>
-            <DialogDescription>Event log payload</DialogDescription>
+            <DialogTitle>事件详情</DialogTitle>
+            <DialogDescription>事件日志数据</DialogDescription>
           </DialogHeader>
           {selected ? (
             <div className="space-y-2 text-sm">
-              <div>Topic: {selected.topic}</div>
-              <div>Name: {selected.name}</div>
-              <div>Source: {selected.source}</div>
-              <div>Workspace: {selected.workspace || "-"}</div>
-              <div>Run ID: {selected.runId || "-"}</div>
-              <div>Workflow: {selected.workflowName || "-"}</div>
-              <div>Processed: {selected.processed ? "true" : "false"}</div>
-              <div>Created: {detail?.createdAt ? detail.createdAt.toLocaleString() : "-"}</div>
-              <div>Processed At: {detail?.processedAt ? detail.processedAt.toLocaleString() : "-"}</div>
+              <div>主题： {selected.topic}</div>
+              <div>名称： {selected.name}</div>
+              <div>来源： {selected.source}</div>
+              <div>工作区： {selected.workspace || "-"}</div>
+              <div>运行 ID： {selected.runId || "-"}</div>
+              <div>工作流： {selected.workflowName || "-"}</div>
+              <div>处理状态： {selected.processed ? "true" : "false"}</div>
+              <div>创建时间： {detail?.createdAt ? detail.createdAt.toLocaleString() : "-"}</div>
+              <div>处理时间： {detail?.processedAt ? detail.processedAt.toLocaleString() : "-"}</div>
               {detail?.data ? (
                 <div className="mt-2 rounded bg-muted p-2">
-                  <div className="font-medium">Data</div>
+                  <div className="font-medium">数据</div>
                   <pre className="whitespace-pre-wrap break-words text-xs">
                     {(() => {
                       try {
@@ -389,7 +389,7 @@ export default function EventsPage() {
               ) : null}
               {detail?.error ? (
                 <div className="mt-2 rounded bg-muted p-2">
-                  <div className="font-medium">Error</div>
+                  <div className="font-medium">错误</div>
                   <pre className="whitespace-pre-wrap break-words text-xs text-destructive">{detail.error}</pre>
                 </div>
               ) : null}

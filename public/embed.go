@@ -8,6 +8,7 @@ import (
 //go:embed favicon.ico
 //go:embed presets/*
 //go:embed all:examples/osmedeus-base.example
+// Keep all generated Next.js assets, including underscore-prefixed _next files.
 //go:embed all:ui
 //go:embed all:skills
 var EmbedFS embed.FS

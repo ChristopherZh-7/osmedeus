@@ -54,7 +54,7 @@ export async function submitTask(payload: {
 }) {
   if (isDemoMode()) {
     return {
-      message: "Demo mode: task submitted",
+      message: "演示模式：任务已提交",
       task_id: `task-${Date.now()}`,
     };
   }

@@ -113,7 +113,7 @@ export default function WorkflowEditorClient({ workflowId }: WorkflowEditorClien
       ]);
 
       if (!wf || !yaml) {
-        setError(`Workflow not found: ${effectiveId}`);
+        setError(`未找到工作流：${effectiveId}`);
         return;
       }
 
@@ -125,13 +125,13 @@ export default function WorkflowEditorClient({ workflowId }: WorkflowEditorClien
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
       if (msg === "WORKFLOW_NOT_FOUND") {
-        setError(`Workflow not found: ${effectiveId}`);
+        setError(`未找到工作流：${effectiveId}`);
       } else if (msg === "NETWORK_ERROR") {
-        setError(`Cannot reach API at ${baseURL}`);
+        setError(`无法连接 API：${baseURL}`);
       } else if (msg === "UNAUTHORIZED") {
-        setError("Session expired. Please log in.");
+        setError("会话已过期，请重新登录。");
       } else {
-        setError("Failed to load workflow");
+        setError("加载工作流失败");
       }
     } finally {
       setIsLoading(false);
@@ -234,13 +234,13 @@ export default function WorkflowEditorClient({ workflowId }: WorkflowEditorClien
     return (
       <div className="flex h-[calc(100vh-10rem)] items-center justify-center">
         <div className="space-y-4 text-center">
-          <ErrorState title="Workflow Error" message={error} onRetry={loadWorkflow} />
+          <ErrorState title="工作流错误" message={error} onRetry={loadWorkflow} />
           <div className="flex items-center justify-center gap-2">
             <Button variant="outline" asChild>
-              <Link href="/workflows">Back to Workflows</Link>
+              <Link href="/workflows">返回工作流列表</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/settings">Settings</Link>
+              <Link href="/settings">设置</Link>
             </Button>
           </div>
         </div>
@@ -255,7 +255,7 @@ export default function WorkflowEditorClient({ workflowId }: WorkflowEditorClien
           <Button variant="outline" size="icon" asChild>
             <Link href="/workflows">
               <ArrowLeftIcon className="size-4" />
-              <span className="sr-only">Back to workflows</span>
+              <span className="sr-only">返回工作流列表</span>
             </Link>
           </Button>
           <div>
@@ -292,7 +292,7 @@ export default function WorkflowEditorClient({ workflowId }: WorkflowEditorClien
             ) : (
               <ArrowLeftRightIcon className="mr-2 size-4" />
             )}
-            {orientation === "TB" ? "Vertical" : "Horizontal"}
+            {orientation === "TB" ? "垂直布局" : "水平布局"}
           </Button>
           <Button
             variant="outline"
@@ -301,7 +301,7 @@ export default function WorkflowEditorClient({ workflowId }: WorkflowEditorClien
             className={toolbarButtonClassName}
           >
             <AlignJustifyIcon className="mr-2 size-4" />
-            {wrapCanvasText ? "Wrap lines on" : "Wrap lines off"}
+            {wrapCanvasText ? "已自动换行" : "未自动换行"}
           </Button>
           <Button
             variant="outline"
@@ -310,7 +310,7 @@ export default function WorkflowEditorClient({ workflowId }: WorkflowEditorClien
             className={toolbarButtonClassName}
           >
             <EyeIcon className="mr-2 size-4" />
-            {showCanvasDetails ? "Details on" : "Details off"}
+            {showCanvasDetails ? "已显示详情" : "已隐藏详情"}
           </Button>
           <Button
             variant="outline"
@@ -319,7 +319,7 @@ export default function WorkflowEditorClient({ workflowId }: WorkflowEditorClien
             className={toolbarButtonClassName}
           >
             <MapIcon className="mr-2 size-4" />
-            {hideMiniMap ? "Minimap off" : "Minimap on"}
+            {hideMiniMap ? "已隐藏小地图" : "已显示小地图"}
           </Button>
           <Button
             variant="outline"
@@ -328,14 +328,14 @@ export default function WorkflowEditorClient({ workflowId }: WorkflowEditorClien
             onClick={async () => {
               try {
                 await navigator.clipboard.writeText(yamlPreview);
-                toast.success("Copied to clipboard");
+                toast.success("已复制到剪贴板");
               } catch {
-                toast.error("Failed to copy");
+                toast.error("复制失败");
               }
             }}
           >
             <ClipboardIcon className="mr-2 size-4" />
-            Copy YAML
+            复制 YAML
           </Button>
           <Button
             variant="outline"
@@ -347,19 +347,19 @@ export default function WorkflowEditorClient({ workflowId }: WorkflowEditorClien
               try {
                 const ok = await saveWorkflowYaml(effectiveId, yamlPreview);
                 if (ok) {
-                  toast.success("Saved");
+                  toast.success("已保存");
                 } else {
-                  toast.error("Save failed");
+                  toast.error("保存失败");
                 }
               } catch {
-                toast.error("Save failed");
+                toast.error("保存失败");
               } finally {
                 setIsSaving(false);
               }
             }}
           >
             <SaveIcon className="mr-2 size-4" />
-            {isSaving ? "Saving..." : "Save"}
+            {isSaving ? "保存中……" : "保存"}
           </Button>
         </div>
       </div>
@@ -370,7 +370,7 @@ export default function WorkflowEditorClient({ workflowId }: WorkflowEditorClien
             <div className="flex h-full items-center justify-center">
               <div className="flex flex-col items-center gap-4">
                 <LoaderIcon className="size-8 animate-spin text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Loading workflow...</p>
+                <p className="text-sm text-muted-foreground">正在加载工作流……</p>
               </div>
             </div>
           ) : parsedWorkflow ? (

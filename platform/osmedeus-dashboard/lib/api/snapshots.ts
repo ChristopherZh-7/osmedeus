@@ -8,7 +8,7 @@ export async function downloadSnapshot(workspace: string): Promise<Blob> {
       JSON.stringify(
         {
           workspace,
-          message: "Demo mode: snapshot download is a stub",
+          message: "演示模式：快照下载为模拟操作",
           created_at: new Date().toISOString(),
         },
         null,

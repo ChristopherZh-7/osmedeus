@@ -33,7 +33,7 @@ export function OrgSwitcher({ className }: { className?: string }) {
     return null;
   }
 
-  const label = activeOrg ? activeOrg.name : "All orgs";
+  const label = activeOrg ? activeOrg.name : "全部组织";
 
   return (
     <DropdownMenu>
@@ -43,7 +43,7 @@ export function OrgSwitcher({ className }: { className?: string }) {
             <Button
               variant="outline"
               size="sm"
-              aria-label="Select org scope"
+              aria-label="选择组织范围"
               className={`h-8 gap-2 ${className ?? ""}`}
             >
               {activeOrg ? (
@@ -57,18 +57,18 @@ export function OrgSwitcher({ className }: { className?: string }) {
         </TooltipTrigger>
         <TooltipContent>
           {activeOrg
-            ? `Scoped to ${activeOrg.name} — assets, findings and scans span its workspaces`
-            : "Showing data from every org"}
+            ? `当前范围：${activeOrg.name}；资产、漏洞和扫描覆盖其全部工作区`
+            : "正在显示所有组织的数据"}
         </TooltipContent>
       </Tooltip>
 
       <DropdownMenuContent align="end" className="w-64">
-        <DropdownMenuLabel>Org scope</DropdownMenuLabel>
+        <DropdownMenuLabel>组织范围</DropdownMenuLabel>
         <DropdownMenuSeparator />
 
         <DropdownMenuItem onSelect={() => selectOrg(null)} className="gap-2">
           <GlobeIcon className="size-4 text-muted-foreground" />
-          <span className="flex-1">All orgs</span>
+          <span className="flex-1">全部组织</span>
           {!activeOrg && <CheckIcon className="size-4 text-primary" />}
         </DropdownMenuItem>
 
@@ -95,7 +95,7 @@ export function OrgSwitcher({ className }: { className?: string }) {
         <DropdownMenuItem asChild>
           <Link href="/inventory/orgs" className="gap-2">
             <SettingsIcon className="size-4 text-muted-foreground" />
-            <span>Manage orgs</span>
+            <span>管理组织</span>
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>

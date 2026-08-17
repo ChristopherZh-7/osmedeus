@@ -63,17 +63,17 @@ const TRIGGER_CONFIG: Record<
   api: { label: "API", variant: "info", icon: <PlayIcon className="size-3" /> },
   cron: { label: "Cron", variant: "warning", icon: <CalendarIcon className="size-3" /> },
   scheduled: {
-    label: "Scheduled",
+    label: "计划任务",
     variant: "warning",
     icon: <CalendarIcon className="size-3" />,
   },
-  manual: { label: "Manual", variant: "secondary", icon: <PlayIcon className="size-3" /> },
+  manual: { label: "手动", variant: "secondary", icon: <PlayIcon className="size-3" /> },
 };
 
 const PRIORITY_CONFIG: Record<string, { label: string; className: string }> = {
-  high: { label: "High", className: "border-destructive/50 text-destructive" },
-  medium: { label: "Medium", className: "border-warning/50 text-warning" },
-  low: { label: "Low", className: "border-success/50 text-success" },
+  high: { label: "高", className: "border-destructive/50 text-destructive" },
+  medium: { label: "中", className: "border-warning/50 text-warning" },
+  low: { label: "低", className: "border-success/50 text-success" },
 };
 
 const PRIORITY_ORDER: Record<string, number> = { high: 3, medium: 2, low: 1 };
@@ -115,15 +115,15 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
         const runUuid = scan.runUuid || scan.runId || scan.id;
         const success = await cancelScan(runUuid);
         if (success) {
-          toast.success("Scan cancelled", {
-            description: `Scan for ${scan.target} has been cancelled.`,
+          toast.success("扫描已取消", {
+            description: `目标 ${scan.target} 的扫描已取消。`,
           });
           onRefresh?.();
         } else {
-          toast.error("Failed to cancel scan");
+          toast.error("取消扫描失败");
         }
       } catch {
-        toast.error("Failed to cancel scan");
+        toast.error("取消扫描失败");
       }
     },
     [onRefresh]
@@ -133,17 +133,23 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
     async (scan: Scan) => {
       try {
         const runUuid = scan.runUuid || scan.runId || scan.id;
+        if (!runUuid) {
+          toast.error("删除扫描失败", { description: "缺少运行标识" });
+          return;
+        }
         const success = await deleteScan(runUuid);
         if (success) {
-          toast.success("Scan deleted", {
-            description: `Scan for ${scan.target} has been deleted.`,
+          toast.success("扫描已删除", {
+            description: `目标 ${scan.target} 的扫描已删除。`,
           });
           onRefresh?.();
         } else {
-          toast.error("Failed to delete scan");
+          toast.error("删除扫描失败");
         }
-      } catch {
-        toast.error("Failed to delete scan");
+      } catch (error) {
+        const description =
+          error instanceof Error ? error.message.replace(/^\d+:/, "") : undefined;
+        toast.error("删除扫描失败", { description });
       }
     },
     [onRefresh]
@@ -153,7 +159,7 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
     async (scan: Scan) => {
       const runUuid = scan.runUuid || scan.runId || scan.id;
       if (!runUuid) {
-        toast.error("Missing run identifier");
+        toast.error("缺少运行标识");
         return;
       }
       try {
@@ -161,22 +167,22 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
         const duplicated = await duplicateScanRun(runUuid);
         const newRunUuid = duplicated.runUuid || duplicated.runId || duplicated.id;
         if (!newRunUuid) {
-          toast.error("Duplicate created without run identifier");
+          toast.error("已创建副本，但缺少运行标识");
           return;
         }
         const started = await startScanRun(newRunUuid);
         if (started) {
-          toast.success("Scan duplicated and started", {
-            description: `Scan for ${duplicated.target || scan.target} is running.`,
+          toast.success("扫描已复制并启动", {
+            description: `目标 ${duplicated.target || scan.target} 的扫描正在运行。`,
           });
         } else {
-          toast.success("Scan duplicated", {
-            description: `Duplicate created for ${duplicated.target || scan.target}.`,
+          toast.success("扫描已复制", {
+            description: `已为目标 ${duplicated.target || scan.target} 创建扫描副本。`,
           });
         }
         onRefresh?.();
       } catch {
-        toast.error("Failed to duplicate scan");
+        toast.error("复制扫描失败");
       } finally {
         setDuplicateRunId(null);
       }
@@ -197,7 +203,7 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
     () => [
       {
         field: "status",
-        headerName: "Status",
+        headerName: "状态",
         minWidth: 120,
         flex: 0,
         width: 130,
@@ -207,7 +213,7 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
       {
         field: "workflowName",
         colId: "workflow",
-        headerName: "Workflow",
+        headerName: "工作流",
         minWidth: 150,
         comparator: compareText,
         cellRenderer: (p: { data: Scan }) => (
@@ -221,7 +227,7 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
       },
       {
         field: "target",
-        headerName: "Target",
+        headerName: "目标",
         minWidth: 160,
         flex: 2,
         comparator: compareText,
@@ -231,7 +237,7 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
       },
       {
         colId: "priority",
-        headerName: "Priority",
+        headerName: "优先级",
         minWidth: 110,
         flex: 0,
         width: 120,
@@ -255,7 +261,7 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
       },
       {
         colId: "progress",
-        headerName: "Steps",
+        headerName: "步骤",
         minWidth: 160,
         valueGetter: (p) => {
           const total = p.data?.totalSteps ?? 0;
@@ -268,7 +274,7 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
             return (
               <CellShell className="gap-2">
                 <span className="whitespace-nowrap text-sm">
-                  {scan.completedSteps}/{scan.totalSteps} steps
+                  {scan.completedSteps}/{scan.totalSteps} 个步骤
                 </span>
                 <div className="h-2 w-16 overflow-hidden rounded-full bg-muted">
                   <div
@@ -283,14 +289,14 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
           }
           return (
             <span className="text-muted-foreground">
-              {scan.status === "running" ? "In progress..." : "-"}
+              {scan.status === "running" ? "进行中……" : "-"}
             </span>
           );
         },
       },
       {
         colId: "trigger",
-        headerName: "Trigger",
+        headerName: "触发器",
         minWidth: 130,
         valueGetter: (p) => p.data?.triggerType ?? "",
         comparator: compareText,
@@ -318,7 +324,7 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
       },
       {
         colId: "actions",
-        headerName: "Actions",
+        headerName: "操作",
         minWidth: 132,
         flex: 0,
         width: 132,
@@ -338,12 +344,12 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
                     size="icon-sm"
                     className="border-info/40 text-info hover:bg-info-soft hover:text-info hover:shadow-none"
                     onClick={() => onSelectScan?.(scan)}
-                    aria-label="View scan details"
+                    aria-label="查看扫描详情"
                   >
                     <EyeIcon className="size-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="top">View details</TooltipContent>
+                <TooltipContent side="top">查看详情</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -352,7 +358,7 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
                     size="icon-sm"
                     className="border-purple/40 text-purple hover:bg-purple-soft hover:text-purple hover:shadow-none"
                     onClick={() => setConfirmState({ action: "duplicate", scan })}
-                    aria-label="Duplicate and start scan"
+                    aria-label="复制并启动扫描"
                     disabled={isDuplicating}
                   >
                     {isDuplicating ? (
@@ -362,7 +368,7 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
                     )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="top">Duplicate &amp; start</TooltipContent>
+                <TooltipContent side="top">复制并启动</TooltipContent>
               </Tooltip>
               {isActive ? (
                 <Tooltip>
@@ -372,12 +378,12 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
                       size="icon-sm"
                       className="border-warning/40 text-warning hover:bg-warning-soft hover:text-warning hover:shadow-none"
                       onClick={() => setConfirmState({ action: "cancel", scan })}
-                      aria-label="Stop scan"
+                      aria-label="停止扫描"
                     >
                       <StopCircleIcon className="size-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="top">Stop scan</TooltipContent>
+                  <TooltipContent side="top">停止扫描</TooltipContent>
                 </Tooltip>
               ) : (
                 <Tooltip>
@@ -387,12 +393,12 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
                       size="icon-sm"
                       className="border-destructive/40 text-destructive hover:bg-destructive-soft hover:text-destructive hover:shadow-none"
                       onClick={() => setConfirmState({ action: "delete", scan })}
-                      aria-label="Delete scan"
+                      aria-label="删除扫描"
                     >
                       <TrashIcon className="size-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="top">Delete scan</TooltipContent>
+                  <TooltipContent side="top">删除扫描</TooltipContent>
                 </Tooltip>
               )}
             </CellShell>
@@ -421,10 +427,10 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
           emptyState={
             <EmptyState
               icon={ScanSearchIcon}
-              title="No scans found"
-              description="Start your first security scan to see results here."
+              title="未找到扫描任务"
+              description="启动首次安全扫描后，结果将显示在这里。"
               action={{
-                label: "New Scan",
+                label: "新建扫描",
                 onClick: () => (window.location.href = "/scans/new"),
               }}
             />
@@ -439,28 +445,28 @@ export function ScanTable({ scans, isLoading, onRefresh, onSelectScan }: ScanTab
           <DialogHeader>
             <DialogTitle>
               {confirmState?.action === "duplicate"
-                ? "Duplicate and start scan"
+                ? "复制并启动扫描"
                 : confirmState?.action === "cancel"
-                  ? "Stop running scan"
-                  : "Delete scan"}
+                  ? "停止正在运行的扫描"
+                  : "删除扫描"}
             </DialogTitle>
             <DialogDescription>
               {confirmState?.action === "duplicate"
-                ? "Create a new run and start it immediately?"
+                ? "创建新的运行记录并立即启动吗？"
                 : confirmState?.action === "cancel"
-                  ? "Stop the selected scan? This cannot be undone."
-                  : "Delete the selected scan? This cannot be undone."}
+                  ? "确定停止所选扫描吗？此操作无法撤销。"
+                  : "确定删除所选扫描吗？此操作无法撤销。"}
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setConfirmState(null)}>
-              Cancel
+              取消
             </Button>
             <Button
               variant={confirmState?.action === "delete" ? "destructive" : "default"}
               onClick={handleConfirmAction}
             >
-              Confirm
+              确认
             </Button>
           </div>
         </DialogContent>

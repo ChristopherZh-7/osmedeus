@@ -9,18 +9,18 @@ function generateMockHttpAssets(workspaceId: string, count: number): HttpAsset[]
   ];
 
   const titles = [
-    "Welcome to Our API",
-    "Admin Dashboard",
-    "Login Portal",
-    "Documentation",
-    "Help Center",
-    "Status Page",
-    "Application Home",
-    "Secure Portal",
+    "API 服务首页",
+    "管理控制台",
+    "登录门户",
+    "文档中心",
+    "帮助中心",
+    "服务状态页",
+    "应用首页",
+    "安全门户",
     undefined,
-    "Blog",
-    "Store",
-    "Developer Portal",
+    "博客",
+    "商店",
+    "开发者门户",
   ];
 
   const statusCodes = [200, 200, 200, 200, 301, 302, 403, 404, 500, 200, 200, 200];

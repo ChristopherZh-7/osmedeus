@@ -20,11 +20,11 @@ const statusConfig: Record<
     icon: React.ElementType;
   }
 > = {
-  completed: { label: "Completed", variant: "success", icon: CheckCircleIcon },
-  running: { label: "Running", variant: "accent", icon: LoaderIcon },
-  pending: { label: "Pending", variant: "secondary", icon: ClockIcon },
-  failed: { label: "Failed", variant: "destructive", icon: XCircleIcon },
-  cancelled: { label: "Cancelled", variant: "outline", icon: BanIcon },
+  completed: { label: "已完成", variant: "success", icon: CheckCircleIcon },
+  running: { label: "运行中", variant: "accent", icon: LoaderIcon },
+  pending: { label: "等待中", variant: "secondary", icon: ClockIcon },
+  failed: { label: "失败", variant: "destructive", icon: XCircleIcon },
+  cancelled: { label: "已取消", variant: "outline", icon: BanIcon },
 };
 
 interface ScanStatusBadgeProps {

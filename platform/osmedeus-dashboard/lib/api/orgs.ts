@@ -78,7 +78,7 @@ export async function fetchOrgStats(ref: string): Promise<OrgStats> {
 
 export async function createOrg(input: CreateOrgInput): Promise<Org> {
   if (isDemoMode()) {
-    throw new Error("400:Creating orgs is disabled in demo mode");
+    throw new Error("400:演示模式下无法创建组织");
   }
   const res = await http.post(`${API_PREFIX}/orgs`, input);
   return mapOrg((res.data || {}).data);
@@ -98,7 +98,7 @@ export interface UpdateOrgResult {
  */
 export async function updateOrg(ref: string, input: UpdateOrgInput): Promise<UpdateOrgResult> {
   if (isDemoMode()) {
-    throw new Error("400:Editing orgs is disabled in demo mode");
+    throw new Error("400:演示模式下无法编辑组织");
   }
   const res = await http.put(`${API_PREFIX}/orgs/${encodeURIComponent(ref)}`, input);
   const payload = (res.data || {}) as any;
@@ -120,7 +120,7 @@ export async function assignWorkspaces(ref: string, workspaces: string[]): Promi
  */
 export async function deleteOrg(ref: string, purge = false): Promise<void> {
   if (isDemoMode()) {
-    throw new Error("400:Deleting orgs is disabled in demo mode");
+    throw new Error("400:演示模式下无法删除组织");
   }
   await http.delete(`${API_PREFIX}/orgs/${encodeURIComponent(ref)}`, {
     params: purge ? { purge: true } : undefined,

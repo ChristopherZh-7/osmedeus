@@ -58,6 +58,11 @@ func runServer(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("configuration not loaded")
 	}
 
+	// Server-triggered workflows run in the server process environment. Service
+	// managers such as launchd often provide only a minimal PATH, so make the
+	// configured tool directory available before any handlers start workflows.
+	ensureExternalBinariesInPath(cfg)
+
 	// Override with flags if provided
 	if serverHost != "" {
 		cfg.Server.Host = serverHost

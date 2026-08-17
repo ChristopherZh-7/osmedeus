@@ -63,7 +63,7 @@ export const mockScans: Scan[] = [
     totalSteps: 10,
     completedSteps: 3,
     triggerType: "manual",
-    errorMessage: "Connection timeout after 5 retries",
+    errorMessage: "连接重试 5 次后超时",
     createdAt: new Date(Date.now() - 7200000),
     updatedAt: new Date(Date.now() - 6800000),
   },

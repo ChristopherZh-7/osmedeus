@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"os"
 	"runtime"
@@ -296,6 +297,7 @@ func (s *Server) setupRoutes() {
 	api.Get("/runs", handlers.ListRuns(s.config))
 	api.Get("/runs/:id", handlers.GetRun(s.config))
 	api.Delete("/runs/:id", handlers.CancelRun(s.config))
+	api.Delete("/runs/:id/record", handlers.DeleteRun(s.config))
 	api.Post("/runs/:id/duplicate", handlers.DuplicateRun(s.config))
 	api.Post("/runs/:id/start", handlers.StartRun(s.config))
 	api.Get("/runs/:id/steps", handlers.GetRunSteps)
@@ -319,6 +321,7 @@ func (s *Server) setupRoutes() {
 
 	// Workspaces
 	api.Get("/workspaces", handlers.ListWorkspaces(s.config))
+	api.Delete("/workspaces/:name", handlers.DeleteWorkspace(s.config))
 	api.Get("/workspace-names", handlers.ListWorkspaceNames(s.config))
 
 	// Artifacts
@@ -381,6 +384,13 @@ func (s *Server) setupRoutes() {
 	api.Get("/functions/list", handlers.FunctionList(s.config))
 
 	// Settings API
+	api.Get("/settings/product", handlers.GetProductSettings(s.config, s.hotConfig))
+	api.Put("/settings/ai", handlers.UpdateAISettings(s.config, s.hotConfig))
+	api.Get("/settings/skills", handlers.ListSettingsSkills(s.config))
+	api.Get("/settings/skills/:slug", handlers.GetSettingsSkill(s.config))
+	api.Post("/settings/skills", handlers.CreateSettingsSkill(s.config))
+	api.Put("/settings/skills/:slug", handlers.UpdateSettingsSkill(s.config))
+	api.Delete("/settings/skills/:slug", handlers.DeleteSettingsSkill(s.config))
 	api.Get("/settings/yaml", handlers.GetSettingsYAML(s.config))
 	api.Get("/settings/yaml/", handlers.GetSettingsYAML(s.config))
 	api.Post("/settings/reload", handlers.ReloadConfig(s.hotConfig))
@@ -399,6 +409,7 @@ func (s *Server) setupRoutes() {
 	api.Post("/agent-pentest/sessions", handlers.CreatePentestSession(s.config))
 	api.Get("/agent-pentest/sessions/:uuid", handlers.GetPentestSession(s.config))
 	api.Patch("/agent-pentest/sessions/:uuid/execution-mode", handlers.UpdatePentestSessionExecutionMode(s.config))
+	api.Delete("/agent-pentest/sessions/:uuid", handlers.DeletePentestSession(s.config))
 	api.Get("/agent-pentest/sessions/:uuid/context", handlers.GetPentestContext(s.config))
 	api.Get("/agent-pentest/sessions/:uuid/coverage", handlers.ListPentestCoverage(s.config))
 	api.Get("/agent-pentest/sessions/:uuid/tasks", handlers.ListPentestTasks(s.config))
@@ -406,6 +417,10 @@ func (s *Server) setupRoutes() {
 	api.Post("/agent-pentest/sessions/:uuid/context/refresh", handlers.RefreshPentestContext(s.config))
 	api.Get("/agent-pentest/sessions/:uuid/harness/history", handlers.GetPentestHarnessHistory(s.config))
 	api.Post("/agent-pentest/sessions/:uuid/harness/messages", handlers.PromptPentestHarness(s.config))
+	api.Post("/agent-pentest/sessions/:uuid/harness/questions/:rpc_id/answer", handlers.AnswerPentestHarnessQuestion(s.config))
+	api.Post("/agent-pentest/sessions/:uuid/harness/questions/:rpc_id/cancel", handlers.CancelPentestHarnessQuestion(s.config))
+	api.Post("/agent-pentest/sessions/:uuid/harness/queue/:item_id/supplement", handlers.SupplementPentestHarnessMessage(s.config))
+	api.Delete("/agent-pentest/sessions/:uuid/harness/queue/:item_id", handlers.CancelPentestHarnessQueuedMessage(s.config))
 	api.Post("/agent-pentest/sessions/:uuid/harness/cancel", handlers.CancelPentestHarness(s.config))
 	api.Get("/agent-pentest/sessions/:uuid/harness/subagents", handlers.ListPentestHarnessSubagents(s.config))
 	api.Get("/agent-pentest/sessions/:uuid/harness/subagents/:child_id/history", handlers.GetPentestHarnessSubagentHistory(s.config))
@@ -468,6 +483,7 @@ func (s *Server) setupRoutes() {
 	// Priority: external UI path > embedded UI
 	if s.config.UIPath != "" {
 		if _, err := os.Stat(s.config.UIPath); err == nil {
+			registerExportedHTMLRoutes(s.app, os.DirFS(s.config.UIPath))
 			s.app.Use("/", filesystem.New(filesystem.Config{
 				Root:         http.Dir(s.config.UIPath),
 				Index:        "index.html",
@@ -490,6 +506,7 @@ func (s *Server) serveEmbeddedUI() {
 	if err != nil {
 		return
 	}
+	registerExportedHTMLRoutes(s.app, uiFS)
 	s.app.Use("/", filesystem.New(filesystem.Config{
 		Root:         http.FS(uiFS),
 		Index:        "index.html",
@@ -497,6 +514,28 @@ func (s *Server) serveEmbeddedUI() {
 		PathPrefix:   "",
 		NotFoundFile: "index.html", // SPA fallback: serve index.html for client-side routes
 	}))
+}
+
+// registerExportedHTMLRoutes serves extensionless Next.js export routes before
+// the filesystem middleware sees the matching RSC directory and returns 403.
+// This keeps direct navigation and browser refreshes on routes such as
+// /agent-pentest instead of redirecting them to the dashboard root.
+func registerExportedHTMLRoutes(app *fiber.App, root fs.FS) {
+	app.Use(func(c *fiber.Ctx) error {
+		if c.Method() != fiber.MethodGet {
+			return c.Next()
+		}
+		routePath := strings.Trim(c.Path(), "/")
+		if routePath == "" || !fs.ValidPath(routePath) {
+			return c.Next()
+		}
+		contents, err := fs.ReadFile(root, routePath+".html")
+		if err != nil {
+			return c.Next()
+		}
+		c.Type("html", "utf-8")
+		return c.Send(contents)
+	})
 }
 
 // StartEventReceiver starts the event receiver and scheduler.

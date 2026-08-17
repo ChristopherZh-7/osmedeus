@@ -67,5 +67,5 @@ const ORG_SCOPED_PATHS = new Set([
 /** Whether a request path (relative to the API prefix) should carry `?org=`. */
 export function isOrgScopedPath(pathAfterPrefix: string): boolean {
   const clean = pathAfterPrefix.split("?")[0].replace(/\/+$/, "");
-  return ORG_SCOPED_PATHS.has(clean);
+  return ORG_SCOPED_PATHS.has(clean) || clean.startsWith("/agent-pentest/sessions/");
 }

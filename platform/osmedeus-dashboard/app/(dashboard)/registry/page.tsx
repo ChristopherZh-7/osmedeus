@@ -105,7 +105,7 @@ export default function RegistryPage() {
       const data = await getRegistryMetadata({ registry_mode: registryMode });
       setMetadata(data);
     } catch (e) {
-      toast.error("Failed to load registry metadata", {
+      toast.error("加载工具仓库元数据失败", {
         description: e instanceof Error ? e.message : "",
       });
     } finally {
@@ -283,7 +283,7 @@ export default function RegistryPage() {
       .filter(([, v]) => v)
       .map(([k]) => k);
     if (names.length === 0) {
-      toast.error("No tools selected");
+      toast.error("尚未选择工具");
       return;
     }
     setInstallingBatch(true);
@@ -292,13 +292,13 @@ export default function RegistryPage() {
         names,
         registry_mode: registryMode,
       });
-      toast.success(res.message || "Installation complete", {
-        description: `Installed: ${res.installed_count}, Failed: ${res.failed_count}`,
+      toast.success(res.message || "安装完成", {
+        description: `已安装：${res.installed_count}，失败：${res.failed_count}`,
       });
       setSelected({});
       await load();
     } catch (e) {
-      toast.error("Installation failed", {
+      toast.error("安装失败", {
         description: e instanceof Error ? e.message : "",
       });
     } finally {
@@ -309,16 +309,16 @@ export default function RegistryPage() {
   const doInstallWorkflow = async () => {
     const src = workflowSource.trim();
     if (!src) {
-      toast.error("Please provide a workflow source");
+      toast.error("请输入工作流来源");
       return;
     }
     setInstallingWorkflow(true);
     try {
       const res = await installWorkflow(src);
-      toast.success(res.message || "Workflow installed", { description: res.source });
+      toast.success(res.message || "工作流已安装", { description: res.source });
       setWorkflowSource("");
     } catch (e) {
-      toast.error("Workflow install failed", {
+      toast.error("工作流安装失败", {
         description: e instanceof Error ? e.message : "",
       });
     } finally {
@@ -354,20 +354,19 @@ export default function RegistryPage() {
       <Card className="overflow-hidden">
         <SectionCardHeader
           icon={PackageIcon}
-          title="Binary Registry"
+          title="二进制工具仓库"
           description={
             <>
-              Installing binaries is better handled through the CLI (
-              <span className="font-mono">osmedeus install binary -h</span>), as it
-              provides a more flexible way to manage binary installation. This page
-              is mainly for visualization purposes.
+              建议通过 CLI 安装二进制工具（
+              <span className="font-mono">osmedeus install binary -h</span>），可获得更灵活的安装管理能力。
+              本页面主要用于查看工具状态。
             </>
           }
           actions={
             <>
               <Button variant="outline" size="sm" onClick={load} disabled={loading}>
                 <RefreshCwIcon className="mr-2 size-4" />
-                Refresh
+                刷新
               </Button>
               <Button
                 type="button"
@@ -376,7 +375,7 @@ export default function RegistryPage() {
                 onClick={() => setIncludeOptional((prev) => !prev)}
               >
                 <PlusCircleIcon className="mr-2 size-4" />
-                Include Optional
+                包含可选工具
               </Button>
             </>
           }
@@ -388,7 +387,7 @@ export default function RegistryPage() {
             <div className="relative flex-1 min-w-[200px] max-w-sm">
               <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search tools..."
+                placeholder="搜索工具……"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9"
@@ -402,13 +401,13 @@ export default function RegistryPage() {
               <SelectTrigger className="w-[160px]">
                 <span className="flex items-center gap-2">
                   <FilterIcon className="size-4 text-muted-foreground" />
-                  <SelectValue placeholder="Filter" />
+                  <SelectValue placeholder="筛选" />
                 </span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Tools</SelectItem>
-                <SelectItem value="installed">Installed</SelectItem>
-                <SelectItem value="not-installed">Not Installed</SelectItem>
+                <SelectItem value="all">全部工具</SelectItem>
+                <SelectItem value="installed">已安装</SelectItem>
+                <SelectItem value="not-installed">未安装</SelectItem>
               </SelectContent>
             </Select>
 
@@ -422,11 +421,11 @@ export default function RegistryPage() {
               <SelectTrigger className="w-[160px]">
                 <span className="flex items-center gap-2">
                   <TagsIcon className="size-4 text-muted-foreground" />
-                  <SelectValue placeholder="Tag" />
+                  <SelectValue placeholder="标签" />
                 </span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Tags</SelectItem>
+                <SelectItem value="all">全部标签</SelectItem>
                 {tagOptions.map((tag) => (
                   <SelectItem key={tag} value={tag}>
                     {tag}
@@ -439,13 +438,13 @@ export default function RegistryPage() {
               <SelectTrigger className="w-[160px]">
                 <span className="flex items-center gap-2">
                   <ListIcon className="size-4 text-muted-foreground" />
-                  <SelectValue placeholder="Per page" />
+                  <SelectValue placeholder="每页数量" />
                 </span>
               </SelectTrigger>
               <SelectContent>
                 {[10, 15, 30, 50, 100].map((n) => (
                   <SelectItem key={n} value={String(n)}>
-                    {n}/page
+                    {n}/页
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -454,15 +453,15 @@ export default function RegistryPage() {
             <div className="flex items-center gap-2 text-sm">
               <Badge variant="outline" className="h-9 gap-2 px-3 text-sm font-medium">
                 <CheckCircle2Icon className="size-4 text-success" />
-                {stats.installed} installed
+                {stats.installed} 已安装
               </Badge>
               <Badge variant="outline" className="h-9 gap-2 px-3 text-sm font-medium">
                 <XCircleIcon className="size-4 text-muted-foreground" />
-                {stats.notInstalled} missing
+                {stats.notInstalled} 缺失
               </Badge>
               <Badge variant="outline" className="h-9 gap-2 px-3 text-sm font-medium">
                 <PlusCircleIcon className="size-4 text-muted-foreground" />
-                {stats.optional} optional
+                {stats.optional} 可选
               </Badge>
             </div>
 
@@ -475,12 +474,11 @@ export default function RegistryPage() {
       {selectedCount > 0 && (
         <div className="sticky top-0 z-10 flex items-center justify-between rounded-lg border bg-card p-3 shadow-sm">
           <div className="text-sm">
-            <span className="font-medium">{selectedCount}</span> tool
-            {selectedCount > 1 ? "s" : ""} selected
+            已选择 <span className="font-medium">{selectedCount}</span> 个工具
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="outline" onClick={() => setSelected({})}>
-              Clear Selection
+              清除选择
             </Button>
             <Button size="sm" onClick={doInstallSelected} disabled={installingBatch}>
               {installingBatch ? (
@@ -488,7 +486,7 @@ export default function RegistryPage() {
               ) : (
                 <DownloadIcon className="mr-2 size-4" />
               )}
-              Install Selected
+              安装所选工具
             </Button>
           </div>
         </div>
@@ -511,7 +509,7 @@ export default function RegistryPage() {
                   currentSort={sortState}
                   onSort={(f) => toggleSort(f as RegistrySortField)}
                 >
-                  Tool
+                  工具
                 </SortableTableHead>
                 <SortableTableHead
                   field="version"
@@ -519,7 +517,7 @@ export default function RegistryPage() {
                   onSort={(f) => toggleSort(f as RegistrySortField)}
                   className="w-[110px]"
                 >
-                  Version
+                  版本
                 </SortableTableHead>
                 <SortableTableHead
                   field="tags"
@@ -527,7 +525,7 @@ export default function RegistryPage() {
                   onSort={(f) => toggleSort(f as RegistrySortField)}
                   className="hidden md:table-cell"
                 >
-                  Tags
+                  标签
                 </SortableTableHead>
                 <SortableTableHead
                   field="description"
@@ -535,7 +533,7 @@ export default function RegistryPage() {
                   onSort={(f) => toggleSort(f as RegistrySortField)}
                   className="hidden lg:table-cell"
                 >
-                  Description
+                  描述
                 </SortableTableHead>
                 <SortableTableHead
                   field="optional"
@@ -543,7 +541,7 @@ export default function RegistryPage() {
                   onSort={(f) => toggleSort(f as RegistrySortField)}
                   className="hidden md:table-cell w-[110px]"
                 >
-                  Optional
+                  可选
                 </SortableTableHead>
                 <SortableTableHead
                   field="status"
@@ -551,7 +549,7 @@ export default function RegistryPage() {
                   onSort={(f) => toggleSort(f as RegistrySortField)}
                   className="w-[120px]"
                 >
-                  Status
+                  状态
                 </SortableTableHead>
               </TableRow>
             </TableHeader>
@@ -559,7 +557,7 @@ export default function RegistryPage() {
               {filtered.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
-                    No tools found
+                    未找到工具
                   </TableCell>
                 </TableRow>
               ) : (
@@ -624,7 +622,7 @@ export default function RegistryPage() {
                       <TableCell className="hidden md:table-cell">
                         {typeof meta.optional === "boolean" ? (
                           <Badge variant="outline" className="text-xs">
-                            {meta.optional ? "Yes" : "No"}
+                            {meta.optional ? "是" : "否"}
                           </Badge>
                         ) : (
                           "-"
@@ -637,12 +635,12 @@ export default function RegistryPage() {
                             className="gap-1 border-transparent bg-success-soft text-success"
                           >
                             <CheckCircle2Icon className="size-3" />
-                            Installed
+                            已安装
                           </Badge>
                         ) : (
                           <Badge variant="secondary" className="gap-1">
                             <XCircleIcon className="size-3" />
-                            Missing
+                            缺失
                           </Badge>
                         )}
                       </TableCell>
@@ -656,7 +654,7 @@ export default function RegistryPage() {
           {filtered.length > 0 && (
             <div className="flex items-center justify-between gap-3 border-t px-4 py-3">
               <div className="text-sm text-muted-foreground">
-                Showing {startIndex + 1}-{endIndexExclusive} of {filtered.length}
+                显示 {startIndex + 1}-{endIndexExclusive} 共 {filtered.length}
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -667,7 +665,7 @@ export default function RegistryPage() {
                   disabled={currentPage <= 1}
                 >
                   <ChevronLeftIcon className="size-4" />
-                  Prev
+                  上一页
                 </Button>
                 <Button
                   variant="outline"
@@ -676,7 +674,7 @@ export default function RegistryPage() {
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage >= totalPages}
                 >
-                  Next
+                  下一页
                   <ChevronRightIcon className="size-4" />
                 </Button>
               </div>
@@ -689,18 +687,18 @@ export default function RegistryPage() {
       <Card className="overflow-hidden">
         <SectionCardHeader
           icon={GitBranchIcon}
-          title="Install Workflow"
-          description="Install workflow from a Git repository or ZIP archive URL"
+          title="安装工作流"
+          description="从 Git 仓库或 ZIP 压缩包地址安装工作流"
         />
         <CardContent>
           <div className="flex flex-col gap-4 sm:flex-row">
             <div className="flex-1">
               <Label htmlFor="workflow-source" className="sr-only">
-                Workflow Source
+                工作流来源
               </Label>
               <Input
                 id="workflow-source"
-                placeholder="https://github.com/osmedeus/osmedeus-workflow.git"
+                placeholder="https://github.com/example/security-workflows.git"
                 value={workflowSource}
                 onChange={(e) => setWorkflowSource(e.target.value)}
               />
@@ -711,7 +709,7 @@ export default function RegistryPage() {
               ) : (
                 <FolderArchiveIcon className="mr-2 size-4" />
               )}
-              Install
+              安装
             </Button>
           </div>
         </CardContent>

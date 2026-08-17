@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -247,6 +249,132 @@ func ListWorkspaceNames(cfg *config.Config) fiber.Handler {
 		}
 
 		return c.JSON(names)
+	}
+}
+
+// workspacePathForDeletion resolves a workspace directory without following
+// symlinks. The candidate must be a direct, named child of the configured
+// workspaces root so a stale or malicious database path can never widen the
+// deletion scope.
+func workspacePathForDeletion(cfg *config.Config, name, localPath string) (string, bool, error) {
+	root := ""
+	if cfg != nil {
+		root = cfg.GetWorkspacesDir()
+	}
+	if root == "" {
+		return "", false, nil
+	}
+
+	absRoot, err := filepath.Abs(root)
+	if err != nil {
+		return "", false, fmt.Errorf("failed to resolve workspaces directory: %w", err)
+	}
+
+	candidate := filepath.Join(absRoot, name)
+	if localPath != "" && filepath.Base(filepath.Clean(localPath)) == name {
+		if absLocal, err := filepath.Abs(localPath); err == nil {
+			if localRel, relErr := filepath.Rel(absRoot, absLocal); relErr == nil && localRel == name {
+				candidate = absLocal
+			}
+		}
+	}
+
+	rel, err := filepath.Rel(absRoot, candidate)
+	if err != nil || rel == "." || rel != name {
+		return "", false, fmt.Errorf("workspace path is outside the configured workspaces directory")
+	}
+
+	if _, err := os.Lstat(candidate); err != nil {
+		if os.IsNotExist(err) {
+			return candidate, false, nil
+		}
+		return "", false, err
+	}
+	return candidate, true, nil
+}
+
+// DeleteWorkspace permanently removes a workspace's database data and, by
+// default, its directory below the configured workspaces root.
+// @Summary Delete a workspace
+// @Description Permanently delete a workspace, its assets, vulnerabilities, runs, artifacts, diffs, events, and Agent Pentest records. Active workspaces must be stopped first. Schedule definitions are retained.
+// @Tags Workspaces
+// @Produce json
+// @Param name path string true "Workspace name"
+// @Param delete_files query bool false "Also delete the local workspace directory" default(true)
+// @Success 200 {object} map[string]interface{} "Workspace deleted"
+// @Failure 400 {object} map[string]interface{} "Invalid workspace name or path"
+// @Failure 404 {object} map[string]interface{} "Workspace not found"
+// @Failure 409 {object} map[string]interface{} "Workspace still has active work"
+// @Security BearerAuth
+// @Router /osm/api/workspaces/{name} [delete]
+func DeleteWorkspace(cfg *config.Config) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		name := strings.TrimSpace(c.Params("name"))
+		if !isValidWorkspaceName(name) {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": true, "message": "invalid workspace name",
+			})
+		}
+
+		deleteFiles := c.QueryBool("delete_files", true)
+		workspacePath := ""
+		directoryExists := false
+		if deleteFiles {
+			localPath := ""
+			if workspace, err := database.GetWorkspaceByName(c.UserContext(), name); err == nil {
+				localPath = workspace.LocalPath
+			}
+			var err error
+			workspacePath, directoryExists, err = workspacePathForDeletion(cfg, name, localPath)
+			if err != nil {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"error": true, "message": err.Error(),
+				})
+			}
+		}
+
+		result, dbErr := database.DeleteWorkspaceRecords(c.UserContext(), name)
+		if dbErr != nil && !errors.Is(dbErr, database.ErrWorkspaceNotFound) {
+			if errors.Is(dbErr, database.ErrWorkspaceActive) {
+				return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+					"error": true, "message": "Stop active scans and Agent Pentest tasks before deleting the workspace",
+				})
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": true, "message": "failed to delete workspace data",
+			})
+		}
+
+		if errors.Is(dbErr, database.ErrWorkspaceNotFound) && (!deleteFiles || !directoryExists) {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"error": true, "message": "workspace not found",
+			})
+		}
+
+		filesDeleted := false
+		if deleteFiles && directoryExists {
+			if err := os.RemoveAll(workspacePath); err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+					"error": true, "message": "workspace data was deleted, but its local directory could not be removed",
+				})
+			}
+			filesDeleted = true
+		}
+
+		deleted := map[string]int64{}
+		workspaceID := int64(0)
+		if result != nil {
+			deleted = result.Deleted
+			workspaceID = result.Workspace.ID
+		}
+
+		return c.JSON(fiber.Map{
+			"message":       "workspace deleted successfully",
+			"id":            workspaceID,
+			"name":          name,
+			"deleted":       deleted,
+			"files_deleted": filesDeleted,
+		})
 	}
 }
 

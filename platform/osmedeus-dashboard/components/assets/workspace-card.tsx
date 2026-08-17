@@ -54,10 +54,10 @@ function VulnBadge({
   };
 
   const labels = {
-    critical: "C",
-    high: "H",
-    medium: "M",
-    low: "L",
+    critical: "严重",
+    high: "高",
+    medium: "中",
+    low: "低",
   };
 
   return (
@@ -66,7 +66,7 @@ function VulnBadge({
         "inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded text-xs font-medium",
         colors[severity]
       )}
-      title={`${count} ${severity}`}
+      title={`${labels[severity]}：${count}`}
     >
       {count}
     </span>
@@ -165,7 +165,7 @@ export function WorkspaceCard({ workspace, compact = false }: WorkspaceCardProps
           <div className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
             <div className="flex items-center gap-1.5 text-sm">
               <ShieldAlertIcon className="size-4 text-muted-foreground" />
-              <span className="text-muted-foreground">{workspace.total_vulns} vulnerabilities</span>
+              <span className="text-muted-foreground">{workspace.total_vulns} 个漏洞</span>
             </div>
             <div className="flex items-center gap-1">
               <VulnBadge count={workspace.vuln_critical} severity="critical" />
@@ -183,21 +183,21 @@ export function WorkspaceCard({ workspace, compact = false }: WorkspaceCardProps
               <GlobeIcon className="size-3.5" />
             </div>
             <p className="text-lg font-semibold">{formatNumber(workspace.total_subdomains)}</p>
-            <p className="text-xs text-muted-foreground">Subdomains</p>
+            <p className="text-xs text-muted-foreground">子域名</p>
           </div>
           <div className="flex flex-col items-center p-2 rounded-lg bg-muted/30">
             <div className="flex items-center gap-1 text-muted-foreground">
               <LinkIcon className="size-3.5" />
             </div>
             <p className="text-lg font-semibold">{formatNumber(workspace.total_urls)}</p>
-            <p className="text-xs text-muted-foreground">URLs</p>
+            <p className="text-xs text-muted-foreground">URL</p>
           </div>
           <div className="flex flex-col items-center p-2 rounded-lg bg-muted/30">
             <div className="flex items-center gap-1 text-muted-foreground">
               <LayersIcon className="size-3.5" />
             </div>
             <p className="text-lg font-semibold">{formatNumber(workspace.total_assets)}</p>
-            <p className="text-xs text-muted-foreground">Assets</p>
+            <p className="text-xs text-muted-foreground">资产</p>
           </div>
         </div>
 
@@ -213,12 +213,12 @@ export function WorkspaceCard({ workspace, compact = false }: WorkspaceCardProps
                 )}
               </span>
             ) : (
-              "Never scanned"
+              "从未扫描"
             )}
           </div>
           <Button variant="ghost" size="sm" asChild>
             <Link href={`/inventory/workspaces/${workspace.name}`}>
-              View Details
+              查看详情
               <ArrowRightIcon className="ml-1 size-4" />
             </Link>
           </Button>

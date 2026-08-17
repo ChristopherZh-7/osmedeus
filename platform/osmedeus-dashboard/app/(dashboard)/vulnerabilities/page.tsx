@@ -127,12 +127,12 @@ export default function VulnerabilitiesPage() {
 
   const columnOptions = React.useMemo(
     () => [
-      { key: "severity", label: "Severity" },
-      { key: "confidence", label: "Confidence" },
-      { key: "reviewStatus", label: "Review" },
-      { key: "title", label: "Title" },
-      { key: "asset", label: "Asset" },
-      { key: "tags", label: "Tags" },
+      { key: "severity", label: "严重程度" },
+      { key: "confidence", label: "可信度" },
+      { key: "reviewStatus", label: "审核状态" },
+      { key: "title", label: "标题" },
+      { key: "asset", label: "资产" },
+      { key: "tags", label: "标签" },
     ],
     []
   );
@@ -191,7 +191,7 @@ export default function VulnerabilitiesPage() {
       const res = await fetchVulnerabilitySummary(filters.workspace?.trim() || undefined);
       setSummary(res);
     } catch (e) {
-      toast.error("Failed to load summary", {
+      toast.error("加载统计摘要失败", {
         description: e instanceof Error ? e.message : "",
       });
     } finally {
@@ -207,7 +207,7 @@ export default function VulnerabilitiesPage() {
         const ws = await fetchWorkspaces({ offset: 0, limit: 1000 });
         if (!cancelled) setWorkspaces(ws);
       } catch (e) {
-        toast.error("Failed to load workspaces", {
+        toast.error("加载工作区失败", {
           description: e instanceof Error ? e.message : "",
         });
       } finally {
@@ -236,7 +236,7 @@ export default function VulnerabilitiesPage() {
       setVulnerabilities(res.data);
       setPagination(res.pagination);
     } catch (e) {
-      toast.error("Failed to load vulnerabilities", {
+      toast.error("加载漏洞失败", {
         description: e instanceof Error ? e.message : "",
       });
     } finally {
@@ -290,7 +290,7 @@ export default function VulnerabilitiesPage() {
       {
         key: "severity",
         colId: "severity",
-        headerName: "Severity",
+        headerName: "严重程度",
         minWidth: 104,
         flex: 0,
         width: 104,
@@ -304,7 +304,7 @@ export default function VulnerabilitiesPage() {
       {
         key: "confidence",
         field: "confidence",
-        headerName: "Confidence",
+        headerName: "可信度",
         minWidth: 110,
         flex: 0,
         width: 128,
@@ -315,7 +315,7 @@ export default function VulnerabilitiesPage() {
       {
         key: "reviewStatus",
         field: "reviewStatus",
-        headerName: "Review",
+        headerName: "审核状态",
         minWidth: 112,
         flex: 0,
         width: 112,
@@ -327,7 +327,7 @@ export default function VulnerabilitiesPage() {
         key: "title",
         field: "vulnTitle",
         colId: "title",
-        headerName: "Title",
+        headerName: "标题",
         // Fixed rather than flexible: rule names are short and repeat down the
         // column, so spare width here is dead space. The asset is the value
         // that actually varies, so it gets the slack instead.
@@ -351,7 +351,7 @@ export default function VulnerabilitiesPage() {
         key: "asset",
         field: "assetValue",
         colId: "asset",
-        headerName: "Asset",
+        headerName: "资产",
         minWidth: 260,
         flex: 3,
         cellRenderer: (p: { value?: string }) => <AssetCell value={p.value} />,
@@ -359,7 +359,7 @@ export default function VulnerabilitiesPage() {
       {
         key: "tags",
         colId: "tags",
-        headerName: "Tags",
+        headerName: "标签",
         minWidth: 150,
         maxWidth: 320,
         flex: 1,
@@ -406,9 +406,9 @@ export default function VulnerabilitiesPage() {
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-2 pr-1">
             <BarChart3Icon className="size-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Statistics</span>
+            <span className="text-sm font-medium">统计概览</span>
             <span className="text-sm text-muted-foreground">
-              {summaryLoading ? "-" : (summary?.total ?? 0).toLocaleString()} findings
+              {summaryLoading ? "-" : (summary?.total ?? 0).toLocaleString()} 个漏洞
             </span>
           </div>
           <div className="mr-1 h-6 w-px bg-border" />
@@ -423,7 +423,7 @@ export default function VulnerabilitiesPage() {
                 type="button"
                 onClick={() => handleSeverityToggle(sev)}
                 aria-pressed={active}
-                title={`Filter by ${config.label.toLowerCase()} severity`}
+                title={`筛选${config.label}严重程度`}
                 className={cn(
                   "inline-flex cursor-pointer items-center gap-2 rounded-control border px-2.5 py-1.5 transition-[box-shadow,border-color] hover:shadow-glow",
                   config.soft,
@@ -447,8 +447,8 @@ export default function VulnerabilitiesPage() {
       <Card className="overflow-hidden">
         <SectionCardHeader
           icon={ShieldAlertIcon}
-          title="Vulnerabilities"
-          description="Filter by workspace, severity, or confidence"
+          title="漏洞"
+          description="按工作区、严重程度或可信度筛选"
           actions={
             <Button
               variant="outline"
@@ -461,7 +461,7 @@ export default function VulnerabilitiesPage() {
               }}
             >
               <RotateCcwIcon className="mr-2 size-4" />
-              Reset
+              重置
             </Button>
           }
         />
@@ -470,7 +470,7 @@ export default function VulnerabilitiesPage() {
             <div className="relative flex-1 min-w-[240px]">
               <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search title, info, asset, or tags..."
+                placeholder="搜索标题、详情、资产或标签……"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
                 className="pl-9 h-9"
@@ -490,11 +490,11 @@ export default function VulnerabilitiesPage() {
               <SelectTrigger className="max-w-[220px]">
                 <span className="flex items-center gap-2">
                   <GlobeIcon className="size-4 text-muted-foreground" />
-                  <SelectValue placeholder="Workspace" />
+                  <SelectValue placeholder="工作区" />
                 </span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Workspaces</SelectItem>
+                <SelectItem value="all">全部工作区</SelectItem>
                 {workspaces
                   .filter((w) => !!w.name)
                   .map((w) => (
@@ -512,7 +512,7 @@ export default function VulnerabilitiesPage() {
                 >
                   <span className="flex items-center gap-2">
                     <AlertTriangleIcon className="size-4 text-muted-foreground" />
-                    <span>Severity</span>
+                    <span>严重程度</span>
                     {(filters.severity?.length ?? 0) > 0 && (
                       <Badge variant="secondary" className="px-1.5 py-0 text-xs">
                         {filters.severity?.length}
@@ -548,7 +548,7 @@ export default function VulnerabilitiesPage() {
                         setPage(1);
                       }}
                     >
-                      Clear selection
+                      清除选择
                     </Button>
                   </div>
                 )}
@@ -565,14 +565,14 @@ export default function VulnerabilitiesPage() {
               }}
             >
               <SelectTrigger className="max-w-[170px]">
-                <SelectValue placeholder="Review" />
+                <SelectValue placeholder="审核状态" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All review states</SelectItem>
-                <SelectItem value="pending">Pending review</SelectItem>
-                <SelectItem value="confirmed">Confirmed</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-                <SelectItem value="duplicate">Duplicate</SelectItem>
+                <SelectItem value="all">全部审核状态</SelectItem>
+                <SelectItem value="pending">待审核</SelectItem>
+                <SelectItem value="confirmed">已确认</SelectItem>
+                <SelectItem value="rejected">已驳回</SelectItem>
+                <SelectItem value="duplicate">重复</SelectItem>
               </SelectContent>
             </Select>
             <Popover>
@@ -583,7 +583,7 @@ export default function VulnerabilitiesPage() {
                 >
                   <span className="flex items-center gap-2">
                     <BadgeCheckIcon className="size-4 text-muted-foreground" />
-                    <span>Confidence</span>
+                    <span>可信度</span>
                     {(filters.confidence?.length ?? 0) > 0 && (
                       <Badge variant="secondary" className="px-1.5 py-0 text-xs">
                         {filters.confidence?.length}
@@ -619,7 +619,7 @@ export default function VulnerabilitiesPage() {
                         setPage(1);
                       }}
                     >
-                      Clear selection
+                      清除选择
                     </Button>
                   </div>
                 )}
@@ -630,7 +630,7 @@ export default function VulnerabilitiesPage() {
                 <Button variant="outline">
                   <span className="flex items-center gap-2">
                     <Columns3Icon className="size-4 text-muted-foreground" />
-                    <span>Columns</span>
+                    <span>列</span>
                     {visibleColumnCount > 0 &&
                       visibleColumnCount !== columnOptions.length && (
                         <Badge variant="secondary" className="px-1.5 py-0 text-xs">
@@ -674,7 +674,7 @@ export default function VulnerabilitiesPage() {
               <SelectTrigger className="max-w-[140px]">
                 <span className="flex items-center gap-2">
                   <ListIcon className="size-4 text-muted-foreground" />
-                  <SelectValue placeholder="Page Size" />
+                  <SelectValue placeholder="每页数量" />
                 </span>
               </SelectTrigger>
               <SelectContent>
@@ -701,7 +701,7 @@ export default function VulnerabilitiesPage() {
             }
             emptyState={
               <div className="py-10 text-center text-sm text-muted-foreground">
-                No vulnerabilities found
+                未发现漏洞
               </div>
             }
           />

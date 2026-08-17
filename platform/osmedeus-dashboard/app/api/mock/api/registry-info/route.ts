@@ -35,7 +35,7 @@ type NixCategory = {
 
 export let mockDirectBinaries: Record<string, DirectBinaryMeta> = {
   nuclei: {
-    desc: "Vulnerability scanner",
+    desc: "漏洞扫描器",
     tags: ["vuln", "scanner"],
     version: "3.0.0",
     linux: {
@@ -51,7 +51,7 @@ export let mockDirectBinaries: Record<string, DirectBinaryMeta> = {
     optional: false,
   },
   amass: {
-    desc: "In-depth attack surface mapping",
+    desc: "深度攻击面测绘",
     tags: ["recon", "subdomain"],
     version: "4.0.0",
     linux: {
@@ -65,7 +65,7 @@ export let mockDirectBinaries: Record<string, DirectBinaryMeta> = {
     optional: false,
   },
   httpx: {
-    desc: "Fast HTTP probing",
+    desc: "快速 HTTP 探测工具",
     tags: ["recon", "http"],
     version: "1.6.0",
     linux: {

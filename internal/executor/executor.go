@@ -1004,7 +1004,7 @@ func (e *Executor) ExecuteModule(ctx context.Context, module *core.Workflow, par
 	e.logger.Debug("Creating runner",
 		zap.String("binary_path", binaryPath),
 	)
-	r, err := runner.NewRunner(module, binaryPath)
+	r, err := runner.NewRunner(module, binaryPath, cfg.BinariesPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create runner: %w", err)
 	}
@@ -1978,7 +1978,7 @@ func (e *Executor) ExecuteFlow(ctx context.Context, flow *core.Workflow, params 
 	if flow.Hooks != nil && len(flow.Hooks.PreScanSteps) > 0 {
 		// Flow needs a runner for hook steps — create a host runner
 		binaryPath, _ := os.Executable()
-		hookRunner, hookErr := runner.NewRunner(flow, binaryPath)
+		hookRunner, hookErr := runner.NewRunner(flow, binaryPath, cfg.BinariesPath)
 		if hookErr == nil {
 			if setupErr := hookRunner.Setup(ctx); setupErr == nil {
 				e.stepDispatcher.SetRunner(hookRunner)
@@ -2006,6 +2006,7 @@ func (e *Executor) ExecuteFlow(ctx context.Context, flow *core.Workflow, params 
 	dependents, inDegree := buildDependencyGraph(flow.Modules)
 	moduleMap := buildModuleMap(flow.Modules)
 	executed := make(map[string]bool)
+	var unhandledModuleErrors []error
 
 	// Initialize ready queue with modules that have no dependencies
 	ready := make([]string, 0, len(flow.Modules))
@@ -2201,9 +2202,13 @@ func (e *Executor) ExecuteFlow(ctx context.Context, flow *core.Workflow, params 
 				zap.Error(err))
 
 			// Handle on_error actions
+			errorHandled := false
 			for _, action := range modRef.OnError {
 				e.handleModuleAction(action, execCtx)
-				if action.Action == "abort" {
+				if action.Action == core.ActionContinue {
+					errorHandled = true
+				}
+				if action.Action == core.ActionAbort {
 					result.ModuleResults = append(result.ModuleResults, &core.ModuleResult{
 						ModuleName: modRef.Name,
 						Status:     core.RunStatusFailed,
@@ -2215,6 +2220,9 @@ func (e *Executor) ExecuteFlow(ctx context.Context, flow *core.Workflow, params 
 					metrics.RecordWorkflowEnd(flow.Name, string(core.KindFlow), string(result.Status), result.EndTime.Sub(result.StartTime).Seconds())
 					return result, result.Error
 				}
+			}
+			if !errorHandled {
+				unhandledModuleErrors = append(unhandledModuleErrors, fmt.Errorf("module %s failed: %w", modRef.Name, err))
 			}
 			// If no abort action, mark as executed and continue
 			executed[modRef.Name] = true
@@ -2292,7 +2300,7 @@ func (e *Executor) ExecuteFlow(ctx context.Context, flow *core.Workflow, params 
 	// Execute post-scan hook steps
 	if flow.Hooks != nil && len(flow.Hooks.PostScanSteps) > 0 {
 		binaryPath, _ := os.Executable()
-		hookRunner, hookErr := runner.NewRunner(flow, binaryPath)
+		hookRunner, hookErr := runner.NewRunner(flow, binaryPath, cfg.BinariesPath)
 		if hookErr == nil {
 			if setupErr := hookRunner.Setup(ctx); setupErr == nil {
 				e.stepDispatcher.SetRunner(hookRunner)
@@ -2302,13 +2310,25 @@ func (e *Executor) ExecuteFlow(ctx context.Context, flow *core.Workflow, params 
 		}
 	}
 
-	result.Status = core.RunStatusCompleted
+	if len(unhandledModuleErrors) > 0 {
+		result.Status = core.RunStatusFailed
+		result.Error = errors.Join(unhandledModuleErrors...)
+	} else {
+		result.Status = core.RunStatusCompleted
+	}
 	result.EndTime = time.Now()
 	result.Exports = execCtx.Exports
 
-	execCtx.Logger.Info("Flow execution completed",
-		zap.Duration("duration", result.EndTime.Sub(result.StartTime)),
-	)
+	if result.Status == core.RunStatusFailed {
+		execCtx.Logger.Error("Flow execution completed with module failures",
+			zap.Duration("duration", result.EndTime.Sub(result.StartTime)),
+			zap.Error(result.Error),
+		)
+	} else {
+		execCtx.Logger.Info("Flow execution completed",
+			zap.Duration("duration", result.EndTime.Sub(result.StartTime)),
+		)
+	}
 
 	// Record workflow completion metrics
 	metrics.RecordWorkflowEnd(flow.Name, string(core.KindFlow), string(result.Status), result.EndTime.Sub(result.StartTime).Seconds())
@@ -2322,11 +2342,13 @@ func (e *Executor) ExecuteFlow(ctx context.Context, flow *core.Workflow, params 
 		}
 	}
 
-	// Write run-completed.json on completion
-	if completedFile, ok := execCtx.GetVariable("StateCompletedFile"); ok {
-		if cfStr, ok := completedFile.(string); ok && cfStr != "" {
-			if err := ExportRunCompleted(cfStr, result, execCtx); err != nil {
-				execCtx.Logger.Warn("Failed to write run completed file", zap.Error(err))
+	// Write run-completed.json only for a genuinely completed flow.
+	if result.Status == core.RunStatusCompleted {
+		if completedFile, ok := execCtx.GetVariable("StateCompletedFile"); ok {
+			if cfStr, ok := completedFile.(string); ok && cfStr != "" {
+				if err := ExportRunCompleted(cfStr, result, execCtx); err != nil {
+					execCtx.Logger.Warn("Failed to write run completed file", zap.Error(err))
+				}
 			}
 		}
 	}
@@ -2347,7 +2369,7 @@ func (e *Executor) ExecuteFlow(ctx context.Context, flow *core.Workflow, params 
 		}
 	}
 
-	return result, nil
+	return result, result.Error
 }
 
 // executeHookSteps runs a list of hook steps (pre_scan or post_scan).

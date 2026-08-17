@@ -42,7 +42,7 @@ export default function WorkspaceDetailClient({ workspaceId }: WorkspaceDetailCl
         const data = await fetchWorkspace(workspaceId);
         setWorkspace(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load workspace");
+        setError(err instanceof Error ? err.message : "加载工作区失败");
       } finally {
         setIsLoadingWorkspace(false);
       }
@@ -57,7 +57,7 @@ export default function WorkspaceDetailClient({ workspaceId }: WorkspaceDetailCl
         const stats = await fetchAssetStats(workspaceName);
         setAssetStats(stats);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load asset statistics");
+        setError(err instanceof Error ? err.message : "加载资产统计失败");
       }
     };
     loadStats();
@@ -74,7 +74,7 @@ export default function WorkspaceDetailClient({ workspaceId }: WorkspaceDetailCl
         });
         setAssetsResponse(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load assets");
+        setError(err instanceof Error ? err.message : "加载资产失败");
       } finally {
         setIsLoadingAssets(false);
       }
@@ -217,7 +217,7 @@ export default function WorkspaceDetailClient({ workspaceId }: WorkspaceDetailCl
         <Button variant="ghost" size="icon" asChild>
           <Link href="/inventory/assets">
             <ArrowLeftIcon className="size-4" />
-            <span className="sr-only">Back to assets</span>
+            <span className="sr-only">返回资产列表</span>
           </Link>
         </Button>
         <div className="flex-1">
@@ -244,7 +244,7 @@ export default function WorkspaceDetailClient({ workspaceId }: WorkspaceDetailCl
               </div>
               <div>
                 <p className="text-2xl font-bold">{formatNumber(workspace.total_subdomains)}</p>
-                <p className="text-sm text-muted-foreground">Subdomains</p>
+                <p className="text-sm text-muted-foreground">子域名</p>
               </div>
             </CardContent>
           </Card>
@@ -256,7 +256,7 @@ export default function WorkspaceDetailClient({ workspaceId }: WorkspaceDetailCl
               </div>
               <div>
                 <p className="text-2xl font-bold">{formatNumber(workspace.total_urls)}</p>
-                <p className="text-sm text-muted-foreground">HTTP Assets</p>
+                <p className="text-sm text-muted-foreground">HTTP 资产</p>
               </div>
             </CardContent>
           </Card>
@@ -270,11 +270,11 @@ export default function WorkspaceDetailClient({ workspaceId }: WorkspaceDetailCl
                 <p className="text-2xl font-bold">{formatNumber(workspace.total_vulns)}</p>
                 {workspace.total_vulns > 0 && (
                   <Badge variant="destructive" className="text-xs">
-                    Action needed
+                    需要处理
                   </Badge>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground sr-only">Vulnerabilities</p>
+              <p className="text-sm text-muted-foreground sr-only">漏洞</p>
             </CardContent>
           </Card>
         </div>
@@ -297,7 +297,7 @@ export default function WorkspaceDetailClient({ workspaceId }: WorkspaceDetailCl
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">HTTP Assets</CardTitle>
+          <CardTitle className="text-lg">HTTP 资产</CardTitle>
         </CardHeader>
         <CardContent>
           <HttpAssetsTable

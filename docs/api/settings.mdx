@@ -7,6 +7,51 @@ description: "Server configuration management"
 
 Manage server configuration settings.
 
+## Manage Skills
+
+List both embedded coding-assistant Skills and intelligent-pentest runtime Skills:
+
+```bash
+curl http://localhost:8002/osm/api/settings/skills \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Only intelligent-pentest Skills are editable. They are stored below
+`<base_folder>/agent-harness/dsh-home/skills/`; embedded coding Skills are
+returned with `"editable": false`.
+
+Create a runtime Skill by sending its directory identifier and complete
+`SKILL.md` content. The frontmatter `name` must match `slug`.
+
+```bash
+curl -X POST http://localhost:8002/osm/api/settings/skills \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  --data '{
+    "slug": "custom-recon",
+    "content": "---\nname: custom-recon\ndescription: Custom reconnaissance guidance\n---\n\n# Instructions\n"
+  }'
+```
+
+Read, replace, or delete one runtime Skill:
+
+```bash
+curl http://localhost:8002/osm/api/settings/skills/custom-recon \
+  -H "Authorization: Bearer $TOKEN"
+
+curl -X PUT http://localhost:8002/osm/api/settings/skills/custom-recon \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  --data '{"content":"---\nname: custom-recon\ndescription: Updated guidance\n---\n\n# Instructions\n"}'
+
+curl -X DELETE http://localhost:8002/osm/api/settings/skills/custom-recon \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Deleting a Skill removes its entire directory, including reference files.
+Skills shipped with Agent Harness can be restored to their release version
+when the Harness restarts; use a new slug for persistent local customization.
+
 ## Get YAML Configuration
 
 Get the entire YAML configuration file with sensitive fields redacted. Fields containing `_key`, `secret`, `password`, `username`, or `_token` are replaced with `[REDACTED]`.

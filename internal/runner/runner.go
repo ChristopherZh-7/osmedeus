@@ -139,8 +139,10 @@ type Runner interface {
 	SetPIDCallbacks(onStart, onEnd PIDCallback)
 }
 
-// NewRunner creates a runner based on workflow configuration
-func NewRunner(workflow *core.Workflow, binaryPath string) (Runner, error) {
+// NewRunner creates a runner based on workflow configuration. binaryPath is
+// the osmedeus executable copied to remote runners, while binariesPath is the
+// local directory containing workflow tools.
+func NewRunner(workflow *core.Workflow, binaryPath, binariesPath string) (Runner, error) {
 	runnerType := workflow.Runner
 	if runnerType == "" {
 		runnerType = core.RunnerTypeHost
@@ -153,7 +155,7 @@ func NewRunner(workflow *core.Workflow, binaryPath string) (Runner, error) {
 
 	switch runnerType {
 	case core.RunnerTypeHost:
-		return NewHostRunner(binaryPath), nil
+		return NewHostRunner(binariesPath), nil
 	case core.RunnerTypeDocker:
 		return NewDockerRunner(config, binaryPath)
 	case core.RunnerTypeSSH:
@@ -163,15 +165,15 @@ func NewRunner(workflow *core.Workflow, binaryPath string) (Runner, error) {
 	}
 }
 
-// NewRunnerFromType creates a runner from type and config directly
-func NewRunnerFromType(runnerType core.RunnerType, config *core.RunnerConfig, binaryPath string) (Runner, error) {
+// NewRunnerFromType creates a runner from type and config directly.
+func NewRunnerFromType(runnerType core.RunnerType, config *core.RunnerConfig, binaryPath, binariesPath string) (Runner, error) {
 	if config == nil {
 		config = &core.RunnerConfig{}
 	}
 
 	switch runnerType {
 	case core.RunnerTypeHost, "":
-		return NewHostRunner(binaryPath), nil
+		return NewHostRunner(binariesPath), nil
 	case core.RunnerTypeDocker:
 		return NewDockerRunner(config, binaryPath)
 	case core.RunnerTypeSSH:

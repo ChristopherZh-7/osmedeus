@@ -47,34 +47,34 @@ export default function DashboardPage() {
         ) : stats ? (
           <>
             <StatCard
-              title="Workflows"
+              title="工作流"
               value={formatNumber(stats.workflows)}
               icon={WorkflowIcon}
-              description="Active workflow modules"
+              description="可用工作流模块"
             />
             <StatCard
-              title="Workspaces"
+              title="工作区"
               value={formatNumber(stats.workspaces)}
               icon={FolderOpenIcon}
-              description="Target workspaces"
+              description="目标工作区"
             />
             <StatCard
-              title="Subdomains"
+              title="子域名"
               value={formatNumber(stats.subdomains)}
               icon={GlobeIcon}
-              description="Discovered subdomains"
+              description="已发现的子域名"
             />
             <StatCard
-              title="HTTP Assets"
+              title="HTTP 资产"
               value={formatNumber(stats.httpAssets)}
               icon={LinkIcon}
-              description="Live web endpoints"
+              description="可访问的 Web 端点"
             />
             <StatCard
-              title="Vulnerabilities"
+              title="漏洞"
               value={formatNumber(stats.vulnerabilities)}
               icon={AlertTriangleIcon}
-              description="Security findings"
+              description="安全问题"
             />
           </>
         ) : null}
@@ -86,7 +86,7 @@ export default function DashboardPage() {
 
         {/* Quick Actions Card */}
         <div className="rounded-xl border bg-card p-6">
-          <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
+          <h2 className="text-lg font-semibold mb-4">快捷操作</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             <Link
               href="/scans/new"
@@ -108,9 +108,9 @@ export default function DashboardPage() {
                 </svg>
               </div>
               <div>
-                <p className="font-medium">New Scan</p>
+                <p className="font-medium">新建扫描</p>
                 <p className="text-sm text-muted-foreground">
-                  Start a new security scan
+                  启动新的安全扫描
                 </p>
               </div>
             </Link>
@@ -123,9 +123,9 @@ export default function DashboardPage() {
                 <FolderOpenIcon className="size-5 text-primary" />
               </div>
               <div>
-                <p className="font-medium">View Assets</p>
+                <p className="font-medium">查看资产</p>
                 <p className="text-sm text-muted-foreground">
-                  Browse discovered assets
+                  浏览已发现的资产
                 </p>
               </div>
             </Link>
@@ -138,9 +138,9 @@ export default function DashboardPage() {
                 <WorkflowIcon className="size-5 text-primary" />
               </div>
               <div>
-                <p className="font-medium">Edit Workflow</p>
+                <p className="font-medium">编辑工作流</p>
                 <p className="text-sm text-muted-foreground">
-                  Customize scan workflows
+                  自定义扫描工作流
                 </p>
               </div>
             </Link>
@@ -170,9 +170,9 @@ export default function DashboardPage() {
                 </svg>
               </div>
               <div>
-                <p className="font-medium">Settings</p>
+                <p className="font-medium">设置</p>
                 <p className="text-sm text-muted-foreground">
-                  Configure preferences
+                  配置偏好设置
                 </p>
               </div>
             </Link>

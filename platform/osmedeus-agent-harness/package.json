@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node ./scripts/start.mjs",
+    "test": "node --test ./plugins/dsh-pentagi-orchestrator/lib/*.test.js",
     "check": "node ./scripts/check.mjs",
     "verify:install": "node ./scripts/verify-install.mjs",
     "upgrade:dsh": "node ./scripts/upgrade.mjs"

@@ -34,7 +34,7 @@ export default function WorkflowsEditorPage() {
       const sorted = list.slice().sort((a, b) => a.name.localeCompare(b.name));
       setWorkflows(sorted);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load workflows");
+      setError(e instanceof Error ? e.message : "加载工作流失败");
     } finally {
       setLoading(false);
     }
@@ -66,7 +66,7 @@ export default function WorkflowsEditorPage() {
     return (
       <div className="flex h-[calc(100vh-10rem)] items-center justify-center">
         <div className="space-y-4">
-          <ErrorState title="Workflow Error" message={error} onRetry={load} />
+          <ErrorState title="工作流错误" message={error} onRetry={load} />
         </div>
       </div>
     );

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import favicon from "@/favicon.ico";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { ColorVarsProvider } from "@/providers/color-vars-provider";
 import { AuthProvider } from "@/providers/auth-provider";
@@ -7,11 +6,8 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Osmedeus Dashboard",
-  description: "Security scan management dashboard for Osmedeus Workflow Engine",
-  icons: {
-    icon: favicon.src,
-  },
+  title: "安全测试平台",
+  description: "安全扫描、资产管理与智能渗透测试平台",
 };
 
 export default function RootLayout({
@@ -20,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="zh-CN" suppressHydrationWarning>
       {/* The page plane sits *under* the app canvas: chrome and auth screens
           show `--og-page-bg`, and `SidebarInset` paints `bg-background` over
           it for the dashboard column. */}

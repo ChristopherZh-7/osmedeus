@@ -6,12 +6,14 @@ import { defineTool } from "@deepseek-ai/dsh-tools";
 
 const CONTEXT_ROUTE = "/osmedeus/context";
 const CONTEXT_STATUS_ROUTE = "/osmedeus/context/status";
+const QUESTION_ROUTE = "/osmedeus/questions";
+const QUESTION_RESPONSE_ROUTE = "/osmedeus/questions/respond";
 const MAX_CONTEXT_BYTES = 16 * 1024 * 1024;
 const SESSION_ID_PATTERN = /^session-osm-[a-f0-9]{32}$/;
 const bridgeByRootSession = new Map();
 const osmedeusAPI = new URL(process.env.OSM_API_URL || "http://127.0.0.1:8002");
 
-export const inject = ["webServer", "tools", "sessions"];
+export const inject = ["apiProxy", "webServer", "tools", "sessions"];
 
 function sendJSON(res, status, value) {
   const body = Buffer.from(JSON.stringify(value));
@@ -47,6 +49,179 @@ async function readJSONBody(req) {
     error.statusCode = 400;
     throw error;
   }
+}
+
+function publicQuestion(question) {
+  return {
+    id: String(question?.id ?? ""),
+    question: String(question?.question ?? ""),
+    ...(typeof question?.header === "string" ? { header: question.header } : {}),
+    ...(typeof question?.detail === "string" ? { detail: question.detail } : {}),
+    ...(Array.isArray(question?.options) ? {
+      options: question.options.map((option) => ({
+        label: String(option?.label ?? ""),
+        ...(typeof option?.description === "string" ? { description: option.description } : {}),
+      })),
+    } : {}),
+    ...(question?.multiSelect === true ? { multi_select: true } : {}),
+  };
+}
+
+function normalizeQuestionAnswers(pending, input) {
+  if (!Array.isArray(input) || input.length !== pending.questions.length) {
+    throw new Error("one answer is required for every pending question");
+  }
+  const byID = new Map(input.map((answer) => [String(answer?.id ?? ""), answer]));
+  if (byID.size !== input.length) throw new Error("question answer ids must be unique");
+
+  return pending.questions.map((question) => {
+    const answer = byID.get(question.id);
+    if (!answer) throw new Error(`missing answer for question ${question.id}`);
+    const allowed = new Set((question.options ?? []).map((option) => option.label));
+    const selected = Array.isArray(answer.selected)
+      ? answer.selected.map((value) => String(value).trim()).filter(Boolean)
+      : [];
+    if (question.multi_select !== true && question.multiSelect !== true && selected.length > 1) {
+      throw new Error(`question ${question.id} accepts only one option`);
+    }
+    if (selected.some((label) => !allowed.has(label))) {
+      throw new Error(`question ${question.id} contains an unknown option`);
+    }
+    const custom = typeof answer.custom === "string" ? answer.custom.trim() : "";
+    if (custom.length > 20_000) throw new Error(`question ${question.id} custom answer is too long`);
+    if (selected.length === 0 && custom === "") {
+      throw new Error(`question ${question.id} requires a selection or custom answer`);
+    }
+    return {
+      id: question.id,
+      selected,
+      ...(custom ? { custom } : {}),
+    };
+  });
+}
+
+function registerQuestionBridge(ctx) {
+  const pendingBySession = new Map();
+  const abort = new AbortController();
+  const watch = async () => {
+    try {
+      for await (const envelope of ctx.apiProxy.events.mux({
+        rpcId: randomUUID(),
+        payload: {},
+      }, abort.signal)) {
+        const payload = envelope.payload;
+        if (payload?.type === "question/requested" && SESSION_ID_PATTERN.test(payload.sessionId)) {
+          pendingBySession.set(payload.sessionId, {
+            rpc_id: String(envelope.rpcId),
+            session_id: payload.sessionId,
+            questions: payload.questions.map(publicQuestion),
+          });
+          continue;
+        }
+        if (payload?.type === "question/resolved") {
+          const pending = pendingBySession.get(payload.sessionId);
+          if (pending?.rpc_id === String(payload.questionRpcId)) pendingBySession.delete(payload.sessionId);
+        }
+      }
+    } catch (error) {
+      if (!abort.signal.aborted) console.error("[osmedeus] question bridge stopped:", error);
+    }
+  };
+  void watch();
+  ctx.effect(() => () => {
+    abort.abort();
+    pendingBySession.clear();
+  }, "osmedeus: question event bridge");
+
+  ctx.effect(
+    () => ctx.webServer.register({
+      kind: "exact",
+      path: QUESTION_ROUTE,
+      handler(req, res) {
+        if (req.method !== "GET") {
+          res.setHeader("Allow", "GET");
+          sendJSON(res, 405, { ok: false, error: "method not allowed" });
+          return;
+        }
+        const requestURL = new URL(req.url || QUESTION_ROUTE, "http://127.0.0.1");
+        const sessionId = String(requestURL.searchParams.get("session_id") ?? "").trim();
+        if (!SESSION_ID_PATTERN.test(sessionId)) {
+          sendJSON(res, 400, { ok: false, error: "invalid Osmedeus DSH session id" });
+          return;
+        }
+        sendJSON(res, 200, {
+          ok: true,
+          session_id: sessionId,
+          pending: pendingBySession.get(sessionId) ?? null,
+        });
+      },
+    }),
+    "osmedeus: pending question query",
+  );
+
+  ctx.effect(
+    () => ctx.webServer.register({
+      kind: "exact",
+      path: QUESTION_RESPONSE_ROUTE,
+      async handler(req, res) {
+        if (req.method !== "POST") {
+          res.setHeader("Allow", "POST");
+          sendJSON(res, 405, { ok: false, error: "method not allowed" });
+          return;
+        }
+        try {
+          const payload = await readJSONBody(req);
+          const sessionId = String(payload?.session_id ?? "").trim();
+          const rpcId = String(payload?.rpc_id ?? "").trim();
+          const action = String(payload?.action ?? "answer");
+          if (!SESSION_ID_PATTERN.test(sessionId) || !rpcId || rpcId.length > 256) {
+            sendJSON(res, 400, { ok: false, error: "invalid question identity" });
+            return;
+          }
+          const pending = pendingBySession.get(sessionId);
+          if (!pending || pending.rpc_id !== rpcId) {
+            sendJSON(res, 409, { ok: false, error: "question is no longer pending" });
+            return;
+          }
+
+          let result;
+          if (action === "cancel") {
+            result = {
+              ok: false,
+              error: { code: "cancelled", message: "the operator cancelled the question", details: {} },
+            };
+          } else if (action === "answer") {
+            const answers = normalizeQuestionAnswers(pending, payload?.answers);
+            result = {
+              ok: true,
+              value: { sessionId, answer: { answers } },
+            };
+          } else {
+            sendJSON(res, 400, { ok: false, error: "action must be answer or cancel" });
+            return;
+          }
+
+          const receipt = await ctx.apiProxy.respond({
+            type: "client-response",
+            rpcId,
+            result,
+          });
+          if (!receipt.accepted) {
+            sendJSON(res, 409, { ok: false, error: `question response was rejected: ${receipt.reason}` });
+            return;
+          }
+          pendingBySession.delete(sessionId);
+          sendJSON(res, 200, { ok: true, accepted: true, action });
+        } catch (error) {
+          sendJSON(res, error?.statusCode ?? 400, {
+            ok: false,
+            error: error instanceof Error ? error.message : "question response failed",
+          });
+        }
+      },
+    }),
+    "osmedeus: question response bridge",
+  );
 }
 
 export function findBridgeForAgent(ctx, agent) {
@@ -229,10 +404,10 @@ function contextSummary(context, contextPath, rootSessionId = context?.session?.
   const recon = context?.recon ?? {};
 	const executionMode = String(context?.session?.execution_mode || "direct");
 	const modeGuidance = {
-		orchestrated: "Root-agent execution is disabled. Start or control work with osmedeus_start_pentest_task and the other osmedeus_*_pentest_task tools; managed roles perform the actual tests.",
-		direct: "The root agent may use its normal Harness tools directly. Multi-agent task orchestration remains optional.",
-		analysis: "Read-only analysis only. Do not start tasks, run shell/network tools, write files, or submit test/finding records.",
-	}[executionMode] || "The root agent may use its normal Harness tools directly.";
+		orchestrated: "This root conversation is Primary Agent. Primary may execute with normal Harness tools and may call pentagi_delegate for focused named specialists; do not start a separate background PentAGI task.",
+		direct: "This root conversation is the only Primary Agent. Work directly with normal Harness tools and do not delegate to subagents or workflows.",
+		analysis: "This root conversation is Primary Agent in read-only mode. Inspect existing context only; do not run target tools, change files, delegate, or submit test/finding records.",
+	}[executionMode] || "This root conversation is Primary Agent and may use its normal Harness tools directly.";
   return [
     "# Osmedeus Pentest Context",
     "",
@@ -304,6 +479,7 @@ export function apply(ctx) {
   const scopesRoot = join(dshHome, "osmedeus", "scopes");
 
 	registerResultTools(ctx);
+	registerQuestionBridge(ctx);
 
 	// Materialize the root authorization context under every descendant's own
 	// DSH_SESSION_ID before its next model step. Skills can therefore use the

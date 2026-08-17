@@ -74,7 +74,7 @@ export default function UtilitiesPage() {
         }
         setAvailableTags(Array.from(tags).sort());
       } catch (e) {
-        toast.error("Failed to load utility functions", { description: e instanceof Error ? e.message : "" });
+        toast.error("加载实用函数失败", { description: e instanceof Error ? e.message : "" });
       } finally {
         setLoadingFuncs(false);
       }
@@ -203,7 +203,7 @@ export default function UtilitiesPage() {
   };
 
   const tagsLabel = React.useMemo(() => {
-    if (selectedTags.length === 0) return "All tags";
+    if (selectedTags.length === 0) return "全部标签";
     if (selectedTags.length <= 2) return selectedTags.join(", ");
     return `${selectedTags.slice(0, 2).join(", ")} +${selectedTags.length - 2}`;
   }, [selectedTags]);
@@ -240,12 +240,12 @@ export default function UtilitiesPage() {
 
   const doEvalFunction = async () => {
     if (!script.trim()) {
-      toast.error("Please enter a script");
+      toast.error("请输入脚本");
       return;
     }
     const p = parseParams();
     if (!paramsValid) {
-      toast.error("Params must be valid JSON object");
+      toast.error("参数必须是有效的 JSON 对象");
       return;
     }
     setRunningEval(true);
@@ -257,9 +257,9 @@ export default function UtilitiesPage() {
       });
       setEvalResult(resp.result);
       setRenderedScript(resp.rendered_script);
-      toast.success("Function executed");
+      toast.success("函数执行成功");
     } catch (e) {
-      toast.error("Execution failed", { description: e instanceof Error ? e.message : "" });
+      toast.error("执行失败", { description: e instanceof Error ? e.message : "" });
     } finally {
       setRunningEval(false);
     }
@@ -268,9 +268,9 @@ export default function UtilitiesPage() {
   const copyFunctionName = async (name: string) => {
     try {
       await navigator.clipboard.writeText(name);
-      toast.success("Copied to clipboard");
+      toast.success("已复制到剪贴板");
     } catch {
-      toast.error("Failed to copy");
+      toast.error("复制失败");
     }
   };
 
@@ -282,32 +282,32 @@ export default function UtilitiesPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <ListOrderedIcon className="size-5" />
-            <span>List Utility Functions</span>
+            <span>实用函数列表</span>
           </CardTitle>
-          <CardDescription>Get a categorized list of all available utility functions.</CardDescription>
+          <CardDescription>按类别查看所有可用的实用函数。</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {loadingFuncs ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <LoaderIcon className="size-4 animate-spin" />
-              Loading functions...
+              正在加载函数……
             </div>
           ) : functions.length === 0 ? (
-            <div className="text-sm text-muted-foreground">No functions available</div>
+            <div className="text-sm text-muted-foreground">暂无可用函数</div>
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="search">Search</Label>
+                  <Label htmlFor="search">搜索</Label>
                   <Input
                     id="search"
-                    placeholder="Search by name, description, tags..."
+                    placeholder="按名称、描述或标签搜索……"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="tags">Tags</Label>
+                  <Label htmlFor="tags">标签</Label>
                   <div className="flex items-center gap-2">
                     <Popover>
                       <PopoverTrigger asChild>
@@ -318,19 +318,19 @@ export default function UtilitiesPage() {
                       </PopoverTrigger>
                       <PopoverContent align="start" className="w-[340px] p-3">
                         <div className="flex items-center justify-between gap-2">
-                          <div className="text-sm font-medium">Filter</div>
+                          <div className="text-sm font-medium">筛选</div>
                           <Button
                             variant="ghost"
                             size="sm"
                             disabled={selectedTags.length === 0}
                             onClick={() => setSelectedTags([])}
                           >
-                            Clear
+                            清除
                           </Button>
                         </div>
                         <div className="mt-3 max-h-64 overflow-auto space-y-2 pr-1">
                           {availableTags.length === 0 ? (
-                            <div className="text-sm text-muted-foreground">No tags</div>
+                            <div className="text-sm text-muted-foreground">无标签</div>
                           ) : (
                             availableTags.map((tag) => (
                               <label key={tag} className="flex items-center gap-2">
@@ -351,18 +351,18 @@ export default function UtilitiesPage() {
                       <PopoverTrigger asChild>
                         <Button variant="outline" className="shrink-0 rounded-md px-3">
                           <Columns3Icon className="size-4 opacity-70" />
-                          <span>Columns</span>
+                          <span>列</span>
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent align="start" className="w-[320px] p-3">
-                        <div className="text-sm font-medium">Show columns</div>
+                        <div className="text-sm font-medium">显示列</div>
                         <div className="mt-3 space-y-2">
                           {([
-                            ["name", "Name"],
-                            ["description", "Description"],
-                            ["example", "Example"],
-                            ["return_type", "Return Type"],
-                            ["tags", "Tags"],
+                            ["name", "名称"],
+                            ["description", "描述"],
+                            ["example", "示例"],
+                            ["return_type", "返回类型"],
+                            ["tags", "标签"],
                           ] as const).map(([key, label]) => (
                             <label key={key} className="flex items-center justify-between gap-3">
                               <span className="text-sm">{label}</span>
@@ -379,7 +379,7 @@ export default function UtilitiesPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="per-page">Per page</Label>
+                  <Label htmlFor="per-page">每页数量</Label>
                   <Select value={String(perPage)} onValueChange={(v) => setPerPage(Number(v))}>
                     <SelectTrigger id="per-page" className="w-[92px]">
                       <SelectValue placeholder="10" />
@@ -396,14 +396,14 @@ export default function UtilitiesPage() {
               </div>
               <Table className="table-fixed">
                 <TableCaption>
-                  Showing {sortedFunctions.length === 0 ? 0 : startIndex + 1}-{endIndexExclusive} of {sortedFunctions.length} (total {functions.length})
+                  显示 {sortedFunctions.length === 0 ? 0 : startIndex + 1}-{endIndexExclusive}，筛选后共 {sortedFunctions.length} 条（总计 {functions.length} 条）
                 </TableCaption>
                 <TableHeader>
                   <TableRow>
                     {visibleColumns.name && (
                       <TableHead className="w-[260px]">
                         <button type="button" className="flex items-center gap-1" onClick={() => toggleSort("name")}>
-                          <span>Name</span>
+                          <span>名称</span>
                           {renderSortIcon("name")}
                         </button>
                       </TableHead>
@@ -411,7 +411,7 @@ export default function UtilitiesPage() {
                     {visibleColumns.description && (
                       <TableHead className="w-[240px]">
                         <button type="button" className="flex items-center gap-1" onClick={() => toggleSort("description")}>
-                          <span>Description</span>
+                          <span>描述</span>
                           {renderSortIcon("description")}
                         </button>
                       </TableHead>
@@ -419,7 +419,7 @@ export default function UtilitiesPage() {
                     {visibleColumns.example && (
                       <TableHead className="w-[220px]">
                         <button type="button" className="flex items-center gap-1" onClick={() => toggleSort("example")}>
-                          <span>Example</span>
+                          <span>示例</span>
                           {renderSortIcon("example")}
                         </button>
                       </TableHead>
@@ -427,7 +427,7 @@ export default function UtilitiesPage() {
                     {visibleColumns.return_type && (
                       <TableHead className="w-[120px]">
                         <button type="button" className="flex items-center gap-1" onClick={() => toggleSort("return_type")}>
-                          <span>Return Type</span>
+                          <span>返回类型</span>
                           {renderSortIcon("return_type")}
                         </button>
                       </TableHead>
@@ -435,7 +435,7 @@ export default function UtilitiesPage() {
                     {visibleColumns.tags && (
                       <TableHead className="w-[160px]">
                         <button type="button" className="flex items-center gap-1" onClick={() => toggleSort("tags")}>
-                          <span>Tags</span>
+                          <span>标签</span>
                           {renderSortIcon("tags")}
                         </button>
                       </TableHead>
@@ -450,7 +450,7 @@ export default function UtilitiesPage() {
                           <button
                             className="w-full rounded border border-border/60 bg-muted/30 px-2 py-1 -mx-1 cursor-pointer text-left transition-colors hover:bg-muted/50"
                             onClick={() => copyFunctionName(fn.name)}
-                            title="Click to copy"
+                            title="点击复制"
                           >
                             <code className="block text-xs font-mono whitespace-pre-wrap break-words leading-snug">
                               {fn.name}
@@ -512,7 +512,7 @@ export default function UtilitiesPage() {
               </Table>
               <div className="flex items-center justify-between gap-3 pt-2">
                 <div className="text-sm text-muted-foreground">
-                  Page {currentPage} / {totalPages}
+                  页 {currentPage} / {totalPages}
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -521,7 +521,7 @@ export default function UtilitiesPage() {
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage <= 1}
                   >
-                    Previous
+                    上一页
                   </Button>
                   <Button
                     variant="outline"
@@ -529,7 +529,7 @@ export default function UtilitiesPage() {
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage >= totalPages}
                   >
-                    Next
+                    下一页
                   </Button>
                 </div>
               </div>
@@ -542,44 +542,44 @@ export default function UtilitiesPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <PlayIcon className="size-5" />
-            <span>Execute Utility Function</span>
+            <span>执行实用函数</span>
           </CardTitle>
           <CardDescription>
-            Execute a utility function script with template rendering and JavaScript execution.
+            通过模板渲染和 JavaScript 执行实用函数脚本。
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="script">Script</Label>
+            <Label htmlFor="script">脚本</Label>
             <textarea
               id="script"
               className="min-h-24 w-full rounded-md border bg-background p-3 text-sm font-mono resize-y"
-              placeholder='e.g. trim("  hello  ")'
+              placeholder='例如：trim("  hello  ")'
               value={script}
               onChange={(e) => setScript(e.target.value)}
             />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="target">Target (optional)</Label>
+              <Label htmlFor="target">目标（可选）</Label>
               <Input
                 id="target"
-                placeholder="e.g. /tmp/test.txt"
+                placeholder="例如：/tmp/test.txt"
                 value={target}
                 onChange={(e) => setTarget(e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="params">Params (JSON, optional)</Label>
+              <Label htmlFor="params">参数（JSON，可选）</Label>
               <Input
                 id="params"
-                placeholder='e.g. {"host":"localhost","port":"8080"}'
+                placeholder='例如：{"host":"localhost","port":"8080"}'
                 value={paramsText}
                 onChange={(e) => setParamsText(e.target.value)}
                 className={!paramsValid ? "border-destructive" : ""}
               />
               {!paramsValid && (
-                <p className="text-xs text-destructive">Invalid JSON object</p>
+                <p className="text-xs text-destructive">JSON 对象格式无效</p>
               )}
             </div>
           </div>
@@ -590,28 +590,28 @@ export default function UtilitiesPage() {
               ) : (
                 <PlayIcon className="mr-2 size-4" />
               )}
-              Run
+              运行
             </Button>
             <Button
               variant="outline"
               onClick={async () => {
                 try {
                   await navigator.clipboard.writeText(buildCurl());
-                  toast.success("Curl copied");
+                  toast.success("Curl 命令已复制");
                 } catch {
-                  toast.error("Failed to copy curl");
+                  toast.error("复制 Curl 失败");
                 }
               }}
             >
               <CopyIcon className="mr-2 size-4" />
-              Copy curl
+              复制 Curl
             </Button>
           </div>
 
           {(renderedScript || evalResult !== undefined) && (
             <div className="space-y-4 pt-4 border-t">
               <div className="space-y-2">
-                <Label>Rendered Script</Label>
+                <Label>渲染后的脚本</Label>
                 <SyntaxHighlighter
                   language="javascript"
                   style={syntaxStyle}
@@ -628,7 +628,7 @@ export default function UtilitiesPage() {
                 </SyntaxHighlighter>
               </div>
               <div className="space-y-2">
-                <Label>Result</Label>
+                <Label>结果</Label>
                 <SyntaxHighlighter
                   language="json"
                   style={syntaxStyle}

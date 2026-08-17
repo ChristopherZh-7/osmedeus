@@ -25,11 +25,11 @@ const statusConfig: Record<
   ScanStatus,
   { label: string; variant: "default" | "secondary" | "destructive" | "outline" | "success" | "warning"; icon: React.ElementType }
 > = {
-  completed: { label: "Completed", variant: "success", icon: CheckCircleIcon },
-  running: { label: "Running", variant: "default", icon: LoaderIcon },
-  pending: { label: "Pending", variant: "secondary", icon: ClockIcon },
-  failed: { label: "Failed", variant: "destructive", icon: XCircleIcon },
-  cancelled: { label: "Cancelled", variant: "outline", icon: BanIcon },
+  completed: { label: "已完成", variant: "success", icon: CheckCircleIcon },
+  running: { label: "运行中", variant: "default", icon: LoaderIcon },
+  pending: { label: "等待中", variant: "secondary", icon: ClockIcon },
+  failed: { label: "失败", variant: "destructive", icon: XCircleIcon },
+  cancelled: { label: "已取消", variant: "outline", icon: BanIcon },
 };
 
 export function RecentScans() {
@@ -44,7 +44,7 @@ export function RecentScans() {
       const data = await fetchRecentScans(5);
       setScans(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load scans");
+      setError(err instanceof Error ? err.message : "加载扫描任务失败");
     } finally {
       setIsLoading(false);
     }
@@ -57,10 +57,10 @@ export function RecentScans() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg">Recent Scans</CardTitle>
+        <CardTitle className="text-lg">最近扫描</CardTitle>
         <Button variant="ghost" size="sm" asChild>
           <Link href="/scans">
-            View all
+            查看全部
             <ArrowRightIcon className="ml-1 size-4" />
           </Link>
         </Button>
@@ -84,10 +84,10 @@ export function RecentScans() {
         ) : scans.length === 0 ? (
           <EmptyState
             icon={ScanSearchIcon}
-            title="No scans yet"
-            description="Start your first security scan to see results here."
+            title="暂无扫描"
+            description="启动首次安全扫描后，结果将显示在这里。"
             action={{
-              label: "New Scan",
+              label: "新建扫描",
               onClick: () => (window.location.href = "/scans/new"),
             }}
           />
@@ -118,7 +118,7 @@ export function RecentScans() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{scan.target}</p>
                     <p className="text-sm text-muted-foreground truncate">
-                      {scan.workflowName} &middot; {scan.startedAt ? timeAgo(scan.startedAt) : "Pending"}
+                      {scan.workflowName} &middot; {scan.startedAt ? timeAgo(scan.startedAt) : "等待中"}
                     </p>
                   </div>
                   <Badge variant={status.variant}>{status.label}</Badge>

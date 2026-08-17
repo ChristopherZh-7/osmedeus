@@ -18,7 +18,7 @@ export async function PUT(request: Request) {
 
     if (!yaml || !yaml.trim()) {
       return NextResponse.json(
-        { error: true, message: "YAML content cannot be empty" },
+        { error: true, message: "YAML 内容不能为空" },
         { status: 400 }
       );
     }
@@ -26,13 +26,13 @@ export async function PUT(request: Request) {
     // In a real implementation, this would validate and save the YAML
     // For mock purposes, we just return a success response
     return NextResponse.json({
-      message: "Configuration updated successfully",
+      message: "配置更新成功",
       path: "/home/user/osmedeus-base/osm-settings.yaml",
       backup: "/home/user/osmedeus-base/osm-settings.yaml.backup",
     });
   } catch {
     return NextResponse.json(
-      { error: true, message: "Invalid YAML configuration" },
+      { error: true, message: "YAML 配置无效" },
       { status: 400 }
     );
   }

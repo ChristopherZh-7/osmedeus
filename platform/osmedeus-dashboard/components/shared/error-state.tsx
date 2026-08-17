@@ -11,8 +11,8 @@ interface ErrorStateProps {
 }
 
 export function ErrorState({
-  title = "Something went wrong",
-  message = "We couldn't load the data. Please try again.",
+  title = "出现错误",
+  message = "无法加载数据，请稍后重试。",
   onRetry,
   className,
 }: ErrorStateProps) {
@@ -31,7 +31,7 @@ export function ErrorState({
       {onRetry && (
         <Button onClick={onRetry} variant="outline">
           <RefreshCwIcon className="mr-2 size-4" />
-          Try again
+          重试
         </Button>
       )}
     </div>

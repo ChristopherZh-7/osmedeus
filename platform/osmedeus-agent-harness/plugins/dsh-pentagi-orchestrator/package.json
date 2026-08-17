@@ -10,7 +10,9 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@osmedeus/dsh-plugin": "file:../dsh-osmedeus-plugin"
+    "@osmedeus/dsh-plugin": "file:../dsh-osmedeus-plugin",
+    "yaml": "^2.9.0",
+    "zod": "^4.4.3"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",

@@ -115,7 +115,7 @@ export default function InventoryAssetsPage() {
         const ws = await fetchWorkspaces();
         setWorkspaces(ws);
       } catch (e) {
-        toast.error("Failed to load workspaces", {
+        toast.error("加载工作区失败", {
           description: e instanceof Error ? e.message : "",
         });
       }
@@ -196,7 +196,7 @@ export default function InventoryAssetsPage() {
         );
         setAssetStats(stats);
       } catch (e) {
-        toast.error("Failed to load asset statistics", {
+        toast.error("加载资产统计失败", {
           description: e instanceof Error ? e.message : "",
         });
       }
@@ -227,7 +227,7 @@ export default function InventoryAssetsPage() {
         setAssetsResponse(res);
         lastFetchRef.current = Date.now();
       } catch (e) {
-        toast.error("Failed to load assets", {
+        toast.error("加载资产失败", {
           description: e instanceof Error ? e.message : "",
         });
       } finally {
@@ -358,30 +358,30 @@ export default function InventoryAssetsPage() {
   const columnOptions = React.useMemo(
     () => [
       { key: "id", label: "ID" },
-      { key: "workspace", label: "Workspace" },
-      { key: "assetValue", label: "Asset Value" },
+      { key: "workspace", label: "工作区" },
+      { key: "assetValue", label: "资产值" },
       { key: "url", label: "URL" },
-      { key: "input", label: "Input" },
-      { key: "scheme", label: "Scheme" },
-      { key: "method", label: "Method" },
-      { key: "path", label: "Path" },
-      { key: "statusCode", label: "Status Code" },
-      { key: "contentType", label: "Content Type" },
-      { key: "contentLength", label: "Content Length" },
-      { key: "title", label: "Title" },
-      { key: "words", label: "Words" },
-      { key: "lines", label: "Lines" },
-      { key: "hostIp", label: "Host IP" },
-      { key: "dnsRecords", label: "DNS Records" },
+      { key: "input", label: "输入" },
+      { key: "scheme", label: "协议" },
+      { key: "method", label: "方法" },
+      { key: "path", label: "路径" },
+      { key: "statusCode", label: "状态码" },
+      { key: "contentType", label: "内容类型" },
+      { key: "contentLength", label: "内容长度" },
+      { key: "title", label: "标题" },
+      { key: "words", label: "字数" },
+      { key: "lines", label: "行数" },
+      { key: "hostIp", label: "主机 IP" },
+      { key: "dnsRecords", label: "DNS 记录" },
       { key: "tls", label: "TLS" },
-      { key: "assetType", label: "Asset Type" },
-      { key: "technologies", label: "Tech" },
-      { key: "responseTime", label: "Time" },
-      { key: "remarks", label: "Remarks" },
-      { key: "source", label: "Source" },
-      { key: "createdAt", label: "Created At" },
-      { key: "updatedAt", label: "Updated At" },
-      { key: "lastSeenAt", label: "Last Seen At" },
+      { key: "assetType", label: "资产类型" },
+      { key: "technologies", label: "技术栈" },
+      { key: "responseTime", label: "时间" },
+      { key: "remarks", label: "备注" },
+      { key: "source", label: "来源" },
+      { key: "createdAt", label: "创建时间" },
+      { key: "updatedAt", label: "更新时间" },
+      { key: "lastSeenAt", label: "最近发现时间" },
     ],
     []
   );
@@ -407,31 +407,30 @@ export default function InventoryAssetsPage() {
       {/* Main Content Card */}
       <Card className="overflow-hidden">
         <SectionCardHeader
-          title="Assets Inventory"
+          title="资产清单"
           description={
             assetsResponse?.pagination?.totalItems !== undefined ? (
               <>
                 <span className="font-medium text-foreground">
                   {assetsResponse.pagination.totalItems.toLocaleString()}
                 </span>{" "}
-                assets found
+                个资产
                 {selectedWorkspaces.length > 0 && (
                   <>
-                    {" "}
-                    in{" "}
+                    {"，工作区："}
                     <span className="font-medium text-foreground">
                       {selectedWorkspaces.length <= 2
                         ? (selectedWorkspaceNames.length
                             ? selectedWorkspaceNames
                             : selectedWorkspaces
-                          ).join(" and ")
-                        : `${selectedWorkspaces.length} workspaces`}
+                          ).join("、")
+                        : `${selectedWorkspaces.length} 个工作区`}
                     </span>
                   </>
                 )}
               </>
             ) : (
-              "Loading assets..."
+              "正在加载资产……"
             )
           }
           actions={
@@ -449,10 +448,10 @@ export default function InventoryAssetsPage() {
                       <FolderOpenIcon className="size-4 shrink-0" />
                       <span className="truncate">
                         {selectedWorkspaces.length === 0
-                          ? "All Workspaces"
+                          ? "全部工作区"
                           : selectedWorkspaces.length === 1
                             ? (selectedWorkspaceNames[0] ?? selectedWorkspaces[0])
-                            : `${selectedWorkspaces.length} workspaces`}
+                            : `${selectedWorkspaces.length} 个工作区`}
                       </span>
                     </span>
                     <ChevronsUpDownIcon className="size-4 shrink-0 opacity-50" />
@@ -461,7 +460,7 @@ export default function InventoryAssetsPage() {
                 <PopoverContent className="w-64 p-0" align="end">
                   <div className="border-b p-2">
                     <Input
-                      placeholder="Search workspaces..."
+                      placeholder="搜索工作区……"
                       value={workspaceSearch}
                       onChange={(e) => setWorkspaceSearch(e.target.value)}
                       className="h-8"
@@ -483,7 +482,7 @@ export default function InventoryAssetsPage() {
                       ))}
                       {filteredWorkspaces.length === 0 && (
                         <p className="py-4 text-center text-sm text-muted-foreground">
-                          No workspaces found
+                          未找到工作区
                         </p>
                       )}
                     </div>
@@ -500,7 +499,7 @@ export default function InventoryAssetsPage() {
                           forceNextRef.current = true;
                         }}
                       >
-                        All workspaces
+                        全部工作区
                       </Button>
                     </div>
                   )}
@@ -515,7 +514,7 @@ export default function InventoryAssetsPage() {
                 <RefreshCcwIcon
                   className={`size-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
                 />
-                Refresh
+                刷新
               </Button>
               <Button
                 variant="outline"
@@ -527,11 +526,11 @@ export default function InventoryAssetsPage() {
                 }
                 aria-label={
                   density === "compact"
-                    ? "Switch to comfortable rows"
-                    : "Switch to compact rows"
+                    ? "切换为宽松行"
+                    : "切换为紧凑行"
                 }
                 title={
-                  density === "compact" ? "Comfortable rows" : "Compact rows"
+                  density === "compact" ? "宽松行" : "紧凑行"
                 }
               >
                 {density === "compact" ? (

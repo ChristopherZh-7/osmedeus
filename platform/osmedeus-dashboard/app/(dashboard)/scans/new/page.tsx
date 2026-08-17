@@ -115,7 +115,7 @@ export default function NewScanPage() {
         setWorkspaces(workspaceData);
       } catch (error) {
         console.error("Failed to load data:", error);
-        toast.error("Failed to load form data");
+        toast.error("加载表单数据失败");
       } finally {
         setIsLoadingData(false);
       }
@@ -141,13 +141,13 @@ export default function NewScanPage() {
   // Basic cron validation
   const validateCron = (cron: string): boolean => {
     if (!cron.trim()) {
-      setCronError("Cron expression is required when scheduling is enabled");
+      setCronError("启用定时任务后必须填写 Cron 表达式");
       return false;
     }
 
     const parts = cron.trim().split(/\s+/);
     if (parts.length !== 5) {
-      setCronError("Cron expression must have 5 parts (minute hour day month weekday)");
+      setCronError("Cron 表达式必须包含 5 段（分钟、小时、日期、月份、星期）");
       return false;
     }
 
@@ -159,7 +159,7 @@ export default function NewScanPage() {
     e.preventDefault();
 
     if (!selectedWorkflow) {
-      toast.error("Please select a workflow");
+      toast.error("请选择工作流");
       return;
     }
 
@@ -168,7 +168,7 @@ export default function NewScanPage() {
     // Validate target mode
     if (targetMode === "single") {
       if (!target.trim()) {
-        toast.error("Please enter a target");
+        toast.error("请输入目标");
         return;
       }
     } else if (targetMode === "multiple") {
@@ -177,12 +177,12 @@ export default function NewScanPage() {
         .map((l) => l.trim())
         .filter((l) => !!l);
       if (lines.length === 0) {
-        toast.error("Please enter at least one target");
+        toast.error("请至少输入一个目标");
         return;
       }
     } else if (targetMode === "file") {
       if (!uploadedFilePath.trim()) {
-        toast.error("Please upload a targets file");
+        toast.error("请上传目标文件");
         return;
       }
     } else if (targetMode === "empty") {
@@ -262,16 +262,16 @@ export default function NewScanPage() {
       }
       await createScan(payload);
 
-      toast.success("Scan started successfully", {
+      toast.success("扫描已成功启动", {
         description: enableSchedule
-          ? "Your scan has been scheduled."
-          : "Your scan is now running.",
+          ? "扫描计划任务已创建。"
+          : "扫描正在运行。",
       });
 
       router.push(enableSchedule ? "/schedules" : "/scans");
     } catch (error) {
-      toast.error("Failed to start scan", {
-        description: error instanceof Error ? error.message : "Please try again.",
+      toast.error("启动扫描失败", {
+        description: error instanceof Error ? error.message : "请重试。",
       });
     } finally {
       setIsSubmitting(false);
@@ -282,9 +282,9 @@ export default function NewScanPage() {
     <div className="m-4 lg:m-6">
       <Card className="rounded-xl overflow-hidden">
         <CardHeader className="border-b pb-4">
-          <CardTitle>Scan Configuration</CardTitle>
+          <CardTitle>扫描配置</CardTitle>
           <CardDescription className="pb-1">
-            Select a workflow, configure targets and parameters, and optionally schedule the scan
+            选择工作流，配置目标和参数，并可按需设置计划任务
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
@@ -292,7 +292,7 @@ export default function NewScanPage() {
             <div className="flex items-center gap-3">
               <span className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground">
                 <MousePointer2Icon className="size-4" />
-                Workflow
+                工作流
               </span>
               <Separator className="flex-1" />
             </div>
@@ -307,7 +307,7 @@ export default function NewScanPage() {
                       type="button"
                       variant="outline"
                       role="combobox"
-                      aria-label="Workflow"
+                      aria-label="工作流"
                       aria-expanded={workflowPickerOpen}
                       disabled={isLoadingData}
                       className="w-full justify-between"
@@ -320,7 +320,7 @@ export default function NewScanPage() {
                             <span className="text-xs text-muted-foreground">({selectedWorkflowMeta.kind})</span>
                           </span>
                         ) : (
-                          <span className="text-muted-foreground">Select a workflow</span>
+                          <span className="text-muted-foreground">选择工作流</span>
                         )}
                       </span>
                       <ChevronsUpDownIcon className="size-4 opacity-50" />
@@ -331,7 +331,7 @@ export default function NewScanPage() {
                       <div className="relative">
                         <SearchIcon className="absolute left-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
-                          placeholder="Search workflows..."
+                          placeholder="搜索工作流……"
                           value={workflowSearch}
                           onChange={(e) => setWorkflowSearch(e.target.value)}
                           className="h-8 pl-8"
@@ -374,7 +374,7 @@ export default function NewScanPage() {
                         })}
                         {filteredWorkflows.length === 0 && (
                           <p className="text-sm text-muted-foreground text-center py-6">
-                            No workflows found
+                            未找到工作流
                           </p>
                         )}
                       </div>
@@ -386,39 +386,39 @@ export default function NewScanPage() {
 		      <div className="flex flex-wrap items-center gap-3 md:col-span-1">
 		        <Label htmlFor="target_mode" className="flex items-center gap-2 whitespace-nowrap">
 		          <TargetIcon className="size-4 text-muted-foreground" />
-		          Target Mode
+		          目标模式
 		        </Label>
 		        <Select value={targetMode} onValueChange={(v) => setTargetMode(v as any)}>
 		          <SelectTrigger
 		            id="target_mode"
 		            className="flex-1 min-w-[220px] md:flex-none md:w-[220px] rounded-full"
-		            aria-label="Target Mode"
+		            aria-label="目标模式"
 		          >
-		            <SelectValue placeholder="Select mode" />
+		            <SelectValue placeholder="选择模式" />
 		          </SelectTrigger>
 		            <SelectContent>
 		              <SelectItem value="single">
 		                <span className="flex items-center gap-2">
 		                  <TargetIcon className="size-4 text-muted-foreground" />
-                          Single
+                          单个目标
                         </span>
                       </SelectItem>
                       <SelectItem value="multiple">
                         <span className="flex items-center gap-2">
                           <ListIcon className="size-4 text-muted-foreground" />
-                          Multiple
+                          多个目标
                         </span>
                       </SelectItem>
                       <SelectItem value="file">
                         <span className="flex items-center gap-2">
                           <CloudUploadIcon className="size-4 text-muted-foreground" />
-                          From File
+                          从文件读取
                         </span>
                       </SelectItem>
                       <SelectItem value="empty">
                         <span className="flex items-center gap-2">
                           <BeanOffIcon className="size-4 text-muted-foreground" />
-                          Empty Target
+                          无目标
                         </span>
                       </SelectItem>
                     </SelectContent>
@@ -429,7 +429,7 @@ export default function NewScanPage() {
             <div className="flex items-center gap-3 pt-2">
               <span className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground">
                 <TargetIcon className="size-4" />
-                Target
+                目标
               </span>
               <Separator className="flex-1" />
             </div>
@@ -440,20 +440,20 @@ export default function NewScanPage() {
                 <Input
                   id="target"
                   type="text"
-                  aria-label="Target"
+                  aria-label="目标"
                   placeholder="example.com"
                   value={target}
                   onChange={(e) => setTarget(e.target.value)}
                   disabled={isLoadingData}
                 />
-                <p className="text-xs text-muted-foreground">Domain or IP address to scan</p>
+                <p className="text-xs text-muted-foreground">要扫描的域名或 IP 地址</p>
               </div>
             )}
             {targetMode === "multiple" && (
               <div className="space-y-2">
                 <Label htmlFor="targets" className="flex items-center gap-2">
                   <ListIcon className="size-4 text-muted-foreground" />
-                  Targets (one per line)
+                  目标（每行一个）
                 </Label>
                 <textarea
                   id="targets"
@@ -465,7 +465,7 @@ export default function NewScanPage() {
                 <div className="flex items-center gap-3">
                   <Label htmlFor="concurrency" className="flex items-center gap-2 whitespace-nowrap">
                     <GaugeIcon className="size-4 text-muted-foreground" />
-                    Concurrency
+                    并发数
                   </Label>
                   <Select value={String(concurrency)} onValueChange={(v) => setConcurrency(Number(v) as 1 | 2 | 3)}>
                     <SelectTrigger id="concurrency" className="h-9 w-24">
@@ -484,7 +484,7 @@ export default function NewScanPage() {
               <div className="space-y-2">
                 <Label htmlFor="file" className="flex items-center gap-2">
                   <UploadIcon className="size-4 text-muted-foreground" />
-                  Upload Targets File
+                  上传目标文件
                 </Label>
                 <input
                   id="file"
@@ -496,21 +496,21 @@ export default function NewScanPage() {
                     try {
                       const info = await uploadTargetsFile(f);
                       setUploadedFilePath(info.path);
-                      toast.success("File uploaded", { description: info.filename });
+                      toast.success("文件已上传", { description: info.filename });
                     } catch (err) {
-                      toast.error("Upload failed", { description: err instanceof Error ? err.message : "" });
+                      toast.error("上传失败", { description: err instanceof Error ? err.message : "" });
                     }
                   }}
                 />
                 {uploadedFilePath ? (
-                  <p className="text-xs text-muted-foreground">Server path: {uploadedFilePath}</p>
+                  <p className="text-xs text-muted-foreground">服务器路径： {uploadedFilePath}</p>
                 ) : (
-                  <p className="text-xs text-muted-foreground">Text file with one target per line</p>
+                  <p className="text-xs text-muted-foreground">文本文件，每行一个目标</p>
                 )}
                 <div className="flex items-center gap-3">
                   <Label htmlFor="concurrency-file" className="flex items-center gap-2 whitespace-nowrap">
                     <GaugeIcon className="size-4 text-muted-foreground" />
-                    Concurrency
+                    并发数
                   </Label>
                   <Select value={String(concurrency)} onValueChange={(v) => setConcurrency(Number(v) as 1 | 2 | 3)}>
                     <SelectTrigger id="concurrency-file" className="h-9 w-24">
@@ -527,7 +527,7 @@ export default function NewScanPage() {
             )}
             {targetMode === "empty" && (
               <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">No target will be sent for this scan</p>
+                <p className="text-xs text-muted-foreground">本次扫描不会传入目标</p>
               </div>
             )}
 
@@ -535,7 +535,7 @@ export default function NewScanPage() {
               <div className="space-y-2">
                 <Label htmlFor="priority" className="flex items-center gap-2">
                   <AlertTriangleIcon className="size-4 text-muted-foreground" />
-                  Priority
+                  优先级
                 </Label>
                 <Select
                   value={priority}
@@ -543,24 +543,24 @@ export default function NewScanPage() {
                   disabled={enableSchedule}
                 >
                   <SelectTrigger id="priority" className="h-9">
-                    <SelectValue placeholder="Select priority" />
+                    <SelectValue placeholder="选择优先级" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">low</SelectItem>
-                    <SelectItem value="medium">medium</SelectItem>
-                    <SelectItem value="high">high</SelectItem>
+                    <SelectItem value="low">低</SelectItem>
+                    <SelectItem value="medium">中</SelectItem>
+                    <SelectItem value="high">高</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="timeout" className="flex items-center gap-2">
                   <TimerIcon className="size-4 text-muted-foreground" />
-                  Timeout
+                  超时时间
                 </Label>
                 <Input
                   id="timeout"
                   type="text"
-                  placeholder="e.g. 30s, 45m, 6h"
+                  placeholder="例如：30s、45m、6h"
                   value={timeout}
                   onChange={(e) => setTimeoutVal(e.target.value)}
                   disabled={enableSchedule}
@@ -571,7 +571,7 @@ export default function NewScanPage() {
               <div className="space-y-2">
                 <Label htmlFor="run_mode" className="flex items-center gap-2">
                   <GlobeIcon className="size-4 text-muted-foreground" />
-                  Environment
+                  运行环境
                 </Label>
                 <Select
                   value={runMode}
@@ -579,25 +579,25 @@ export default function NewScanPage() {
                   disabled={enableSchedule}
                 >
                   <SelectTrigger id="run_mode" className="h-9">
-                    <SelectValue placeholder="Select environment" />
+                    <SelectValue placeholder="选择运行环境" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="local">
                       <span className="flex items-center gap-2">
                         <CpuIcon className="size-4 text-muted-foreground" />
-                        Local
+                        本地
                       </span>
                     </SelectItem>
                     <SelectItem value="distributed">
                       <span className="flex items-center gap-2">
                         <NetworkIcon className="size-4 text-muted-foreground" />
-                        Distributed
+                        分布式
                       </span>
                     </SelectItem>
                     <SelectItem value="cloud">
                       <span className="flex items-center gap-2">
                         <CloudIcon className="size-4 text-muted-foreground" />
-                        Cloud
+                        云端
                       </span>
                     </SelectItem>
                   </SelectContent>
@@ -609,18 +609,18 @@ export default function NewScanPage() {
               <div className="space-y-4 rounded-card border border-info/25 bg-info-soft/40 p-4">
                 <span className="inline-flex items-center gap-2 text-xs font-medium text-info">
                   <CloudIcon className="size-4" />
-                  Cloud Configuration
+                  云环境配置
                 </span>
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="cloud_provider" className="flex items-center gap-2">
                       <CloudIcon className="size-4 text-muted-foreground" />
-                      Cloud Provider
+                      云服务商
                     </Label>
                     <Select value={cloudProvider} onValueChange={setCloudProvider}>
                       <SelectTrigger id="cloud_provider" className="h-9">
-                        <SelectValue placeholder="Select provider" />
+                        <SelectValue placeholder="选择云服务商" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="aws">AWS</SelectItem>
@@ -636,7 +636,7 @@ export default function NewScanPage() {
                   <div className="space-y-2">
                     <Label htmlFor="cloud_instances" className="flex items-center gap-2">
                       <ServerIcon className="size-4 text-muted-foreground" />
-                      Instances
+                      实例数量
                     </Label>
                     <Input
                       id="cloud_instances"
@@ -657,33 +657,33 @@ export default function NewScanPage() {
                   <div className="space-y-2">
                     <Label htmlFor="cloud_instance_type" className="flex items-center gap-2">
                       <CpuIcon className="size-4 text-muted-foreground" />
-                      Instance Type
+                      实例类型
                     </Label>
                     <Input
                       id="cloud_instance_type"
                       type="text"
-                      placeholder={cloudProvider === "aws" ? "t3.medium" : cloudProvider === "digitalocean" ? "s-2vcpu-4gb" : "default"}
+                      placeholder={cloudProvider === "aws" ? "t3.medium" : cloudProvider === "digitalocean" ? "s-2vcpu-4gb" : "默认组织"}
                       value={cloudInstanceType}
                       onChange={(e) => setCloudInstanceType(e.target.value)}
                       className="h-9"
                     />
-                    <p className="text-xs text-muted-foreground">Leave empty for provider default</p>
+                    <p className="text-xs text-muted-foreground">留空以使用服务商默认值</p>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="cloud_region" className="flex items-center gap-2">
                       <GlobeIcon className="size-4 text-muted-foreground" />
-                      Region
+                      区域
                     </Label>
                     <Input
                       id="cloud_region"
                       type="text"
-                      placeholder={cloudProvider === "aws" ? "ap-southeast-1" : cloudProvider === "digitalocean" ? "sgp1" : "default"}
+                      placeholder={cloudProvider === "aws" ? "ap-southeast-1" : cloudProvider === "digitalocean" ? "sgp1" : "默认组织"}
                       value={cloudRegion}
                       onChange={(e) => setCloudRegion(e.target.value)}
                       className="h-9"
                     />
-                    <p className="text-xs text-muted-foreground">Leave empty for provider default</p>
+                    <p className="text-xs text-muted-foreground">留空以使用服务商默认值</p>
                   </div>
                 </div>
 
@@ -692,9 +692,9 @@ export default function NewScanPage() {
                     <div className="space-y-0.5">
                       <Label htmlFor="cloud_auto_destroy" className="flex items-center gap-2">
                         <TimerIcon className="size-4 text-muted-foreground" />
-                        Auto Destroy
+                        自动销毁
                       </Label>
-                      <p className="text-xs text-muted-foreground">Destroy infra when scan completes</p>
+                      <p className="text-xs text-muted-foreground">扫描完成后销毁基础设施</p>
                     </div>
                     <Switch id="cloud_auto_destroy" checked={cloudAutoDestroy} onCheckedChange={setCloudAutoDestroy} />
                   </div>
@@ -703,9 +703,9 @@ export default function NewScanPage() {
                     <div className="space-y-0.5">
                       <Label htmlFor="cloud_use_spot" className="flex items-center gap-2">
                         <ZapIcon className="size-4 text-muted-foreground" />
-                        Spot Instances
+                        竞价实例
                       </Label>
-                      <p className="text-xs text-muted-foreground">Use spot/preemptible for cost savings</p>
+                      <p className="text-xs text-muted-foreground">使用竞价/抢占式实例以节省成本</p>
                     </div>
                     <Switch id="cloud_use_spot" checked={cloudUseSpot} onCheckedChange={setCloudUseSpot} />
                   </div>
@@ -714,17 +714,17 @@ export default function NewScanPage() {
                 <div className="space-y-2">
                   <Label htmlFor="cloud_reuse_infra" className="flex items-center gap-2">
                     <ServerIcon className="size-4 text-muted-foreground" />
-                    Reuse Infrastructure ID
+                    复用基础设施 ID
                   </Label>
                   <Input
                     id="cloud_reuse_infra"
                     type="text"
-                    placeholder="Optional: existing infrastructure ID"
+                    placeholder="可选：现有基础设施 ID"
                     value={cloudReuseInfra}
                     onChange={(e) => setCloudReuseInfra(e.target.value)}
                     className="h-9"
                   />
-                  <p className="text-xs text-muted-foreground">Reuse existing cloud infrastructure instead of provisioning new</p>
+                  <p className="text-xs text-muted-foreground">复用现有云基础设施，不再新建</p>
                 </div>
               </div>
             )}
@@ -732,7 +732,7 @@ export default function NewScanPage() {
             <div className="flex items-center gap-3 pt-2">
               <span className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground">
                 <Settings2Icon className="size-4" />
-                Extra Configuration
+                附加配置
               </span>
               <Separator className="flex-1" />
             </div>
@@ -742,7 +742,7 @@ export default function NewScanPage() {
                 <Button type="button" variant="outline" className="w-full justify-between">
                   <span className="flex items-center gap-2">
                     <Settings2Icon className="size-4" />
-                    Extra Configuration
+                    附加配置
                   </span>
                   <ChevronDownIcon
                     className={`size-4 transition-transform ${advancedOpen ? "rotate-180" : ""}`}
@@ -753,7 +753,7 @@ export default function NewScanPage() {
                 <div className="space-y-2">
                   <Label htmlFor="workspace" className="flex items-center gap-2">
                     <FolderIcon className="size-4 text-muted-foreground" />
-                    Workspace
+                    工作区
                   </Label>
                   <Select
                     value={selectedWorkspace}
@@ -767,7 +767,7 @@ export default function NewScanPage() {
                     disabled={isLoadingData}
                   >
                     <SelectTrigger id="workspace">
-                      <SelectValue placeholder="Optional: Select a workspace to prefill target" />
+                      <SelectValue placeholder="可选：选择工作区以自动填充目标" />
                     </SelectTrigger>
                     <SelectContent>
                       {workspaces.map((ws) => (
@@ -787,13 +787,13 @@ export default function NewScanPage() {
                 <div className="space-y-2">
                   <Label className="flex items-center gap-2">
                     <SlidersHorizontalIcon className="size-4 text-muted-foreground" />
-                    Parameters
+                    参数
                   </Label>
                   <div className="space-y-2">
                     {params.map((p, idx) => (
                       <div key={idx} className="flex items-center gap-2">
                         <Input
-                          placeholder="key"
+                          placeholder="键"
                           value={p.key}
                           onChange={(e) => {
                             const next = params.slice();
@@ -803,7 +803,7 @@ export default function NewScanPage() {
                           className="w-40"
                         />
                         <Input
-                          placeholder="value"
+                          placeholder="值"
                           value={p.value}
                           onChange={(e) => {
                             const next = params.slice();
@@ -822,7 +822,7 @@ export default function NewScanPage() {
                           }}
                         >
                           <Trash2Icon className="mr-2 size-4" />
-                          Remove
+                          移除
                         </Button>
                       </div>
                     ))}
@@ -832,7 +832,7 @@ export default function NewScanPage() {
                       onClick={() => setParams([...params, { key: "", value: "" }])}
                     >
                       <PlusIcon className="mr-2 size-4" />
-                      Add Parameter
+                      添加参数
                     </Button>
                   </div>
                 </div>
@@ -841,7 +841,7 @@ export default function NewScanPage() {
                   <div className="space-y-2">
                     <Label htmlFor="threads_hold" className="flex items-center gap-2">
                       <GaugeIcon className="size-4 text-muted-foreground" />
-                      Threads Hold
+                      线程保持
                     </Label>
                     <Input
                       id="threads_hold"
@@ -860,15 +860,15 @@ export default function NewScanPage() {
                   <div className="space-y-2">
                     <Label htmlFor="heuristics_check" className="flex items-center gap-2">
                       <SlidersHorizontalIcon className="size-4 text-muted-foreground" />
-                      Heuristics Check
+                      启发式检查
                     </Label>
                     <Select value={heuristicsCheck} onValueChange={(v) => setHeuristicsCheck(v as any)}>
                       <SelectTrigger id="heuristics_check" className="h-9">
-                        <SelectValue placeholder="Select mode" />
+                        <SelectValue placeholder="选择模式" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="basic">basic</SelectItem>
-                        <SelectItem value="advanced">advanced</SelectItem>
+                        <SelectItem value="basic">基础</SelectItem>
+                        <SelectItem value="advanced">高级</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -879,9 +879,9 @@ export default function NewScanPage() {
                     <div className="space-y-0.5">
                       <Label htmlFor="repeat" className="flex items-center gap-2">
                         <CalendarClockIcon className="size-4 text-muted-foreground" />
-                        Repeat
+                        重复执行
                       </Label>
-                      <p className="text-xs text-muted-foreground">Restart scan after waiting time</p>
+                      <p className="text-xs text-muted-foreground">等待指定时间后重新启动扫描</p>
                     </div>
                     <Switch id="repeat" checked={repeat} onCheckedChange={setRepeat} />
                   </div>
@@ -889,7 +889,7 @@ export default function NewScanPage() {
                   <div className="space-y-2">
                     <Label htmlFor="repeat_wait_time" className="flex items-center gap-2">
                       <ClockIcon className="size-4 text-muted-foreground" />
-                      Repeat Wait Time
+                      重复等待时间
                     </Label>
                     <Input
                       id="repeat_wait_time"
@@ -906,16 +906,16 @@ export default function NewScanPage() {
                 <div className="space-y-2">
                   <Label htmlFor="runner" className="flex items-center gap-2">
                     <CpuIcon className="size-4 text-muted-foreground" />
-                    Runner Type
+                    运行器类型
                   </Label>
                   <Select value={runnerType} onValueChange={(v) => setRunnerType(v as any)}>
                     <SelectTrigger id="runner" className="h-9">
-                      <SelectValue placeholder="Select runner" />
+                      <SelectValue placeholder="选择运行器" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="local">local</SelectItem>
-                      <SelectItem value="docker">docker</SelectItem>
-                      <SelectItem value="ssh">ssh</SelectItem>
+                      <SelectItem value="local">本地</SelectItem>
+                      <SelectItem value="docker">Docker</SelectItem>
+                      <SelectItem value="ssh">SSH</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -925,7 +925,7 @@ export default function NewScanPage() {
                     <div className="space-y-2">
                       <Label htmlFor="docker_image" className="flex items-center gap-2">
                         <ContainerIcon className="size-4 text-muted-foreground" />
-                        Docker Image
+                        Docker 镜像
                       </Label>
                       <Input
                         id="docker_image"
@@ -940,7 +940,7 @@ export default function NewScanPage() {
                     <div className="space-y-2">
                       <Label htmlFor="ssh_host" className="flex items-center gap-2">
                         <ServerIcon className="size-4 text-muted-foreground" />
-                        SSH Host
+                        SSH 主机
                       </Label>
                       <Input
                         id="ssh_host"
@@ -958,7 +958,7 @@ export default function NewScanPage() {
             <div className="flex items-center gap-3 pt-2">
               <span className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground">
                 <PlayIcon className="size-4" />
-                Execute the Scan
+                执行扫描
               </span>
               <Separator className="flex-1" />
             </div>
@@ -969,10 +969,10 @@ export default function NewScanPage() {
                   <div className="space-y-0.5">
                     <Label htmlFor="schedule" className="flex items-center gap-2 text-info">
                       <CalendarClockIcon className="size-4 text-info" />
-                      Enable Scheduling
+                      启用计划任务
                     </Label>
                     <p className="text-xs text-muted-foreground">
-                      Run this scan on a recurring schedule
+                      按周期计划运行此扫描
                     </p>
                   </div>
                   <Switch
@@ -991,7 +991,7 @@ export default function NewScanPage() {
                     disabled={isSubmitting}
                   >
                     <XIcon className="mr-2 size-4" />
-                    Cancel
+                    取消
                   </Button>
                   <Button
                     type="submit"
@@ -1006,17 +1006,17 @@ export default function NewScanPage() {
                     {isSubmitting ? (
                       <>
                         <LoaderIcon className="mr-2 size-4 animate-spin" />
-                        Starting...
+                        启动中……
                       </>
                     ) : enableSchedule ? (
                       <>
                         <CalendarClockIcon className="mr-2 size-4" />
-                        Schedule Scan
+                        创建计划扫描
                       </>
                     ) : (
                       <>
                         <PlayIcon className="mr-2 size-4" />
-                        Start Scan
+                        启动扫描
                       </>
                     )}
                   </Button>
@@ -1027,7 +1027,7 @@ export default function NewScanPage() {
                 <div className="space-y-2">
                   <Label htmlFor="cron" className="flex items-center gap-2">
                     <ClockIcon className="size-4 text-muted-foreground" />
-                    Cron Expression
+                    Cron 表达式
                   </Label>
                   <Input
                     id="cron"
@@ -1045,17 +1045,17 @@ export default function NewScanPage() {
                     <div className="flex items-start gap-2 rounded-lg bg-muted p-3">
                       <InfoIcon className="size-4 text-muted-foreground shrink-0 mt-0.5" />
                       <div className="text-xs text-muted-foreground space-y-1">
-                        <p>Format: minute hour day month weekday</p>
-                        <p>Examples:</p>
+                        <p>格式：分钟 小时 日期 月份 星期</p>
+                        <p>示例：</p>
                         <ul className="list-disc list-inside">
                           <li>
-                            <code className="bg-background px-1 rounded">0 0 * * *</code> - Daily at midnight
+                            <code className="bg-background px-1 rounded">0 0 * * *</code> - 每天午夜
                           </li>
                           <li>
-                            <code className="bg-background px-1 rounded">0 */6 * * *</code> - Every 6 hours
+                            <code className="bg-background px-1 rounded">0 */6 * * *</code> - 每 6 小时
                           </li>
                           <li>
-                            <code className="bg-background px-1 rounded">0 0 * * 0</code> - Weekly on Sunday
+                            <code className="bg-background px-1 rounded">0 0 * * 0</code> - 每周日
                           </li>
                         </ul>
                       </div>

@@ -2,44 +2,141 @@ import { randomUUID } from "node:crypto";
 import { createUserMessage } from "@deepseek-ai/dsh-llm";
 import { defineTool } from "@deepseek-ai/dsh-tools";
 import { pentestBridgeContext, postPentestBridge } from "@osmedeus/dsh-plugin";
+import { z } from "zod";
 
+import { CyberStrikeSkillLibrary, isCyberStrikeSkillName } from "./cyberstrike-skill-library.js";
 import { ROLE_IDS, ROLE_REGISTRY, roleDefinition } from "./roles.js";
 
 const ORCHESTRATION_ROUTE = "/osm/api/agent-pentest/bridge/orchestration";
 const MAX_ROLE_ATTEMPTS = 3;
 const MAX_TASK_CYCLES = 30;
 const MAX_BRIDGE_JSON = 120 * 1024;
-const ORCHESTRATED_ROOT_TOOLS = new Set([
-  "skill",
-  "pentagi_context",
+const DSH_SKILL_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const ROOT_NATIVE_DELEGATION_TOOLS = new Set([
+  "subagent",
+  "subagent_fork",
+  "subagent_codex",
+  "subagent_claude_code",
+  "send_message",
+  "interrupt_agent",
+  "list_agents",
+  "workflow",
+]);
+const ROOT_LEGACY_TASK_TOOLS = new Set([
   "osmedeus_start_pentest_task",
   "osmedeus_get_pentest_task",
   "osmedeus_resume_pentest_task",
   "osmedeus_steer_pentest_task",
   "osmedeus_cancel_pentest_task",
 ]);
+const ROOT_MANAGED_ROLE_TOOLS = new Set([
+  "pentagi_memory_search",
+  "pentagi_memory_write",
+  "pentagi_primary_result",
+]);
 const ANALYSIS_ROOT_TOOLS = new Set([
   "skill",
+  "pentagi_skill",
   "pentagi_context",
-  "osmedeus_get_pentest_task",
+]);
+const INTERACTIVE_DISABLED_ROLE_TOOLS = new Set([
+  "pentagi_memory_search",
+  "pentagi_memory_write",
+  "pentagi_primary_result",
 ]);
 
-export function pentestRootToolDenial(mode, toolName) {
-  if (mode === "direct") return;
-  if (mode === "orchestrated" && ORCHESTRATED_ROOT_TOOLS.has(toolName)) return;
-  if (mode === "analysis" && ANALYSIS_ROOT_TOOLS.has(toolName)) return;
+export function pentestPrimaryPrompt(mode) {
+  const identity = [
+    "You are Primary Agent, the single operator-facing agent for this authorized Osmedeus pentest session.",
+    "The human is talking directly to you; never describe another hidden root assistant or ask them to start a separate PentAGI task.",
+    "Load the osmedeus-pentest Skill before target work, read frozen scope with pentagi_context, stay inside the allowlist, prefer low-impact verification, preserve evidence, and answer in this same conversation.",
+    "Use pentagi_skill search to find a CyberStrike methodology for a concrete hypothesis, then load only the selected Skill body. Never list or load the whole CyberStrike corpus into context.",
+    "Use the native todo tool for a useful visible plan. Do not call any osmedeus_*_pentest_task tool; that legacy background state machine is not the interactive product model.",
+  ];
   if (mode === "orchestrated") {
-    return `This Osmedeus session uses multi-agent orchestration mode. The root agent cannot call ${toolName} directly. Use pentagi_context for reconnaissance and osmedeus_start_pentest_task (or the matching get/resume/steer/cancel task tool) so managed PentAGI roles perform and review the work.`;
+    return [
+      ...identity,
+      "Collaboration mode is enabled. Own the work yourself and use pentagi_delegate only when a focused specialist materially helps; you may launch independent specialist calls together and then synthesize their evidence into your reply.",
+      "Do not use native subagent, workflow, send_message, interrupt_agent, or list_agents tools. pentagi_delegate is the only role delegation surface for this session.",
+    ].join("\n");
   }
   if (mode === "analysis") {
+    return [
+      ...identity,
+      "Read-only mode is enabled. Inspect existing canonical context and explain it, but do not execute target tools, change files, delegate work, record tests, or submit findings.",
+    ].join("\n");
+  }
+  return [
+    ...identity,
+    "Solo mode is enabled. Complete the work yourself with the available tools and do not delegate to any subagent or workflow.",
+  ].join("\n");
+}
+
+export function pentestRootToolDenial(mode, toolName) {
+  if (mode === "analysis") {
+    if (ANALYSIS_ROOT_TOOLS.has(toolName)) return;
     return `This Osmedeus session uses read-only analysis mode. ${toolName} is disabled. Use pentagi_context or skill to inspect existing reconnaissance, then answer without executing tools, changing targets, writing files, starting tasks, or submitting results.`;
+  }
+  if (ROOT_NATIVE_DELEGATION_TOOLS.has(toolName)) {
+    return `The Primary agent cannot call ${toolName} in this Osmedeus session. ${mode === "orchestrated" ? "Use pentagi_delegate for a named security specialist." : "Solo mode does not permit subagents."}`;
+  }
+  if (ROOT_LEGACY_TASK_TOOLS.has(toolName)) {
+    return `The legacy background PentAGI task controller (${toolName}) is disabled for interactive sessions. Work directly as Primary in the current conversation.`;
+  }
+  if (ROOT_MANAGED_ROLE_TOOLS.has(toolName)) {
+    return `${toolName} is internal to managed specialist runs and is not callable by the root Primary agent.`;
+  }
+  if (toolName === "pentagi_delegate" && mode !== "orchestrated") {
+    return "Solo mode uses only Primary. Switch the session to collaboration mode before delegating a specialist.";
   }
 }
 
-export const inject = ["tools", "subagents", "sessions", "skills", "agents"];
+export const inject = ["tools", "subagents", "sessions", "skills", "agents", "systemPrompt", "sessionProjections"];
+
+const pentagiQueueItemSchema = z.object({
+  id: z.string().min(1),
+  messageId: z.string().min(1),
+  placement: z.literal("queued"),
+  preview: z.string(),
+  text: z.string().nullable(),
+}).strict();
+
+function pendingQueueText(message) {
+  const content = Array.isArray(message?.content) ? message.content : [];
+  if (content.some((block) => block?.type !== "text" || typeof block.text !== "string")) return null;
+  return content.map((block) => block.text).join("\n").trim();
+}
+
+export const pentagiQueueProjectionDefinition = {
+  key: "pentagiQueue",
+  schema: z.array(pentagiQueueItemSchema),
+  init: () => [],
+  apply: (state, event) => {
+    if (event.type !== "agent/inbox/spliced" || event.data.target !== "next-turn") return state;
+    return state.toSpliced(
+      event.data.start,
+      event.data.removedCount ?? 0,
+      ...event.data.inserted,
+    );
+  },
+  view: (state) => state
+    .filter((message) => message?.source?.kind === "user")
+    .map((message) => {
+      const text = pendingQueueText(message);
+      return {
+        id: String(message.id),
+        messageId: String(message.id),
+        placement: "queued",
+        preview: (text ?? "含附件的消息").slice(0, 600),
+        text,
+      };
+    }),
+  stateVersion: 1,
+};
 
 const activeTasks = new Map();
 const roleBySession = new Map();
+const cyberStrikeSkillLibrary = new CyberStrikeSkillLibrary();
 const primaryResultWaiters = new Map();
 
 function taskRuntime(taskUUID) {
@@ -152,17 +249,18 @@ async function bridgeOperation(ctx, agent, signal, operation, fields = {}) {
   return response?.data;
 }
 
-function rolePrompt(roleID, input, bridge, retryGuidance = "") {
+function rolePrompt(roleID, input, bridge, retryGuidance = "", allowedToolNames) {
   const definition = roleDefinition(roleID);
-  const allowedTools = definition.tools.length ? definition.tools.join(", ") : "none";
-  const toolInstructions = definition.tools.length
+  const tools = allowedToolNames ?? definition.tools;
+  const allowedTools = tools.length ? tools.join(", ") : "none";
+  const toolInstructions = tools.length
     ? [
       `Allowed tools for this role: ${allowedTools}.`,
       "Never call bash, read, glob, grep, skill, or any other tool unless it appears in that exact list.",
-      definition.tools.includes("pentagi_skill")
-        ? "First call pentagi_skill with name osmedeus-pentest."
+      tools.includes("pentagi_skill")
+        ? "First call pentagi_skill with name osmedeus-pentest. For a concrete security hypothesis, search the indexed CyberStrike library and load only the most relevant Skill body."
         : "The input is self-contained; do not try to load a Skill.",
-      definition.tools.includes("pentagi_context")
+      tools.includes("pentagi_context")
         ? "Read canonical frozen assets and reconnaissance with pentagi_context; never guess or reconstruct host filesystem paths."
         : "Do not inspect the filesystem or fetch additional context.",
     ]
@@ -184,6 +282,10 @@ function rolePrompt(roleID, input, bridge, retryGuidance = "") {
     "```",
     retryGuidance ? `\nRetry guidance from Reflector:\n${retryGuidance}` : "",
   ].filter(Boolean).join("\n");
+}
+
+export function interactiveRoleTools(roleID) {
+  return roleDefinition(roleID).tools.filter((name) => !INTERACTIVE_DISABLED_ROLE_TOOLS.has(name));
 }
 
 function roleStatus(stopReason, structured) {
@@ -548,6 +650,69 @@ async function runRole(ctx, options) {
   throw new Error(`${target.name} failed after recovery: ${lastFailure}`);
 }
 
+// Interactive sessions already have a persistent Primary: the authorized root
+// conversation itself. A collaboration call therefore needs only a focused,
+// one-shot specialist and must not create the legacy task/plan/child-Primary
+// state machine. The native child transcript remains available for audit while
+// the specialist's structured result returns directly to Primary's tool call.
+async function runInteractiveRole(ctx, options) {
+  const {
+    parent, signal, roleID, mode = "", input, rootAgent = parent,
+  } = options;
+  const definition = roleDefinition(roleID);
+  const bridge = pentestBridgeContext(ctx, parent);
+  const allowedTools = interactiveRoleTools(roleID);
+  let child;
+  let childID = "";
+  try {
+    child = await ctx.subagents.start("spawn", {
+      label: `${definition.name}${mode ? ` · ${mode}` : ""}`,
+      prompt: [{ type: "text", text: rolePrompt(roleID, input, bridge, "", allowedTools) }],
+      parent,
+      signal,
+      agentOptions: { maxTokens: definition.maxTokens },
+      outputSchema: definition.schema,
+      maxDepth: definition.maxDepth,
+      toolFilter: { allow: allowedTools },
+      persona: `${definition.persona}\n\nYou are collaborating directly with the operator-facing Primary. Return focused evidence to Primary; do not create or manage a separate PentAGI task.${mode ? `\n\nActive Adviser mode: ${mode}.` : ""}`,
+    });
+    childID = String(child.id);
+    const meta = {
+      interactive: true,
+      roleID,
+      mode,
+      taskUUID: "",
+      subtaskUUID: "",
+      runUUID: "",
+      parentRunUUID: "",
+      rootAgent,
+      toolCalls: 0,
+      repeats: new Map(),
+      mentorStarted: false,
+      toolBudget: definition.toolBudget,
+    };
+    roleBySession.set(childID, meta);
+    const result = await child.result;
+    const stopReason = String(result.stopReason);
+    const rawOutput = outputText(result.output);
+    if (stopReason !== "completed") {
+      throw new Error(`${definition.name} ended with ${stopReason}${result.error ? `: ${result.error}` : ""}`);
+    }
+    if (result.structured === undefined) {
+      throw new Error(`${definition.name} returned no structured result${rawOutput ? `: ${rawOutput}` : ""}`);
+    }
+    return {
+      role: roleID,
+      dsh_session_id: childID,
+      tool_calls: meta.toolCalls,
+      result: result.structured,
+    };
+  } finally {
+    if (childID) roleBySession.delete(childID);
+    if (child) await child.dispose().catch(() => undefined);
+  }
+}
+
 function pendingPlan(detail) {
   return (detail?.subtasks ?? [])
     .filter((item) => ["pending", "blocked", "running"].includes(item.status))
@@ -839,7 +1004,7 @@ function registerRoleGuard(ctx) {
       }
       const repeated = (meta.repeats.get(signature) ?? 0) + 1;
       meta.repeats.set(signature, repeated);
-      if (repeated === 3) void mentorRepeatedCall(ctx, meta, exec.name, exec.arguments);
+      if (!meta.interactive && repeated === 3) void mentorRepeatedCall(ctx, meta, exec.name, exec.arguments);
       if (repeated > 5) {
         return `PentAGI Mentor stopped a repeated identical ${exec.name} call after ${repeated - 1} attempts. Change approach or conclude the role.`;
       }
@@ -855,6 +1020,23 @@ function registerRoleGuard(ctx) {
 		if (bridge.callerSessionId !== bridge.rootSessionId) return;
 		const mode = String(bridge.context?.session?.execution_mode || "direct");
 		return pentestRootToolDenial(mode, exec.name);
+  });
+}
+
+function registerPrimaryPrompt(ctx) {
+  ctx.systemPrompt.section({
+    name: "osmedeus:interactive-primary",
+    order: 12,
+    text: ({ agent }) => {
+      if (!agent) return "";
+      try {
+        const bridge = pentestBridgeContext(ctx, agent);
+        if (bridge.callerSessionId !== bridge.rootSessionId) return "";
+        return pentestPrimaryPrompt(String(bridge.context?.session?.execution_mode || "direct"));
+      } catch {
+        return "";
+      }
+    },
   });
 }
 
@@ -1019,34 +1201,101 @@ function registerPrimaryResultTool(ctx) {
 function registerSkillTool(ctx) {
   ctx.tools.register(defineTool({
     name: "pentagi_skill",
-    description: "Load an installed Skill through the Harness Skills service inside a managed PentAGI role. Always load osmedeus-pentest first, then load a matching CyberStrike Skill only for a concrete hypothesis.",
+    description: "Search and lazily load the indexed CyberStrike methodology library without placing thousands of Skill summaries in the DSH catalog. Also loads ordinary installed DSH Skills by exact name. Always load osmedeus-pentest first, search for a concrete hypothesis, and load only the selected body.",
     parameters: {
+      action: {
+        type: "string",
+        enum: ["load", "search", "list", "chain", "status", "refresh"],
+        description: "Operation to perform. Defaults to load when name is present, otherwise search.",
+      },
       name: {
         type: "string",
-        required: true,
-        description: "Exact installed Skill name, such as osmedeus-pentest or cyberstrike-attack-ssrf.",
+        description: "Exact installed or indexed Skill name for load/chain, such as osmedeus-pentest, cyberstrike-attack-ssrf, or wstg-inpv-05.",
       },
+      query: { type: "string", description: "Keyword, Skill name fragment, OWASP/CIS identifier, or description text." },
+      category: { type: "string", description: "Exact CyberStrike category filter." },
+      cwe: { type: "string", description: "Exact CWE identifier filter, such as CWE-89." },
+      tag: { type: "string", description: "Exact CyberStrike tag filter." },
+      tech: { type: "array", items: { type: "string" }, description: "Match any listed technology." },
+      limit: { type: "number", description: "Maximum search results, 1-50; defaults to 20." },
     },
     output: {
       schema: { type: "object", additionalProperties: true },
       render: (_args, value) => [{
         type: "text",
-        text: `<skill_content name="${value.name}">\n${value.content}\n</skill_content>`,
+        text: value.action === "load"
+          ? [
+            `<skill_content name="${value.name}" provider="${value.provider}">`,
+            value.resource_base ? `Base directory for referenced resources: ${value.resource_base}` : "",
+            value.content,
+            "</skill_content>",
+          ].filter(Boolean).join("\n")
+          : JSON.stringify(value),
       }],
     },
     async execute(args, exec) {
+      if (!exec.agent) throw new Error("pentagi_skill requires a calling DSH agent");
       const meta = roleBySession.get(String(exec.agent?.id || ""));
-      if (!meta) throw new Error("pentagi_skill is available only inside a managed PentAGI role");
-      if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$/.test(args.name)) {
-        throw new Error("Skill name is invalid");
+      if (!meta) {
+        const bridge = pentestBridgeContext(ctx, exec.agent);
+        if (bridge.callerSessionId !== bridge.rootSessionId) {
+          throw new Error("pentagi_skill is available only to the authorized Primary or a managed specialist");
+        }
       }
-      const skill = await ctx.skills.get(args.name, {
-        cwd: exec.agent?.session?.header?.cwd,
-        signal: exec.signal,
-        scope: exec.agent,
-      });
-      if (!skill) throw new Error(`Skill ${args.name} is not available in this Harness profile`);
-      return { name: skill.name, provider: skill.provider, content: skill.content };
+      const action = args.action || (args.name ? "load" : "search");
+      if (["load", "chain"].includes(action)) {
+        if (!isCyberStrikeSkillName(args.name)) {
+          throw new Error(`A valid Skill name is required for ${action}`);
+        }
+      }
+      if (action === "status") return cyberStrikeSkillLibrary.status(exec.signal);
+      if (action === "refresh") {
+        await cyberStrikeSkillLibrary.refresh(exec.signal);
+        return cyberStrikeSkillLibrary.status(exec.signal);
+      }
+      if (action === "search" || action === "list") {
+        const result = await cyberStrikeSkillLibrary.search({
+          query: action === "list" ? "" : args.query,
+          category: args.category,
+          cwe: args.cwe,
+          tag: args.tag,
+          tech: args.tech,
+          limit: args.limit,
+        }, exec.signal);
+        if (!result.available) {
+          result.setup_hint = "Configure OSM_CYBERSTRIKE_SKILLS_DIR or install the corpus below $DSH_HOME/osmedeus/cyberstrike-skills.";
+        }
+        return result;
+      }
+      if (action === "chain") {
+        const chain = await cyberStrikeSkillLibrary.chains(args.name, exec.signal);
+        if (!chain) throw new Error(`Indexed CyberStrike Skill ${args.name} is not available`);
+        return chain;
+      }
+
+      const installed = DSH_SKILL_NAME.test(args.name)
+        ? await ctx.skills.get(args.name, {
+          cwd: exec.agent.session?.header?.cwd,
+          signal: exec.signal,
+          scope: exec.agent,
+        })
+        : undefined;
+      if (installed) {
+        return {
+          action: "load",
+          name: installed.name,
+          provider: installed.provider,
+          resource_base: installed.resourceBase?.path ?? installed.resourceBase?.url ?? "",
+          content: installed.content,
+        };
+      }
+      const indexed = await cyberStrikeSkillLibrary.load(args.name, exec.signal);
+      if (indexed) return indexed;
+      const status = await cyberStrikeSkillLibrary.status(exec.signal);
+      if (!status.available) {
+        throw new Error(`Skill ${args.name} is not installed and the indexed CyberStrike library is not configured`);
+      }
+      throw new Error(`Skill ${args.name} is not available in installed DSH Skills or the indexed CyberStrike library`);
     },
   }));
 }
@@ -1054,7 +1303,7 @@ function registerSkillTool(ctx) {
 function registerDelegationTool(ctx) {
   ctx.tools.register(defineTool({
     name: "pentagi_delegate",
-    description: "Delegate focused work to a named PentAGI specialist with its own persona, tool boundary, transcript, and persisted role run.",
+    description: "In collaboration mode, delegate focused work to a named security specialist with its own persona, tool boundary, and transcript. The result returns directly to the operator-facing Primary conversation.",
     parameters: {
       role: {
         type: "string",
@@ -1067,11 +1316,48 @@ function registerDelegationTool(ctx) {
     output: { schema: { type: "object", additionalProperties: true }, render: (_args, value) => [{ type: "text", text: JSON.stringify(value.result ?? value) }] },
     isConcurrencySafe: () => true,
     async execute(args, exec) {
-      const meta = roleBySession.get(String(exec.agent?.id || ""));
-      if (!meta) throw new Error("pentagi_delegate must be called from a managed PentAGI role");
+      if (!exec.agent) throw new Error("pentagi_delegate requires a calling Primary agent");
+      let meta = roleBySession.get(String(exec.agent.id));
+      if (!meta) {
+        const bridge = pentestBridgeContext(ctx, exec.agent);
+        const mode = String(bridge.context?.session?.execution_mode || "direct");
+        if (bridge.callerSessionId !== bridge.rootSessionId || mode !== "orchestrated") {
+          throw new Error("pentagi_delegate is available only to Primary in collaboration mode");
+        }
+        meta = {
+          interactive: true,
+          roleID: "primary",
+          mode: "interactive",
+          taskUUID: "",
+          subtaskUUID: "",
+          runUUID: "",
+          parentRunUUID: "",
+          rootAgent: exec.agent,
+        };
+      }
       const caller = roleDefinition(meta.roleID);
       if (!caller.delegates.includes(args.role)) {
         throw new Error(`${caller.name} is not permitted to delegate to ${args.role}`);
+      }
+      if (meta.interactive) {
+        let enriched;
+        if (args.role === "adviser") {
+          enriched = await runInteractiveRole(ctx, {
+            parent: exec.agent,
+            rootAgent: meta.rootAgent,
+            signal: exec.signal,
+            roleID: "enricher",
+            input: { request: args.prompt, adviser_mode: args.mode || "" },
+          });
+        }
+        return runInteractiveRole(ctx, {
+          parent: exec.agent,
+          rootAgent: meta.rootAgent,
+          signal: exec.signal,
+          roleID: args.role,
+          mode: args.role === "adviser" ? (args.mode || "") : "",
+          input: { request: args.prompt, ...(enriched ? { enriched_context: enriched.result } : {}) },
+        });
       }
       let enriched;
       if (args.role === "adviser") {
@@ -1216,6 +1502,8 @@ function registerTaskTools(ctx) {
 }
 
 export function apply(ctx) {
+  ctx.sessionProjections.register(pentagiQueueProjectionDefinition);
+  registerPrimaryPrompt(ctx);
   registerSkillTool(ctx);
   registerContextTool(ctx);
   registerPrimaryResultTool(ctx);

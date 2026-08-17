@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   if (type === "workflow") {
     const source = typeof body?.source === "string" ? body.source : "";
     return NextResponse.json({
-      message: "Workflow installed successfully",
+      message: "工作流安装成功",
       source,
       workflow_folder: "/home/user/osmedeus-base/workflow",
     });
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
   if (type !== "binary") {
     return NextResponse.json(
-      { error: true, message: "Invalid type" },
+      { error: true, message: "类型无效" },
       { status: 400 }
     );
   }
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
   for (const name of targets) {
     const meta = mockDirectBinaries[name];
     if (!meta) {
-      failed.push({ name, error: "not found" });
+      failed.push({ name, error: "未找到" });
       continue;
     }
     meta.installed = true;
@@ -67,8 +67,8 @@ export async function POST(request: Request) {
   return NextResponse.json({
     message:
       registry_mode === "nix-build"
-        ? "Nix binary installation completed"
-        : "Binary installation completed",
+        ? "Nix 二进制工具安装完成"
+        : "二进制工具安装完成",
     registry_mode,
     installed: installedUnique,
     installed_count: installedUnique.length,

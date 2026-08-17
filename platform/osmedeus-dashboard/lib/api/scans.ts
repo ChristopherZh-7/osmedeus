@@ -327,11 +327,19 @@ export async function cancelScan(runUuid: string): Promise<boolean> {
   }
 }
 
-/**
- * Delete a scan (same as cancel for now)
- */
+/** Delete a terminal scan and its owned database records. */
 export async function deleteScan(runUuid: string): Promise<boolean> {
-  return cancelScan(runUuid);
+  if (isDemoMode()) {
+    const idx = demoScans.findIndex(
+      (s) => s.runUuid === runUuid || s.id === runUuid || s.runId === runUuid
+    );
+    if (idx === -1) return false;
+    demoScans = demoScans.filter((_, itemIdx) => itemIdx !== idx);
+    return true;
+  }
+
+  await http.delete(`${API_PREFIX}/runs/${encodeURIComponent(runUuid)}/record`);
+  return true;
 }
 
 /**

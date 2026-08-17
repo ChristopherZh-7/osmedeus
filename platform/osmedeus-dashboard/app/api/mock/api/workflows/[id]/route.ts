@@ -87,7 +87,7 @@ export async function GET(_request: Request, ctx: { params: Promise<{ id: string
   const dir = path.join(process.cwd(), "mock-workflows");
   const found = resolveWorkflowFile(dir, id);
   if (!found) {
-    return NextResponse.json({ error: true, message: "Workflow not found" }, { status: 404 });
+    return NextResponse.json({ error: true, message: "未找到工作流" }, { status: 404 });
   }
 
   return new NextResponse(found.content, {

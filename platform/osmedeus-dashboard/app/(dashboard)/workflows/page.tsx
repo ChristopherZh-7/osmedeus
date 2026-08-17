@@ -113,7 +113,7 @@ export default function WorkflowsListingPage() {
         setSelectedTag("all");
       }
     } catch (e) {
-      toast.error("Failed to load workflows", { description: e instanceof Error ? e.message : "" });
+      toast.error("加载工作流失败", { description: e instanceof Error ? e.message : "" });
     } finally {
       setLoading(false);
     }
@@ -139,11 +139,11 @@ export default function WorkflowsListingPage() {
     try {
       setRefreshing(true);
       const res = await refreshWorkflowIndex(false);
-      toast.success(res.message || "Workflows indexed");
+      toast.success(res.message || "工作流索引已更新");
       setOffset(0);
       load();
     } catch (e) {
-      toast.error("Failed to refresh index", { description: e instanceof Error ? e.message : "" });
+      toast.error("刷新索引失败", { description: e instanceof Error ? e.message : "" });
     } finally {
       setRefreshing(false);
     }
@@ -154,7 +154,7 @@ export default function WorkflowsListingPage() {
       const doc: any = yaml.load(uploadYaml) || {};
       const id = (uploadId || doc?.name || "").toString().trim();
       if (!id) {
-        toast.error("Invalid YAML or missing name/ID");
+        toast.error("YAML 无效或缺少名称/ID");
         return;
       }
       if (typeof window !== "undefined") {
@@ -163,13 +163,13 @@ export default function WorkflowsListingPage() {
         obj[id] = uploadYaml;
         window.localStorage.setItem("osmedeus_custom_workflows", JSON.stringify(obj));
       }
-      toast.success("Workflow uploaded", { description: `Added ${id}` });
+      toast.success("工作流已上传", { description: `已添加 ${id}` });
       setUploadOpen(false);
       setUploadYaml("");
       setUploadId("");
       load();
     } catch (e) {
-      toast.error("Failed to parse YAML", { description: e instanceof Error ? e.message : "" });
+      toast.error("解析 YAML 失败", { description: e instanceof Error ? e.message : "" });
     }
   };
 
@@ -254,9 +254,9 @@ export default function WorkflowsListingPage() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <LayersIcon className="size-5" />
-                Workflows
+                工作流
               </CardTitle>
-              <CardDescription>Browse and manage workflow definitions</CardDescription>
+              <CardDescription>浏览和管理工作流定义</CardDescription>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -266,11 +266,11 @@ export default function WorkflowsListingPage() {
                 disabled={refreshing}
               >
                 <RefreshCwIcon className={`mr-2 size-4 ${refreshing ? "animate-spin" : ""}`} />
-                Refresh Index
+                刷新索引
               </Button>
               <div className="flex items-center gap-2 rounded-md border px-2 py-1">
                 <Label htmlFor="mock-only" className="text-xs text-muted-foreground">
-                  Show Mock Workflow
+                  显示模拟工作流
                 </Label>
                 <Switch
                   id="mock-only"
@@ -291,19 +291,19 @@ export default function WorkflowsListingPage() {
                 <DialogTrigger asChild>
                   <Button size="sm">
                     <FileCodeIcon className="mr-2 size-4" />
-                    Upload
+                    上传
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-xl">
                   <DialogHeader>
-                    <DialogTitle>Upload Workflow YAML</DialogTitle>
+                    <DialogTitle>上传工作流 YAML</DialogTitle>
                     <DialogDescription>
-                      Paste YAML content. If ID is empty, name from YAML is used.
+                      粘贴 YAML 内容。若 ID 为空，将使用 YAML 中的名称。
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-3">
                     <Input
-                      placeholder="Workflow ID (optional)"
+                      placeholder="工作流 ID（可选）"
                       value={uploadId}
                       onChange={(e) => setUploadId(e.target.value)}
                     />
@@ -316,21 +316,21 @@ export default function WorkflowsListingPage() {
                         onClick={async () => {
                           try {
                             await navigator.clipboard.writeText(uploadYaml);
-                            toast.success("Copied to clipboard");
+                            toast.success("已复制到剪贴板");
                           } catch {
-                            toast.error("Failed to copy");
+                            toast.error("复制失败");
                           }
                         }}
                       >
                         <ClipboardIcon className="size-4" />
-                        <span className="sr-only">Copy YAML</span>
+                        <span className="sr-only">复制 YAML</span>
                       </Button>
                     </div>
                     <textarea
                       value={uploadYaml}
                       onChange={(e) => setUploadYaml(e.target.value)}
                       className="min-h-48 w-full rounded-md border bg-background p-3 font-mono text-sm"
-                      placeholder="Paste YAML here..."
+                      placeholder="在此粘贴 YAML……"
                     />
                   </div>
                   <DialogFooter>
@@ -342,9 +342,9 @@ export default function WorkflowsListingPage() {
                         setUploadId("");
                       }}
                     >
-                      Cancel
+                      取消
                     </Button>
-                    <Button onClick={handleUpload}>Save</Button>
+                    <Button onClick={handleUpload}>保存</Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
@@ -358,7 +358,7 @@ export default function WorkflowsListingPage() {
             <div className="relative flex-1 min-w-[200px] max-w-sm">
               <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search workflows..."
+                placeholder="搜索工作流……"
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);
@@ -382,12 +382,12 @@ export default function WorkflowsListingPage() {
                   ) : (
                     <DatabaseIcon className="size-4 text-muted-foreground" />
                   )}
-                  <SelectValue placeholder="Source" />
+                  <SelectValue placeholder="来源" />
                 </span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="db">Database</SelectItem>
-                <SelectItem value="filesystem">Filesystem</SelectItem>
+                <SelectItem value="db">数据库</SelectItem>
+                <SelectItem value="filesystem">文件系统</SelectItem>
               </SelectContent>
             </Select>
 
@@ -405,13 +405,13 @@ export default function WorkflowsListingPage() {
                   ) : (
                     <LayersIcon className="size-4 text-muted-foreground" />
                   )}
-                  <SelectValue placeholder="Kind" />
+                  <SelectValue placeholder="类型" />
                 </span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Kinds</SelectItem>
-                <SelectItem value="module">Module</SelectItem>
-                <SelectItem value="flow">Flow</SelectItem>
+                <SelectItem value="all">全部类型</SelectItem>
+                <SelectItem value="module">模块</SelectItem>
+                <SelectItem value="flow">流程</SelectItem>
               </SelectContent>
             </Select>
 
@@ -431,7 +431,7 @@ export default function WorkflowsListingPage() {
                   <span className="flex items-center gap-2 min-w-0">
                     <TagIcon className="size-4 text-muted-foreground" />
                     <span className="truncate">
-                      {selectedTag === "all" ? "All Tags" : selectedTag}
+                      {selectedTag === "all" ? "全部标签" : selectedTag}
                     </span>
                   </span>
                   <ChevronsUpDownIcon className="size-4 opacity-50" />
@@ -440,7 +440,7 @@ export default function WorkflowsListingPage() {
               <PopoverContent className="w-[240px] p-0" align="start">
                 <div className="p-2 border-b">
                   <Input
-                    placeholder="Search tags..."
+                    placeholder="搜索标签……"
                     value={tagSearch}
                     onChange={(e) => setTagSearch(e.target.value)}
                     className="h-8"
@@ -466,7 +466,7 @@ export default function WorkflowsListingPage() {
                         <span className="size-4 inline-flex items-center justify-center">
                           {selectedTag === "all" && <CheckIcon className="size-4" />}
                         </span>
-                        All Tags
+                        全部标签
                       </span>
                     </Button>
 
@@ -496,7 +496,7 @@ export default function WorkflowsListingPage() {
                     ))}
                     {filteredTags.length === 0 && (
                       <p className="text-sm text-muted-foreground text-center py-4">
-                        No tags found
+                        未找到标签
                       </p>
                     )}
                   </div>
@@ -507,9 +507,9 @@ export default function WorkflowsListingPage() {
 
           {/* Table */}
           {loading ? (
-            <div className="py-16 text-center text-sm text-muted-foreground">Loading...</div>
+            <div className="py-16 text-center text-sm text-muted-foreground">加载中……</div>
           ) : items.length === 0 ? (
-            <div className="py-16 text-center text-sm text-muted-foreground">No workflows found</div>
+            <div className="py-16 text-center text-sm text-muted-foreground">未找到工作流</div>
           ) : (
             <>
               <Table>
@@ -520,7 +520,7 @@ export default function WorkflowsListingPage() {
                       currentSort={sortState}
                       onSort={(f) => toggleSort(f as WorkflowSortField)}
                     >
-                      Name
+                      名称
                     </SortableTableHead>
                     <SortableTableHead
                       field="kind"
@@ -528,7 +528,7 @@ export default function WorkflowsListingPage() {
                       onSort={(f) => toggleSort(f as WorkflowSortField)}
                       className="w-[100px]"
                     >
-                      Kind
+                      类型
                     </SortableTableHead>
                     <SortableTableHead
                       field="description"
@@ -536,7 +536,7 @@ export default function WorkflowsListingPage() {
                       onSort={(f) => toggleSort(f as WorkflowSortField)}
                       className="hidden md:table-cell"
                     >
-                      Description
+                      描述
                     </SortableTableHead>
                     <SortableTableHead
                       field="steps"
@@ -544,7 +544,7 @@ export default function WorkflowsListingPage() {
                       onSort={(f) => toggleSort(f as WorkflowSortField)}
                       className="w-[80px] text-center"
                     >
-                      Steps
+                      步骤
                     </SortableTableHead>
                     <SortableTableHead
                       field="modules"
@@ -552,7 +552,7 @@ export default function WorkflowsListingPage() {
                       onSort={(f) => toggleSort(f as WorkflowSortField)}
                       className="w-[80px] text-center hidden sm:table-cell"
                     >
-                      Modules
+                      模块
                     </SortableTableHead>
                     <SortableTableHead
                       field="params"
@@ -560,7 +560,7 @@ export default function WorkflowsListingPage() {
                       onSort={(f) => toggleSort(f as WorkflowSortField)}
                       className="w-[80px] text-center hidden sm:table-cell"
                     >
-                      Params
+                      参数
                     </SortableTableHead>
                     <SortableTableHead
                       field="tags"
@@ -568,7 +568,7 @@ export default function WorkflowsListingPage() {
                       onSort={(f) => toggleSort(f as WorkflowSortField)}
                       className="hidden lg:table-cell"
                     >
-                      Tags
+                      标签
                     </SortableTableHead>
                     <SortableTableHead
                       field="action"
@@ -576,7 +576,7 @@ export default function WorkflowsListingPage() {
                       onSort={(f) => toggleSort(f as WorkflowSortField)}
                       className="w-[80px]"
                     >
-                      Action
+                      操作
                     </SortableTableHead>
                   </TableRow>
                 </TableHeader>
@@ -598,7 +598,7 @@ export default function WorkflowsListingPage() {
                               : "border-transparent bg-info-soft text-info"
                           }
                         >
-                          {wf.kind}
+                          {wf.kind === "flow" ? "流程" : wf.kind === "module" ? "模块" : wf.kind}
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden md:table-cell text-muted-foreground max-w-[300px] truncate">
@@ -610,7 +610,7 @@ export default function WorkflowsListingPage() {
                         {wf.params?.length || 0}
                         {wf.required_params?.length > 0 && (
                           <span className="text-muted-foreground text-xs ml-1">
-                            ({wf.required_params.length} req)
+                            （{wf.required_params.length} 项必填）
                           </span>
                         )}
                       </TableCell>
@@ -632,7 +632,7 @@ export default function WorkflowsListingPage() {
                         <Button variant="outline" size="sm" asChild>
                           <Link href={`/workflows-editor?workflow=${encodeURIComponent(wf.name)}`}>
                             <EyeIcon className="size-4" />
-                            <span className="sr-only">Open</span>
+                            <span className="sr-only">打开</span>
                           </Link>
                         </Button>
                       </TableCell>
@@ -644,7 +644,7 @@ export default function WorkflowsListingPage() {
               {/* Pagination */}
               <div className="flex items-center justify-between pt-2">
                 <div className="text-sm text-muted-foreground">
-                  Showing {offset + 1}-{Math.min(offset + limit, total)} of {total}
+                  显示 {offset + 1}-{Math.min(offset + limit, total)} 共 {total}
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -654,10 +654,10 @@ export default function WorkflowsListingPage() {
                     disabled={offset <= 0}
                   >
                     <ChevronLeftIcon className="size-4" />
-                    Prev
+                    上一页
                   </Button>
                   <span className="text-sm text-muted-foreground">
-                    Page {currentPage} of {totalPages}
+                    页 {currentPage} 共 {totalPages}
                   </span>
                   <Button
                     variant="outline"
@@ -665,7 +665,7 @@ export default function WorkflowsListingPage() {
                     onClick={() => setOffset(offset + limit)}
                     disabled={offset + limit >= total}
                   >
-                    Next
+                    下一页
                     <ChevronRightIcon className="size-4" />
                   </Button>
                   <Select
@@ -679,9 +679,9 @@ export default function WorkflowsListingPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="20">20/page</SelectItem>
-                      <SelectItem value="50">50/page</SelectItem>
-                      <SelectItem value="100">100/page</SelectItem>
+                      <SelectItem value="20">20/页</SelectItem>
+                      <SelectItem value="50">50/页</SelectItem>
+                      <SelectItem value="100">100/页</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

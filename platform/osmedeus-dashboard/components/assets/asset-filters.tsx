@@ -50,11 +50,11 @@ interface AssetFiltersProps {
 
 const statusCodeOptions = [
   { value: 200, label: "200 OK" },
-  { value: 301, label: "301 Redirect" },
-  { value: 302, label: "302 Found" },
-  { value: 403, label: "403 Forbidden" },
-  { value: 404, label: "404 Not Found" },
-  { value: 500, label: "500 Server Error" },
+  { value: 301, label: "301 重定向" },
+  { value: 302, label: "302 已找到" },
+  { value: 403, label: "403 禁止访问" },
+  { value: 404, label: "404 未找到" },
+  { value: 500, label: "500 服务器错误" },
 ];
 
 export function AssetFilters({
@@ -215,7 +215,7 @@ export function AssetFilters({
         <div className="relative w-full sm:w-[260px]">
           <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search URL, title, or host..."
+            placeholder="搜索 URL、标题或主机……"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={(e) => {
@@ -238,7 +238,7 @@ export function AssetFilters({
             >
               <span className="flex items-center gap-2">
                 <HashIcon className="size-4" />
-                <span>Status Codes</span>
+                <span>状态码</span>
                 {(filters.statusCodes?.length ?? 0) > 0 && (
                   <Badge variant="secondary" className="px-1.5 py-0 text-xs">
                     {filters.statusCodes?.length}
@@ -271,7 +271,7 @@ export function AssetFilters({
                   className="w-full h-8"
                   onClick={() => onFiltersChange({ ...filters, statusCodes: undefined })}
                 >
-                  Clear selection
+                  清除选择
                 </Button>
               </div>
             )}
@@ -290,7 +290,7 @@ export function AssetFilters({
             >
               <span className="flex items-center gap-2">
                 <BlocksIcon className="size-4" />
-                <span>Technologies</span>
+                <span>技术栈</span>
                 {(filters.technologies?.length ?? 0) > 0 && (
                   <Badge variant="secondary" className="px-1.5 py-0 text-xs">
                     {filters.technologies?.length}
@@ -303,7 +303,7 @@ export function AssetFilters({
           <PopoverContent className="w-[240px] p-0" align="start">
             <div className="p-2 border-b">
               <Input
-                placeholder="Search technologies..."
+                placeholder="搜索技术栈……"
                 value={techSearch}
                 onChange={(e) => setTechSearch(e.target.value)}
                 className="h-8"
@@ -325,7 +325,7 @@ export function AssetFilters({
                 ))}
                 {filteredTechnologies.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    No technologies found
+                    未找到技术栈
                   </p>
                 )}
               </div>
@@ -340,7 +340,7 @@ export function AssetFilters({
                     onFiltersChange({ ...filters, technologies: undefined })
                   }
                 >
-                  Clear selection
+                  清除选择
                 </Button>
               </div>
             )}
@@ -359,7 +359,7 @@ export function AssetFilters({
             >
               <span className="flex items-center gap-2">
                 <LayersIcon className="size-4" />
-                <span>Asset Type</span>
+                <span>资产类型</span>
                 {(filters.assetTypes?.length ?? 0) > 0 && (
                   <Badge variant="secondary" className="px-1.5 py-0 text-xs">
                     {filters.assetTypes?.length}
@@ -372,7 +372,7 @@ export function AssetFilters({
           <PopoverContent className="w-[220px] p-0" align="start">
             <div className="p-2 border-b">
               <Input
-                placeholder="Search asset types..."
+                placeholder="搜索资产类型……"
                 value={assetTypeSearch}
                 onChange={(e) => setAssetTypeSearch(e.target.value)}
                 className="h-8"
@@ -394,7 +394,7 @@ export function AssetFilters({
                 ))}
                 {filteredAssetTypes.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    No asset types found
+                    未找到资产类型
                   </p>
                 )}
               </div>
@@ -409,7 +409,7 @@ export function AssetFilters({
                     onFiltersChange({ ...filters, assetTypes: undefined })
                   }
                 >
-                  Clear selection
+                  清除选择
                 </Button>
               </div>
             )}
@@ -428,7 +428,7 @@ export function AssetFilters({
             >
               <span className="flex items-center gap-2">
                 <DatabaseIcon className="size-4" />
-                <span>Sources</span>
+                <span>来源</span>
                 {(filters.sources?.length ?? 0) > 0 && (
                   <Badge variant="secondary" className="px-1.5 py-0 text-xs">
                     {filters.sources?.length}
@@ -441,7 +441,7 @@ export function AssetFilters({
           <PopoverContent className="w-[220px] p-0" align="start">
             <div className="p-2 border-b">
               <Input
-                placeholder="Search sources..."
+                placeholder="搜索来源……"
                 value={sourceSearch}
                 onChange={(e) => setSourceSearch(e.target.value)}
                 className="h-8"
@@ -463,7 +463,7 @@ export function AssetFilters({
                 ))}
                 {filteredSources.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    No sources found
+                    未找到来源
                   </p>
                 )}
               </div>
@@ -478,7 +478,7 @@ export function AssetFilters({
                     onFiltersChange({ ...filters, sources: undefined })
                   }
                 >
-                  Clear selection
+                  清除选择
                 </Button>
               </div>
             )}
@@ -497,7 +497,7 @@ export function AssetFilters({
             >
               <span className="flex items-center gap-2">
                 <TagIcon className="size-4" />
-                <span>Remarks</span>
+                <span>备注</span>
                 {(filters.remarks?.length ?? 0) > 0 && (
                   <Badge variant="secondary" className="px-1.5 py-0 text-xs">
                     {filters.remarks?.length}
@@ -510,7 +510,7 @@ export function AssetFilters({
           <PopoverContent className="w-[220px] p-0" align="start">
             <div className="p-2 border-b">
               <Input
-                placeholder="Search remarks..."
+                placeholder="搜索备注……"
                 value={remarkSearch}
                 onChange={(e) => setRemarkSearch(e.target.value)}
                 className="h-8"
@@ -532,7 +532,7 @@ export function AssetFilters({
                 ))}
                 {filteredRemarks.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">
-                    No remarks found
+                    未找到备注
                   </p>
                 )}
               </div>
@@ -547,7 +547,7 @@ export function AssetFilters({
                     onFiltersChange({ ...filters, remarks: undefined })
                   }
                 >
-                  Clear selection
+                  清除选择
                 </Button>
               </div>
             )}
@@ -560,7 +560,7 @@ export function AssetFilters({
               <Button variant="outline" className={primaryTriggerClassName}>
                 <span className="flex items-center gap-2">
                   <Columns3Icon className="size-4" />
-                  <span>Columns</span>
+                  <span>列</span>
                   {visibleColumnCount > 0 &&
                     visibleColumnCount !== columnOptions.length && (
                       <Badge variant="secondary" className="px-1.5 py-0 text-xs">
@@ -610,13 +610,13 @@ export function AssetFilters({
             >
               <span className="flex items-center gap-2">
                 <ListIcon className="size-4" />
-                <SelectValue placeholder="Per Page" />
+                <SelectValue placeholder="每页数量" />
               </span>
             </SelectTrigger>
             <SelectContent>
               {pageSizeOptions.map((size) => (
                 <SelectItem key={size} value={String(size)}>
-                  {size} / page
+                  {size} / 页
                 </SelectItem>
               ))}
             </SelectContent>
@@ -627,7 +627,7 @@ export function AssetFilters({
         {activeFilterCount > 0 && (
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="gap-1">
-              {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
+              已启用 {activeFilterCount} 个筛选条件
             </Badge>
             <Button
               variant="ghost"
@@ -636,7 +636,7 @@ export function AssetFilters({
               className="h-9 gap-1 text-muted-foreground hover:text-foreground"
             >
               <XIcon className="size-4" />
-              Clear all
+              全部清除
             </Button>
           </div>
         )}

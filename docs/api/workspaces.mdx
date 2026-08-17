@@ -115,6 +115,30 @@ curl "http://localhost:8002/osm/api/workspaces?filesystem=true&offset=20&limit=1
 
 ---
 
+## Delete Workspace
+
+Permanently delete a workspace and all data owned by it, including assets,
+vulnerabilities, runs, step results, artifacts, events, diff snapshots, and
+Agent Pentest records. The local workspace directory is deleted by default.
+Schedule definitions are retained and may recreate the workspace on a later run.
+
+```bash
+curl -X DELETE "http://localhost:8002/osm/api/workspaces/example.com" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Keep the local directory while deleting the database records:
+
+```bash
+curl -X DELETE "http://localhost:8002/osm/api/workspaces/example.com?delete_files=false" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+The API returns `409 Conflict` when the workspace still has a pending/running
+scan or active Agent Pentest task. Stop that work before retrying the deletion.
+
+---
+
 ## List Workspace Names
 
 Get a lightweight list of workspace names only (without full metadata).

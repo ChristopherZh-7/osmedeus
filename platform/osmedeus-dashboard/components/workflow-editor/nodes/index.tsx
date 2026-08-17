@@ -103,7 +103,7 @@ export function StartNode({ selected }: CustomNodeProps) {
       >
         <PlayIcon className="size-5 text-success" />
       </div>
-      <p className="mt-2 text-xs font-medium text-muted-foreground">Start</p>
+      <p className="mt-2 text-xs font-medium text-muted-foreground">开始</p>
       <Handle
         type="source"
         position={Position.Bottom}
@@ -129,7 +129,7 @@ export function EndNode({ selected }: CustomNodeProps) {
       >
         <FlagIcon className="size-5 text-destructive" />
       </div>
-      <p className="mt-2 text-xs font-medium text-muted-foreground">End</p>
+      <p className="mt-2 text-xs font-medium text-muted-foreground">结束</p>
     </div>
   );
 }
@@ -153,10 +153,10 @@ export function TriggerNode({ data, selected }: CustomNodeProps) {
       >
         <ZapIcon className="size-5 text-warning" />
       </div>
-      <p className="mt-2 text-xs font-medium text-muted-foreground">Triggers</p>
+      <p className="mt-2 text-xs font-medium text-muted-foreground">触发器</p>
       {showDetails && triggerSummaries.length > 0 && (
         <div className="mt-2 w-[280px] rounded-md border bg-muted/30 px-2 py-2 text-[11px] text-muted-foreground">
-          <div className="text-[10px] uppercase tracking-wide text-muted-foreground/70">Trigger Rules</div>
+          <div className="text-[10px] uppercase tracking-wide text-muted-foreground/70">触发规则</div>
           <div className="mt-1 space-y-2">
             {triggerSummaries.map((summary, idx) => (
               <div key={`${summary.title}-${idx}`} className="space-y-0.5">

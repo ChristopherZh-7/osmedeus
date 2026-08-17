@@ -212,7 +212,7 @@ steps:
     command: rm -rf {{output_dir}}/ports-*.txt
     on_error:
       - action: log
-        message: "Cleanup failed but continuing"
+        message: "清理失败，但继续执行"
       - action: continue
 `,
   "test-decision": `name: test-decision
@@ -273,13 +273,13 @@ modules:
       threads: "{{threads}}"
     on_success:
       - action: log
-        message: "Reconnaissance completed for {{target}}"
+        message: "已完成 {{target}} 的侦察"
       - action: export
         key: recon_complete
         value: "true"
     on_error:
       - action: log
-        message: "Reconnaissance failed for {{target}}"
+        message: "{{target}} 的侦察失败"
       - action: abort
 
   # Module 2: Subdomain enumeration (depends on recon)
@@ -362,7 +362,7 @@ modules:
     condition: "skip_vuln_scan != 'true'"
     on_error:
       - action: log
-        message: "Vulnerability scan encountered errors but continuing"
+        message: "漏洞扫描遇到错误，但继续执行"
       - action: continue
 
   # Module 8: Directory bruteforcing (optional - depends on mode)
@@ -401,9 +401,9 @@ modules:
       format: "html,json,markdown"
     on_success:
       - action: log
-        message: "Flow completed successfully for {{target}}"
+        message: "已成功完成 {{target}} 的流程"
       - action: notify
-        message: "Security assessment complete: {{target}}"
+        message: "安全评估已完成：{{target}}"
 `,
   "test-loop": `name: test-loop
 kind: module
@@ -584,7 +584,7 @@ modules:
     on_success:
       # action: log - Log a message
       - action: log
-        message: "Vulnerability scanning completed for {{Target}}"
+        message: "已完成 {{Target}} 的漏洞扫描"
 
       # action: export - Export a variable for subsequent modules
       - action: export
@@ -624,18 +624,18 @@ modules:
     on_error:
       # action: log - Log error message
       - action: log
-        message: "Exploit verification failed for {{Target}}"
+        message: "{{Target}} 的漏洞利用验证失败"
         # condition: Only execute if this condition is true
         condition: 'true'
 
       # action: continue - Allow flow to continue despite error
       - action: continue
-        message: "Continuing flow despite exploit verification failure"
+        message: "漏洞利用验证失败，但继续执行流程"
 
       # action: abort - Stop the entire flow
       # (Usually with a condition so it doesn't always abort)
       - action: abort
-        message: "Critical failure - aborting flow"
+        message: "发生严重错误，正在中止流程"
         condition: 'false'  # Only abort under specific conditions
 
       # action: notify - Alert on failure
@@ -685,7 +685,7 @@ modules:
 
     params:
       severity: critical
-      message: "Critical vulnerabilities found for {{Target}}"
+      message: "发现 {{Target}} 存在严重漏洞"
       channel: security-alerts
 
     on_success:
@@ -698,7 +698,7 @@ modules:
 
     params:
       severity: high
-      message: "High severity vulnerabilities found for {{Target}}"
+      message: "发现 {{Target}} 存在高危漏洞"
       channel: security-team
 
     on_success:
@@ -750,7 +750,7 @@ modules:
 
     on_success:
       - action: log
-        message: "Flow completed successfully for {{Target}}"
+        message: "已成功完成 {{Target}} 的流程"
 
       - action: notify
         notify: "Security scan flow completed for {{Target}}"
@@ -761,10 +761,10 @@ modules:
 
     on_error:
       - action: log
-        message: "Cleanup failed but flow results are preserved"
+        message: "清理失败，但流程结果已保留"
 
       - action: continue
-        message: "Flow complete despite cleanup issues"
+        message: "虽有清理问题，流程仍已完成"
 `,
   "triggers-example": `# =============================================================================
 # Flow Workflow: All Trigger Types Example
@@ -1480,11 +1480,11 @@ steps:
 
     on_success:
       - action: log
-        message: "Remote cleanup completed successfully"
+        message: "远程清理已成功完成"
 
     on_error:
       - action: continue
-        message: "Cleanup failed but continuing workflow"
+        message: "清理失败，但继续执行工作流"
 `,
   "all-step-types-example": `# =============================================================================
 # Module Workflow: All Step Types Example
@@ -1914,7 +1914,7 @@ steps:
     on_success:
       # action: Handler type - log, abort, continue, export, run, notify
       - action: log
-        message: "Step completed successfully for {{Target}}"
+        message: "已成功完成 {{Target}} 的步骤"
 
       - action: export
         # name: Variable name to export
@@ -1939,7 +1939,7 @@ steps:
     # on_error: Actions to execute when step fails
     on_error:
       - action: log
-        message: "Step failed for {{Target}}"
+        message: "{{Target}} 的步骤执行失败"
         # condition: Only execute this action if condition evaluates to true
         condition: 'true'
 
@@ -1948,12 +1948,12 @@ steps:
 
       # abort: Stops workflow execution immediately
       - action: abort
-        message: "Aborting due to critical failure"
+        message: "发生严重错误，正在中止"
         condition: 'false'  # Only abort under specific conditions
 
       # continue: Allows workflow to continue despite error
       - action: continue
-        message: "Continuing despite error"
+        message: "出现错误，但继续执行"
 
     # decision: Conditional routing to other steps or workflow end
     decision:
@@ -2234,7 +2234,7 @@ steps:
     command: 'echo "Running step with all handler types"'
     on_success:
       - action: log
-        message: "Step completed successfully for {{Target}}"
+        message: "已成功完成 {{Target}} 的步骤"
       - action: export
         name: success_flag
         value: "true"
@@ -2249,15 +2249,15 @@ steps:
           - 'log_info("Running follow-up function")'
     on_error:
       - action: log
-        message: "Step failed for {{Target}}"
+        message: "{{Target}} 的步骤执行失败"
         condition: 'true'
       - action: notify
         notify: "Error in workflow for {{Target}}"
       - action: abort
-        message: "Aborting due to critical failure"
+        message: "发生严重错误，正在中止"
         condition: 'false'
       - action: continue
-        message: "Continuing despite error"
+        message: "出现错误，但继续执行"
     decision:
       - condition: '{{success_flag}} == "true"'
         next: final-step

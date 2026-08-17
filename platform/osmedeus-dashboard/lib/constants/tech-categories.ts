@@ -153,15 +153,15 @@ export const CATEGORY_DOT_COLOR: Record<TechCategory, string> = {
 
 // Category display labels
 export const CATEGORY_LABELS: Record<TechCategory, string> = {
-  webServer: "Web Server",
-  frontend: "Frontend",
-  backend: "Backend",
-  database: "Database",
+  webServer: "Web 服务器",
+  frontend: "前端",
+  backend: "后端",
+  database: "数据库",
   cms: "CMS",
   cdn: "CDN",
-  security: "Security",
-  language: "Language",
-  other: "Other",
+  security: "安全",
+  language: "开发语言",
+  other: "其他",
 };
 
 // Content type options for filtering
@@ -169,12 +169,12 @@ export const CONTENT_TYPE_OPTIONS = [
   { value: "text/html", label: "HTML" },
   { value: "application/json", label: "JSON" },
   { value: "application/xml", label: "XML" },
-  { value: "text/xml", label: "XML (text)" },
+  { value: "text/xml", label: "XML（文本）" },
   { value: "text/css", label: "CSS" },
   { value: "application/javascript", label: "JavaScript" },
-  { value: "text/javascript", label: "JavaScript (text)" },
-  { value: "image/", label: "Images" },
-  { value: "text/plain", label: "Plain Text" },
+  { value: "text/javascript", label: "JavaScript（文本）" },
+  { value: "image/", label: "图片" },
+  { value: "text/plain", label: "纯文本" },
   { value: "application/pdf", label: "PDF" },
 ];
 
@@ -182,8 +182,8 @@ export const CONTENT_TYPE_OPTIONS = [
 export const TLS_VERSION_OPTIONS = [
   { value: "TLS 1.3", label: "TLS 1.3" },
   { value: "TLS 1.2", label: "TLS 1.2" },
-  { value: "TLS 1.1", label: "TLS 1.1 (Deprecated)" },
-  { value: "TLS 1.0", label: "TLS 1.0 (Deprecated)" },
+  { value: "TLS 1.1", label: "TLS 1.1（已弃用）" },
+  { value: "TLS 1.0", label: "TLS 1.0（已弃用）" },
 ];
 
 // All unique technologies for filter dropdown (sorted alphabetically)

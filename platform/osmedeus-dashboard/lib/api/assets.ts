@@ -38,6 +38,23 @@ export async function fetchWorkspaces(params: FetchWorkspacesParams = {}): Promi
   return result.items;
 }
 
+/** Permanently delete a workspace and its owned data. */
+export async function deleteWorkspace(name: string, deleteFiles = true): Promise<void> {
+  const normalized = name.trim();
+  if (!normalized) throw new Error("400:工作区名称不能为空");
+
+  if (isDemoMode()) {
+    const index = mockWorkspaces.findIndex((workspace) => workspace.name === normalized);
+    if (index === -1) throw new Error("404:工作区不存在");
+    mockWorkspaces.splice(index, 1);
+    return;
+  }
+
+  await http.delete(`${API_PREFIX}/workspaces/${encodeURIComponent(normalized)}`, {
+    params: { delete_files: deleteFiles },
+  });
+}
+
 /**
  * Fetch workspaces with pagination info
  */

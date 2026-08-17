@@ -85,15 +85,30 @@ Fetch one mapping by its Osmedeus UUID:
 GET /osm/api/agent-pentest/sessions/{uuid}
 ```
 
+Delete a mapping and its platform-owned coverage, task, plan, and memory data:
+
+```http
+DELETE /osm/api/agent-pentest/sessions/{uuid}
+```
+
+The corresponding DSH conversation is archived because the Harness does not
+provide physical transcript deletion. Evidence files and vulnerability
+findings are retained independently.
+
 ## Native Chat and Trajectory
 
-The dashboard does not embed the DSH web application. It renders Chat,
-Trajectory, tool calls, and the composer with Osmedeus components while DSH
-runs headlessly behind authenticated proxy endpoints:
+The dashboard does not embed the DSH web application. The mapped root Session
+is the operator-facing Primary Agent. Osmedeus renders its conversation,
+execution details, tool calls, collaboration cards, and composer while DSH runs
+headlessly behind authenticated proxy endpoints:
 
 ```http
 GET  /osm/api/agent-pentest/sessions/{uuid}/harness/history
 POST /osm/api/agent-pentest/sessions/{uuid}/harness/messages
+POST /osm/api/agent-pentest/sessions/{uuid}/harness/questions/{rpc_id}/answer
+POST /osm/api/agent-pentest/sessions/{uuid}/harness/questions/{rpc_id}/cancel
+POST /osm/api/agent-pentest/sessions/{uuid}/harness/queue/{item_id}/supplement
+DELETE /osm/api/agent-pentest/sessions/{uuid}/harness/queue/{item_id}
 POST /osm/api/agent-pentest/sessions/{uuid}/harness/cancel
 ```
 
@@ -107,17 +122,65 @@ Send a message with:
 }
 ```
 
-`mode` may be `queue` or `steer`. History responses contain durable UI events
-and DSH projections; token chunks and injected plugin or Skill context are
-filtered out. The browser supplies only the Osmedeus session UUID. Osmedeus
-resolves the mapped DSH session ID after applying org authorization, preventing
-a client from addressing arbitrary Harness sessions.
+`mode` may be `queue` or `steer`. The dashboard always submits ordinary messages
+with `queue`: when Primary is busy, the prompt appears in the composer queue and
+starts after the active turn. The operator may then choose **补充** on a queued
+item, which calls the `supplement` endpoint and atomically asks DSH to move that
+item into the active turn's next-step inbox. Primary reads it after the current
+tool boundary without forcibly terminating that tool. If the steering window
+has already closed, the endpoint returns `409` and DSH leaves the message in the
+queue instead of dropping it.
 
-## Native Subagents
+When Primary calls `ask_user_question`, the history response includes a
+transient `pending_question` object containing its `rpc_id` and structured
+questions. The dashboard renders these as interactive single-select or
+multi-select controls with an optional free-text answer. Questions are shown
+one at a time with an `n / total` progress indicator: single-select answers
+advance automatically, while multi-select and text answers use **Next**. The
+operator can go back to revise earlier answers, and the final step submits the
+complete answer set with:
 
-The native Agent Pentest page can enumerate the complete bounded descendant
-tree, open each child transcript, continue a resumable child, and interrupt its
-current turn:
+```json
+{
+  "answers": [
+    {
+      "id": "next_direction",
+      "selected": ["Continue source review"],
+      "custom": "Prioritize authentication paths."
+    }
+  ]
+}
+```
+
+The `answer` endpoint settles the exact pending DSH question and resumes the
+same Primary turn. The `cancel` endpoint rejects only that question; it does
+not cancel the Primary turn. Both return `409` when the question has already
+been answered, cancelled, or otherwise left the pending state.
+
+`DELETE .../harness/queue/{item_id}` removes only that pending message. It does
+not stop the active Primary turn or remove any completed conversation history.
+If the message has already started, the endpoint returns `409`.
+
+History responses contain durable UI events and DSH projections; token chunks
+and injected plugin or Skill context are filtered out. A user message admitted
+from DSH's next-step inbox carries `view.kind = "steering"` so the conversation
+can label it **已补充** without guessing from event order. Pending queue rows are
+published by the PentAGI plugin through the `pentagiQueue` session projection.
+The browser supplies
+only the Osmedeus session UUID. Osmedeus resolves the mapped DSH session ID
+after applying org authorization, preventing a client from addressing arbitrary
+Harness sessions.
+
+## Native Subagent Audit API
+
+In collaboration mode Primary calls `pentagi_delegate`; the resulting role call
+and structured result are rendered inline in the Primary conversation. The
+separate task-plan and child-chat tabs are intentionally not part of the normal
+dashboard interaction model.
+
+The authenticated audit API can still enumerate the complete bounded
+descendant tree, open each child transcript, continue a resumable child, and
+interrupt its current turn:
 
 ```http
 GET  /osm/api/agent-pentest/sessions/{uuid}/harness/subagents
@@ -166,6 +229,16 @@ The sidecar installs its shipped bundles into DSH's official
 `osmedeus-pentest` first: it loads the context, enforces the immutable scope,
 and treats scanner findings as hypotheses requiring evidence. Specialized
 `cyberstrike-*` Skills may then be loaded when relevant.
+
+The optional full CyberStrike corpus is managed separately from DSH's active
+Skill catalog. `plugins/dsh-pentagi-orchestrator` recursively indexes
+`$OSM_CYBERSTRIKE_SKILLS_DIR` (default
+`$DSH_HOME/osmedeus/cyberstrike-skills`) and exposes bounded search, category,
+CWE, tag, technology, attack-chain, and exact lazy-load operations through
+`pentagi_skill`. This keeps thousands of names and descriptions out of every
+model request while still making the complete local corpus available to the
+root Primary and managed specialists. Loaded CyberStrike instructions receive
+the Osmedeus scope and high-impact-action notice before entering context.
 
 ## Coverage and result writeback
 

@@ -80,8 +80,8 @@ export default function ScansPage() {
       setScans(response.data);
       setPagination(response.pagination);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load scans");
-      toast.error("Failed to load scans", {
+      setError(err instanceof Error ? err.message : "加载扫描任务失败");
+      toast.error("加载扫描任务失败", {
         description: err instanceof Error ? err.message : "",
       });
     } finally {
@@ -160,19 +160,19 @@ export default function ScansPage() {
         ? `${selectedScan.completedSteps ?? 0} / ${selectedScan.totalSteps ?? 0}`
         : "-";
     const items: Array<{ key: keyof Scan | string; label: string; mono?: boolean; value?: string }> = [
-      { key: "runUuid", label: "Run UUID", mono: true },
-      { key: "workflowName", label: "Workflow Name" },
-      { key: "workflowKind", label: "Workflow Kind" },
-      { key: "target", label: "Target", mono: true },
-      { key: "status", label: "Status" },
-      { key: "priority", label: "Priority" },
-      { key: "triggerType", label: "Trigger Type" },
-      { key: "triggerName", label: "Trigger Name" },
-      { key: "runGroupId", label: "Run Group ID", mono: true },
-      { key: "workspace", label: "Workspace", mono: true },
-      { key: "workspacePath", label: "Workspace Path", mono: true },
-      { key: "stepsSummary", label: "Completed / Total", value: stepsSummary },
-      { key: "errorMessage", label: "Error" },
+      { key: "runUuid", label: "运行 UUID", mono: true },
+      { key: "workflowName", label: "工作流名称" },
+      { key: "workflowKind", label: "工作流类型" },
+      { key: "target", label: "目标", mono: true },
+      { key: "status", label: "状态" },
+      { key: "priority", label: "优先级" },
+      { key: "triggerType", label: "触发类型" },
+      { key: "triggerName", label: "触发器名称" },
+      { key: "runGroupId", label: "运行组 ID", mono: true },
+      { key: "workspace", label: "工作区", mono: true },
+      { key: "workspacePath", label: "工作区路径", mono: true },
+      { key: "stepsSummary", label: "已完成 / 总数", value: stepsSummary },
+      { key: "errorMessage", label: "错误" },
     ];
 
     return items
@@ -222,8 +222,8 @@ export default function ScansPage() {
       cli: { label: "CLI", variant: "purple", icon: <PlayIcon className="size-3" /> },
       api: { label: "API", variant: "info", icon: <PlayIcon className="size-3" /> },
       cron: { label: "Cron", variant: "warning", icon: <CalendarIcon className="size-3" /> },
-      scheduled: { label: "Scheduled", variant: "warning", icon: <CalendarIcon className="size-3" /> },
-      manual: { label: "Manual", variant: "secondary", icon: <PlayIcon className="size-3" /> },
+      scheduled: { label: "计划任务", variant: "warning", icon: <CalendarIcon className="size-3" /> },
+      manual: { label: "手动", variant: "secondary", icon: <PlayIcon className="size-3" /> },
     };
     return conf;
   }, []);
@@ -236,9 +236,9 @@ export default function ScansPage() {
         className: string;
       }
     > = {
-      high: { label: "High", className: "border-destructive/50 text-destructive" },
-      medium: { label: "Medium", className: "border-warning/50 text-warning" },
-      low: { label: "Low", className: "border-success/50 text-success" },
+      high: { label: "高", className: "border-destructive/50 text-destructive" },
+      medium: { label: "中", className: "border-warning/50 text-warning" },
+      low: { label: "低", className: "border-success/50 text-success" },
     };
     return conf;
   }, []);
@@ -251,13 +251,13 @@ export default function ScansPage() {
         variant: "default" | "secondary" | "destructive" | "outline" | "success" | "warning";
       }
     > = {
-      pending: { label: "Pending", variant: "secondary" },
-      running: { label: "Running", variant: "default" },
-      completed: { label: "Completed", variant: "success" },
-      success: { label: "Success", variant: "success" },
-      failed: { label: "Failed", variant: "destructive" },
-      error: { label: "Error", variant: "destructive" },
-      skipped: { label: "Skipped", variant: "outline" },
+      pending: { label: "等待中", variant: "secondary" },
+      running: { label: "运行中", variant: "default" },
+      completed: { label: "已完成", variant: "success" },
+      success: { label: "成功", variant: "success" },
+      failed: { label: "失败", variant: "destructive" },
+      error: { label: "错误", variant: "destructive" },
+      skipped: { label: "已跳过", variant: "outline" },
     };
     return conf;
   }, []);
@@ -272,8 +272,8 @@ export default function ScansPage() {
       }
     > = {
       bash: { label: "Bash", variant: "purple", icon: <TerminalIcon className="size-3" /> },
-      function: { label: "Function", variant: "info", icon: <FunctionSquareIcon className="size-3" /> },
-      foreach: { label: "Foreach", variant: "orange", icon: <RepeatIcon className="size-3" /> },
+      function: { label: "函数", variant: "info", icon: <FunctionSquareIcon className="size-3" /> },
+      foreach: { label: "遍历", variant: "orange", icon: <RepeatIcon className="size-3" /> },
     };
     return conf;
   }, []);
@@ -324,7 +324,7 @@ export default function ScansPage() {
       })
       .catch((err) => {
         if (cancelled) return;
-        setStepsError(err instanceof Error ? err.message : "Failed to load step results");
+        setStepsError(err instanceof Error ? err.message : "加载步骤结果失败");
         setStepResults([]);
         setStepPagination(null);
       })
@@ -346,13 +346,13 @@ export default function ScansPage() {
       <Card className="overflow-hidden">
         <SectionCardHeader
           icon={ScanSearchIcon}
-          title="Scans"
-          description="Filter by status, workflow, or target"
+          title="扫描任务"
+          description="按状态、工作流或目标筛选"
           actions={
             <Button asChild>
               <Link href="/scans/new">
                 <PlusIcon className="mr-2 size-4" />
-                New Scan
+                新建扫描
               </Link>
             </Button>
           }
@@ -360,7 +360,7 @@ export default function ScansPage() {
         <CardContent>
           <div className="flex flex-wrap gap-2">
             <Input
-              placeholder="Search"
+              placeholder="搜索"
               value={tableSearch}
               onChange={(e) => setTableSearch(e.target.value)}
               className="h-9 w-full md:w-1/4 max-w-none"
@@ -378,38 +378,38 @@ export default function ScansPage() {
               <SelectTrigger className={cn("max-w-[180px]", statusFilterStyles.trigger)}>
                 <span className="flex items-center gap-2">
                   <span className={cn("size-2 rounded-full", statusFilterStyles.dot)} />
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder="状态" />
                 </span>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">
                   <span className="flex items-center gap-2">
                     <span className="size-2 rounded-full bg-muted-foreground/50" />
-                    All Statuses
+                    全部状态
                   </span>
                 </SelectItem>
                 <SelectItem value="pending">
                   <span className="flex items-center gap-2 text-warning">
                     <span className="size-2 rounded-full bg-warning" />
-                    Pending
+                    等待中
                   </span>
                 </SelectItem>
                 <SelectItem value="running">
                   <span className="flex items-center gap-2 text-info">
                     <span className="size-2 rounded-full bg-info" />
-                    Running
+                    运行中
                   </span>
                 </SelectItem>
                 <SelectItem value="completed">
                   <span className="flex items-center gap-2 text-success">
                     <span className="size-2 rounded-full bg-success" />
-                    Completed
+                    已完成
                   </span>
                 </SelectItem>
                 <SelectItem value="failed">
                   <span className="flex items-center gap-2 text-destructive">
                     <span className="size-2 rounded-full bg-destructive" />
-                    Failed
+                    失败
                   </span>
                 </SelectItem>
               </SelectContent>
@@ -425,10 +425,10 @@ export default function ScansPage() {
               }}
             >
               <SelectTrigger className="max-w-[200px]">
-                <SelectValue placeholder="Workspace" />
+                <SelectValue placeholder="工作区" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Workspaces</SelectItem>
+                <SelectItem value="all">全部工作区</SelectItem>
                 {workspaceOptions.map((workspace) => (
                   <SelectItem key={workspace} value={workspace}>
                     {workspace}
@@ -445,7 +445,7 @@ export default function ScansPage() {
               }}
             >
               <SelectTrigger className="max-w-[140px]">
-                <SelectValue placeholder="Page Size" />
+                <SelectValue placeholder="每页数量" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="20">20</SelectItem>
@@ -455,7 +455,7 @@ export default function ScansPage() {
             </Select>
             <Button variant="outline" onClick={loadScans} disabled={isLoading}>
               <RefreshCcwIcon className={`mr-2 size-4 ${isLoading ? "animate-spin" : ""}`} />
-              Refresh
+              刷新
             </Button>
             <Button
               variant="outline"
@@ -468,7 +468,7 @@ export default function ScansPage() {
               disabled={!selectedScan && !filters.status && !filters.workspace && !tableSearch}
             >
               <XIcon className="mr-2 size-4" />
-              Clear
+              清除
             </Button>
           </div>
 
@@ -486,12 +486,12 @@ export default function ScansPage() {
               {pagination && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between px-2 py-3">
                   <p className="text-sm text-muted-foreground">
-                    Showing {(pagination.page - 1) * pagination.pageSize + 1} to{" "}
+                    显示 {(pagination.page - 1) * pagination.pageSize + 1} 至{" "}
                     {Math.min(
                       pagination.page * pagination.pageSize,
                       pagination.totalItems
                     )}{" "}
-                    of {pagination.totalItems.toLocaleString()} results
+                    共 {pagination.totalItems.toLocaleString()} 条结果
                   </p>
                   <div className="flex items-center gap-2">
                     <Button
@@ -500,7 +500,7 @@ export default function ScansPage() {
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                       disabled={pagination.page <= 1}
                     >
-                      Previous
+                      上一页
                     </Button>
                     <div className="flex items-center gap-1">
                       {Array.from(
@@ -540,7 +540,7 @@ export default function ScansPage() {
                       }
                       disabled={pagination.page >= pagination.totalPages}
                     >
-                      Next
+                      下一页
                     </Button>
                   </div>
                 </div>
@@ -553,11 +553,11 @@ export default function ScansPage() {
       <Card className="overflow-hidden">
         <SectionCardHeader
           icon={ClipboardListIcon}
-          title="Scan Details"
+          title="扫描详情"
           description={
             selectedScan
-              ? "Selected scan details and step output"
-              : "Select a scan to view details"
+              ? "所选扫描的详情与步骤输出"
+              : "选择扫描任务以查看详情"
           }
           actions={
             <Button
@@ -571,14 +571,14 @@ export default function ScansPage() {
                   await navigator.clipboard.writeText(
                     JSON.stringify(selectedScan, null, 2)
                   );
-                  toast.success("Run JSON copied");
+                  toast.success("运行 JSON 已复制");
                 } catch {
-                  toast.error("Failed to copy");
+                  toast.error("复制失败");
                 }
               }}
             >
               <ClipboardIcon className="size-4" />
-              <span className="sr-only">Copy JSON</span>
+              <span className="sr-only">复制 JSON</span>
             </Button>
           }
         />
@@ -602,9 +602,9 @@ export default function ScansPage() {
                           if (!selectedScan?.runUuid) return;
                           try {
                             await navigator.clipboard.writeText(selectedScan.runUuid);
-                            toast.success("Run UUID copied");
+                            toast.success("运行 UUID 已复制");
                           } catch {
-                            toast.error("Failed to copy");
+                            toast.error("复制失败");
                           }
                         }}
                         role={item.key === "runUuid" ? "button" : undefined}
@@ -627,7 +627,10 @@ export default function ScansPage() {
                               triggerConfig[(selectedScan.triggerType || "manual").toLowerCase()]
                                 ?.icon ?? <PlayIcon className="size-3" />
                             }
-                            <span>{item.value}</span>
+                            <span>
+                              {triggerConfig[(selectedScan.triggerType || "manual").toLowerCase()]
+                                ?.label ?? item.value}
+                            </span>
                           </Badge>
                         ) : item.key === "priority" && selectedScan ? (
                           selectedScan.priority ? (
@@ -659,7 +662,7 @@ export default function ScansPage() {
 
                   {paramsEntries.length > 0 && (
                     <div className="space-y-2">
-                      <div className="text-xs text-muted-foreground">Params</div>
+                      <div className="text-xs text-muted-foreground">参数</div>
                       <textarea
                         readOnly
                         value={JSON.stringify(
@@ -673,11 +676,11 @@ export default function ScansPage() {
 
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="text-xs text-muted-foreground">Step Results</div>
+                      <div className="text-xs text-muted-foreground">步骤结果</div>
                       <div className="flex flex-wrap items-center gap-2">
                         {stepPagination?.total ? (
                           <div className="text-xs text-muted-foreground">
-                            {stepResults.length} of {stepPagination.total}
+                            {stepResults.length} 共 {stepPagination.total}
                           </div>
                         ) : null}
                         <Button
@@ -687,7 +690,7 @@ export default function ScansPage() {
                           onClick={() => setAreStepsExpanded((prev) => !prev)}
                           disabled={isStepsLoading}
                         >
-                          {areStepsExpanded ? "Hide Steps" : "Show Steps"}
+                          {areStepsExpanded ? "隐藏步骤" : "显示步骤"}
                         </Button>
                       </div>
                     </div>
@@ -697,11 +700,11 @@ export default function ScansPage() {
                           const anchorId = step.id
                             ? `step-result-${step.id}`
                             : `step-result-${idx}`;
-                          const label = step.stepName || `Step ${idx + 1}`;
+                          const label = step.stepName || `步骤 ${idx + 1}`;
                           const stepTypeKey = String(step.stepType || "unknown").toLowerCase();
                           const stepType =
                             stepTypeConfig[stepTypeKey] ?? {
-                              label: step.stepType ? String(step.stepType) : "Unknown",
+                              label: step.stepType ? String(step.stepType) : "未知",
                               variant: "outline" as const,
                               icon: <PlayIcon className="size-3" />,
                             };
@@ -738,7 +741,7 @@ export default function ScansPage() {
                       </div>
                     ) : stepResults.length === 0 ? (
                       <div className="text-sm text-muted-foreground">
-                        No step results available for this run.
+                        此运行暂无步骤结果。
                       </div>
                     ) : (
                       <div className="space-y-3">
@@ -746,13 +749,13 @@ export default function ScansPage() {
                           const statusKey = String(step.status || "unknown").toLowerCase();
                           const status =
                             stepStatusConfig[statusKey] ?? {
-                              label: step.status ? String(step.status) : "Unknown",
+                              label: step.status ? String(step.status) : "未知",
                               variant: "outline" as const,
                             };
                           const stepTypeKey = String(step.stepType || "unknown").toLowerCase();
                           const stepType =
                             stepTypeConfig[stepTypeKey] ?? {
-                              label: step.stepType ? String(step.stepType) : "Unknown",
+                              label: step.stepType ? String(step.stepType) : "未知",
                               variant: "outline" as const,
                               icon: <PlayIcon className="size-3" />,
                             };
@@ -771,7 +774,7 @@ export default function ScansPage() {
                               <div className="flex flex-wrap items-start justify-between gap-2">
                                 <div className="flex flex-wrap items-center gap-2">
                                   <div className="font-medium">
-                                    {step.stepName || "Unnamed step"}
+                                    {step.stepName || "未命名步骤"}
                                   </div>
                                   <span className="text-muted-foreground">-</span>
                                   <Badge variant={stepType.variant} className="w-fit gap-1 font-normal">
@@ -788,17 +791,17 @@ export default function ScansPage() {
                               </div>
                               <div className="mt-2 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
                                 <div>
-                                  Started:{" "}
+                                  开始时间：{" "}
                                   {step.startedAt ? formatDateTime(step.startedAt) : "-"}
                                 </div>
                                 <div>
-                                  Completed:{" "}
+                                  完成时间：{" "}
                                   {step.completedAt ? formatDateTime(step.completedAt) : "-"}
                                 </div>
                               </div>
                               {step.command ? (
                                 <div className="mt-3 space-y-1">
-                                  <div className="text-xs text-muted-foreground">Command</div>
+                                  <div className="text-xs text-muted-foreground">命令</div>
                                   <div className="max-h-40 overflow-auto rounded-md border bg-muted/30 p-2">
                                     <CodeHighlighter
                                       language="bash"
@@ -824,7 +827,7 @@ export default function ScansPage() {
                               ) : null}
                               {step.output ? (
                                 <div className="mt-3 space-y-1">
-                                  <div className="text-xs text-muted-foreground">Output</div>
+                                  <div className="text-xs text-muted-foreground">输出</div>
                                   <pre className="max-h-60 overflow-auto rounded-md border bg-muted/30 p-2 font-mono text-xs whitespace-pre-wrap break-words">
                                     {step.output}
                                   </pre>
@@ -832,7 +835,7 @@ export default function ScansPage() {
                               ) : null}
                               {step.output ? (
                                 <div className="mt-3 space-y-1">
-                                  <div className="text-xs text-muted-foreground">Output (Markdown)</div>
+                                  <div className="text-xs text-muted-foreground">输出（Markdown）</div>
                                   <textarea
                                     readOnly
                                     value={markdownOutput}
@@ -843,7 +846,7 @@ export default function ScansPage() {
                               ) : null}
                               {step.error ? (
                                 <div className="mt-3 space-y-1">
-                                  <div className="text-xs text-muted-foreground">Error</div>
+                                  <div className="text-xs text-muted-foreground">错误</div>
                                   <div className="rounded-md border border-destructive/30 bg-destructive-soft p-2 font-mono text-xs text-destructive whitespace-pre-wrap break-words">
                                     {step.error}
                                   </div>
@@ -860,7 +863,7 @@ export default function ScansPage() {
                 </>
               ) : (
                 <div className="text-sm text-muted-foreground">
-                  Select a scan from the table to see its details here.
+                  从表格中选择扫描任务，即可在此查看详情。
                 </div>
               )}
             </div>

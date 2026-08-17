@@ -37,7 +37,7 @@ dependencies:
 # -----------------------------------------------------------------------------
 reports:
   - name: final-subdomains
-    path: "{{Output}}/subdomain/final-{{TargetSpace}}.txt"
+    path: "{{Output}}/subdomain/subdomain-{{TargetSpace}}.txt"
     type: text
     description: Final list of subdomains
 
@@ -105,5 +105,4 @@ steps:
     functions: 
       - 'clean_sub("{{Output}}/subdomain/subdomain-{{TargetSpace}}.txt", "{{Target}}")'
       - 'sort_unix("{{Output}}/subdomain/subdomain-{{TargetSpace}}.txt")'
-
 

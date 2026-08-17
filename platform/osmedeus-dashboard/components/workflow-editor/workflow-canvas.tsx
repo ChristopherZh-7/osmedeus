@@ -199,7 +199,7 @@ export function WorkflowCanvas({
             className="rounded-lg border bg-card shadow-sm [&>button]:border-border [&>button]:bg-card [&>button:hover]:bg-muted"
             showInteractive={false}
           >
-            <ControlButton onClick={toggleFullscreen} title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}>
+            <ControlButton onClick={toggleFullscreen} title={isFullscreen ? "退出全屏" : "全屏"}>
               {isFullscreen ? <Minimize2Icon className="size-4" /> : <Maximize2Icon className="size-4" />}
             </ControlButton>
           </Controls>

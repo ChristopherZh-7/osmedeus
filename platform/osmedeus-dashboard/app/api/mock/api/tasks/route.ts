@@ -22,7 +22,7 @@ export async function GET() {
     .map((s) => ({
       task_id: s.id,
       status: s.status === "failed" ? "failed" : s.status,
-      output: s.status === "completed" ? "Scan completed successfully" : "Task ended",
+      output: s.status === "completed" ? "扫描成功完成" : "任务已结束",
       completed_at: s.completedAt?.toISOString() ?? new Date().toISOString(),
       workflow: s.workflowName,
       exports: {},

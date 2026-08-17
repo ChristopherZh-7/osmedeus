@@ -15,7 +15,7 @@ export function ThemeToggle({
   variant = "ghost",
   size = "icon",
   className,
-  ariaLabel = "Toggle theme",
+  ariaLabel = "切换主题",
   label,
 }: {
   variant?: Variant;

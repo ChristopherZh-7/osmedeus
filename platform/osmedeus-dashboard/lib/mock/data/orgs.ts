@@ -9,7 +9,7 @@ export const mockOrgs: Org[] = [
   {
     uuid: DEFAULT_ORG_UUID,
     name: "default",
-    description: "Default org for data not assigned to a specific org",
+    description: "用于存放未分配到特定组织的数据",
     tags: [],
     is_default: true,
     created_at: "2024-01-01T00:00:00Z",
@@ -27,7 +27,7 @@ export const mockOrgs: Org[] = [
   {
     uuid: "f072a502-0a35-4e8f-aef0-79e048e082f7",
     name: "acme",
-    description: "ACME Corp",
+    description: "艾克米公司",
     tags: ["corp"],
     is_default: false,
     created_at: "2024-02-10T09:30:00Z",
@@ -45,7 +45,7 @@ export const mockOrgs: Org[] = [
   {
     uuid: "ca6d8062-0ef3-472c-9d3c-e3dba920206d",
     name: "globex",
-    description: "Globex Corporation",
+    description: "环球公司",
     tags: ["bug-bounty"],
     is_default: false,
     created_at: "2024-03-22T14:05:00Z",

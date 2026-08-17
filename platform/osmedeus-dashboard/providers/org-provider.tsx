@@ -50,7 +50,7 @@ export function OrgProvider({ children }: { children: React.ReactNode }) {
       // A server without the org endpoint (older build) should degrade to the
       // unfiltered view rather than breaking the whole dashboard.
       setOrgs([]);
-      setError(err instanceof Error ? err.message : "Failed to load orgs");
+      setError(err instanceof Error ? err.message : "加载组织失败");
     } finally {
       setIsLoading(false);
     }

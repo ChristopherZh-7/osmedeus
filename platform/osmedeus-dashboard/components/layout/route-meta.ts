@@ -4,100 +4,100 @@ export function getRouteMeta(pathname: string): RouteMeta {
   const path = pathname || "/";
   if (path === "/") {
     return {
-      title: "Statistics",
-      description: "Overview of your security reconnaissance operations",
+      title: "统计概览",
+      description: "安全侦察任务概览",
     };
   }
   if (path.startsWith("/assets/workspaces/")) {
     return {
-      title: "Workspace",
-      description: "Browse and manage assets in the selected workspace",
+      title: "工作区",
+      description: "浏览和管理所选工作区中的资产",
     };
   }
   if (path.startsWith("/workflows/")) {
     return {
-      title: "Visualize and Manage your workflow",
+      title: "可视化并管理工作流",
     };
   }
   const map: Record<string, RouteMeta> = {
     "/workflows-editor": {
-      title: "Workflow Editor",
-      description: "Select and edit your workflows",
+      title: "工作流编辑器",
+      description: "选择并编辑工作流",
     },
     "/registry": {
-      title: "Binary Registry",
-      description: "View available tools and install from registry",
+      title: "二进制工具仓库",
+      description: "查看并安装工具仓库中的工具",
     },
     "/assets": {
-      title: "Assets",
-      description: "Browse and manage your discovered assets by workspace",
+      title: "资产",
+      description: "按工作区浏览和管理已发现资产",
     },
     "/inventory": {
-      title: "Inventory",
-      description: "Explore workspaces and assets",
+      title: "资产中心",
+      description: "浏览工作区与资产",
     },
     "/inventory/orgs": {
-      title: "Orgs",
-      description: "Group workspaces under an org to query across all of them",
+      title: "组织",
+      description: "将工作区归入组织并进行跨工作区查询",
     },
     "/inventory/workspaces": {
-      title: "Workspaces Inventory",
-      description: "Browse and manage workspaces",
+      title: "工作区清单",
+      description: "浏览和管理工作区",
     },
     "/inventory/assets": {
-      title: "Assets Inventory",
-      description: "Assets across workspaces",
+      title: "资产清单",
+      description: "跨工作区资产",
     },
     "/inventory/artifacts": {
-      title: "Artifacts Inventory",
-      description: "Artifacts across workspaces",
+      title: "产物清单",
+      description: "跨工作区产物",
     },
     "/schedules": {
-      title: "Schedules",
-      description: "Manage scheduled workflow executions",
+      title: "计划任务",
+      description: "管理工作流计划任务",
     },
     "/events": {
-      title: "Event Logs",
-      description: "View running and completed task events",
+      title: "事件日志",
+      description: "查看运行中及已完成任务的事件",
     },
     "/utilities": {
-      title: "Utilities Functions",
-      description: "Browse and execute utility functions",
+      title: "实用函数",
+      description: "浏览并执行实用函数",
     },
     "/llm": {
-      title: "LLM Playground",
-      description: "LLM chat completions, embeddings, and tool calling",
+      title: "大模型调试台",
+      description: "大模型对话补全、嵌入向量与工具调用",
     },
     "/agent-pentest": {
-      title: "Agent Pentest",
-      description: "DeepSeek Harness sessions scoped by Osmedeus workspaces and assets",
+      title: "智能渗透",
+      description: "基于工作区与授权资产的智能体会话",
     },
     "/workflows": {
-      title: "Workflows",
-      description: "Browse and edit your workflows",
+      title: "工作流",
+      description: "浏览并编辑工作流",
     },
     "/scans": {
-      title: "Scans",
-      description: "View and manage your scans",
+      title: "扫描任务",
+      description: "查看和管理扫描任务",
     },
     "/scans/new": {
-      title: "New Scan",
-      description: "Configure and start a new scan",
+      title: "新建扫描",
+      description: "配置并启动新的扫描任务",
     },
     "/settings": {
-      title: "Settings",
-      description: "Manage profile and API configuration",
+      title: "设置",
+      description: "管理 AI、Skills、系统连接与高级配置",
     },
     "/vulnerabilities": {
-      title: "Vulnerabilities",
-      description: "View and manage discovered vulnerabilities",
+      title: "漏洞",
+      description: "查看和管理已发现漏洞",
     },
   };
   if (path.startsWith("/inventory/workspaces/")) {
     return {
-      title: "Workspace",
-      description: "Browse and manage assets in the selected workspace",
+      title: "工作区",
+      description: "浏览和管理所选工作区中的资产",
     };
   }
-  return map[path] ?? { title: "Osmedeus Dashboard" };
+  return map[path] ?? { title: "安全测试平台" };
 }

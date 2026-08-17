@@ -13,7 +13,7 @@ export interface UploadedFileInfo {
 export async function uploadTargetsFile(file: File): Promise<UploadedFileInfo> {
   if (isDemoMode()) {
     return {
-      message: "Demo mode: file upload is a stub",
+      message: "演示模式：文件上传为模拟操作",
       filename: file.name,
       path: `/tmp/demo/${file.name}`,
       size: file.size,
@@ -38,7 +38,7 @@ export interface WorkflowUploadInfo {
 export async function uploadWorkflowFile(file: File): Promise<WorkflowUploadInfo> {
   if (isDemoMode()) {
     return {
-      message: "Demo mode: workflow upload is a stub",
+      message: "演示模式：工作流上传为模拟操作",
       name: file.name.replace(/\.(ya?ml)$/i, ""),
       kind: "flow",
       path: `/tmp/demo/${file.name}`,

@@ -136,9 +136,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (resolvedToken) {
           setUser({
             id: "user",
-            username: "osmedeus",
-            email: "osmedeus@osmedeus.org",
-            name: "Osmedeus",
+            username: "安全管理员",
+            email: "admin@localhost",
+            name: "安全管理员",
           });
           return;
         }
@@ -178,7 +178,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userData: User = {
         id: `user-${Date.now()}`,
         username,
-        email: `${username}@osmedeus.io`,
+        email: `${username}@localhost`,
         name: username.charAt(0).toUpperCase() + username.slice(1),
       };
       localStorage.setItem("osmedeus_session", JSON.stringify(userData));
@@ -203,9 +203,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!isLoading && DISABLE_AUTH && !user) {
       setUser({
         id: "guest",
-        username: "guest",
-        email: "guest@osmedeus.io",
-        name: "Guest",
+        username: "访客",
+        email: "guest@localhost",
+        name: "访客",
       });
     }
   }, [isLoading, DISABLE_AUTH, user]);

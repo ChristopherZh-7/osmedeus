@@ -24,8 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOutIcon, UserIcon, CircleUserRound, BookOpenIcon } from "lucide-react";
-import { GithubIcon } from "@/components/icons/github-icon";
+import { LogOutIcon, UserIcon, CircleUserRound } from "lucide-react";
 import { getBreadcrumbs } from "./breadcrumbs-util";
 import { getRouteMeta } from "./route-meta";
 import { getServerInfo } from "@/lib/api/system";
@@ -35,12 +34,17 @@ export function Topbar() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
   const [serverUp, setServerUp] = React.useState<boolean | null>(null);
-  const [serverVersion, setServerVersion] = React.useState<string | null>(null);
-  const [serverLicense, setServerLicense] = React.useState<string>("open-source");
   const [demoMode, setDemoMode] = React.useState<boolean>(false);
 
   const crumbs = React.useMemo(() => getBreadcrumbs(pathname || "/"), [pathname]);
   const meta = React.useMemo(() => getRouteMeta(pathname || "/"), [pathname]);
+  const isLegacyBrandUser = Boolean(
+    user && /osmedeus/i.test(`${user.name ?? ""} ${user.username ?? ""} ${user.email ?? ""}`)
+  );
+  const displayUserName = isLegacyBrandUser
+    ? "安全管理员"
+    : user?.name ?? user?.username;
+  const displayUserDetail = isLegacyBrandUser ? "本地账户" : user?.email;
 
   React.useEffect(() => {
     let mounted = true;
@@ -48,24 +52,18 @@ export function Topbar() {
     setDemoMode(demo);
     if (demo) {
       setServerUp(false);
-      setServerVersion("demo");
-      setServerLicense("open-source");
       return () => {
         mounted = false;
       };
     }
     const check = async () => {
       try {
-        const info = await getServerInfo();
+        await getServerInfo();
         if (!mounted) return;
         setServerUp(true);
-        setServerVersion(info.version);
-        setServerLicense(info.license ?? "open-source");
       } catch {
         if (!mounted) return;
         setServerUp(false);
-        setServerVersion(null);
-        setServerLicense("open-source");
       }
     };
     check();
@@ -133,7 +131,7 @@ export function Topbar() {
         <Tooltip>
           <TooltipTrigger asChild>
             <div
-              aria-label="Server status"
+              aria-label="服务状态"
               className="inline-flex items-center gap-2 rounded-control border border-border bg-muted px-2.5 py-1"
             >
               <span
@@ -149,70 +147,30 @@ export function Topbar() {
               />
               <span className="text-xs">
                 {serverUp === null
-                  ? "Checking..."
+                  ? "检查中……"
                   : serverUp
-                    ? "Healthy"
+                    ? "正常"
                     : demoMode
-                      ? "Demo Mode"
-                      : "Offline"}
+                      ? "演示模式"
+                      : "离线"}
               </span>
             </div>
           </TooltipTrigger>
           <TooltipContent>
             {serverUp === null
-              ? "Checking server..."
+              ? "正在检查服务……"
               : serverUp
-                ? "Server is healthy"
+                ? "服务运行正常"
                 : demoMode
-                  ? "Running in demo mode with mock data"
-                  : "Server is offline"}
+                  ? "当前使用模拟数据运行"
+                  : "服务已离线"}
           </TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div
-              aria-label="Server license"
-              className="inline-flex items-center gap-2 px-2 py-1 rounded-md border bg-muted"
-            >
-              <span className="inline-block size-2 rounded-full bg-purple" />
-              <span className="text-xs">{serverLicense}</span>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>License: {serverLicense}</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" className="size-8" aria-label="Open documentation" asChild>
-              <a
-                href="https://docs.osmedeus.org/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <BookOpenIcon className="size-4" />
-              </a>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Documentation</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" className="size-8" aria-label="Open GitHub repository" asChild>
-              <a
-                href="https://github.com/j3ssie/osmedeus"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <GithubIcon className="size-4" />
-              </a>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>GitHub</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
             <ThemeToggle variant="outline" className="size-8" />
           </TooltipTrigger>
-          <TooltipContent>Theme</TooltipContent>
+          <TooltipContent>主题</TooltipContent>
         </Tooltip>
 
         {user && (
@@ -223,7 +181,7 @@ export function Topbar() {
                   <Button
                     variant="ghost"
                     className="relative size-8 p-0"
-                    aria-label="User menu"
+                    aria-label="用户菜单"
                   >
                     <Avatar className="size-8 rounded-control">
                       <AvatarFallback className="bg-muted text-muted-foreground rounded-control">
@@ -233,20 +191,22 @@ export function Topbar() {
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
-              <TooltipContent side="bottom">Profile</TooltipContent>
+              <TooltipContent side="bottom">个人资料</TooltipContent>
             </Tooltip>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
                 <div className="flex flex-col gap-1">
-                  <p className="text-sm font-medium">{user.name ?? user.username}</p>
-                  <p className="text-xs text-muted-foreground">{user.email}</p>
+                  <p className="text-sm font-medium">{displayUserName}</p>
+                  {displayUserDetail && (
+                    <p className="text-xs text-muted-foreground">{displayUserDetail}</p>
+                  )}
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/settings" className="cursor-pointer">
                   <UserIcon className="mr-2 size-4" />
-                  Profile Settings
+                  个人设置
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -255,7 +215,7 @@ export function Topbar() {
                 className="text-destructive focus:text-destructive cursor-pointer"
               >
                 <LogOutIcon className="mr-2 size-4" />
-                Sign out
+                退出登录
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

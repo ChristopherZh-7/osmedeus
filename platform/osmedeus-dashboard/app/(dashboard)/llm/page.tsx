@@ -107,7 +107,7 @@ function ChatMessageRow({
       </Select>
       <textarea
         className="flex-1 min-h-14 rounded-md border bg-background p-1.5 text-xs leading-snug resize-y"
-        placeholder={message.role === "system" ? "System prompt..." : "Message content..."}
+        placeholder={message.role === "system" ? "系统提示词……" : "消息内容……"}
         value={message.content}
         onChange={(e) => onContentChange(index, e.target.value)}
       />
@@ -137,22 +137,22 @@ function ChatResponsePanel({
     <div className="space-y-3 pt-4 border-t">
       <div className="flex items-center gap-2">
         <InfoIcon className="size-4 text-muted-foreground" />
-        <Label>Response</Label>
+        <Label>响应</Label>
       </div>
 
       {compactMode ? (
         <div className="rounded-md border bg-muted/20 px-3 py-2 text-sm overflow-x-auto whitespace-nowrap">
           <span className="text-muted-foreground">ID:</span> {response.id}
           <span className="text-muted-foreground"> · </span>
-          <span className="text-muted-foreground">Model:</span> {response.model}
+          <span className="text-muted-foreground">模型：</span> {response.model}
           <span className="text-muted-foreground"> · </span>
-          <span className="text-muted-foreground">Finish Reason:</span> {response.finish_reason}
+          <span className="text-muted-foreground">结束原因：</span> {response.finish_reason}
           <span className="text-muted-foreground"> · </span>
-          <span className="text-muted-foreground">Prompt Tokens:</span> {response.usage.prompt_tokens}
+          <span className="text-muted-foreground">提示词 Token：</span> {response.usage.prompt_tokens}
           <span className="text-muted-foreground"> · </span>
-          <span className="text-muted-foreground">Completion Tokens:</span> {response.usage.completion_tokens}
+          <span className="text-muted-foreground">生成 Token：</span> {response.usage.completion_tokens}
           <span className="text-muted-foreground"> · </span>
-          <span className="text-muted-foreground">Total Tokens:</span> {response.usage.total_tokens}
+          <span className="text-muted-foreground">Token 总数：</span> {response.usage.total_tokens}
         </div>
       ) : (
         <>
@@ -161,21 +161,21 @@ function ChatResponsePanel({
               <span className="text-muted-foreground">ID:</span> {response.id}
             </div>
             <div>
-              <span className="text-muted-foreground">Model:</span> {response.model}
+              <span className="text-muted-foreground">模型：</span> {response.model}
             </div>
             <div>
-              <span className="text-muted-foreground">Finish Reason:</span> {response.finish_reason}
+              <span className="text-muted-foreground">结束原因：</span> {response.finish_reason}
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <span className="text-muted-foreground">Prompt Tokens:</span> {response.usage.prompt_tokens}
+              <span className="text-muted-foreground">提示词 Token：</span> {response.usage.prompt_tokens}
             </div>
             <div>
-              <span className="text-muted-foreground">Completion Tokens:</span> {response.usage.completion_tokens}
+              <span className="text-muted-foreground">生成 Token：</span> {response.usage.completion_tokens}
             </div>
             <div>
-              <span className="text-muted-foreground">Total Tokens:</span> {response.usage.total_tokens}
+              <span className="text-muted-foreground">Token 总数：</span> {response.usage.total_tokens}
             </div>
           </div>
         </>
@@ -184,7 +184,7 @@ function ChatResponsePanel({
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <AlignJustifyIcon className="size-4 text-muted-foreground" />
-            <Label>Content</Label>
+            <Label>内容</Label>
           </div>
           <div className="max-h-96 overflow-y-auto overflow-x-hidden rounded-md border bg-muted/30 p-3 text-sm">
             <div className="sticky top-0 z-10 flex justify-end">
@@ -195,14 +195,14 @@ function ChatResponsePanel({
                 onClick={async () => {
                   try {
                     await navigator.clipboard.writeText(response.content ?? "");
-                    toast.success("Copied to clipboard");
+                    toast.success("已复制到剪贴板");
                   } catch {
-                    toast.error("Failed to copy");
+                    toast.error("复制失败");
                   }
                 }}
               >
                 <ClipboardIcon className="size-4" />
-                <span className="sr-only">Copy response content</span>
+                <span className="sr-only">复制响应内容</span>
               </Button>
             </div>
             <CodeHighlighter
@@ -231,7 +231,7 @@ function ChatResponsePanel({
       )}
       {response.tool_calls && response.tool_calls.length > 0 && (
         <div className="space-y-2">
-          <Label>Tool Calls</Label>
+          <Label>工具调用</Label>
           <pre className="rounded-md border bg-muted p-3 text-sm overflow-auto font-mono max-h-96">
             {JSON.stringify(response.tool_calls, null, 2)}
           </pre>
@@ -248,7 +248,7 @@ function ChatCompletionCard() {
   const [advancedOpen, setAdvancedOpen] = React.useState(false);
 
   const [messages, setMessages] = React.useState<LLMMessage[]>([
-    { role: "system", content: "You are a helpful security analyst assistant." },
+    { role: "system", content: "你是一名专业且乐于协助的安全分析助手。" },
     { role: "user", content: "" },
   ]);
   const [model, setModel] = React.useState<string>("gpt-oss:120b-cloud");
@@ -288,24 +288,24 @@ function ChatCompletionCard() {
   const doSendChat = React.useCallback(async () => {
     const filteredMessages = messages.filter((m) => m.content.trim() !== "");
     if (filteredMessages.length === 0) {
-      toast.error("Please add at least one message with content");
+      toast.error("请至少添加一条有内容的消息");
       return;
     }
 
     if (advancedOpen && !parsedTools.valid) {
-      toast.error("Tools JSON is invalid");
+      toast.error("工具 JSON 格式无效");
       return;
     }
 
     const parsedMaxTokens = advancedOpen ? parseOptionalInt(maxTokens) : undefined;
     if (advancedOpen && maxTokens.trim() && parsedMaxTokens === undefined) {
-      toast.error("Max Tokens must be a valid number");
+      toast.error("最大 Token 数必须是有效数字");
       return;
     }
 
     const parsedTemperature = advancedOpen ? parseOptionalFloat(temperature) : undefined;
     if (advancedOpen && temperature.trim() && parsedTemperature === undefined) {
-      toast.error("Temperature must be a valid number");
+      toast.error("温度参数必须是有效数字");
       return;
     }
 
@@ -327,9 +327,9 @@ function ChatCompletionCard() {
           advancedOpen && responseFormat === "json_object" ? { type: "json_object" } : undefined,
       });
       setChatResponse(resp);
-      toast.success("Chat completion successful", { id: toastId });
+      toast.success("对话补全成功", { id: toastId });
     } catch (e) {
-      toast.error("Chat completion failed", { id: toastId, description: e instanceof Error ? e.message : "" });
+      toast.error("对话补全失败", { id: toastId, description: e instanceof Error ? e.message : "" });
     } finally {
       setSendingChat(false);
     }
@@ -342,15 +342,15 @@ function ChatCompletionCard() {
           <div>
             <CardTitle className="flex items-center gap-2">
               <MessageCircleIcon className="size-5 text-muted-foreground" />
-              <span>Chat Completion</span>
+              <span>对话补全</span>
             </CardTitle>
-            <CardDescription>Send a chat completion request to the configured LLM provider.</CardDescription>
+            <CardDescription>向已配置的大模型服务发送对话补全请求。</CardDescription>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
             <div className="flex w-full min-w-0 items-center justify-between gap-3 rounded-md border bg-muted/20 px-3 py-2">
               <Label htmlFor="model" className="text-xs text-muted-foreground whitespace-nowrap">
-                Model ID
+                模型 ID
               </Label>
               <Input
                 id="model"
@@ -364,9 +364,9 @@ function ChatCompletionCard() {
             <div className="flex w-full min-w-0 items-center justify-between gap-3 rounded-md border bg-muted/20 px-3 py-2">
               <div>
                 <Label htmlFor="chat-advanced" className="text-xs text-muted-foreground">
-                  Advanced
+                  高级
                 </Label>
-                <div className="text-[11px] text-muted-foreground">Enable sampling, tools, and JSON response</div>
+                <div className="text-[11px] text-muted-foreground">启用采样、工具调用和 JSON 响应</div>
               </div>
               <Switch id="chat-advanced" checked={advancedOpen} onCheckedChange={(v) => setAdvancedOpen(Boolean(v))} />
             </div>
@@ -374,9 +374,9 @@ function ChatCompletionCard() {
             <div className="flex w-full min-w-0 items-center justify-between gap-3 rounded-md border bg-muted/20 px-3 py-2">
               <div>
                 <Label htmlFor="chat-compact" className="text-xs text-muted-foreground">
-                  Compact
+                  精简
                 </Label>
-                <div className="text-[11px] text-muted-foreground">One-line response metadata</div>
+                <div className="text-[11px] text-muted-foreground">单行显示响应元数据</div>
               </div>
               <Switch id="chat-compact" checked={compactMode} onCheckedChange={(v) => setCompactMode(Boolean(v))} />
             </div>
@@ -387,7 +387,7 @@ function ChatCompletionCard() {
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <MessageCircleIcon className="size-4 text-muted-foreground" />
-            <Label>Messages</Label>
+            <Label>消息</Label>
           </div>
           {messages.map((msg, idx) => (
             <ChatMessageRow
@@ -406,7 +406,7 @@ function ChatCompletionCard() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="max-tokens">Max Tokens</Label>
+                <Label htmlFor="max-tokens">最大 Token 数</Label>
                 <Input
                   id="max-tokens"
                   type="number"
@@ -416,7 +416,7 @@ function ChatCompletionCard() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="temperature">Temperature (0-2)</Label>
+                <Label htmlFor="temperature">温度（0-2）</Label>
                 <Input
                   id="temperature"
                   type="number"
@@ -429,7 +429,7 @@ function ChatCompletionCard() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="response-format">Response Format</Label>
+                <Label htmlFor="response-format">响应格式</Label>
                 <Select
                   value={responseFormat}
                   onValueChange={(val) => setResponseFormat(val as "text" | "json_object")}
@@ -438,8 +438,8 @@ function ChatCompletionCard() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="text">Text</SelectItem>
-                    <SelectItem value="json_object">JSON Object</SelectItem>
+                    <SelectItem value="text">文本</SelectItem>
+                    <SelectItem value="json_object">JSON 对象</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -449,12 +449,12 @@ function ChatCompletionCard() {
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <ChevronDownIcon className={`size-4 transition-transform ${toolsOpen ? "rotate-180" : ""}`} />
-                  Tool Calling
+                  工具调用
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent className="pt-4 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="tools-json">Tools (JSON array)</Label>
+                  <Label htmlFor="tools-json">工具（JSON 数组）</Label>
                   <textarea
                     id="tools-json"
                     className="w-full min-h-32 rounded-md border bg-background p-2 text-sm font-mono resize-y"
@@ -463,7 +463,7 @@ function ChatCompletionCard() {
     "type": "function",
     "function": {
       "name": "dns_lookup",
-      "description": "Look up DNS records",
+      "description": "查询 DNS 记录",
       "parameters": {
         "type": "object",
         "properties": {
@@ -477,10 +477,10 @@ function ChatCompletionCard() {
                     value={toolsJson}
                     onChange={(e) => setToolsJson(e.target.value)}
                   />
-                  {!parsedTools.valid && <p className="text-xs text-destructive">Invalid JSON</p>}
+                  {!parsedTools.valid && <p className="text-xs text-destructive">JSON 格式无效</p>}
                 </div>
                 <div className="space-y-2 max-w-xs">
-                  <Label htmlFor="tool-choice">Tool Choice</Label>
+                  <Label htmlFor="tool-choice">工具选择</Label>
                   <Select
                     value={toolChoice}
                     onValueChange={(val) => setToolChoice(val as (typeof TOOL_CHOICES)[number])}
@@ -505,11 +505,11 @@ function ChatCompletionCard() {
         <div className="flex justify-end gap-2">
           <Button size="sm" onClick={doSendChat} disabled={sendingChat}>
             {sendingChat ? <LoaderIcon className="mr-2 size-4 animate-spin" /> : <SendIcon className="mr-2 size-4" />}
-            Send Message
+            发送消息
           </Button>
           <Button variant="outline" size="sm" onClick={addMessage}>
             <PlusIcon className="mr-2 size-4" />
-            Add Message
+            添加消息
           </Button>
         </div>
 
@@ -538,7 +538,7 @@ export default function LLMPlaygroundPage() {
       .map((l) => l.trim())
       .filter((l) => l !== "");
     if (lines.length === 0) {
-      toast.error("Please enter at least one line of text");
+      toast.error("请至少输入一行文本");
       return;
     }
 
@@ -551,9 +551,9 @@ export default function LLMPlaygroundPage() {
         model: embeddingsModel.trim() || undefined,
       });
       setEmbeddingsResponse(resp);
-      toast.success("Embeddings generated");
+      toast.success("嵌入向量已生成");
     } catch (e) {
-      toast.error("Embeddings generation failed", { description: e instanceof Error ? e.message : "" });
+      toast.error("生成嵌入向量失败", { description: e instanceof Error ? e.message : "" });
     } finally {
       setSendingEmbeddings(false);
     }
@@ -567,17 +567,17 @@ export default function LLMPlaygroundPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CirclePileIcon className="size-5 text-muted-foreground" />
-            <span>Generate Embeddings</span>
+            <span>生成嵌入向量</span>
           </CardTitle>
-          <CardDescription>Generate vector embeddings for input text.</CardDescription>
+          <CardDescription>为输入文本生成向量嵌入。</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="embeddings-input">Input (one text per line)</Label>
+            <Label htmlFor="embeddings-input">输入（每行一段文本）</Label>
             <textarea
               id="embeddings-input"
               className="w-full min-h-24 rounded-md border bg-background p-2 text-sm resize-y"
-              placeholder="security analysis&#10;vulnerability assessment&#10;penetration testing"
+              placeholder="安全分析&#10;漏洞评估&#10;渗透测试"
               value={embeddingsInput}
               onChange={(e) => setEmbeddingsInput(e.target.value)}
             />
@@ -586,11 +586,11 @@ export default function LLMPlaygroundPage() {
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-start">
             <div className="flex flex-wrap items-center gap-2 md:w-auto">
               <Label htmlFor="embeddings-model" className="whitespace-nowrap">
-                Model (optional)
+                模型（可选）
               </Label>
               <Input
                 id="embeddings-model"
-                placeholder="e.g. text-embedding-3-small"
+                placeholder="例如 text-embedding-3-small"
                 value={embeddingsModel}
                 onChange={(e) => setEmbeddingsModel(e.target.value)}
                 className="h-9 w-full md:w-80"
@@ -607,29 +607,29 @@ export default function LLMPlaygroundPage() {
               ) : (
                 <SparklesIcon className="mr-2 size-4" />
               )}
-              Generate Embeddings
+              生成嵌入向量
             </Button>
           </div>
 
           {embeddingsResponse && (
             <div className="space-y-3 pt-4 border-t">
-              <Label>Response</Label>
+              <Label>响应</Label>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div>
-                  <span className="text-muted-foreground">Model:</span> {embeddingsResponse.model}
+                  <span className="text-muted-foreground">模型：</span> {embeddingsResponse.model}
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Vectors:</span> {embeddingsResponse.embeddings.length}
+                  <span className="text-muted-foreground">向量：</span> {embeddingsResponse.embeddings.length}
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Total Tokens:</span> {embeddingsResponse.usage.total_tokens}
+                  <span className="text-muted-foreground">Token 总数：</span> {embeddingsResponse.usage.total_tokens}
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Embeddings (truncated)</Label>
+                <Label>嵌入向量（已截断）</Label>
                 <pre className="rounded-md border bg-muted p-3 text-sm overflow-auto font-mono max-h-64">
                   {embeddingsResponse.embeddings.map((emb, idx) => (
-                    `[${idx}]: [${emb.slice(0, 5).map(n => n.toFixed(4)).join(", ")}${emb.length > 5 ? `, ... (${emb.length} dims)` : ""}]\n`
+                    `[${idx}]: [${emb.slice(0, 5).map(n => n.toFixed(4)).join(", ")}${emb.length > 5 ? `，……（${emb.length} 维）` : ""}]\n`
                   )).join("")}
                 </pre>
               </div>

@@ -78,10 +78,10 @@ export function AssignWorkspacesDialog({ org, allWorkspaces, onClose, onAssigned
         `${counts.vulnerabilities ?? 0} findings`,
         `${counts.runs ?? 0} runs`,
       ];
-      toast.success(`Assigned to ${org.name}`, { description: parts.join(" · ") });
+      toast.success(`已分配到 ${org.name}`, { description: parts.join(" · ") });
       onAssigned();
     } catch (err) {
-      const msg = err instanceof Error ? err.message.replace(/^\d+:/, "") : "Assignment failed";
+      const msg = err instanceof Error ? err.message.replace(/^\d+:/, "") : "分配失败";
       toast.error(msg);
     } finally {
       setBusy(false);
@@ -92,10 +92,9 @@ export function AssignWorkspacesDialog({ org, allWorkspaces, onClose, onAssigned
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Assign workspaces to {org.name}</DialogTitle>
+          <DialogTitle>分配工作区到 {org.name}</DialogTitle>
           <DialogDescription>
-            Their assets, vulnerabilities and runs move into the org too, so existing scan data is
-            grouped without re-scanning.
+            相关资产、漏洞和运行记录也会移入该组织，因此现有扫描数据无需重新扫描即可完成归组。
           </DialogDescription>
         </DialogHeader>
 
@@ -104,7 +103,7 @@ export function AssignWorkspacesDialog({ org, allWorkspaces, onClose, onAssigned
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Filter workspaces..."
+            placeholder="筛选工作区……"
             className="pl-8"
             autoFocus
           />
@@ -113,7 +112,7 @@ export function AssignWorkspacesDialog({ org, allWorkspaces, onClose, onAssigned
         <ScrollArea className="h-72 rounded-control border border-border">
           {visible.length === 0 ? (
             <p className="p-4 text-center text-sm text-muted-foreground">
-              {allWorkspaces.length === 0 ? "No workspaces found." : "No workspaces match."}
+              {allWorkspaces.length === 0 ? "未找到工作区。" : "没有匹配的工作区。"}
             </p>
           ) : (
             <ul className="divide-y divide-border">
@@ -130,7 +129,7 @@ export function AssignWorkspacesDialog({ org, allWorkspaces, onClose, onAssigned
                       <span className="flex-1 truncate text-sm">{name}</span>
                       {inOrg && (
                         <Badge variant="secondary" className="text-[10px]">
-                          in org
+                          已在组织中
                         </Badge>
                       )}
                     </label>
@@ -143,14 +142,14 @@ export function AssignWorkspacesDialog({ org, allWorkspaces, onClose, onAssigned
 
         <DialogFooter className="items-center sm:justify-between">
           <span className="text-xs text-muted-foreground">
-            {selected.size === 0 ? "Nothing selected" : `${selected.size} selected`}
+            {selected.size === 0 ? "未选择工作区" : `已选择 ${selected.size} 个`}
           </span>
           <div className="flex gap-2">
             <Button variant="outline" onClick={onClose} disabled={busy}>
-              Cancel
+              取消
             </Button>
             <Button onClick={() => void handleAssign()} disabled={busy || selected.size === 0}>
-              Assign
+              分配
             </Button>
           </div>
         </DialogFooter>

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -1014,6 +1015,45 @@ func CancelRun(cfg *config.Config) fiber.Handler {
 		}
 
 		return c.JSON(response)
+	}
+}
+
+// DeleteRun removes a terminal run and its owned database records.
+// @Summary Delete a run record
+// @Description Permanently delete a completed, failed, or cancelled run and its step, artifact, agent-session, and event records. Workspace files, assets, and vulnerabilities are retained.
+// @Tags Runs
+// @Produce json
+// @Param id path string true "Run UUID or numeric ID"
+// @Success 200 {object} map[string]interface{} "Run deleted"
+// @Failure 404 {object} map[string]interface{} "Run not found"
+// @Failure 409 {object} map[string]interface{} "Active run must be cancelled first"
+// @Security BearerAuth
+// @Router /osm/api/runs/{id}/record [delete]
+func DeleteRun(cfg *config.Config) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		run, err := database.DeleteRunRecord(c.UserContext(), c.Params("id"))
+		if err != nil {
+			switch {
+			case errors.Is(err, database.ErrRunNotFound):
+				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+					"error": true, "message": "Run not found",
+				})
+			case errors.Is(err, database.ErrRunActive):
+				return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+					"error": true, "message": "Cancel the run before deleting it",
+				})
+			default:
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+					"error": true, "message": "Failed to delete run",
+				})
+			}
+		}
+
+		return c.JSON(fiber.Map{
+			"message":  "Run deleted successfully",
+			"id":       run.ID,
+			"run_uuid": run.RunUUID,
+		})
 	}
 }
 

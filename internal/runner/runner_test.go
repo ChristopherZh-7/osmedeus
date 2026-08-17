@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -253,9 +254,32 @@ func TestNewRunner_Host(t *testing.T) {
 		Runner: core.RunnerTypeHost,
 	}
 
-	runner, err := NewRunner(workflow, "")
+	runner, err := NewRunner(workflow, "", "/tmp/test-tools")
 	require.NoError(t, err)
 	assert.Equal(t, core.RunnerTypeHost, runner.Type())
+	hostRunner, ok := runner.(*HostRunner)
+	require.True(t, ok)
+	assert.Equal(t, "/tmp/test-tools", hostRunner.binariesPath)
+}
+
+func TestNewRunner_HostFindsToolsInsidePipeline(t *testing.T) {
+	toolsDir := t.TempDir()
+	toolPath := toolsDir + "/pipeline-tool"
+	require.NoError(t, os.WriteFile(toolPath, []byte("#!/bin/sh\ncat\n"), 0755))
+
+	workflow := &core.Workflow{
+		Name:   "test",
+		Kind:   core.KindModule,
+		Runner: core.RunnerTypeHost,
+	}
+
+	r, err := NewRunner(workflow, "/path/to/osmedeus", toolsDir)
+	require.NoError(t, err)
+	result, err := r.Execute(context.Background(), "printf pipeline-ok | pipeline-tool")
+
+	require.NoError(t, err)
+	assert.Equal(t, 0, result.ExitCode)
+	assert.Contains(t, result.Output, "pipeline-ok")
 }
 
 func TestNewRunner_DefaultsToHost(t *testing.T) {
@@ -264,7 +288,7 @@ func TestNewRunner_DefaultsToHost(t *testing.T) {
 		Kind: core.KindModule,
 	}
 
-	runner, err := NewRunner(workflow, "")
+	runner, err := NewRunner(workflow, "", "")
 	require.NoError(t, err)
 	assert.Equal(t, core.RunnerTypeHost, runner.Type())
 }

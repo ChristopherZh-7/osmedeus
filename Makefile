@@ -1,4 +1,4 @@
-.PHONY: build run test test-unit test-integration test-workflow-integration test-e2e test-e2e-verbose test-e2e-ssh test-e2e-api test-e2e-nix test-e2e-install test-e2e-cloud test-sudo test-cloud test-docker test-ssh test-distributed distributed-e2e-up distributed-e2e-run distributed-e2e-down test-canary-all test-canary-repo test-canary-domain test-canary-ip test-canary-general canary-up canary-down test-all test-summary test-ci clean install install-gotestsum lint fmt db-seed db-clean db-migrate run-server-debug swagger update-ui sync-skills sync-platform snapshot-release github-release bump-version npm-binaries npm-build npm-pack npm-publish run-github-action docker-toolbox docker-toolbox-run docker-toolbox-shell docker-publish docker-buildx-setup dsh-install dsh-start dsh-check dsh-version dsh-upgrade
+.PHONY: build run test test-unit test-integration test-workflow-integration test-e2e test-e2e-verbose test-e2e-ssh test-e2e-api test-e2e-nix test-e2e-install test-e2e-cloud test-sudo test-cloud test-docker test-ssh test-distributed distributed-e2e-up distributed-e2e-run distributed-e2e-down test-canary-all test-canary-repo test-canary-domain test-canary-ip test-canary-general canary-up canary-down test-all test-summary test-ci clean install install-gotestsum lint fmt db-seed db-clean db-migrate run-server-debug swagger update-ui sync-skills sync-platform snapshot-release github-release bump-version npm-binaries npm-build npm-pack npm-publish run-github-action docker-toolbox docker-toolbox-run docker-toolbox-shell docker-publish docker-buildx-setup dsh-install dsh-start dsh-check dsh-version dsh-upgrade dsh-link-cyberstrike
 
 # Go parameters
 GOCMD=go
@@ -368,6 +368,7 @@ update-ui:
 DSH_DIR=platform/osmedeus-agent-harness
 DSH_PROXY ?=
 DSH_NPM_ENV=$(if $(strip $(DSH_PROXY)),HTTP_PROXY=$(DSH_PROXY) HTTPS_PROXY=$(DSH_PROXY),)
+CYBERSTRIKE_SKILLS_DIR ?=
 
 dsh-install:
 	@echo "$(PREFIX) Installing version-locked DeepSeek Harness sidecar..."
@@ -386,6 +387,12 @@ dsh-check:
 
 dsh-version:
 	@cd $(DSH_DIR) && npm run verify:install
+
+dsh-link-cyberstrike:
+	@if [ -z "$(CYBERSTRIKE_SKILLS_DIR)" ]; then \
+		echo "Usage: make dsh-link-cyberstrike CYBERSTRIKE_SKILLS_DIR=/path/to/CyberStrike-main"; exit 2; \
+	fi
+	@cd $(DSH_DIR) && node scripts/link-cyberstrike-skills.mjs "$(abspath $(CYBERSTRIKE_SKILLS_DIR))"
 
 dsh-upgrade:
 	@if [ -z "$(DSH_VERSION)" ]; then \

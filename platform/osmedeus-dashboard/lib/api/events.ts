@@ -23,7 +23,7 @@ export async function fetchEvents(): Promise<EventLog[]> {
     status: t.status === "failed" ? "failed" : "completed",
     completedAt: t.completed_at ? new Date(t.completed_at) : undefined,
     output: t.output,
-    error: t.status === "failed" ? "Task failed" : undefined,
+    error: t.status === "failed" ? "任务失败" : undefined,
   }));
   return [...runningMapped, ...completedMapped].sort(
     (a, b) => (b.startedAt?.getTime() || b.completedAt?.getTime() || 0) - (a.startedAt?.getTime() || a.completedAt?.getTime() || 0)
@@ -45,10 +45,9 @@ export async function fetchEvent(id: string): Promise<EventLog | null> {
       startedAt: t.started_at ? new Date(t.started_at) : undefined,
       completedAt: t.completed_at ? new Date(t.completed_at) : undefined,
       output: t.output,
-      error: t.status === "failed" ? "Task failed" : undefined,
+      error: t.status === "failed" ? "任务失败" : undefined,
     };
   } catch {
     return null;
   }
 }
-

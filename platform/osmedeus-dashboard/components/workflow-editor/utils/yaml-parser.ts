@@ -78,7 +78,7 @@ function normalizeDecisionEdges(decision: unknown): DecisionEdge[] {
 
     const defGoto = typeof d.default?.goto === "string" ? d.default.goto : (typeof d.default?.next === "string" ? d.default.next : "");
     if (typeof defGoto === "string" && defGoto.trim().length > 0) {
-      edges.push({ label: "default", next: defGoto, kind: "default" });
+      edges.push({ label: "默认", next: defGoto, kind: "default" });
     }
 
     return edges;
@@ -179,7 +179,7 @@ export function parseWorkflowYaml(yamlText: string): ParsedWorkflow {
       id: "_trigger",
       type: "trigger",
       position: { x: 0, y: 0 },
-      data: { label: "Triggers", step: null, module: null, triggers },
+      data: { label: "触发器", step: null, module: null, triggers },
     });
   }
 
@@ -188,7 +188,7 @@ export function parseWorkflowYaml(yamlText: string): ParsedWorkflow {
     id: "_start",
     type: "start",
     position: { x: 0, y: 0 },
-    data: { label: "Start", step: null, module: null },
+    data: { label: "开始", step: null, module: null },
   });
 
   if (overrideNodeParams) {
@@ -197,7 +197,7 @@ export function parseWorkflowYaml(yamlText: string): ParsedWorkflow {
       type: "override",
       position: { x: 0, y: 0 },
       data: {
-        label: "Override",
+        label: "覆盖",
         step: null,
         module: {
           name: "override",
@@ -323,7 +323,7 @@ export function parseWorkflowYaml(yamlText: string): ParsedWorkflow {
         id: missingId,
         position: { x: 0, y: 0 },
         data: {
-          label: `Missing: ${missingId}`,
+          label: `缺失：${missingId}`,
           step: null,
           module: null,
         },
@@ -418,7 +418,7 @@ export function parseWorkflowYaml(yamlText: string): ParsedWorkflow {
         id: missingId,
         position: { x: 0, y: 0 },
         data: {
-          label: `Missing: ${missingId}`,
+          label: `缺失：${missingId}`,
           step: null,
           module: null,
         },
@@ -452,7 +452,7 @@ export function parseWorkflowYaml(yamlText: string): ParsedWorkflow {
     id: "_end",
     type: "end",
     position: { x: 0, y: 0 },
-    data: { label: "End", step: null, module: null },
+    data: { label: "结束", step: null, module: null },
   });
 
   return {

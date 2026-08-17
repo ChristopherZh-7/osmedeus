@@ -60,7 +60,7 @@ export function CodeBlock({
         type="button"
         variant="ghost"
         size="icon-xs"
-        aria-label={copied ? "Copied" : "Copy to clipboard"}
+        aria-label={copied ? "已复制" : "复制到剪贴板"}
         onClick={copy}
         className="absolute right-1.5 top-1.5 z-10 bg-raised/80 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
       >

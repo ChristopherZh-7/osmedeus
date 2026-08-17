@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboardIcon,
@@ -28,61 +27,60 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import logo from "@/osmedeus-logo.png";
 
 const navigation = [
   {
-    name: "Dashboard",
+    name: "控制台",
     href: "/",
     icon: LayoutDashboardIcon,
   },
   {
-    name: "Scans",
+    name: "扫描任务",
     href: "/scans",
     icon: ScanSearchIcon,
   },
   {
-    name: "Workflows",
+    name: "工作流",
     href: "/workflows",
     icon: WorkflowIcon,
   },
   {
-    name: "Inventory",
+    name: "资产中心",
     href: "/inventory",
     icon: FolderOpenIcon,
   },
   {
-    name: "Artifacts",
+    name: "产物",
     href: "/inventory/artifacts",
     icon: ArchiveIcon,
   },
   {
-    name: "Schedules",
+    name: "计划任务",
     href: "/schedules",
     icon: ClipboardCheckIcon,
   },
   {
-    name: "Events",
+    name: "事件日志",
     href: "/events",
     icon: ScrollTextIcon,
   },
   {
-    name: "Utilities Functions",
+    name: "实用函数",
     href: "/utilities",
     icon: SquareFunctionIcon,
   },
   {
-    name: "LLM Playground",
+    name: "大模型调试台",
     href: "/llm",
     icon: BrainIcon,
   },
   {
-    name: "Agent Pentest",
+    name: "智能渗透",
     href: "/agent-pentest",
     icon: ShieldCheckIcon,
   },
   {
-    name: "Settings",
+    name: "设置",
     href: "/settings",
     icon: SettingsIcon,
   },
@@ -111,9 +109,9 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
             <div className="flex size-8 items-center justify-center rounded-control bg-primary">
               <ShieldIcon className="size-5 text-primary-foreground" />
             </div>
-            <Link href="/" onClick={() => onOpenChange(false)} aria-label="Go home">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <Image src={logo} alt="Osmedeus" className="hidden md:block h-8 w-auto rotate-0 scale-x-100" priority />
+            <Link href="/" onClick={() => onOpenChange(false)} aria-label="返回首页">
+              <Button variant="ghost" size="sm" className="gap-2 font-semibold">
+                安全测试平台
               </Button>
             </Link>
           </SheetTitle>
@@ -150,11 +148,6 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
 
           <Separator className="mx-4" />
 
-          <div className="p-4">
-            <p className="px-3 text-xs font-medium text-muted-foreground">
-              Version 1.0.0
-            </p>
-          </div>
         </ScrollArea>
       </SheetContent>
     </Sheet>

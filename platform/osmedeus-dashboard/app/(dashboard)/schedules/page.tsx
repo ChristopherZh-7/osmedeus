@@ -92,7 +92,7 @@ export default function SchedulesPage() {
       const res = await fetchSchedules({ offset: 0, limit: 5000 });
       setSchedules(res.data);
     } catch (e) {
-      toast.error("Failed to load schedules", { description: e instanceof Error ? e.message : "" });
+      toast.error("加载计划任务失败", { description: e instanceof Error ? e.message : "" });
     } finally {
       setLoading(false);
     }
@@ -214,17 +214,17 @@ export default function SchedulesPage() {
   const columnOptions = React.useMemo(
     () =>
       [
-        ["name", "Name"],
-        ["workflow", "Workflow"],
-        ["trigger", "Trigger"],
-        ["schedule_or_topic", "Schedule / Topic"],
-        ["input_config", "Input Config"],
-        ["enabled", "Enabled"],
-        ["last_run", "Last Run"],
-        ["next_run", "Next Run"],
-        ["run_count", "Run Count"],
-        ["updated", "Updated"],
-        ["actions", "Actions"],
+        ["name", "名称"],
+        ["workflow", "工作流"],
+        ["trigger", "触发器"],
+        ["schedule_or_topic", "计划 / 主题"],
+        ["input_config", "输入配置"],
+        ["enabled", "已启用"],
+        ["last_run", "上次运行"],
+        ["next_run", "下次运行"],
+        ["run_count", "运行次数"],
+        ["updated", "更新时间"],
+        ["actions", "操作"],
       ] as const,
     []
   );
@@ -247,7 +247,7 @@ export default function SchedulesPage() {
 
   const submit = async () => {
     if (!name || !cron || (!editingId && (!workflowName || !target))) {
-      toast.error("Please fill all fields");
+      toast.error("请填写所有字段");
       return;
     }
     setCreating(true);
@@ -255,8 +255,8 @@ export default function SchedulesPage() {
       if (editingId) {
         setUpdating(true);
         const ok = await updateSchedule(editingId, { name, schedule: cron, enabled });
-        if (!ok) throw new Error("Update failed");
-        toast.success("Schedule updated");
+        if (!ok) throw new Error("更新失败");
+        toast.success("计划任务已更新");
       } else {
         await createSchedule({
           name,
@@ -266,13 +266,13 @@ export default function SchedulesPage() {
           schedule: cron,
           enabled,
         });
-        toast.success("Schedule created");
+        toast.success("计划任务已创建");
       }
       setFormOpen(false);
       resetForm();
       await load();
     } catch (e) {
-      toast.error("Failed to submit", { description: e instanceof Error ? e.message : "" });
+      toast.error("提交失败", { description: e instanceof Error ? e.message : "" });
     } finally {
       setCreating(false);
       setUpdating(false);
@@ -282,32 +282,32 @@ export default function SchedulesPage() {
   const toggleEnable = async (s: Schedule) => {
     try {
       const ok = s.isEnabled ? await disableSchedule(s.id) : await enableSchedule(s.id);
-      if (!ok) throw new Error("Action failed");
-      toast.success(s.isEnabled ? "Disabled" : "Enabled");
+      if (!ok) throw new Error("操作失败");
+      toast.success(s.isEnabled ? "已停用" : "已启用");
       await load();
     } catch (e) {
-      toast.error("Failed to toggle", { description: e instanceof Error ? e.message : "" });
+      toast.error("切换状态失败", { description: e instanceof Error ? e.message : "" });
     }
   };
 
   const trigger = async (s: Schedule) => {
     try {
       const ok = await triggerSchedule(s.id);
-      if (!ok) throw new Error("Trigger failed");
-      toast.success("Triggered");
+      if (!ok) throw new Error("触发失败");
+      toast.success("已触发");
     } catch (e) {
-      toast.error("Failed to trigger", { description: e instanceof Error ? e.message : "" });
+      toast.error("触发失败", { description: e instanceof Error ? e.message : "" });
     }
   };
 
   const remove = async (s: Schedule) => {
     try {
       const ok = await deleteSchedule(s.id);
-      if (!ok) throw new Error("Delete failed");
-      toast.success("Schedule deleted");
+      if (!ok) throw new Error("删除失败");
+      toast.success("计划任务已删除");
       await load();
     } catch (e) {
-      toast.error("Failed to delete", { description: e instanceof Error ? e.message : "" });
+      toast.error("删除失败", { description: e instanceof Error ? e.message : "" });
     }
   };
 
@@ -318,20 +318,20 @@ export default function SchedulesPage() {
       {formOpen && (
         <Card className="max-w-2xl">
           <CardHeader>
-            <CardTitle>{editingId ? "Edit Schedule" : "Create Schedule"}</CardTitle>
-            <CardDescription>Define workflow, target and cron expression</CardDescription>
+            <CardTitle>{editingId ? "编辑计划任务" : "创建计划任务"}</CardTitle>
+            <CardDescription>设置工作流、目标和 Cron 表达式</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">名称</Label>
               <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="workflow">Workflow Name</Label>
+              <Label htmlFor="workflow">工作流名称</Label>
               <Input id="workflow" value={workflowName} onChange={(e) => setWorkflowName(e.target.value)} placeholder="subdomain-enum" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="target">Target</Label>
+              <Label htmlFor="target">目标</Label>
               <Input id="target" value={target} onChange={(e) => setTarget(e.target.value)} placeholder="example.com" />
             </div>
             <div className="space-y-2">
@@ -340,16 +340,16 @@ export default function SchedulesPage() {
             </div>
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="enabled">Enabled</Label>
-                <p className="text-xs text-muted-foreground">Toggle schedule activation</p>
+                <Label htmlFor="enabled">已启用</Label>
+                <p className="text-xs text-muted-foreground">切换计划任务启用状态</p>
               </div>
               <Switch id="enabled" checked={enabled} onCheckedChange={setEnabled} />
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => { setFormOpen(false); resetForm(); }}>Cancel</Button>
+              <Button variant="outline" onClick={() => { setFormOpen(false); resetForm(); }}>取消</Button>
               <Button onClick={submit} disabled={creating || updating}>
                 {creating || updating ? <LoaderIcon className="mr-2 size-4 animate-spin" /> : null}
-                {editingId ? "Update" : "Create"}
+                {editingId ? "更新" : "创建"}
               </Button>
             </div>
           </CardContent>
@@ -360,40 +360,40 @@ export default function SchedulesPage() {
         <CardHeader className="pb-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <CardTitle>Scheduled Jobs</CardTitle>
-              <CardDescription>List of configured schedules</CardDescription>
+              <CardTitle>计划任务</CardTitle>
+              <CardDescription>已配置的计划任务列表</CardDescription>
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2">
               <div className="relative">
                 <Input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search schedules..."
+                  placeholder="搜索计划任务……"
                   className="h-9 w-[240px]"
                 />
               </div>
 
               <Select value={enabledFilter} onValueChange={(v) => setEnabledFilter(v as any)}>
                 <SelectTrigger className="h-9 w-[140px]">
-                  <SelectValue placeholder="Enabled" />
+                  <SelectValue placeholder="已启用" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Enabled: All</SelectItem>
-                  <SelectItem value="enabled">Enabled: Yes</SelectItem>
-                  <SelectItem value="disabled">Enabled: No</SelectItem>
+                  <SelectItem value="all">启用状态：全部</SelectItem>
+                  <SelectItem value="enabled">启用状态：是</SelectItem>
+                  <SelectItem value="disabled">启用状态：否</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={triggerFilter} onValueChange={(v) => setTriggerFilter(v as any)}>
                 <SelectTrigger className="h-9 w-[160px]">
-                  <SelectValue placeholder="Trigger type" />
+                  <SelectValue placeholder="触发类型" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Trigger: All</SelectItem>
-                  <SelectItem value="cron">Trigger: Cron</SelectItem>
-                  <SelectItem value="event">Trigger: Event</SelectItem>
-                  <SelectItem value="watch">Trigger: Watch</SelectItem>
-                  <SelectItem value="manual">Trigger: Manual</SelectItem>
+                  <SelectItem value="all">触发类型：全部</SelectItem>
+                  <SelectItem value="cron">触发类型：Cron</SelectItem>
+                  <SelectItem value="event">触发类型：事件</SelectItem>
+                  <SelectItem value="watch">触发类型：监控</SelectItem>
+                  <SelectItem value="manual">触发类型：手动</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -401,11 +401,11 @@ export default function SchedulesPage() {
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="h-9 shrink-0 rounded-md px-3">
                     <Columns3Icon className="mr-2 size-4 opacity-70" />
-                    Columns
+                    列
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent align="end" className="w-[260px] p-3">
-                  <div className="text-sm font-medium">Show columns</div>
+                  <div className="text-sm font-medium">显示列</div>
                   <div className="mt-3 space-y-2">
                     {columnOptions.map(([key, label]) => {
                       const locked = key === "name" || key === "actions";
@@ -426,13 +426,13 @@ export default function SchedulesPage() {
 
               <Button className="shrink-0" variant="outline" onClick={load}>
                 <RefreshCcwIcon className="mr-2 size-4" />
-                Refresh
+                刷新
               </Button>
 
               <Button asChild className="shrink-0">
                 <Link href="/scans/new?schedule=1">
                   <PlusIcon className="mr-2 size-4" />
-                  New Scan
+                  新建扫描
                 </Link>
               </Button>
             </div>
@@ -440,9 +440,9 @@ export default function SchedulesPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">Loading...</div>
+            <div className="py-10 text-center text-sm text-muted-foreground">加载中……</div>
           ) : pageSchedules.length === 0 ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">No schedules found</div>
+            <div className="py-10 text-center text-sm text-muted-foreground">未找到计划任务</div>
           ) : (
             <>
               <Table>
@@ -454,7 +454,7 @@ export default function SchedulesPage() {
                         currentSort={sortState}
                         onSort={(f) => toggleSort(f as ScheduleSortField)}
                       >
-                        Name
+                        名称
                       </SortableTableHead>
                     )}
                     {visibleColumns.workflow && (
@@ -463,7 +463,7 @@ export default function SchedulesPage() {
                         currentSort={sortState}
                         onSort={(f) => toggleSort(f as ScheduleSortField)}
                       >
-                        Workflow
+                        工作流
                       </SortableTableHead>
                     )}
                     {visibleColumns.trigger && (
@@ -472,7 +472,7 @@ export default function SchedulesPage() {
                         currentSort={sortState}
                         onSort={(f) => toggleSort(f as ScheduleSortField)}
                       >
-                        Trigger
+                        触发器
                       </SortableTableHead>
                     )}
                     {visibleColumns.schedule_or_topic && (
@@ -481,7 +481,7 @@ export default function SchedulesPage() {
                         currentSort={sortState}
                         onSort={(f) => toggleSort(f as ScheduleSortField)}
                       >
-                        Schedule / Topic
+                        计划 / 主题
                       </SortableTableHead>
                     )}
                     {visibleColumns.input_config && (
@@ -491,7 +491,7 @@ export default function SchedulesPage() {
                         onSort={(f) => toggleSort(f as ScheduleSortField)}
                         className="hidden xl:table-cell"
                       >
-                        Input Config
+                        输入配置
                       </SortableTableHead>
                     )}
                     {visibleColumns.enabled && (
@@ -500,7 +500,7 @@ export default function SchedulesPage() {
                         currentSort={sortState}
                         onSort={(f) => toggleSort(f as ScheduleSortField)}
                       >
-                        Enabled
+                        已启用
                       </SortableTableHead>
                     )}
                     {visibleColumns.last_run && (
@@ -510,7 +510,7 @@ export default function SchedulesPage() {
                         onSort={(f) => toggleSort(f as ScheduleSortField)}
                         className="hidden md:table-cell"
                       >
-                        Last Run
+                        上次运行
                       </SortableTableHead>
                     )}
                     {visibleColumns.next_run && (
@@ -520,7 +520,7 @@ export default function SchedulesPage() {
                         onSort={(f) => toggleSort(f as ScheduleSortField)}
                         className="hidden md:table-cell"
                       >
-                        Next Run
+                        下次运行
                       </SortableTableHead>
                     )}
                     {visibleColumns.run_count && (
@@ -530,7 +530,7 @@ export default function SchedulesPage() {
                         onSort={(f) => toggleSort(f as ScheduleSortField)}
                         className="hidden lg:table-cell"
                       >
-                        Run Count
+                        运行次数
                       </SortableTableHead>
                     )}
                     {visibleColumns.updated && (
@@ -540,7 +540,7 @@ export default function SchedulesPage() {
                         onSort={(f) => toggleSort(f as ScheduleSortField)}
                         className="hidden xl:table-cell"
                       >
-                        Updated
+                        已更新
                       </SortableTableHead>
                     )}
                     {visibleColumns.actions && (
@@ -550,7 +550,7 @@ export default function SchedulesPage() {
                         onSort={(f) => toggleSort(f as ScheduleSortField)}
                         className="w-[140px] text-right"
                       >
-                        Actions
+                        操作
                       </SortableTableHead>
                     )}
                   </TableRow>
@@ -612,7 +612,7 @@ export default function SchedulesPage() {
                       {visibleColumns.enabled && (
                         <TableCell>
                           <Badge variant={s.isEnabled ? "success" : "secondary"}>
-                            {s.isEnabled ? "Enabled" : "Disabled"}
+                            {s.isEnabled ? "已启用" : "已停用"}
                           </Badge>
                         </TableCell>
                       )}
@@ -659,13 +659,13 @@ export default function SchedulesPage() {
                                   variant="outline"
                                   size="icon-sm"
                                   className="rounded-md"
-                                  aria-label="Trigger"
+                                  aria-label="触发器"
                                   onClick={() => trigger(s)}
                                 >
                                   <PlayIcon className="size-4" />
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent side="top">Trigger</TooltipContent>
+                              <TooltipContent side="top">触发器</TooltipContent>
                             </Tooltip>
 
                             <Tooltip>
@@ -674,13 +674,13 @@ export default function SchedulesPage() {
                                   variant="outline"
                                   size="icon-sm"
                                   className="rounded-md"
-                                  aria-label={s.isEnabled ? "Disable" : "Enable"}
+                                  aria-label={s.isEnabled ? "停用" : "启用"}
                                   onClick={() => toggleEnable(s)}
                                 >
                                   {s.isEnabled ? <PauseIcon className="size-4" /> : <PlayIcon className="size-4" />}
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent side="top">{s.isEnabled ? "Disable" : "Enable"}</TooltipContent>
+                              <TooltipContent side="top">{s.isEnabled ? "停用" : "启用"}</TooltipContent>
                             </Tooltip>
 
                             <Tooltip>
@@ -689,7 +689,7 @@ export default function SchedulesPage() {
                                   variant="outline"
                                   size="icon-sm"
                                   className="rounded-md"
-                                  aria-label="Edit"
+                                  aria-label="编辑"
                                   onClick={() => {
                                     setFormOpen(true);
                                     setEditingId(s.id);
@@ -703,7 +703,7 @@ export default function SchedulesPage() {
                                   <PencilIcon className="size-4" />
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent side="top">Edit</TooltipContent>
+                              <TooltipContent side="top">编辑</TooltipContent>
                             </Tooltip>
 
                             <Tooltip>
@@ -712,13 +712,13 @@ export default function SchedulesPage() {
                                   variant="outline"
                                   size="icon-sm"
                                   className="rounded-md"
-                                  aria-label="Delete"
+                                  aria-label="删除"
                                   onClick={() => remove(s)}
                                 >
                                   <Trash2Icon className="size-4" />
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent side="top">Delete</TooltipContent>
+                              <TooltipContent side="top">删除</TooltipContent>
                             </Tooltip>
                           </div>
                         </TableCell>
@@ -730,7 +730,7 @@ export default function SchedulesPage() {
 
               <div className="flex items-center justify-between pt-2">
                 <div className="text-sm text-muted-foreground">
-                  Showing {effectiveTotal === 0 ? 0 : Math.min(effectiveTotal, offset + 1)}-{Math.min(offset + limit, effectiveTotal)} of {effectiveTotal}
+                  显示 {effectiveTotal === 0 ? 0 : Math.min(effectiveTotal, offset + 1)}-{Math.min(offset + limit, effectiveTotal)} 共 {effectiveTotal}
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -740,7 +740,7 @@ export default function SchedulesPage() {
                     disabled={offset <= 0}
                   >
                     <ChevronLeftIcon className="size-4" />
-                    Prev
+                    上一页
                   </Button>
                   <Button
                     variant="outline"
@@ -748,7 +748,7 @@ export default function SchedulesPage() {
                     onClick={() => setOffset(offset + limit)}
                     disabled={offset + limit >= effectiveTotal}
                   >
-                    Next
+                    下一页
                     <ChevronRightIcon className="size-4" />
                   </Button>
                   <Select
@@ -762,9 +762,9 @@ export default function SchedulesPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="20">20/page</SelectItem>
-                      <SelectItem value="50">50/page</SelectItem>
-                      <SelectItem value="100">100/page</SelectItem>
+                      <SelectItem value="20">20/页</SelectItem>
+                      <SelectItem value="50">50/页</SelectItem>
+                      <SelectItem value="100">100/页</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -20,16 +20,18 @@ export default function WorkflowUploadPage() {
 
   const submitWorkflow = async () => {
     if (!workflowFile) {
-      toast.error("Please choose a YAML file");
+      toast.error("请选择 YAML 文件");
       return;
     }
     setUploadingWorkflow(true);
     try {
       const info = await uploadWorkflowFile(workflowFile);
       setWorkflowResult(info);
-      toast.success("Workflow uploaded", { description: `${info.name} (${info.kind})` });
+      toast.success("工作流已上传", {
+        description: `${info.name}（${info.kind === "flow" ? "流程" : info.kind === "module" ? "模块" : info.kind}）`,
+      });
     } catch (e) {
-      toast.error("Upload failed", { description: e instanceof Error ? e.message : "" });
+      toast.error("上传失败", { description: e instanceof Error ? e.message : "" });
     } finally {
       setUploadingWorkflow(false);
     }
@@ -37,16 +39,16 @@ export default function WorkflowUploadPage() {
 
   const submitTargets = async () => {
     if (!targetsFile) {
-      toast.error("Please choose a targets file");
+      toast.error("请选择目标文件");
       return;
     }
     setUploadingTargets(true);
     try {
       const info = await uploadTargetsFile(targetsFile);
       setTargetsResult(info);
-      toast.success("File uploaded", { description: info.filename });
+      toast.success("文件已上传", { description: info.filename });
     } catch (e) {
-      toast.error("Upload failed", { description: e instanceof Error ? e.message : "" });
+      toast.error("上传失败", { description: e instanceof Error ? e.message : "" });
     } finally {
       setUploadingTargets(false);
     }
@@ -55,9 +57,9 @@ export default function WorkflowUploadPage() {
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      toast.success("Copied to clipboard");
+      toast.success("已复制到剪贴板");
     } catch {
-      toast.error("Failed to copy");
+      toast.error("复制失败");
     }
   };
 
@@ -66,42 +68,42 @@ export default function WorkflowUploadPage() {
       
       <Card className="max-w-2xl">
         <CardHeader>
-          <CardTitle>Upload Workflow</CardTitle>
+          <CardTitle>上传工作流</CardTitle>
           <CardDescription>POST /osm/api/workflow-upload</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="workflow">Workflow YAML</Label>
+            <Label htmlFor="workflow">工作流 YAML</Label>
             <Input id="workflow" type="file" accept=".yaml,.yml" onChange={(e) => setWorkflowFile(e.target.files?.[0] ?? null)} />
           </div>
           <Button onClick={submitWorkflow} disabled={uploadingWorkflow}>
             {uploadingWorkflow ? <LoaderIcon className="mr-2 size-4 animate-spin" /> : null}
-            Upload
+            上传
           </Button>
           {workflowResult ? (
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
-                <span>Uploaded:</span>
+                <span>已上传：</span>
                 <code className="px-1 rounded bg-muted">{workflowResult.name}</code>
                 <span>({workflowResult.kind})</span>
                 <Button variant="link" asChild>
                   <Link href={`/workflows-editor?workflow=${encodeURIComponent(workflowResult.name)}`}>
-                    Open in Editor
+                    在编辑器中打开
                     <ArrowRightIcon className="ml-1 size-4" />
                   </Link>
                 </Button>
               </div>
               {workflowResult.description ? (
                 <div className="flex items-center gap-2">
-                  <span>Description:</span>
+                  <span>描述：</span>
                   <span className="text-muted-foreground">{workflowResult.description}</span>
                 </div>
               ) : null}
               <div className="flex items-center gap-2">
-                <span>Path:</span>
+                <span>路径：</span>
                 <code className="px-1 rounded bg-muted break-all">{workflowResult.path}</code>
                 <Button variant="secondary" size="sm" onClick={() => copyToClipboard(workflowResult.path)}>
-                  Copy Path
+                  复制路径
                 </Button>
               </div>
             </div>
@@ -110,36 +112,36 @@ export default function WorkflowUploadPage() {
       </Card>
       <Card className="max-w-2xl">
         <CardHeader>
-          <CardTitle>Upload Input File</CardTitle>
+          <CardTitle>上传输入文件</CardTitle>
           <CardDescription>POST /osm/api/upload-file</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="targets">Targets File</Label>
+            <Label htmlFor="targets">目标文件</Label>
             <Input id="targets" type="file" accept=".txt" onChange={(e) => setTargetsFile(e.target.files?.[0] ?? null)} />
           </div>
           <Button onClick={submitTargets} disabled={uploadingTargets}>
             {uploadingTargets ? <LoaderIcon className="mr-2 size-4 animate-spin" /> : null}
-            Upload
+            上传
           </Button>
           {targetsResult ? (
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
-                <span>Uploaded:</span>
+                <span>已上传：</span>
                 <code className="px-1 rounded bg-muted">{targetsResult.filename}</code>
               </div>
               <div className="flex items-center gap-2">
-                <span>Path:</span>
+                <span>路径：</span>
                 <code className="px-1 rounded bg-muted break-all">{targetsResult.path}</code>
                 <Button variant="secondary" size="sm" onClick={() => copyToClipboard(targetsResult.path)}>
-                  Copy Path
+                  复制路径
                 </Button>
               </div>
               <div className="flex items-center gap-4">
-                {typeof targetsResult.size === "number" ? <span>Size: {targetsResult.size}</span> : null}
-                {typeof targetsResult.lines === "number" ? <span>Lines: {targetsResult.lines}</span> : null}
+                {typeof targetsResult.size === "number" ? <span>大小： {targetsResult.size}</span> : null}
+                {typeof targetsResult.lines === "number" ? <span>行数： {targetsResult.lines}</span> : null}
               </div>
-              <p className="text-muted-foreground">Use this path as target_file in scans.</p>
+              <p className="text-muted-foreground">可将此路径用作扫描中的 target_file。</p>
             </div>
           ) : null}
         </CardContent>

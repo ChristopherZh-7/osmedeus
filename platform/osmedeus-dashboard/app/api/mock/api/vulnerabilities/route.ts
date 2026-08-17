@@ -26,8 +26,8 @@ export let mockVulnerabilities: MockVulnerability[] = [
     id: 1,
     workspace: "example.com",
     vuln_info: "CVE-2024-1234",
-    vuln_title: "SQL Injection in Login Form",
-    vuln_desc: "The login form is vulnerable to SQL injection via the username parameter.",
+    vuln_title: "登录表单 SQL 注入",
+    vuln_desc: "登录表单的用户名参数存在 SQL 注入漏洞。",
     vuln_poc: "username=' OR '1'='1' --&password=test",
     severity: "critical",
     confidence: "Certain",
@@ -44,8 +44,8 @@ export let mockVulnerabilities: MockVulnerability[] = [
     id: 2,
     workspace: "example.com",
     vuln_info: "CVE-2024-5678",
-    vuln_title: "Cross-Site Scripting (XSS) in Search",
-    vuln_desc: "Reflected XSS vulnerability in the search functionality.",
+    vuln_title: "搜索功能跨站脚本（XSS）",
+    vuln_desc: "搜索功能存在反射型 XSS 漏洞。",
     vuln_poc: "<script>alert('XSS')</script>",
     severity: "high",
     confidence: "Firm",
@@ -62,8 +62,8 @@ export let mockVulnerabilities: MockVulnerability[] = [
     id: 3,
     workspace: "api.example.com",
     vuln_info: "",
-    vuln_title: "Missing Security Headers",
-    vuln_desc: "The response is missing recommended security headers.",
+    vuln_title: "缺少安全响应头",
+    vuln_desc: "响应中缺少建议配置的安全响应头。",
     vuln_poc: "curl -I https://api.example.com",
     severity: "low",
     confidence: "Tentative",
@@ -77,8 +77,8 @@ export let mockVulnerabilities: MockVulnerability[] = [
     id: 4,
     workspace: "staging.example.com",
     vuln_info: "",
-    vuln_title: "Open Redirect",
-    vuln_desc: "Unvalidated redirect parameter allows redirect to attacker-controlled site.",
+    vuln_title: "开放重定向",
+    vuln_desc: "未经验证的重定向参数可将用户跳转到攻击者控制的网站。",
     vuln_poc: "https://staging.example.com/redirect?next=https://evil.example",
     severity: "medium",
     confidence: "Manual Review Required",
@@ -158,7 +158,7 @@ export async function POST(request: Request) {
   const workspace = typeof body?.workspace === "string" ? body.workspace.trim() : "";
   if (!workspace) {
     return NextResponse.json(
-      { error: true, message: "Workspace is required" },
+      { error: true, message: "必须指定工作区" },
       { status: 400 }
     );
   }
@@ -193,7 +193,7 @@ export async function POST(request: Request) {
   mockVulnerabilities = [created, ...mockVulnerabilities];
 
   return NextResponse.json(
-    { data: created, message: "Vulnerability created successfully" },
+    { data: created, message: "漏洞创建成功" },
     { status: 201 }
   );
 }

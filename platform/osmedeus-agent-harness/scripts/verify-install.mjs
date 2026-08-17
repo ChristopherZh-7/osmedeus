@@ -51,6 +51,14 @@ if (!existsSync(resolve("plugins", "dsh-pentagi-orchestrator", "lib", "roles.js"
   throw new Error("Osmedeus PentAGI role registry is missing");
 }
 
+if (!existsSync(resolve("plugins", "dsh-pentagi-orchestrator", "lib", "cyberstrike-skill-library.js"))) {
+  throw new Error("Osmedeus CyberStrike Skill index adapter is missing");
+}
+
+if (!existsSync(resolve("scripts", "link-cyberstrike-skills.mjs"))) {
+  throw new Error("Osmedeus CyberStrike Skill link helper is missing");
+}
+
 for (const [roleID, definition] of Object.entries(ROLE_REGISTRY)) {
   verifyHarnessSchema(definition.schema, `roles.${roleID}.schema`);
   if (definition.tools.includes("skill")) {

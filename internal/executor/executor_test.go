@@ -2105,6 +2105,76 @@ func TestExecutor_FuzzyExcludeModules(t *testing.T) {
 	assert.Equal(t, core.RunStatusCompleted, result.Status)
 }
 
+func TestExecutor_FlowWithUnhandledModuleFailureReturnsFailed(t *testing.T) {
+	ctx := context.Background()
+	cfg := testConfig(t)
+	flow := &core.Workflow{
+		Name: "test-unhandled-module-failure",
+		Kind: core.KindFlow,
+		Modules: []core.ModuleRef{
+			{
+				Name: "broken",
+				Steps: []core.Step{{
+					Name:    "fail",
+					Type:    core.StepTypeBash,
+					Command: "exit 1",
+				}},
+			},
+			{
+				Name:      "after",
+				DependsOn: []string{"broken"},
+				Steps: []core.Step{{
+					Name:    "succeed",
+					Type:    core.StepTypeBash,
+					Command: "echo after",
+				}},
+			},
+		},
+	}
+
+	exec := NewExecutor()
+	exec.SetDisableWorkflowState(true)
+	exec.SetLoader(parser.NewLoader(cfg.WorkflowsPath))
+	result, err := exec.ExecuteFlow(ctx, flow, map[string]string{"target": "test"}, cfg)
+
+	require.Error(t, err)
+	require.NotNil(t, result)
+	assert.Equal(t, core.RunStatusFailed, result.Status)
+	assert.Contains(t, err.Error(), "module broken failed")
+	require.Len(t, result.ModuleResults, 2)
+	assert.Equal(t, core.RunStatusFailed, result.ModuleResults[0].Status)
+	assert.Equal(t, core.RunStatusCompleted, result.ModuleResults[1].Status)
+}
+
+func TestExecutor_FlowWithHandledModuleFailureCompletes(t *testing.T) {
+	ctx := context.Background()
+	cfg := testConfig(t)
+	flow := &core.Workflow{
+		Name: "test-handled-module-failure",
+		Kind: core.KindFlow,
+		Modules: []core.ModuleRef{{
+			Name:    "allowed-to-fail",
+			OnError: []core.Action{{Action: core.ActionContinue}},
+			Steps: []core.Step{{
+				Name:    "fail",
+				Type:    core.StepTypeBash,
+				Command: "exit 1",
+			}},
+		}},
+	}
+
+	exec := NewExecutor()
+	exec.SetDisableWorkflowState(true)
+	exec.SetLoader(parser.NewLoader(cfg.WorkflowsPath))
+	result, err := exec.ExecuteFlow(ctx, flow, map[string]string{"target": "test"}, cfg)
+
+	require.NoError(t, err)
+	require.NotNil(t, result)
+	assert.Equal(t, core.RunStatusCompleted, result.Status)
+	require.Len(t, result.ModuleResults, 1)
+	assert.Equal(t, core.RunStatusFailed, result.ModuleResults[0].Status)
+}
+
 // --- Decision Conditions tests ---
 
 func TestExecutor_Decision_ConditionMatch(t *testing.T) {
