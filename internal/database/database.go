@@ -286,6 +286,9 @@ func Migrate(ctx context.Context) error {
 	if err := addPentestSessionBridgeTokenColumn(ctx); err != nil {
 		return err
 	}
+	if err := addPentestSessionExecutionModeColumn(ctx); err != nil {
+		return err
+	}
 	if err := addPentestMemoryContentHashColumn(ctx); err != nil {
 		return err
 	}
@@ -804,6 +807,12 @@ func addVulnerabilityReviewColumns(ctx context.Context) error {
 func addPentestSessionBridgeTokenColumn(ctx context.Context) error {
 	return addColumnsIfMissing(ctx, "agent_pentest_sessions", "pentest bridge token", []string{
 		"bridge_token_hash TEXT DEFAULT ''",
+	})
+}
+
+func addPentestSessionExecutionModeColumn(ctx context.Context) error {
+	return addColumnsIfMissing(ctx, "agent_pentest_sessions", "pentest execution mode", []string{
+		"execution_mode TEXT NOT NULL DEFAULT 'direct'",
 	})
 }
 

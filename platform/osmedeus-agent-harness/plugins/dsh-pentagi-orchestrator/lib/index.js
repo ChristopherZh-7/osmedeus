@@ -9,6 +9,32 @@ const ORCHESTRATION_ROUTE = "/osm/api/agent-pentest/bridge/orchestration";
 const MAX_ROLE_ATTEMPTS = 3;
 const MAX_TASK_CYCLES = 30;
 const MAX_BRIDGE_JSON = 120 * 1024;
+const ORCHESTRATED_ROOT_TOOLS = new Set([
+  "skill",
+  "pentagi_context",
+  "osmedeus_start_pentest_task",
+  "osmedeus_get_pentest_task",
+  "osmedeus_resume_pentest_task",
+  "osmedeus_steer_pentest_task",
+  "osmedeus_cancel_pentest_task",
+]);
+const ANALYSIS_ROOT_TOOLS = new Set([
+  "skill",
+  "pentagi_context",
+  "osmedeus_get_pentest_task",
+]);
+
+export function pentestRootToolDenial(mode, toolName) {
+  if (mode === "direct") return;
+  if (mode === "orchestrated" && ORCHESTRATED_ROOT_TOOLS.has(toolName)) return;
+  if (mode === "analysis" && ANALYSIS_ROOT_TOOLS.has(toolName)) return;
+  if (mode === "orchestrated") {
+    return `This Osmedeus session uses multi-agent orchestration mode. The root agent cannot call ${toolName} directly. Use pentagi_context for reconnaissance and osmedeus_start_pentest_task (or the matching get/resume/steer/cancel task tool) so managed PentAGI roles perform and review the work.`;
+  }
+  if (mode === "analysis") {
+    return `This Osmedeus session uses read-only analysis mode. ${toolName} is disabled. Use pentagi_context or skill to inspect existing reconnaissance, then answer without executing tools, changing targets, writing files, starting tasks, or submitting results.`;
+  }
+}
 
 export const inject = ["tools", "subagents", "sessions", "skills", "agents"];
 
@@ -800,23 +826,35 @@ async function mentorRepeatedCall(ctx, meta, toolName, args) {
 function registerRoleGuard(ctx) {
   ctx.tools.guard((exec) => {
     const meta = roleBySession.get(String(exec.agent?.id || ""));
-    if (!meta) return;
-    meta.toolCalls += 1;
-    if (meta.toolCalls > meta.toolBudget) {
-      return `PentAGI ${meta.roleID} tool-call budget exceeded (${meta.toolBudget}); conclude with the available evidence.`;
+    if (meta) {
+      meta.toolCalls += 1;
+      if (meta.toolCalls > meta.toolBudget) {
+        return `PentAGI ${meta.roleID} tool-call budget exceeded (${meta.toolBudget}); conclude with the available evidence.`;
+      }
+      let signature;
+      try {
+        signature = `${exec.name}:${JSON.stringify(exec.arguments)}`;
+      } catch {
+        signature = exec.name;
+      }
+      const repeated = (meta.repeats.get(signature) ?? 0) + 1;
+      meta.repeats.set(signature, repeated);
+      if (repeated === 3) void mentorRepeatedCall(ctx, meta, exec.name, exec.arguments);
+      if (repeated > 5) {
+        return `PentAGI Mentor stopped a repeated identical ${exec.name} call after ${repeated - 1} attempts. Change approach or conclude the role.`;
+      }
+      return;
     }
-    let signature;
-    try {
-      signature = `${exec.name}:${JSON.stringify(exec.arguments)}`;
-    } catch {
-      signature = exec.name;
-    }
-    const repeated = (meta.repeats.get(signature) ?? 0) + 1;
-    meta.repeats.set(signature, repeated);
-    if (repeated === 3) void mentorRepeatedCall(ctx, meta, exec.name, exec.arguments);
-    if (repeated > 5) {
-      return `PentAGI Mentor stopped a repeated identical ${exec.name} call after ${repeated - 1} attempts. Change approach or conclude the role.`;
-    }
+
+		let bridge;
+		try {
+			bridge = pentestBridgeContext(ctx, exec.agent);
+		} catch {
+			return;
+		}
+		if (bridge.callerSessionId !== bridge.rootSessionId) return;
+		const mode = String(bridge.context?.session?.execution_mode || "direct");
+		return pentestRootToolDenial(mode, exec.name);
   });
 }
 
@@ -894,7 +932,7 @@ function registerMemoryTools(ctx) {
 function registerContextTool(ctx) {
   ctx.tools.register(defineTool({
     name: "pentagi_context",
-    description: "Read canonical immutable Osmedeus scope and reconnaissance for this managed PentAGI role. Use this instead of guessing workspace paths or reading reconnaissance files directly.",
+    description: "Read canonical immutable Osmedeus scope and reconnaissance for this Osmedeus root session or a managed PentAGI role. Use this instead of guessing workspace paths or reading reconnaissance files directly.",
     parameters: {
       section: {
         type: "string",
@@ -908,8 +946,6 @@ function registerContextTool(ctx) {
       render: (_args, value) => [{ type: "text", text: JSON.stringify(value) }],
     },
     async execute(args, exec) {
-      const meta = roleBySession.get(String(exec.agent?.id || ""));
-      if (!meta) throw new Error("pentagi_context is available only inside a managed PentAGI role");
       const bridge = pentestBridgeContext(ctx, exec.agent);
       const context = bridge.context ?? {};
       const recon = context.recon ?? {};

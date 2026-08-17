@@ -398,6 +398,7 @@ func (s *Server) setupRoutes() {
 	api.Get("/agent-pentest/sessions", handlers.ListPentestSessions(s.config))
 	api.Post("/agent-pentest/sessions", handlers.CreatePentestSession(s.config))
 	api.Get("/agent-pentest/sessions/:uuid", handlers.GetPentestSession(s.config))
+	api.Patch("/agent-pentest/sessions/:uuid/execution-mode", handlers.UpdatePentestSessionExecutionMode(s.config))
 	api.Get("/agent-pentest/sessions/:uuid/context", handlers.GetPentestContext(s.config))
 	api.Get("/agent-pentest/sessions/:uuid/coverage", handlers.ListPentestCoverage(s.config))
 	api.Get("/agent-pentest/sessions/:uuid/tasks", handlers.ListPentestTasks(s.config))

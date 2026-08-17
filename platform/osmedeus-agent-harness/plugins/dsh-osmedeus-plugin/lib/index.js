@@ -227,6 +227,12 @@ function registerResultTools(ctx) {
 function contextSummary(context, contextPath, rootSessionId = context?.session?.dsh_session_id) {
   const scope = context?.scope ?? {};
   const recon = context?.recon ?? {};
+	const executionMode = String(context?.session?.execution_mode || "direct");
+	const modeGuidance = {
+		orchestrated: "Root-agent execution is disabled. Start or control work with osmedeus_start_pentest_task and the other osmedeus_*_pentest_task tools; managed roles perform the actual tests.",
+		direct: "The root agent may use its normal Harness tools directly. Multi-agent task orchestration remains optional.",
+		analysis: "Read-only analysis only. Do not start tasks, run shell/network tools, write files, or submit test/finding records.",
+	}[executionMode] || "The root agent may use its normal Harness tools directly.";
   return [
     "# Osmedeus Pentest Context",
     "",
@@ -237,9 +243,11 @@ function contextSummary(context, contextPath, rootSessionId = context?.session?.
     `Scanner findings: ${recon.vulnerabilities_total ?? 0}`,
     `Artifacts: ${recon.artifacts_total ?? 0}`,
     `Recent runs: ${recon.runs_total ?? 0}`,
+		`Execution mode: ${executionMode}`,
     "",
 		`Canonical context: ${contextPath}`,
 		`Authorization root session: ${rootSessionId ?? "unknown"}`,
+		`Mode policy: ${modeGuidance}`,
     "",
     "Load the `osmedeus-pentest` Skill before acting on this context.",
     "Only `scope.authorized_assets` defines executable target scope.",
