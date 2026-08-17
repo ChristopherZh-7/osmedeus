@@ -32,7 +32,7 @@ func TestFOFAProviderNormalizesCandidates(t *testing.T) {
 		"FOFA_API_KEY":  {Value: "secret-key"},
 		"FOFA_BASE_URL": {Value: server.URL},
 	}}
-	items, query, err := (client{http: server.Client()}).fofa(context.Background(), cfg, "company-1", []string{"acme.com"})
+	items, query, err := (client{http: server.Client()}).fofa(context.Background(), cfg, "company-1", discoveryScope{domains: []string{"acme.com"}, names: []string{"Acme Technology Co., Ltd."}})
 	require.NoError(t, err)
 	assert.Equal(t, query, capturedQuery)
 	require.Len(t, items, 1)
@@ -41,6 +41,8 @@ func TestFOFAProviderNormalizesCandidates(t *testing.T) {
 	assert.Equal(t, "203.0.113.10", items[0].IP)
 	assert.Equal(t, 443, items[0].Port)
 	assert.Equal(t, "fofa", items[0].Provider)
+	assert.Contains(t, query, `domain="acme.com"`)
+	assert.Contains(t, query, `cert.subject.org="Acme Technology Co., Ltd."`)
 }
 
 func TestDiscoverSkipsUnconfiguredProviders(t *testing.T) {
@@ -81,6 +83,18 @@ func TestDiscoverySeedDomainsDoesNotExpandProviderCandidates(t *testing.T) {
 
 	confirmedSeeds := discoverySeedDomains(database.CompanyProfile{VerificationStatus: database.CompanyVerificationConfirmed}, domains)
 	assert.Equal(t, []string{"authorized.example"}, confirmedSeeds)
+}
+
+func TestDiscoveryQueriesIncludeCompanyIdentityHints(t *testing.T) {
+	scope := discoveryScope{domains: []string{"acme.example"}, names: []string{"Acme Technology Co., Ltd."}}
+	assert.Equal(t, `domain="acme.example" || cert.subject.org="Acme Technology Co., Ltd." || title="Acme Technology Co., Ltd."`, fofaDiscoveryQuery(scope))
+	assert.Equal(t, `domain:"acme.example" || service.http.title:"Acme Technology Co., Ltd."`, quakeDiscoveryQuery(scope))
+	assert.Equal(t, `domain.suffix="acme.example" || web.title="Acme Technology Co., Ltd."`, hunterDiscoveryQuery(scope))
+}
+
+func TestCompanySearchTermsKeepsPrimaryShortChineseNameAsLead(t *testing.T) {
+	terms := companySearchTerms(database.CompanyProfile{CanonicalName: "小米", InputName: "小米", Aliases: []string{"米", "小米科技有限责任公司"}})
+	assert.Equal(t, []string{"小米", "小米科技有限责任公司"}, terms)
 }
 
 type testError struct{ value string }

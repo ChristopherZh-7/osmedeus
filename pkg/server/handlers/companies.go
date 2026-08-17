@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -163,6 +164,18 @@ func DiscoverCompany(cfg *config.Config) fiber.Handler {
 			return c.Status(status).JSON(fiber.Map{"error": true, "message": err.Error()})
 		}
 		result := companyintel.Discover(c.UserContext(), cfg, bundle.Profile, bundle.Domains)
+		protectedRoots := make(map[string]bool, len(bundle.Domains))
+		for _, domain := range bundle.Domains {
+			if domain.AuthorizationStatus == database.CompanyAuthorizationApproved || domain.Relation != "provider-candidate" {
+				protectedRoots[domain.Domain] = true
+			}
+		}
+		type domainEvidence struct {
+			confidence int
+			sources    map[string]struct{}
+			reasons    map[string]struct{}
+		}
+		discoveredRoots := make(map[string]*domainEvidence)
 		for _, candidate := range result.Candidates {
 			if strings.TrimSpace(candidate.Domain) == "" {
 				continue
@@ -171,10 +184,37 @@ func DiscoverCompany(cfg *config.Config) fiber.Handler {
 			if normalizeErr != nil {
 				continue
 			}
+			if protectedRoots[root] {
+				continue
+			}
+			evidence := discoveredRoots[root]
+			if evidence == nil {
+				evidence = &domainEvidence{sources: make(map[string]struct{}), reasons: make(map[string]struct{})}
+				discoveredRoots[root] = evidence
+			}
+			if candidate.Confidence > evidence.confidence {
+				evidence.confidence = candidate.Confidence
+			}
+			evidence.sources["provider:"+candidate.Provider] = struct{}{}
+			for _, reason := range candidate.AttributionReasons {
+				evidence.reasons[reason] = struct{}{}
+			}
+		}
+		for root, evidence := range discoveredRoots {
+			sources := make([]string, 0, len(evidence.sources))
+			for source := range evidence.sources {
+				sources = append(sources, source)
+			}
+			reasons := make([]string, 0, len(evidence.reasons))
+			for reason := range evidence.reasons {
+				reasons = append(reasons, reason)
+			}
+			sort.Strings(sources)
+			sort.Strings(reasons)
 			if err := database.UpsertCompanyDomain(c.UserContext(), &database.CompanyDomain{
 				CompanyUUID: bundle.Profile.UUID, Domain: root, Relation: "provider-candidate",
 				OwnershipStatus: database.CompanyOwnershipCandidate, AuthorizationStatus: database.CompanyAuthorizationPending,
-				Confidence: 45, Sources: []string{"provider:" + candidate.Provider},
+				Confidence: evidence.confidence, Sources: sources, Evidence: strings.Join(reasons, "；"),
 			}); err != nil {
 				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": true, "message": err.Error(), "providers": result.Reports})
 			}
@@ -220,6 +260,16 @@ func ConfirmCompany(cfg *config.Config) fiber.Handler {
 				status = fiber.StatusNotFound
 			}
 			return c.Status(status).JSON(fiber.Map{"error": true, "message": err.Error()})
+		}
+		if len(bundle.Candidates) > 0 {
+			reattributed := companyintel.AttributeCandidates(bundle.Profile, bundle.Domains, bundle.Candidates)
+			if _, err := database.UpsertCompanyAssetCandidates(c.UserContext(), reattributed); err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": true, "message": "刷新候选资产归属失败：" + err.Error()})
+			}
+			bundle, err = database.GetCompanyBundle(c.UserContext(), bundle.Profile.UUID)
+			if err != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": true, "message": err.Error()})
+			}
 		}
 		return c.JSON(fiber.Map{"data": bundle, "created": fiber.Map{"org_uuid": bundle.Profile.OrgUUID, "workspaces": normalized}, "scan_started": false})
 	}

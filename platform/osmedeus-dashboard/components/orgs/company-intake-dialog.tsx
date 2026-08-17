@@ -164,6 +164,9 @@ export function CompanyIntakeDialog({ open, onOpenChange, onCompleted, initialBu
 
   const confirmed = bundle?.profile.verification_status === "confirmed";
   const pendingCandidates = (bundle?.candidates || []).filter((candidate) => candidate.authorization_status !== "approved");
+  const newlySelectedRoots = (bundle?.domains || []).filter((domain) =>
+    domain.authorization_status !== "approved" && selectedDomains.includes(domain.domain)
+  );
 
   return (
     <Dialog open={open} onOpenChange={(next) => !busy && onOpenChange(next)}>
@@ -196,12 +199,15 @@ export function CompanyIntakeDialog({ open, onOpenChange, onCompleted, initialBu
             </div>
 
             <section className="space-y-2">
-              <div className="flex items-center justify-between"><h3 className="text-sm font-medium">授权根域名</h3><Badge variant="outline">{selectedDomains.length} 个</Badge></div>
+              <div className="flex items-center justify-between gap-3">
+                <div><h3 className="text-sm font-medium">授权根域名</h3><p className="mt-1 text-xs text-muted-foreground">测绘发现的新根域必须人工勾选，才能成为工作区和扫描范围。</p></div>
+                {confirmed && newlySelectedRoots.length > 0 ? <Button size="sm" onClick={() => void handleConfirm()} disabled={busy !== null}>{busy === "confirm" ? <LoaderIcon className="size-4 animate-spin" /> : <ShieldCheckIcon className="size-4" />}批准 {newlySelectedRoots.length} 个新根域</Button> : <Badge variant="outline">{selectedDomains.length} 个</Badge>}
+              </div>
               {bundle.domains.length ? bundle.domains.map((domain) => (
                 <label key={domain.domain} className="flex items-center justify-between gap-3 rounded-control border p-3">
                   <span className="flex items-center gap-3">
-                    <Checkbox checked={selectedDomains.includes(domain.domain)} disabled={confirmed} onCheckedChange={(checked) => setSelectedDomains((current) => checked ? [...new Set([...current, domain.domain])] : current.filter((item) => item !== domain.domain))} />
-                    <span><span className="block font-mono text-sm">{domain.domain}</span><span className="block text-xs text-muted-foreground">{domain.relation} · 证据置信度 {domain.confidence}%</span></span>
+                    <Checkbox checked={selectedDomains.includes(domain.domain)} disabled={domain.authorization_status === "approved"} onCheckedChange={(checked) => setSelectedDomains((current) => checked ? [...new Set([...current, domain.domain])] : current.filter((item) => item !== domain.domain))} />
+                    <span><span className="block font-mono text-sm">{domain.domain}</span><span className="block text-xs text-muted-foreground">{domain.relation} · 证据置信度 {domain.confidence}%{domain.sources?.length ? ` · ${domain.sources.join(" / ")}` : ""}</span>{domain.evidence ? <span className="mt-1 block text-xs text-muted-foreground">{domain.evidence}</span> : null}</span>
                   </span>
                   <Badge variant={domain.authorization_status === "approved" ? "success" : "outline"}>{domain.authorization_status === "approved" ? "已授权" : "待确认"}</Badge>
                 </label>
@@ -210,13 +216,21 @@ export function CompanyIntakeDialog({ open, onOpenChange, onCompleted, initialBu
 
             <section className="space-y-3 rounded-control border p-4">
                 <div className="flex items-center justify-between gap-3"><div><h3 className="text-sm font-medium">外部被动情报</h3><p className="mt-1 text-xs text-muted-foreground">只查询并保存候选，不探测目标。</p></div><Button variant="outline" size="sm" onClick={() => void handleDiscover()} disabled={busy !== null}>{busy === "discover" ? <LoaderIcon className="size-4 animate-spin" /> : <DatabaseZapIcon className="size-4" />}查询 FOFA / Quake / Hunter / 0.zone</Button></div>
-                {reports.length ? <div className="grid gap-2 sm:grid-cols-2">{reports.map((report) => <div key={report.id} className="flex items-center justify-between rounded-control bg-muted/30 px-3 py-2 text-xs"><span>{report.id}</span><Badge variant={report.error ? "destructive" : report.configured ? "secondary" : "outline"}>{report.error ? "失败" : report.configured ? `${report.count} 条` : "未配置"}</Badge></div>)}</div> : null}
+                {reports.length ? <div className="grid gap-2 sm:grid-cols-2">{reports.map((report) => <div key={report.id} className="min-w-0 rounded-control bg-muted/30 px-3 py-2 text-xs"><div className="flex items-center justify-between gap-2"><span>{report.id}</span><Badge variant={report.error ? "destructive" : report.configured ? "secondary" : "outline"}>{report.error ? "失败" : report.configured ? `${report.count} 条` : "未配置"}</Badge></div>{report.query ? <div className="mt-1 truncate font-mono text-[11px] text-muted-foreground" title={report.query}>{report.query}</div> : null}</div>)}</div> : null}
             </section>
 
-            {confirmed && pendingCandidates.length ? (
+            {pendingCandidates.length ? (
               <section className="space-y-2">
-                <div className="flex items-center justify-between"><div><h3 className="text-sm font-medium">待授权候选资产</h3><p className="mt-1 text-xs text-muted-foreground">只允许导入已确认根域名内的候选。</p></div><Button size="sm" onClick={() => void handleImport()} disabled={busy !== null || selectedCandidates.length === 0}>{busy === "import" ? <LoaderIcon className="size-4 animate-spin" /> : <ShieldCheckIcon className="size-4" />}授权并导入</Button></div>
-                <div className="max-h-48 space-y-2 overflow-y-auto">{pendingCandidates.map((candidate) => <label key={candidate.id} className="flex items-center gap-3 rounded-control border p-2.5"><Checkbox checked={selectedCandidates.includes(candidate.id)} onCheckedChange={(checked) => setSelectedCandidates((current) => checked ? [...current, candidate.id] : current.filter((id) => id !== candidate.id))} /><span className="min-w-0 flex-1"><span className="block truncate font-mono text-xs">{candidate.asset_value}</span><span className="text-xs text-muted-foreground">{candidate.provider} · {candidate.domain || "无域名归属"}</span></span></label>)}</div>
+                <div className="flex items-center justify-between gap-3"><div><h3 className="text-sm font-medium">候选资产归属分析</h3><p className="mt-1 text-xs text-muted-foreground">分数说明“可能属于谁”，勾选权限说明“当前是否允许导入”；两者相互独立。</p></div>{confirmed ? <Button size="sm" onClick={() => void handleImport()} disabled={busy !== null || selectedCandidates.length === 0}>{busy === "import" ? <LoaderIcon className="size-4 animate-spin" /> : <ShieldCheckIcon className="size-4" />}授权并导入</Button> : null}</div>
+                <div className="max-h-80 space-y-2 overflow-y-auto">{pendingCandidates.map((candidate) => <label key={candidate.id} className="flex items-start gap-3 rounded-control border p-3">
+                  <Checkbox className="mt-0.5" checked={selectedCandidates.includes(candidate.id)} disabled={!confirmed || !candidate.authorization_eligible} onCheckedChange={(checked) => setSelectedCandidates((current) => checked ? [...new Set([...current, candidate.id])] : current.filter((id) => id !== candidate.id))} />
+                  <span className="min-w-0 flex-1 space-y-1.5">
+                    <span className="flex flex-wrap items-center gap-1.5"><span className="max-w-full truncate font-mono text-xs">{candidate.asset_value}</span><Badge variant={attributionVariant(candidate.attribution_status)}>{candidate.confidence}% · {attributionLabel(candidate.attribution_status)}</Badge>{candidate.shared_infrastructure ? <Badge variant="warning">共享基础设施</Badge> : null}<Badge variant="outline">{infrastructureLabel(candidate.infrastructure_type)}</Badge></span>
+                    <span className="block text-xs text-muted-foreground">{candidate.provider} · {candidate.domain || "裸 IP / 无域名归属"}{candidate.matched_root_domain ? ` · 匹配 ${candidate.matched_root_domain}` : ""}</span>
+                    {candidate.attribution_reasons?.length ? <span className="block text-xs text-muted-foreground">{candidate.attribution_reasons.slice(0, 3).join("；")}</span> : null}
+                    {!candidate.authorization_eligible ? <span className="block text-xs text-warning">不可直接导入：请先批准对应根域；裸 IP 还需要单独的网段归属与授权能力。</span> : null}
+                  </span>
+                </label>)}</div>
               </section>
             ) : null}
 
@@ -248,6 +262,31 @@ export function CompanyIntakeDialog({ open, onOpenChange, onCompleted, initialBu
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return <div className="space-y-1.5"><Label>{label}{required ? <span className="ml-1 text-destructive">*</span> : null}</Label>{children}</div>;
+}
+
+function attributionLabel(status: string) {
+  if (status === "strong") return "高可信";
+  if (status === "probable") return "较可信";
+  if (status === "weak") return "弱线索";
+  return "未核验";
+}
+
+function attributionVariant(status: string): "success" | "info" | "warning" | "outline" {
+  if (status === "strong") return "success";
+  if (status === "probable") return "info";
+  if (status === "weak") return "warning";
+  return "outline";
+}
+
+function infrastructureLabel(type: string) {
+  const labels: Record<string, string> = {
+    hostname: "域名资产",
+    "domain-associated-ip": "域名关联 IP",
+    "dedicated-ip-candidate": "疑似自有 IP",
+    "unattributed-ip": "未归属 IP",
+    "shared-hosting": "CDN / 云托管",
+  };
+  return labels[type] || "未知基础设施";
 }
 
 function cleanError(error: unknown, fallback: string) {

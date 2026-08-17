@@ -41,9 +41,26 @@ does not infer a legal company name from an LLM response alone.
 curl -X POST http://localhost:8002/osm/api/companies/<company-uuid>/discover
 ```
 
-Configured FOFA, Quake, Hunter and 0.zone providers are queried. Missing keys
-are reported as `configured: false` and do not fail the request. Results remain
-company candidates and do not start network probes.
+Configured FOFA, Quake, Hunter and 0.zone providers are queried. Discovery uses
+both the confirmed/declared domain roots and bounded company identity hints
+(legal name, input name and aliases). Missing keys are reported as
+`configured: false` and do not fail the request. Results remain company
+candidates and do not start network probes.
+
+Each candidate includes explainable attribution fields:
+
+- `confidence` and `attribution_status` (`strong`, `probable`, `weak`, or
+  `unverified`)
+- `attribution_reasons`, containing the evidence that changed the score
+- `matched_root_domain`, when the hostname is under a known company root
+- `infrastructure_type` and `shared_infrastructure`, distinguishing hostnames,
+  associated IPs, possible dedicated IPs, and CDN/cloud/shared addresses
+- `authorization_eligible`, which becomes true only after the company is
+  confirmed and the candidate is inside an approved root-domain scope
+
+A company-name, title, certificate, or mapping-platform hit is discovery
+evidence, not scan authorization. A shared CDN/cloud IP is never treated as a
+company-owned IP merely because it currently serves a company hostname.
 
 ## Confirm identity and authorized root domains
 
@@ -76,6 +93,10 @@ only `authorization_status=approved` root domains, starts one `domain-recon`
 run per domain/workspace, and attaches the company `org_uuid`, `company_uuid`,
 and a shared job ID to every child run. Pending domains and passive-provider
 candidates are never included.
+
+Calling the confirmation endpoint again with all existing approved roots plus
+newly selected candidate roots expands the same company org with the new
+workspaces. It does not create a second org and still does not start a scan.
 
 ## Authorize passive candidates
 

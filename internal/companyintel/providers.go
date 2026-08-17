@@ -36,10 +36,15 @@ type client struct {
 	http *http.Client
 }
 
+type discoveryScope struct {
+	domains []string
+	names   []string
+}
+
 func Discover(ctx context.Context, cfg *config.Config, company database.CompanyProfile, domains []database.CompanyDomain) DiscoveryResult {
 	c := client{http: &http.Client{Timeout: 25 * time.Second}}
 	result := DiscoveryResult{Candidates: []database.CompanyAssetCandidate{}, Reports: []ProviderReport{}}
-	queries := discoverySeedDomains(company, domains)
+	scope := buildDiscoveryScope(company, domains)
 
 	providers := []struct {
 		id         string
@@ -48,16 +53,16 @@ func Discover(ctx context.Context, cfg *config.Config, company database.CompanyP
 		fn         func(context.Context) ([]database.CompanyAssetCandidate, string, error)
 	}{
 		{id: "fofa", configured: value(cfg, "FOFA_API_KEY") != "" && value(cfg, "FOFA_EMAIL") != "", secrets: []string{value(cfg, "FOFA_API_KEY"), value(cfg, "FOFA_EMAIL")}, fn: func(ctx context.Context) ([]database.CompanyAssetCandidate, string, error) {
-			return c.fofa(ctx, cfg, company.UUID, queries)
+			return c.fofa(ctx, cfg, company.UUID, scope)
 		}},
 		{id: "quake", configured: value(cfg, "QUAKE_API_KEY") != "", secrets: []string{value(cfg, "QUAKE_API_KEY")}, fn: func(ctx context.Context) ([]database.CompanyAssetCandidate, string, error) {
-			return c.quake(ctx, cfg, company.UUID, queries)
+			return c.quake(ctx, cfg, company.UUID, scope)
 		}},
 		{id: "hunter", configured: value(cfg, "HUNTER_API_KEY") != "", secrets: []string{value(cfg, "HUNTER_API_KEY")}, fn: func(ctx context.Context) ([]database.CompanyAssetCandidate, string, error) {
-			return c.hunter(ctx, cfg, company.UUID, queries)
+			return c.hunter(ctx, cfg, company.UUID, scope)
 		}},
 		{id: "zerozone", configured: value(cfg, "ZEROZONE_API_KEY") != "", secrets: []string{value(cfg, "ZEROZONE_API_KEY")}, fn: func(ctx context.Context) ([]database.CompanyAssetCandidate, string, error) {
-			return c.zeroZone(ctx, cfg, company, queries)
+			return c.zeroZone(ctx, cfg, company, scope)
 		}},
 	}
 
@@ -78,15 +83,15 @@ func Discover(ctx context.Context, cfg *config.Config, company database.CompanyP
 		}
 		result.Reports = append(result.Reports, report)
 	}
-	result.Candidates = deduplicate(result.Candidates)
+	result.Candidates = AttributeCandidates(company, domains, deduplicate(result.Candidates))
 	return result
 }
 
-func (c client) fofa(ctx context.Context, cfg *config.Config, companyUUID string, domains []string) ([]database.CompanyAssetCandidate, string, error) {
-	if len(domains) == 0 {
+func (c client) fofa(ctx context.Context, cfg *config.Config, companyUUID string, scope discoveryScope) ([]database.CompanyAssetCandidate, string, error) {
+	query := fofaDiscoveryQuery(scope)
+	if query == "" {
 		return nil, "", nil
 	}
-	query := domainORQuery(domains, `domain="%s"`)
 	endpoint := defaultValue(cfg, "FOFA_BASE_URL", "https://fofa.info/api/v1/search/all")
 	u, err := url.Parse(endpoint)
 	if err != nil {
@@ -96,7 +101,7 @@ func (c client) fofa(ctx context.Context, cfg *config.Config, companyUUID string
 	params.Set("email", value(cfg, "FOFA_EMAIL"))
 	params.Set("key", value(cfg, "FOFA_API_KEY"))
 	params.Set("qbase64", base64.StdEncoding.EncodeToString([]byte(query)))
-	params.Set("fields", "host,ip,port,protocol,title,domain")
+	params.Set("fields", "host,ip,port,protocol,title,domain,icp,cert.subject.org,org")
 	params.Set("size", "1000")
 	u.RawQuery = params.Encode()
 	var payload struct {
@@ -112,13 +117,18 @@ func (c client) fofa(ctx context.Context, cfg *config.Config, companyUUID string
 	}
 	items := make([]database.CompanyAssetCandidate, 0, len(payload.Results))
 	for _, row := range payload.Results {
-		fields := make([]string, 6)
+		fields := make([]string, 9)
 		for i := range row {
 			if i < len(fields) {
 				fields[i] = stringify(row[i])
 			}
 		}
-		candidate := buildCandidate(companyUUID, "fofa", fields[0], fields[1], parseInt(fields[2]), fields[3], fields[4], fields[5], map[string]interface{}{"row": row})
+		raw := map[string]interface{}{
+			"row": row, "host": fields[0], "ip": fields[1], "port": fields[2], "protocol": fields[3],
+			"title": fields[4], "domain": fields[5], "icp": fields[6], "cert_subject_org": fields[7],
+			"asn_org": fields[8],
+		}
+		candidate := buildCandidate(companyUUID, "fofa", fields[0], fields[1], parseInt(fields[2]), fields[3], fields[4], fields[5], raw)
 		if candidate.AssetValue != "" {
 			items = append(items, candidate)
 		}
@@ -126,11 +136,11 @@ func (c client) fofa(ctx context.Context, cfg *config.Config, companyUUID string
 	return items, query, nil
 }
 
-func (c client) quake(ctx context.Context, cfg *config.Config, companyUUID string, domains []string) ([]database.CompanyAssetCandidate, string, error) {
-	if len(domains) == 0 {
+func (c client) quake(ctx context.Context, cfg *config.Config, companyUUID string, scope discoveryScope) ([]database.CompanyAssetCandidate, string, error) {
+	query := quakeDiscoveryQuery(scope)
+	if query == "" {
 		return nil, "", nil
 	}
-	query := domainORQuery(domains, `domain:"%s"`)
 	body := map[string]interface{}{"query": query, "start": 0, "size": 1000, "ignore_cache": false}
 	headers := map[string]string{"X-QuakeToken": value(cfg, "QUAKE_API_KEY")}
 	endpoint := defaultValue(cfg, "QUAKE_BASE_URL", "https://quake.360.net/api/v3/search/quake_service")
@@ -141,11 +151,11 @@ func (c client) quake(ctx context.Context, cfg *config.Config, companyUUID strin
 	return candidatesFromPayload(companyUUID, "quake", payload), query, nil
 }
 
-func (c client) hunter(ctx context.Context, cfg *config.Config, companyUUID string, domains []string) ([]database.CompanyAssetCandidate, string, error) {
-	if len(domains) == 0 {
+func (c client) hunter(ctx context.Context, cfg *config.Config, companyUUID string, scope discoveryScope) ([]database.CompanyAssetCandidate, string, error) {
+	query := hunterDiscoveryQuery(scope)
+	if query == "" {
 		return nil, "", nil
 	}
-	query := domainORQuery(domains, `domain.suffix="%s"`)
 	endpoint := defaultValue(cfg, "HUNTER_BASE_URL", "https://hunter.qianxin.com/openApi/search")
 	u, err := url.Parse(endpoint)
 	if err != nil {
@@ -165,14 +175,18 @@ func (c client) hunter(ctx context.Context, cfg *config.Config, companyUUID stri
 	return candidatesFromPayload(companyUUID, "hunter", payload), query, nil
 }
 
-func (c client) zeroZone(ctx context.Context, cfg *config.Config, company database.CompanyProfile, domains []string) ([]database.CompanyAssetCandidate, string, error) {
+func (c client) zeroZone(ctx context.Context, cfg *config.Config, company database.CompanyProfile, scope discoveryScope) ([]database.CompanyAssetCandidate, string, error) {
 	query := strings.TrimSpace(company.CanonicalName)
-	body := map[string]interface{}{"query": query, "query_type": "site", "page": 1, "pagesize": 100, "zone_key_id": value(cfg, "ZEROZONE_API_KEY"), "is_suspected_site": 1}
-	if company.VerificationStatus == database.CompanyVerificationConfirmed && len(domains) > 0 {
-		query = strings.Join(domains, " OR ")
-		body["query"] = query
-		delete(body, "is_suspected_site")
+	if query == "" {
+		query = strings.TrimSpace(company.InputName)
 	}
+	if query == "" && len(scope.domains) > 0 {
+		query = strings.Join(scope.domains, " OR ")
+	}
+	if query == "" {
+		return nil, "", nil
+	}
+	body := map[string]interface{}{"query": query, "query_type": "site", "page": 1, "pagesize": 100, "zone_key_id": value(cfg, "ZEROZONE_API_KEY"), "is_suspected_site": 1}
 	endpoint := defaultValue(cfg, "ZEROZONE_BASE_URL", "https://0.zone/api/data/")
 	var payload interface{}
 	if err := c.doJSON(ctx, http.MethodPost, endpoint, body, nil, &payload); err != nil {
@@ -337,12 +351,96 @@ func discoverySeedDomains(company database.CompanyProfile, domains []database.Co
 	return compact(result)
 }
 
-func domainORQuery(domains []string, format string) string {
-	parts := make([]string, 0, len(domains))
-	for _, domain := range domains {
-		parts = append(parts, fmt.Sprintf(format, domain))
+func buildDiscoveryScope(company database.CompanyProfile, domains []database.CompanyDomain) discoveryScope {
+	return discoveryScope{
+		domains: discoverySeedDomains(company, domains),
+		names:   companySearchTerms(company),
 	}
-	return strings.Join(parts, " || ")
+}
+
+func companySearchTerms(company database.CompanyProfile) []string {
+	values := []string{company.CanonicalName, company.InputName, company.ShortName}
+	values = append(values, company.Aliases...)
+	// Keep provider queries bounded. Full legal names rank first; very short
+	// brands are excluded from generic title searches because they explode the
+	// false-positive and quota cost.
+	candidates := compactPreservingCase(values, 0)
+	result := make([]string, 0, 4)
+	for index, candidate := range candidates {
+		length := len([]rune(normalizeEvidenceText(candidate)))
+		// Always allow the primary operator-supplied name as a discovery hint,
+		// including short Chinese brands such as 小米 or 腾讯. Short aliases are
+		// omitted; and the attribution scorer still refuses to treat a short
+		// title match as proof of ownership.
+		if length < 2 || (index > 0 && length < 4) {
+			continue
+		}
+		result = append(result, candidate)
+		if len(result) == 4 {
+			break
+		}
+	}
+	return result
+}
+
+func compactPreservingCase(values []string, max int) []string {
+	seen := make(map[string]struct{}, len(values))
+	result := make([]string, 0, len(values))
+	for _, item := range values {
+		item = strings.TrimSpace(item)
+		if item == "" {
+			continue
+		}
+		key := strings.ToLower(item)
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		result = append(result, item)
+		if max > 0 && len(result) >= max {
+			break
+		}
+	}
+	return result
+}
+
+func fofaDiscoveryQuery(scope discoveryScope) string {
+	clauses := make([]string, 0, len(scope.domains)+len(scope.names)*2)
+	for _, domain := range scope.domains {
+		clauses = append(clauses, fmt.Sprintf(`domain="%s"`, escapeQueryValue(domain)))
+	}
+	for _, name := range scope.names {
+		escaped := escapeQueryValue(name)
+		clauses = append(clauses, fmt.Sprintf(`cert.subject.org="%s"`, escaped), fmt.Sprintf(`title="%s"`, escaped))
+	}
+	return strings.Join(clauses, " || ")
+}
+
+func quakeDiscoveryQuery(scope discoveryScope) string {
+	clauses := make([]string, 0, len(scope.domains)+len(scope.names))
+	for _, domain := range scope.domains {
+		clauses = append(clauses, fmt.Sprintf(`domain:"%s"`, escapeQueryValue(domain)))
+	}
+	for _, name := range scope.names {
+		clauses = append(clauses, fmt.Sprintf(`service.http.title:"%s"`, escapeQueryValue(name)))
+	}
+	return strings.Join(clauses, " || ")
+}
+
+func hunterDiscoveryQuery(scope discoveryScope) string {
+	clauses := make([]string, 0, len(scope.domains)+len(scope.names))
+	for _, domain := range scope.domains {
+		clauses = append(clauses, fmt.Sprintf(`domain.suffix="%s"`, escapeQueryValue(domain)))
+	}
+	for _, name := range scope.names {
+		clauses = append(clauses, fmt.Sprintf(`web.title="%s"`, escapeQueryValue(name)))
+	}
+	return strings.Join(clauses, " || ")
+}
+
+func escapeQueryValue(value string) string {
+	value = strings.ReplaceAll(value, `\`, `\\`)
+	return strings.ReplaceAll(value, `"`, `\"`)
 }
 
 func normalizeHost(input string) string {

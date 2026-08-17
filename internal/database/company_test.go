@@ -37,6 +37,10 @@ func TestCompanyIntakeConfirmAndAuthorizeClosedLoop(t *testing.T) {
 	assert.Equal(t, CompanyVerificationConfirmed, confirmed.Profile.VerificationStatus)
 	require.Len(t, confirmed.Domains, 1)
 	assert.Equal(t, CompanyAuthorizationApproved, confirmed.Domains[0].AuthorizationStatus)
+	assert.Equal(t, CompanyOwnershipConfirmed, confirmed.Domains[0].OwnershipStatus)
+	assert.Equal(t, "confirmed", confirmed.Domains[0].Relation)
+	assert.Equal(t, 100, confirmed.Domains[0].Confidence)
+	assert.Equal(t, "操作员已确认该根域属于公司授权范围", confirmed.Domains[0].Evidence)
 
 	workspace := new(Workspace)
 	require.NoError(t, db.NewSelect().Model(workspace).Where("name = ?", "acme.example").Scan(ctx))
@@ -47,7 +51,7 @@ func TestCompanyIntakeConfirmAndAuthorizeClosedLoop(t *testing.T) {
 	assert.Equal(t, confirmed.Profile.OrgUUID, asset.OrgUUID)
 
 	stored, err := UpsertCompanyAssetCandidates(ctx, []CompanyAssetCandidate{
-		{CompanyUUID: draft.Profile.UUID, Domain: "portal.acme.example", Provider: "fofa", AssetValue: "https://portal.acme.example", URL: "https://portal.acme.example", AssetType: "url"},
+		{CompanyUUID: draft.Profile.UUID, Domain: "portal.acme.example", Provider: "fofa", AssetValue: "https://portal.acme.example", URL: "https://portal.acme.example", AssetType: "url", Confidence: 85, AttributionStatus: "strong", AttributionReasons: []string{"域名位于已授权根域范围内"}, MatchedRootDomain: "acme.example", InfrastructureType: "domain-associated-ip", AuthorizationEligible: true},
 		{CompanyUUID: draft.Profile.UUID, Domain: "unrelated.example", Provider: "fofa", AssetValue: "https://unrelated.example", URL: "https://unrelated.example", AssetType: "url"},
 	})
 	require.NoError(t, err)
@@ -59,6 +63,12 @@ func TestCompanyIntakeConfirmAndAuthorizeClosedLoop(t *testing.T) {
 	ids := map[string]int64{}
 	for _, candidate := range updated.Candidates {
 		ids[candidate.Domain] = candidate.ID
+		if candidate.Domain == "portal.acme.example" {
+			assert.Equal(t, "strong", candidate.AttributionStatus)
+			assert.Equal(t, []string{"域名位于已授权根域范围内"}, candidate.AttributionReasons)
+			assert.Equal(t, "acme.example", candidate.MatchedRootDomain)
+			assert.True(t, candidate.AuthorizationEligible)
+		}
 	}
 
 	imported, err := AuthorizeCompanyCandidates(ctx, draft.Profile.UUID, []int64{ids["portal.acme.example"]})

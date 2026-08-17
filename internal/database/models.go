@@ -348,23 +348,29 @@ type CompanyDomain struct {
 type CompanyAssetCandidate struct {
 	bun.BaseModel `bun:"table:company_asset_candidates,alias:cac"`
 
-	ID                  int64                  `bun:"id,pk,autoincrement" json:"id"`
-	CompanyUUID         string                 `bun:"company_uuid,notnull" json:"company_uuid"`
-	Domain              string                 `bun:"domain" json:"domain,omitempty"`
-	Provider            string                 `bun:"provider,notnull" json:"provider"`
-	AssetValue          string                 `bun:"asset_value,notnull" json:"asset_value"`
-	URL                 string                 `bun:"url" json:"url,omitempty"`
-	IP                  string                 `bun:"ip" json:"ip,omitempty"`
-	Port                int                    `bun:"port" json:"port,omitempty"`
-	Protocol            string                 `bun:"protocol" json:"protocol,omitempty"`
-	Title               string                 `bun:"title" json:"title,omitempty"`
-	AssetType           string                 `bun:"asset_type" json:"asset_type,omitempty"`
-	Confidence          int                    `bun:"confidence,notnull,default:0" json:"confidence"`
-	OwnershipStatus     string                 `bun:"ownership_status,notnull,default:'candidate'" json:"ownership_status"`
-	AuthorizationStatus string                 `bun:"authorization_status,notnull,default:'pending'" json:"authorization_status"`
-	RawData             map[string]interface{} `bun:"raw_data,type:json" json:"raw_data,omitempty"`
-	CreatedAt           time.Time              `bun:"created_at,notnull,default:current_timestamp" json:"created_at"`
-	UpdatedAt           time.Time              `bun:"updated_at,notnull,default:current_timestamp" json:"updated_at"`
+	ID                    int64                  `bun:"id,pk,autoincrement" json:"id"`
+	CompanyUUID           string                 `bun:"company_uuid,notnull" json:"company_uuid"`
+	Domain                string                 `bun:"domain" json:"domain,omitempty"`
+	Provider              string                 `bun:"provider,notnull" json:"provider"`
+	AssetValue            string                 `bun:"asset_value,notnull" json:"asset_value"`
+	URL                   string                 `bun:"url" json:"url,omitempty"`
+	IP                    string                 `bun:"ip" json:"ip,omitempty"`
+	Port                  int                    `bun:"port" json:"port,omitempty"`
+	Protocol              string                 `bun:"protocol" json:"protocol,omitempty"`
+	Title                 string                 `bun:"title" json:"title,omitempty"`
+	AssetType             string                 `bun:"asset_type" json:"asset_type,omitempty"`
+	Confidence            int                    `bun:"confidence,notnull,default:0" json:"confidence"`
+	AttributionStatus     string                 `bun:"attribution_status,notnull,default:'unverified'" json:"attribution_status"`
+	AttributionReasons    []string               `bun:"attribution_reasons,type:json" json:"attribution_reasons,omitempty"`
+	MatchedRootDomain     string                 `bun:"matched_root_domain" json:"matched_root_domain,omitempty"`
+	InfrastructureType    string                 `bun:"infrastructure_type,notnull,default:'unknown'" json:"infrastructure_type"`
+	SharedInfrastructure  bool                   `bun:"shared_infrastructure,notnull,default:false" json:"shared_infrastructure"`
+	AuthorizationEligible bool                   `bun:"authorization_eligible,notnull,default:false" json:"authorization_eligible"`
+	OwnershipStatus       string                 `bun:"ownership_status,notnull,default:'candidate'" json:"ownership_status"`
+	AuthorizationStatus   string                 `bun:"authorization_status,notnull,default:'pending'" json:"authorization_status"`
+	RawData               map[string]interface{} `bun:"raw_data,type:json" json:"raw_data,omitempty"`
+	CreatedAt             time.Time              `bun:"created_at,notnull,default:current_timestamp" json:"created_at"`
+	UpdatedAt             time.Time              `bun:"updated_at,notnull,default:current_timestamp" json:"updated_at"`
 }
 
 // IsDefault reports whether this is the built-in default org, which cannot be

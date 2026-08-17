@@ -303,6 +303,9 @@ func Migrate(ctx context.Context) error {
 	if err := addOrgUUIDColumns(ctx); err != nil {
 		return err
 	}
+	if err := addCompanyCandidateAttributionColumns(ctx); err != nil {
+		return err
+	}
 
 	// Create indexes for Run table
 	if err := createRunIndexes(ctx); err != nil {
@@ -824,6 +827,17 @@ func addVulnerabilityReviewColumns(ctx context.Context) error {
 		"review_note TEXT DEFAULT ''",
 		"duplicate_of_id INTEGER DEFAULT 0",
 		"reviewed_at TIMESTAMP NULL",
+	})
+}
+
+func addCompanyCandidateAttributionColumns(ctx context.Context) error {
+	return addColumnsIfMissing(ctx, "company_asset_candidates", "company candidate attribution", []string{
+		"attribution_status TEXT NOT NULL DEFAULT 'unverified'",
+		"attribution_reasons TEXT DEFAULT '[]'",
+		"matched_root_domain TEXT DEFAULT ''",
+		"infrastructure_type TEXT NOT NULL DEFAULT 'unknown'",
+		"shared_infrastructure BOOLEAN NOT NULL DEFAULT FALSE",
+		"authorization_eligible BOOLEAN NOT NULL DEFAULT FALSE",
 	})
 }
 

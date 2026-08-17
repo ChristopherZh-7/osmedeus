@@ -211,6 +211,12 @@ func UpsertCompanyAssetCandidates(ctx context.Context, candidates []CompanyAsset
 		if candidate.AuthorizationStatus == "" {
 			candidate.AuthorizationStatus = CompanyAuthorizationPending
 		}
+		if candidate.AttributionStatus == "" {
+			candidate.AttributionStatus = "unverified"
+		}
+		if candidate.InfrastructureType == "" {
+			candidate.InfrastructureType = "unknown"
+		}
 		candidate.CreatedAt, candidate.UpdatedAt = now, now
 	}
 	res, err := db.NewInsert().Model(&candidates).
@@ -222,7 +228,13 @@ func UpsertCompanyAssetCandidates(ctx context.Context, candidates []CompanyAsset
 		Set("protocol = EXCLUDED.protocol").
 		Set("title = EXCLUDED.title").
 		Set("asset_type = EXCLUDED.asset_type").
-		Set("confidence = CASE WHEN EXCLUDED.confidence > confidence THEN EXCLUDED.confidence ELSE confidence END").
+		Set("confidence = EXCLUDED.confidence").
+		Set("attribution_status = EXCLUDED.attribution_status").
+		Set("attribution_reasons = EXCLUDED.attribution_reasons").
+		Set("matched_root_domain = EXCLUDED.matched_root_domain").
+		Set("infrastructure_type = EXCLUDED.infrastructure_type").
+		Set("shared_infrastructure = EXCLUDED.shared_infrastructure").
+		Set("authorization_eligible = EXCLUDED.authorization_eligible").
 		Set("raw_data = EXCLUDED.raw_data").
 		Set("updated_at = EXCLUDED.updated_at").
 		Exec(ctx)
@@ -287,15 +299,19 @@ func ConfirmCompany(ctx context.Context, companyUUID, canonicalName, workspacesR
 			if domain == nil {
 				domain = &CompanyDomain{CompanyUUID: companyUUID, Domain: domainName, Relation: "confirmed", Confidence: 100, Sources: []string{"operator"}, CreatedAt: now}
 			}
+			domain.Relation = "confirmed"
 			domain.OwnershipStatus = CompanyOwnershipConfirmed
 			domain.AuthorizationStatus = CompanyAuthorizationApproved
+			domain.Confidence = 100
+			domain.Sources = compactStrings(append(domain.Sources, "operator"))
+			domain.Evidence = "操作员已确认该根域属于公司授权范围"
 			domain.WorkspaceName = domainName
 			domain.UpdatedAt = now
 			if domain.ID == 0 {
 				if _, err := tx.NewInsert().Model(domain).Exec(ctx); err != nil {
 					return err
 				}
-			} else if _, err := tx.NewUpdate().Model(domain).Column("ownership_status", "authorization_status", "workspace_name", "updated_at").WherePK().Exec(ctx); err != nil {
+			} else if _, err := tx.NewUpdate().Model(domain).Column("relation", "ownership_status", "authorization_status", "confidence", "sources", "evidence", "workspace_name", "updated_at").WherePK().Exec(ctx); err != nil {
 				return err
 			}
 

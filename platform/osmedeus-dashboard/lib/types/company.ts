@@ -29,6 +29,7 @@ export interface CompanyDomain {
   authorization_status: string;
   confidence: number;
   sources?: string[];
+  evidence?: string;
   workspace_name?: string;
 }
 
@@ -45,6 +46,12 @@ export interface CompanyAssetCandidate {
   title?: string;
   asset_type?: string;
   confidence: number;
+  attribution_status: "strong" | "probable" | "weak" | "unverified" | string;
+  attribution_reasons?: string[];
+  matched_root_domain?: string;
+  infrastructure_type: string;
+  shared_infrastructure: boolean;
+  authorization_eligible: boolean;
   ownership_status: string;
   authorization_status: string;
 }
