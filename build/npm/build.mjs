@@ -347,6 +347,4 @@ console.log(`  ${NPM_NAME}@${baseVersion}  (main)`);
 for (const tag of stagedTags) {
   console.log(`  ${NPM_NAME}@${platformVersion(tag)}  (${tag})`);
 }
-console.log(
-  `\nVerify:  node ${path.join(OUT_DIR, BIN_NAME, "bin", `${BIN_NAME}.js`)} version`,
-);
+console.log("\nVerify after installing the main tarball and its matching platform tarball: golish version");
