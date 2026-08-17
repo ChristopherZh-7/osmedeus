@@ -56,12 +56,26 @@ curl -X POST http://localhost:8002/osm/api/companies/<company-uuid>/confirm \
   }'
 ```
 
-The response explicitly returns `scan_started: false`. Run the authorized
-workflow separately:
+The response explicitly returns `scan_started: false`. Start the grouped
+company workflow separately by passing the confirmed company UUID to the Runs
+API:
 
 ```bash
-osmedeus run -f company-recon-full -t acme.example --org 'Acme Technology Co., Ltd.'
+curl -X POST http://localhost:8002/osm/api/runs \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "flow": "company-recon",
+    "target": "<company-uuid>",
+    "concurrency": 2,
+    "params": {"profile": "standard"}
+  }'
 ```
+
+`company-recon` accepts `lite`, `standard`, or `extensive`. The API expands
+only `authorization_status=approved` root domains, starts one `domain-recon`
+run per domain/workspace, and attaches the company `org_uuid`, `company_uuid`,
+and a shared job ID to every child run. Pending domains and passive-provider
+candidates are never included.
 
 ## Authorize passive candidates
 

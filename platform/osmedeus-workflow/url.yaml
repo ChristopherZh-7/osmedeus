@@ -1,5 +1,6 @@
 kind: flow
 name: web-analysis
+hidden: true
 description: Single URL analysis - fingerprint, spider, scan, and discover
 tags: recon, url, standard
 help:

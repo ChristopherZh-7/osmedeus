@@ -20,10 +20,12 @@ import {
 } from "@/components/ui/select";
 import { fetchWorkflows } from "@/lib/api/workflows";
 import { fetchWorkspaces } from "@/lib/api/assets";
+import { fetchCompanies } from "@/lib/api/companies";
 import { createScan } from "@/lib/api/scans";
 import { uploadTargetsFile } from "@/lib/api/uploads";
 import type { Workflow } from "@/lib/types/workflow";
 import type { Workspace } from "@/lib/types/asset";
+import type { CompanyBundle } from "@/lib/types/company";
 import { toast } from "sonner";
 import {
   LoaderIcon,
@@ -58,7 +60,26 @@ import {
   ChevronsUpDownIcon,
   CheckIcon,
   SearchIcon,
+  Building2Icon,
 } from "lucide-react";
+
+const CORE_WORKFLOW_ORDER = [
+  "company-recon",
+  "domain-recon",
+  "network-recon",
+  "web-recon",
+  "code-recon",
+] as const;
+
+const CORE_WORKFLOW_COPY: Record<string, { label: string; description: string }> = {
+  "company-recon": { label: "公司全量收集", description: "按已确认公司展开所有已授权根域名" },
+  "domain-recon": { label: "域名信息收集", description: "子域名、存活探测、指纹、漏洞与端口" },
+  "network-recon": { label: "IP / CIDR 收集", description: "端口、服务、Web 资产与漏洞" },
+  "web-recon": { label: "网站深度分析", description: "单个 URL 的指纹、爬虫与漏洞分析" },
+  "code-recon": { label: "代码仓库分析", description: "仓库或本地源码的安全分析" },
+};
+
+const PROFILED_WORKFLOWS = new Set(["company-recon", "domain-recon", "network-recon", "web-recon"]);
 
 export default function NewScanPage() {
   const router = useRouter();
@@ -68,6 +89,7 @@ export default function NewScanPage() {
     scheduleParam === "1" || scheduleParam === "true" || scheduleParam === "yes";
   const [workflows, setWorkflows] = React.useState<Workflow[]>([]);
   const [workspaces, setWorkspaces] = React.useState<Workspace[]>([]);
+  const [companies, setCompanies] = React.useState<CompanyBundle[]>([]);
   const [isLoadingData, setIsLoadingData] = React.useState(true);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [advancedOpen, setAdvancedOpen] = React.useState(false);
@@ -76,6 +98,7 @@ export default function NewScanPage() {
 
   // Form state
   const [selectedWorkflow, setSelectedWorkflow] = React.useState("");
+  const [profile, setProfile] = React.useState<"lite" | "standard" | "extensive">("standard");
   const [selectedWorkspace, setSelectedWorkspace] = React.useState("");
   const [target, setTarget] = React.useState("");
   const [targetMode, setTargetMode] = React.useState<"single" | "multiple" | "file" | "empty">("single");
@@ -107,12 +130,21 @@ export default function NewScanPage() {
   React.useEffect(() => {
     const loadData = async () => {
       try {
-        const [workflowData, workspaceData] = await Promise.all([
+        const [workflowData, workspaceData, companyData] = await Promise.all([
           fetchWorkflows(),
           fetchWorkspaces(),
+          // Company intake is optional for every flow except company-recon. Keep
+          // the other four core flows usable when an older backend has no
+          // companies endpoint yet or that endpoint is temporarily unavailable.
+          fetchCompanies().catch(() => []),
         ]);
-        setWorkflows(workflowData);
+        const coreWorkflows = workflowData
+          .filter((workflow) => CORE_WORKFLOW_ORDER.includes(workflow.name as (typeof CORE_WORKFLOW_ORDER)[number]))
+          .sort((left, right) => CORE_WORKFLOW_ORDER.indexOf(left.name as (typeof CORE_WORKFLOW_ORDER)[number]) - CORE_WORKFLOW_ORDER.indexOf(right.name as (typeof CORE_WORKFLOW_ORDER)[number]));
+        setWorkflows(coreWorkflows);
         setWorkspaces(workspaceData);
+        setCompanies(companyData);
+        setSelectedWorkflow((current) => current || (coreWorkflows.some((workflow) => workflow.name === "domain-recon") ? "domain-recon" : coreWorkflows[0]?.name || ""));
       } catch (error) {
         console.error("Failed to load data:", error);
         toast.error("加载表单数据失败");
@@ -138,6 +170,20 @@ export default function NewScanPage() {
     return workflows.find((wf) => wf.name === selectedWorkflow) ?? null;
   }, [selectedWorkflow, workflows]);
 
+  const isCompanyWorkflow = selectedWorkflow === "company-recon";
+  const supportsProfile = PROFILED_WORKFLOWS.has(selectedWorkflow);
+  const confirmedCompanies = React.useMemo(
+    () => companies.filter((company) => company.profile.verification_status === "confirmed"),
+    [companies]
+  );
+
+  React.useEffect(() => {
+    if (!isCompanyWorkflow) return;
+    setTargetMode("single");
+    setSelectedWorkspace("");
+    setEnableSchedule(false);
+  }, [isCompanyWorkflow]);
+
   // Basic cron validation
   const validateCron = (cron: string): boolean => {
     if (!cron.trim()) {
@@ -160,6 +206,11 @@ export default function NewScanPage() {
 
     if (!selectedWorkflow) {
       toast.error("请选择工作流");
+      return;
+    }
+
+    if (isCompanyWorkflow && !confirmedCompanies.some((company) => company.profile.uuid === target)) {
+      toast.error("请选择一个已经确认并授权根域名的公司");
       return;
     }
 
@@ -233,6 +284,9 @@ export default function NewScanPage() {
           const v = p.value.trim();
           if (k && v) paramsObj[k] = v;
         });
+        if (supportsProfile) {
+          paramsObj.profile = profile;
+        }
         if (Object.keys(paramsObj).length > 0) {
           payload.params = paramsObj;
         }
@@ -284,7 +338,7 @@ export default function NewScanPage() {
         <CardHeader className="border-b pb-4">
           <CardTitle>扫描配置</CardTitle>
           <CardDescription className="pb-1">
-            选择工作流，配置目标和参数，并可按需设置计划任务
+            日常只保留 5 个核心入口；扫描强度在流程内选择，旧名称继续兼容但不再展示
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
@@ -316,8 +370,8 @@ export default function NewScanPage() {
                         <MousePointer2Icon className="size-4 text-muted-foreground" />
                         {selectedWorkflowMeta ? (
                           <span className="truncate">
-                            {selectedWorkflowMeta.name}{" "}
-                            <span className="text-xs text-muted-foreground">({selectedWorkflowMeta.kind})</span>
+                            {CORE_WORKFLOW_COPY[selectedWorkflowMeta.name]?.label || selectedWorkflowMeta.name}{" "}
+                            <span className="text-xs text-muted-foreground">· {selectedWorkflowMeta.name}</span>
                           </span>
                         ) : (
                           <span className="text-muted-foreground">选择工作流</span>
@@ -359,12 +413,12 @@ export default function NewScanPage() {
                                 </span>
                                 <div className="min-w-0 flex-1">
                                   <div className="truncate text-sm">
-                                    {wf.name}{" "}
-                                    <span className="text-xs text-muted-foreground">({wf.kind})</span>
+                                    {CORE_WORKFLOW_COPY[wf.name]?.label || wf.name}{" "}
+                                    <span className="text-xs text-muted-foreground">· {wf.name}</span>
                                   </div>
-                                  {wf.description ? (
+                                  {(CORE_WORKFLOW_COPY[wf.name]?.description || wf.description) ? (
                                     <div className="truncate text-xs text-muted-foreground">
-                                      {wf.description}
+                                      {CORE_WORKFLOW_COPY[wf.name]?.description || wf.description}
                                     </div>
                                   ) : null}
                                 </div>
@@ -388,7 +442,7 @@ export default function NewScanPage() {
 		          <TargetIcon className="size-4 text-muted-foreground" />
 		          目标模式
 		        </Label>
-		        <Select value={targetMode} onValueChange={(v) => setTargetMode(v as any)}>
+		        <Select value={targetMode} onValueChange={(v) => setTargetMode(v as any)} disabled={isCompanyWorkflow}>
 		          <SelectTrigger
 		            id="target_mode"
 		            className="flex-1 min-w-[220px] md:flex-none md:w-[220px] rounded-full"
@@ -426,6 +480,26 @@ export default function NewScanPage() {
               </div>
             </div>
 
+            {supportsProfile && (
+              <div className="grid gap-3 rounded-card border bg-muted/20 p-4 sm:grid-cols-[180px_1fr] sm:items-center">
+                <div>
+                  <Label htmlFor="scan-profile" className="flex items-center gap-2">
+                    <GaugeIcon className="size-4 text-muted-foreground" />
+                    扫描强度
+                  </Label>
+                  <p className="mt-1 text-xs text-muted-foreground">同一个流程，不再切换多个旧名称</p>
+                </div>
+                <Select value={profile} onValueChange={(value) => setProfile(value as "lite" | "standard" | "extensive")}>
+                  <SelectTrigger id="scan-profile"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="lite">快速 · 基础发现与指纹</SelectItem>
+                    <SelectItem value="standard">标准 · 日常完整收集</SelectItem>
+                    <SelectItem value="extensive">深度 · 全端口与深入漏洞检查</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             <div className="flex items-center gap-3 pt-2">
               <span className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground">
                 <TargetIcon className="size-4" />
@@ -437,16 +511,36 @@ export default function NewScanPage() {
             {/* Target Inputs */}
             {targetMode === "single" && (
               <div className="space-y-2">
-                <Input
-                  id="target"
-                  type="text"
-                  aria-label="目标"
-                  placeholder="example.com"
-                  value={target}
-                  onChange={(e) => setTarget(e.target.value)}
-                  disabled={isLoadingData}
-                />
-                <p className="text-xs text-muted-foreground">要扫描的域名或 IP 地址</p>
+                {isCompanyWorkflow ? (
+                  <>
+                    <Label htmlFor="company-target" className="flex items-center gap-2"><Building2Icon className="size-4 text-muted-foreground" />已确认公司</Label>
+                    <Select value={target} onValueChange={setTarget}>
+                      <SelectTrigger id="company-target"><SelectValue placeholder="选择公司" /></SelectTrigger>
+                      <SelectContent>
+                        {confirmedCompanies.map((company) => (
+                          <SelectItem key={company.profile.uuid} value={company.profile.uuid}>
+                            {company.profile.canonical_name} · {company.domains.filter((domain) => domain.authorization_status === "approved").length} 个授权根域
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">系统只展开人工批准的根域名，每个根域进入自己的工作区，并统一归属该公司组织。</p>
+                    {confirmedCompanies.length === 0 && <p className="text-xs text-warning">暂无可扫描公司，请先在“组织 → 按公司录入”中完成公司确认和根域授权。</p>}
+                  </>
+                ) : (
+                  <>
+                    <Input
+                      id="target"
+                      type="text"
+                      aria-label="目标"
+                      placeholder={selectedWorkflow === "network-recon" ? "192.0.2.10 或 192.0.2.0/28" : selectedWorkflow === "web-recon" ? "https://example.com" : selectedWorkflow === "code-recon" ? "仓库 URL 或本地路径" : "example.com"}
+                      value={target}
+                      onChange={(e) => setTarget(e.target.value)}
+                      disabled={isLoadingData}
+                    />
+                    <p className="text-xs text-muted-foreground">填写当前核心流程对应的目标</p>
+                  </>
+                )}
               </div>
             )}
             {targetMode === "multiple" && (
@@ -979,9 +1073,11 @@ export default function NewScanPage() {
                     id="schedule"
                     checked={enableSchedule}
                     onCheckedChange={setEnableSchedule}
+                    disabled={isCompanyWorkflow}
                     className="data-[state=checked]:bg-info data-[state=unchecked]:bg-info-soft [&_[data-slot=switch-thumb]]:!bg-white"
                   />
                 </div>
+                {isCompanyWorkflow && <p className="text-xs text-muted-foreground">公司范围可能随人工授权变化，当前仅支持手动启动；普通域名、网络、网站和代码流程仍可创建计划任务。</p>}
 
                 <div className="flex gap-3">
                   <Button

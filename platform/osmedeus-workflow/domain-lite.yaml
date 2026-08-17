@@ -1,5 +1,6 @@
 kind: flow
 name: domain-lite
+hidden: true
 description: Quick recon - subdomain discovery and HTTP fingerprinting only
 tags: recon, domain, lite
 help:

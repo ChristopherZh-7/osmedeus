@@ -1,5 +1,6 @@
 kind: flow
 name: sast
+hidden: true
 description: Analyze a single URL by fingerprinting, crawling, scanning, and discovering
 tags: recon, sast, standard
 help:

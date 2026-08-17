@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -169,6 +170,61 @@ func collectTargetsFromRequest(req *CreateRunRequest) ([]string, error) {
 
 	// Deduplicate and filter empty entries
 	return deduplicateTargets(allTargets), nil
+}
+
+var profiledCoreFlows = map[string]struct{}{
+	"company-recon": {},
+	"domain-recon":  {},
+	"network-recon": {},
+	"web-recon":     {},
+}
+
+// normalizeCoreProfile gives the consolidated workflows one stable intensity
+// parameter instead of requiring callers to know the legacy workflow aliases.
+func normalizeCoreProfile(workflowName string, params map[string]string) error {
+	if _, ok := profiledCoreFlows[workflowName]; !ok {
+		return nil
+	}
+	profile := strings.ToLower(strings.TrimSpace(params["profile"]))
+	if profile == "" {
+		profile = "standard"
+	}
+	switch profile {
+	case "lite", "standard", "extensive":
+		params["profile"] = profile
+		return nil
+	default:
+		return fmt.Errorf("invalid profile %q: must be lite, standard, or extensive", profile)
+	}
+}
+
+// resolveCompanyReconTargets expands one confirmed company identity into only
+// the root domains an operator explicitly approved. Candidate domains and
+// passive-provider results are never scanned by this path.
+func resolveCompanyReconTargets(ctx context.Context, companyUUID string) ([]string, string, error) {
+	bundle, err := database.GetCompanyBundle(ctx, strings.TrimSpace(companyUUID))
+	if err != nil {
+		return nil, "", err
+	}
+	if bundle.Profile.VerificationStatus != database.CompanyVerificationConfirmed {
+		return nil, "", fmt.Errorf("company %s must be confirmed before scanning", bundle.Profile.CanonicalName)
+	}
+	if strings.TrimSpace(bundle.Profile.OrgUUID) == "" {
+		return nil, "", fmt.Errorf("confirmed company %s has no organization", bundle.Profile.CanonicalName)
+	}
+
+	targets := make([]string, 0, len(bundle.Domains))
+	for _, domain := range bundle.Domains {
+		if domain.AuthorizationStatus != database.CompanyAuthorizationApproved {
+			continue
+		}
+		targets = append(targets, domain.Domain)
+	}
+	targets = deduplicateTargets(targets)
+	if len(targets) == 0 {
+		return nil, "", fmt.Errorf("company %s has no authorized root domains", bundle.Profile.CanonicalName)
+	}
+	return targets, bundle.Profile.OrgUUID, nil
 }
 
 // executeRunsConcurrently runs workflows for multiple targets with concurrency control
@@ -344,10 +400,50 @@ func CreateRun(cfg *config.Config, master *distributed.Master) fiber.Handler {
 			})
 		}
 
+		requestedWorkflowName := workflowName
+		companyExpanded := false
+
 		// Initialize params
 		params := req.Params
 		if params == nil {
 			params = make(map[string]string)
+		}
+		if err := normalizeCoreProfile(requestedWorkflowName, params); err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": true, "message": err.Error(),
+			})
+		}
+
+		// company-recon is a grouped API orchestration entry. Its target is the
+		// confirmed company UUID; execution fans out to domain-recon, one run per
+		// approved root domain/workspace, all carrying the company's org UUID.
+		if requestedWorkflowName == "company-recon" {
+			if len(targets) != 1 {
+				return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+					"error": true, "message": "company-recon requires exactly one confirmed company UUID",
+				})
+			}
+			companyUUID := targets[0]
+			expandedTargets, orgUUID, resolveErr := resolveCompanyReconTargets(c.UserContext(), companyUUID)
+			if resolveErr != nil {
+				status := fiber.StatusConflict
+				if errors.Is(resolveErr, database.ErrCompanyNotFound) {
+					status = fiber.StatusNotFound
+				}
+				return c.Status(status).JSON(fiber.Map{"error": true, "message": resolveErr.Error()})
+			}
+			domainWorkflow, loadErr := loader.LoadWorkflow("domain-recon")
+			if loadErr != nil {
+				return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+					"error": true, "message": "domain-recon workflow is unavailable",
+				})
+			}
+			targets = expandedTargets
+			params["company_uuid"] = companyUUID
+			params["org_uuid"] = orgUUID
+			workflow = domainWorkflow
+			isFlow = true
+			companyExpanded = true
 		}
 
 		// Set default priority if not specified
@@ -452,7 +548,11 @@ func CreateRun(cfg *config.Config, master *distributed.Master) fiber.Handler {
 		// Set concurrency default
 		concurrency := req.Concurrency
 		if concurrency <= 0 {
-			concurrency = 1
+			if companyExpanded {
+				concurrency = 2
+			} else {
+				concurrency = 1
+			}
 		}
 
 		cfgCopy := config.Get()
@@ -772,15 +872,16 @@ func CreateRun(cfg *config.Config, master *distributed.Master) fiber.Handler {
 
 		// Build response
 		response := fiber.Map{
-			"message":      "Run started",
-			"workflow":     workflow.Name,
-			"kind":         workflow.Kind,
-			"target_count": len(targets),
-			"priority":     priority,
-			"run_mode":     runMode,
-			"job_id":       jobID,
-			"status":       "queued",
-			"poll_url":     fmt.Sprintf("/osm/api/jobs/%s", jobID),
+			"message":            "Run started",
+			"workflow":           requestedWorkflowName,
+			"execution_workflow": workflow.Name,
+			"kind":               workflow.Kind,
+			"target_count":       len(targets),
+			"priority":           priority,
+			"run_mode":           runMode,
+			"job_id":             jobID,
+			"status":             "queued",
+			"poll_url":           fmt.Sprintf("/osm/api/jobs/%s", jobID),
 		}
 
 		// For single target, include target field and run_uuid for backward compatibility

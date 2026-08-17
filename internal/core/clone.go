@@ -10,6 +10,7 @@ func (w *Workflow) Clone() *Workflow {
 		Kind:         w.Kind,
 		Name:         w.Name,
 		Description:  w.Description,
+		Hidden:       w.Hidden,
 		Runner:       w.Runner,
 		FilePath:     w.FilePath,
 		Checksum:     w.Checksum,

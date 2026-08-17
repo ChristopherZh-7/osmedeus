@@ -6,6 +6,7 @@ import {
   confirmCompany,
   discoverCompany,
   intakeCompany,
+  startCompanyRecon,
 } from "@/lib/api/companies";
 import type { CompanyBundle, CompanyProviderReport } from "@/lib/types/company";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +15,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Building2Icon, CheckCircle2Icon, DatabaseZapIcon, LoaderIcon, ShieldCheckIcon } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Building2Icon, CheckCircle2Icon, DatabaseZapIcon, LoaderIcon, PlayIcon, ShieldCheckIcon } from "lucide-react";
 import { toast } from "sonner";
 
 interface CompanyIntakeDialogProps {
@@ -35,7 +37,8 @@ export function CompanyIntakeDialog({ open, onOpenChange, onCompleted, initialBu
   const [selectedDomains, setSelectedDomains] = React.useState<string[]>([]);
   const [reports, setReports] = React.useState<CompanyProviderReport[]>([]);
   const [selectedCandidates, setSelectedCandidates] = React.useState<number[]>([]);
-  const [busy, setBusy] = React.useState<"intake" | "discover" | "confirm" | "import" | null>(null);
+  const [scanProfile, setScanProfile] = React.useState<"lite" | "standard" | "extensive">("standard");
+  const [busy, setBusy] = React.useState<"intake" | "discover" | "confirm" | "import" | "scan" | null>(null);
 
   const reset = React.useCallback(() => {
     setBundle(null);
@@ -48,6 +51,7 @@ export function CompanyIntakeDialog({ open, onOpenChange, onCompleted, initialBu
     setSelectedDomains([]);
     setReports([]);
     setSelectedCandidates([]);
+    setScanProfile("standard");
     setBusy(null);
   }, []);
 
@@ -144,6 +148,20 @@ export function CompanyIntakeDialog({ open, onOpenChange, onCompleted, initialBu
     }
   };
 
+  const handleScan = async () => {
+    if (!bundle || bundle.profile.verification_status !== "confirmed") return;
+    setBusy("scan");
+    try {
+      const result = await startCompanyRecon(bundle.profile.uuid, scanProfile);
+      toast.success(`已启动 ${result.target_count} 个授权根域扫描`, { description: `任务组 ${result.job_id} · ${scanProfile}` });
+      onOpenChange(false);
+    } catch (error) {
+      toast.error(cleanError(error, "启动公司收集失败"));
+    } finally {
+      setBusy(null);
+    }
+  };
+
   const confirmed = bundle?.profile.verification_status === "confirmed";
   const pendingCandidates = (bundle?.candidates || []).filter((candidate) => candidate.authorization_status !== "approved");
 
@@ -202,7 +220,20 @@ export function CompanyIntakeDialog({ open, onOpenChange, onCompleted, initialBu
               </section>
             ) : null}
 
-            {confirmed ? <div className="flex items-start gap-2 rounded-control border border-success/30 bg-success-soft p-3 text-sm text-success"><CheckCircle2Icon className="mt-0.5 size-4 shrink-0" /><span>组织与授权工作区已经建立。扫描需在运行页面手动选择 <code>company-recon-full</code> 启动。</span></div> : null}
+            {confirmed ? <div className="space-y-3 rounded-control border border-success/30 bg-success-soft p-3">
+              <div className="flex items-start gap-2 text-sm text-success"><CheckCircle2Icon className="mt-0.5 size-4 shrink-0" /><span>组织与授权工作区已经建立。公司流程只会扫描上方标记为“已授权”的根域名。</span></div>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Select value={scanProfile} onValueChange={(value) => setScanProfile(value as "lite" | "standard" | "extensive")}>
+                  <SelectTrigger className="bg-background sm:flex-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="lite">快速收集</SelectItem>
+                    <SelectItem value="standard">标准收集</SelectItem>
+                    <SelectItem value="extensive">深度收集</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button onClick={() => void handleScan()} disabled={busy !== null}>{busy === "scan" ? <LoaderIcon className="size-4 animate-spin" /> : <PlayIcon className="size-4" />}启动公司收集</Button>
+              </div>
+            </div> : null}
           </div>
         )}
 

@@ -3,6 +3,7 @@
 # only after a root domain has been authorized and a workspace has been created.
 kind: flow
 name: company-recon-full
+hidden: true
 description: Full reconnaissance for one operator-authorized company root domain
 tags: recon, company, authorized, full
 extends: domain-standard

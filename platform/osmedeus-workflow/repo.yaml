@@ -1,5 +1,6 @@
 kind: flow
 name: repo
+hidden: true
 description: Alias for sast workflow
 extends: sast
 tags: recon, url, standard

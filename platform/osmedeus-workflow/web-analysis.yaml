@@ -1,5 +1,6 @@
 kind: flow
 name: web-analysis
+hidden: true
 description: Alias for url workflow
 extends: url
 tags: recon, url, standard

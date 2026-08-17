@@ -1,5 +1,6 @@
 kind: flow
 name: domain-extensive
+hidden: true
 description: Exhaustive recon - full port range with DNS bruteforce and permutations
 tags: recon, domain, extensive
 extends: domain-standard

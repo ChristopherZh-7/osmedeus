@@ -1,4 +1,56 @@
 export const MOCK_WORKFLOW_YAMLS: Record<string, string> = {
+  "company-recon": `kind: flow
+name: company-recon
+description: Confirmed company reconnaissance across every operator-authorized root domain
+tags: core, recon, company, authorized
+extends: domain-recon
+params:
+  - name: profile
+    default: standard
+`,
+  "domain-recon": `kind: flow
+name: domain-recon
+description: Unified domain reconnaissance with lite, standard, and extensive profiles
+tags: core, recon, domain
+params:
+  - name: profile
+    default: standard
+modules:
+  - name: enum-subdomain
+  - name: recon-http-fp
+  - name: scan-vuln
+`,
+  "network-recon": `kind: flow
+name: network-recon
+description: Unified IP and CIDR reconnaissance with lite, standard, and extensive profiles
+tags: core, recon, network, cidr
+params:
+  - name: profile
+    default: standard
+modules:
+  - name: probe-port
+  - name: recon-spider
+  - name: scan-vuln
+`,
+  "web-recon": `kind: flow
+name: web-recon
+description: Unified URL analysis with lite, standard, and extensive profiles
+tags: core, recon, web, url
+params:
+  - name: profile
+    default: standard
+modules:
+  - name: recon-http-fp
+  - name: recon-spider
+  - name: scan-vuln
+`,
+  "code-recon": `kind: flow
+name: code-recon
+description: Repository and source-code security analysis
+tags: core, recon, code, sast
+modules:
+  - name: scan-repository
+`,
   "test-complex-docker-workflow": `name: test-complex-docker-workflow
 kind: module
 description: Complex workflow demonstrating bash, function steps with docker step_runner

@@ -69,6 +69,30 @@ func TestCompanyAPIClosedLoop(t *testing.T) {
 	assetCount, err := database.GetDB().NewSelect().Model((*database.Asset)(nil)).Where("org_uuid = ?", confirmedProfile["org_uuid"]).Count(context.Background())
 	require.NoError(t, err)
 	assert.Equal(t, 2, assetCount)
+
+	// The grouped company workflow may expand only the roots an operator
+	// explicitly approved; a newly discovered candidate must stay out.
+	require.NoError(t, database.UpsertCompanyDomain(context.Background(), &database.CompanyDomain{
+		CompanyUUID: uuid, Domain: "candidate.example", Relation: "provider-candidate",
+		OwnershipStatus: database.CompanyOwnershipCandidate, AuthorizationStatus: database.CompanyAuthorizationPending,
+	}))
+	targets, orgUUID, err := resolveCompanyReconTargets(context.Background(), uuid)
+	require.NoError(t, err)
+	assert.ElementsMatch(t, []string{"acme.com", "acme.cn"}, targets)
+	assert.Equal(t, confirmedProfile["org_uuid"], orgUUID)
+}
+
+func TestNormalizeCoreProfile(t *testing.T) {
+	params := map[string]string{}
+	require.NoError(t, normalizeCoreProfile("domain-recon", params))
+	assert.Equal(t, "standard", params["profile"])
+
+	params = map[string]string{"profile": " EXTENSIVE "}
+	require.NoError(t, normalizeCoreProfile("company-recon", params))
+	assert.Equal(t, "extensive", params["profile"])
+
+	assert.Error(t, normalizeCoreProfile("network-recon", map[string]string{"profile": "maximum"}))
+	assert.NoError(t, normalizeCoreProfile("legacy-custom-flow", map[string]string{"profile": "maximum"}))
 }
 
 func TestLooksLikeLegalCompanyName(t *testing.T) {

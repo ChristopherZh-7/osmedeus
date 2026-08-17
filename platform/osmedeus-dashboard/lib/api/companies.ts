@@ -49,3 +49,13 @@ export async function authorizeCompanyCandidates(uuid: string, candidateIds: num
   const response = await http.post(`${API_PREFIX}/companies/${encodeURIComponent(uuid)}/candidates/authorize`, { candidate_ids: candidateIds });
   return response.data as { data: CompanyBundle; imported: number; scan_started: boolean };
 }
+
+export async function startCompanyRecon(uuid: string, profile: "lite" | "standard" | "extensive" = "standard"): Promise<{ job_id: string; target_count: number; targets: string[]; workflow: string; execution_workflow: string }> {
+  const response = await http.post(`${API_PREFIX}/runs`, {
+    flow: "company-recon",
+    target: uuid,
+    concurrency: 2,
+    params: { profile },
+  });
+  return response.data as { job_id: string; target_count: number; targets: string[]; workflow: string; execution_workflow: string };
+}

@@ -217,6 +217,11 @@ func (r *InheritanceResolver) merge(parent, child *core.Workflow) (*core.Workflo
 	merged.FilePath = child.FilePath
 	merged.Checksum = child.Checksum
 	merged.Extends = "" // Clear extends to prevent re-resolution
+	// Hidden is an opt-in compatibility marker. A child alias that marks itself
+	// hidden must remain hidden after inheriting the parent's implementation.
+	if child.Hidden {
+		merged.Hidden = true
+	}
 
 	// Apply child's description if set
 	if child.Description != "" {

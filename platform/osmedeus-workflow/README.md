@@ -27,16 +27,12 @@ For additional workflow examples and patterns, see the [test workflows](https://
 ├── common/              # Reusable module workflows
 ├── events/              # Event-driven workflows
 ├── fragments/           # Fragments used by workflows
-├── cidr.yaml            # CIDR/IP range workflow
-├── cidr-extensive.yaml  # Extended CIDR workflow
-├── domain-lite.yaml     # Lightweight domain recon
-├── domain-standard.yaml # Standard domain recon
-├── domain-extensive.yaml# Extended domain recon
-├── general.yaml         # Full reconnaissance flow
-├── repo.yaml            # Repository scanning flow
-├── sast.yaml            # SAST scanning flow
-├── url.yaml             # URL-based recon flow
-└── web-analysis.yaml    # Web analysis flow
+├── company-recon.yaml   # Confirmed company entry (API expands approved roots)
+├── domain-recon.yaml    # Domain recon: lite / standard / extensive
+├── network-recon.yaml   # IP/CIDR recon: lite / standard / extensive
+├── web-recon.yaml       # URL analysis: lite / standard / extensive
+├── code-recon.yaml      # Repository and source-code analysis
+└── *.yaml               # Hidden compatibility aliases for older commands
 ```
 
 ## Reconnaissance Methodology
@@ -83,17 +79,17 @@ The workflow follows a phased approach to reconnaissance:
 
 | Workflow | Description |
 |----------|-------------|
-| `general.yaml` | Full reconnaissance pipeline with all phases |
-| `domain-lite.yaml` | Lightweight domain reconnaissance |
-| `domain-standard.yaml` | Standard domain reconnaissance |
-| `company-recon-full.yaml` | Full recon for one company root domain after operator authorization |
-| `domain-extensive.yaml` | Extended domain reconnaissance |
-| `cidr.yaml` | CIDR/IP range reconnaissance |
-| `cidr-extensive.yaml` | Extended CIDR reconnaissance with additional phases |
-| `url.yaml` | URL-based reconnaissance workflow |
-| `web-analysis.yaml` | Web application analysis workflow |
-| `repo.yaml` | Source repository scanning workflow |
-| `sast.yaml` | Static application security testing workflow |
+| `company-recon.yaml` | API entry for every approved root domain of one confirmed company |
+| `domain-recon.yaml` | Unified domain reconnaissance (`profile=lite|standard|extensive`) |
+| `network-recon.yaml` | Unified IP/CIDR reconnaissance (`profile=lite|standard|extensive`) |
+| `web-recon.yaml` | Unified URL analysis (`profile=lite|standard|extensive`) |
+| `code-recon.yaml` | Source repository and local source-code analysis |
+
+The previous names (`fast`, `general`, `domain-lite`, `domain-standard`,
+`domain-extensive`, `cidr`, `cidr-extensive`, `url`, `web-analysis`, `repo`,
+`sast`, `company-recon-full`, and `domain-list-recon`) remain loadable as
+hidden compatibility workflows. New UI/API integrations should use the five
+core names above.
 
 ### Module Workflows (common/)
 
@@ -138,11 +134,12 @@ The workflow follows a phased approach to reconnaissance:
 ## Usage
 
 ```bash
-# Run the general reconnaissance flow
-osmedeus run -f general -t example.com
+# Run the standard domain reconnaissance profile
+osmedeus run -f domain-recon -t example.com
 
-# Run the fast reconnaissance flow
-osmedeus run -f fast -t example.com
+# Run the quick or extensive profile without changing the workflow name
+osmedeus run -f domain-recon -t example.com -p profile=lite
+osmedeus run -f domain-recon -t example.com -p profile=extensive
 
 # Run a specific module
 osmedeus run -m subdomain-enum -t example.com

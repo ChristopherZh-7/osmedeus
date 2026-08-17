@@ -1,0 +1,17 @@
+kind: flow
+name: code-recon
+description: Repository and source-code security analysis
+tags: core, recon, code, sast
+help:
+  example_targets: ['https://github.com/user/repo', '/path/to/source']
+  usage: osmedeus run -f code-recon -t https://github.com/user/repo
+
+dependencies:
+  variables:
+    - name: Target
+      type: string
+      required: true
+
+modules:
+  - name: scan-repository
+    path: fragments/do-scan-repo.yaml

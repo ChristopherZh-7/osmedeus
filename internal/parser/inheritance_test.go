@@ -32,6 +32,16 @@ func TestInheritanceResolver_SimpleExtends(t *testing.T) {
 	assert.Equal(t, "step-three", workflow.Steps[2].Name)
 }
 
+func TestInheritanceResolver_ChildCanHideCompatibilityAlias(t *testing.T) {
+	resolver := NewInheritanceResolver(NewLoader(testWorkflowsDir))
+	parent := &core.Workflow{Kind: core.KindFlow, Name: "core-flow", Hidden: false}
+	child := &core.Workflow{Kind: core.KindFlow, Name: "legacy-alias", Extends: "core-flow", Hidden: true}
+
+	workflow, err := resolver.merge(parent, child)
+	require.NoError(t, err)
+	assert.True(t, workflow.Hidden)
+}
+
 func TestInheritanceResolver_ParamOverride(t *testing.T) {
 	loader := NewLoader(testWorkflowsDir)
 
@@ -284,6 +294,7 @@ func TestClone_Workflow(t *testing.T) {
 		Kind:        core.KindModule,
 		Name:        "test-workflow",
 		Description: "Test workflow",
+		Hidden:      true,
 		Tags:        core.TagList{"tag1", "tag2"},
 		Params: []core.Param{
 			{Name: "param1", Default: "value1"},
@@ -307,6 +318,7 @@ func TestClone_Workflow(t *testing.T) {
 	// Verify values are copied
 	assert.Equal(t, original.Name, cloned.Name)
 	assert.Equal(t, original.Description, cloned.Description)
+	assert.True(t, cloned.Hidden)
 	assert.Equal(t, len(original.Tags), len(cloned.Tags))
 	assert.Equal(t, len(original.Params), len(cloned.Params))
 	assert.Equal(t, len(original.Steps), len(cloned.Steps))

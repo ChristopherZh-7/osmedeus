@@ -1,5 +1,6 @@
 kind: flow
 name: cidr
+hidden: true
 description: IP/CIDR recon - port scan, spider, vuln scan, and content discovery
 tags: recon, cidr, standard
 help:

@@ -1,0 +1,92 @@
+kind: flow
+name: domain-recon
+description: Unified domain reconnaissance with lite, standard, and extensive profiles
+tags: core, recon, domain
+help:
+  example_targets: ['example.com', 'hackerone.com']
+  usage: |
+    osmedeus run -f domain-recon -t example.com
+    osmedeus run -f domain-recon -t example.com -p 'profile=extensive'
+
+params:
+  - name: profile
+    type: string
+    default: standard
+
+dependencies:
+  variables:
+    - name: Target
+      type: domain
+      required: true
+
+modules:
+  - name: enum-subdomain
+    path: common/enum-subdomain.yaml
+
+  - name: probe-dns-regular
+    path: common/probe-dns.yaml
+    depends_on: [enum-subdomain]
+    condition: profile !== 'extensive'
+    params:
+      enableDnsBruteFocing: "false"
+      enablePermutation: "false"
+
+  - name: probe-dns-extensive
+    path: common/probe-dns.yaml
+    depends_on: [enum-subdomain]
+    condition: profile === 'extensive'
+    params:
+      enableDnsBruteFocing: "true"
+      enablePermutation: "true"
+
+  - name: recon-http-fp
+    path: common/recon-http-fp.yaml
+    depends_on: [probe-dns-regular, probe-dns-extensive]
+
+  - name: recon-screenshot
+    path: common/recon-screenshot.yaml
+    depends_on: [recon-http-fp]
+    condition: profile !== 'lite'
+
+  - name: recon-spider
+    path: common/recon-spider.yaml
+    depends_on: [recon-http-fp]
+    condition: profile !== 'lite'
+
+  - name: util-archive
+    path: common/util-archive.yaml
+    depends_on: [recon-http-fp]
+    condition: profile !== 'lite'
+
+  - name: enum-ipspace
+    path: common/enum-ipspace.yaml
+    depends_on: [recon-http-fp]
+    condition: profile !== 'lite'
+
+  - name: scan-vuln
+    path: common/scan-vuln.yaml
+    depends_on: [recon-http-fp]
+    condition: profile !== 'lite'
+
+  - name: probe-port-standard
+    path: common/probe-port.yaml
+    depends_on: [recon-http-fp]
+    condition: profile === 'standard'
+
+  - name: probe-port-extensive
+    path: common/probe-port.yaml
+    depends_on: [recon-http-fp]
+    condition: profile === 'extensive'
+    params:
+      commonHttpPorts: "1-65535"
+      commonHttpsPort: "1-65535"
+
+  - name: scan-content
+    path: common/scan-content.yaml
+    depends_on: [recon-http-fp]
+    condition: profile !== 'lite'
+
+  - name: scan-vuln-thorough
+    path: common/scan-vuln-thorough.yaml
+    depends_on: [recon-http-fp]
+    condition: profile === 'extensive'
